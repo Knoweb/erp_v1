@@ -15,6 +15,7 @@ import java.util.Arrays;
 @Configuration
 public class CorsConfig {
 
+    
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
