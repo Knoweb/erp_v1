@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment System Diagnostics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        h2 { color: #666; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #45a049; }
+        button.secondary { background: #2196F3; }
+        button.secondary:hover { background: #0b7dda; }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: #4CAF50; font-weight: bold; }
+        .error { color: #f44336; font-weight: bold; }
+        .warning { color: #ff9800; font-weight: bold; }
+        input, select {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Payment System Diagnostics</h1>
+    <p>Use this page to diagnose and test the payment system.</p>
+
+    <!-- Step 1: Token Setup -->
+    <div class="section">
+        <h2>Step 1: Token Setup</h2>
+        <p>Enter your authentication token (copy from localStorage in browser console):</p>
+        <input type="text" id="authToken" placeholder="Enter token or 'superadmin_token'" style="width: 400px;">
+        <button onclick="saveToken()">Save Token</button>
+        <p id="tokenStatus"></p>
+    </div>
+
+    <!-- Step 2: Check Database -->
+    <div class="section">
+        <h2>Step 2: Check Database Structure</h2>
+        <button onclick="checkTableInfo()">Check Table Info</button>
+        <div id="tableInfoResult"></div>
+    </div>
+
+    <!-- Step 3: Submit Test Payment -->
+    <div class="section">
+        <h2>Step 3: Submit Test Payment</h2>
+        <p>This will submit a test payment for the currently logged-in company.</p>
+        <label>Package Type:</label>
+        <select id="packageType">
+            <option value="ginum">Ginum</option>
+            <option value="pirisahr">PirisaHR</option>
+            <option value="inventory">Inventory</option>
+            <option value="allinone">All-in-One</option>
+        </select>
+        <label>Amount:</label>
+        <input type="number" id="amount" value="49" min="1">
+        <button onclick="submitTestPayment()">Submit Test Payment</button>
+        <div id="paymentResult"></div>
+    </div>
+
+    <!-- Step 4: Check All Payments -->
+    <div class="section">
+        <h2>Step 4: View All Payments</h2>
+        <button onclick="getAllPayments()">Get All Payments</button>
+        <button class="secondary" onclick="getPendingPayments()">Get Pending Payments Only</button>
+        <div id="allPaymentsResult"></div>
+    </div>
+
+    <!-- Step 5: Backend Logs -->
+    <div class="section">
+        <h2>Step 5: Backend Console Instructions</h2>
+        <p>Check the backend console (terminal where Spring Boot is running) for these log messages:</p>
+        <ul>
+            <li><strong>When submitting payment:</strong> Look for "=== SUBMITTING PAYMENT ===" with company ID and package type</li>
+            <li><strong>After submission:</strong> Look for "Payment submitted: receiptId=... companyId=... rowsAffected=1"</li>
+            <li><strong>When fetching pending:</strong> Look for "Executing query: SELECT * FROM payment_receipts WHERE status = 'pending'"</li>
+            <li><strong>Payment count:</strong> Look for "Found X pending payments"</li>
+        </ul>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('token') || '';
+        
+        function saveToken() {
+            token = document.getElementById('authToken').value;
+            localStorage.setItem('token', token);
+            document.getElementById('tokenStatus').innerHTML = '<span class="success">✓ Token saved!</span>';
+        }
+
+        async function checkTableInfo() {
+            const resultDiv = document.getElementById('tableInfoResult');
+            resultDiv.innerHTML = '<p>Loading...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8082/api/superadmin/debug/table-info', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const info = data.tableInfo;
+                    let html = `<h3>Table Information</h3>`;
+                    html += `<p><strong>Table Exists:</strong> ${info.tableExists ? '<span class="success">✓ Yes</span>' : '<span class="error">✗ No</span>'}</p>`;
+                    
+                    if (info.tableExists) {
+                        html += `<p><strong>Total Records:</strong> ${info.rowCount}</p>`;
+                        html += `<p><strong>Pending Records:</strong> ${info.pendingCount}</p>`;
+                        
+                        html += `<h4>Columns:</h4><pre>${JSON.stringify(info.columns, null, 2)}</pre>`;
+                        
+                        if (info.sampleRecords && info.sampleRecords.length > 0) {
+                            html += `<h4>Sample Records:</h4><pre>${JSON.stringify(info.sampleRecords, null, 2)}</pre>`;
+                        } else {
+                            html += `<p class="warning">⚠ No records found in table</p>`;
+                        }
+                    }
+                    
+                    if (info.error) {
+                        html += `<p class="error">Error: ${info.error}</p>`;
+                    }
+                    
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<p class="error">Failed: ${data.message}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                console.error('Error:', error);
+            }
+        }
+
+        async function submitTestPayment() {
+            const resultDiv = document.getElementById('paymentResult');
+            resultDiv.innerHTML = '<p>Submitting payment...</p>';
+            
+            const packageType = document.getElementById('packageType').value;
+            const amount = document.getElementById('amount').value;
+            
+            // Generate test receipt
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 200;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, 400, 200);
+            ctx.fillStyle = 'black';
+            ctx.font = '16px Arial';
+            ctx.fillText('TEST RECEIPT', 150, 50);
+            ctx.fillText(`Package: ${packageType}`, 50, 100);
+            ctx.fillText(`Amount: $${amount}`, 50, 130);
+            ctx.fillText(`Date: ${new Date().toLocaleString()}`, 50, 160);
+            const receiptData = canvas.toDataURL('image/png');
+            
+            const payload = {
+                packageType: packageType,
+                amount: parseFloat(amount),
+                paymentMethod: 'Test Payment',
+                transactionId: 'TEST' + Date.now(),
+                subscriptionMonths: 12,
+                receiptData: receiptData
+            };
+            
+            console.log('Submitting payment:', payload);
+            
+            try {
+                const response = await fetch('http://localhost:8082/api/payments/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    let html = `<div class="success">✓ Payment submitted successfully!</div>`;
+                    html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    html += `<p><strong>Next:</strong> Check the backend console for log messages, then click "Get Pending Payments Only" below to verify it appears.</p>`;
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">✗ Payment submission failed</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                }
+                
+                console.log('Payment response:', data);
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                console.error('Error:', error);
+            }
+        }
+
+        async function getAllPayments() {
+            const resultDiv = document.getElementById('allPaymentsResult');
+            resultDiv.innerHTML = '<p>Loading all payments...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8082/api/superadmin/payments/all', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    let html = `<h3>All Payments (Total: ${data.count})</h3>`;
+                    
+                    if (data.receipts && data.receipts.length > 0) {
+                        html += '<table style="width:100%; border-collapse: collapse;"><thead><tr style="background:#f0f0f0;">';
+                        html += '<th style="padding:8px; border:1px solid #ddd;">Receipt ID</th>';
+                        html += '<th style="padding:8px; border:1px solid #ddd;">Company ID</th>';
+                        html += '<th style="padding:8px; border:1px solid #ddd;">Package</th>';
+                        html += '<th style="padding:8px; border:1px solid #ddd;">Amount</th>';
+                        html += '<th style="padding:8px; border:1px solid #ddd;">Status</th>';
+                        html += '<th style="padding:8px; border:1px solid #ddd;">Date</th></tr></thead><tbody>';
+                        
+                        data.receipts.forEach(receipt => {
+                            const statusClass = `status-${receipt.status}`;
+                            html += '<tr>';
+                            html += `<td style="padding:8px; border:1px solid #ddd;">${receipt.id.substring(0, 8)}...</td>`;
+                            html += `<td style="padding:8px; border:1px solid #ddd;">${receipt.companyId}</td>`;
+                            html += `<td style="padding:8px; border:1px solid #ddd;">${receipt.packageType}</td>`;
+                            html += `<td style="padding:8px; border:1px solid #ddd;">$${receipt.amount}</td>`;
+                            html += `<td style="padding:8px; border:1px solid #ddd;"><span class="status-badge ${statusClass}">${receipt.status}</span></td>`;
+                            html += `<td style="padding:8px; border:1px solid #ddd;">${new Date(receipt.paymentDate).toLocaleString()}</td>`;
+                            html += '</tr>';
+                        });
+                        html += '</tbody></table>';
+                    } else {
+                        html += '<p class="warning">⚠ No payments found in database</p>';
+                    }
+                    
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<p class="error">Failed: ${data.message}</p>`;
+                }
+                
+                console.log('All payments:', data);
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                console.error('Error:', error);
+            }
+        }
+
+        async function getPendingPayments() {
+            const resultDiv = document.getElementById('allPaymentsResult');
+            resultDiv.innerHTML = '<p>Loading pending payments...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8082/api/superadmin/payments/pending', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    let html = `<h3>Pending Payments (Total: ${data.receipts.length})</h3>`;
+                    
+                    if (data.receipts && data.receipts.length > 0) {
+                        html += '<table style="width:100%; border-collapse: collapse;"><thead><tr style="background:#f0f0f0;">';
+                        html += '<th style="padding:8px; border:1px solid #ddd;">Receipt ID</th>';
+                        html += '<th style="padding:8px; border:1px solid #ddd;">Company ID</th>';
+                        html += '<th style="padding:8px; border:1px solid #ddd;">Company Name</th>';
+                        html += '<th style="padding:8px; border:1px solid #ddd;">Package</th>';
+                        html += '<th style="padding:8px; border:1px solid #ddd;">Amount</th>';
+                        html += '<th style="padding:8px; border:1px solid #ddd;">Date</th></tr></thead><tbody>';
+                        
+                        data.receipts.forEach(receipt => {
+                            html += '<tr>';
+                            html += `<td style="padding:8px; border:1px solid #ddd;">${receipt.id.substring(0, 8)}...</td>`;
+                            html += `<td style="padding:8px; border:1px solid #ddd;">${receipt.companyId}</td>`;
+                            html += `<td style="padding:8px; border:1px solid #ddd;">${receipt.companyName}</td>`;
+                            html += `<td style="padding:8px; border:1px solid #ddd;">${receipt.packageType}</td>`;
+                            html += `<td style="padding:8px; border:1px solid #ddd;">$${receipt.amount}</td>`;
+                            html += `<td style="padding:8px; border:1px solid #ddd;">${new Date(receipt.paymentDate).toLocaleString()}</td>`;
+                            html += '</tr>';
+                        });
+                        html += '</tbody></table>';
+                    } else {
+                        html += '<p class="warning">⚠ No pending payments found</p>';
+                        html += '<p>This could mean:</p><ul>';
+                        html += '<li>No payments have been submitted yet</li>';
+                        html += '<li>Payments are being inserted with a different status</li>';
+                        html += '<li>There\'s an issue with the database query</li></ul>';
+                        html += '<p><strong>Action:</strong> Check the backend console logs and click "Get All Payments" to see if payments exist with a different status.</p>';
+                    }
+                    
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<p class="error">Failed: ${data.message}</p>`;
+                }
+                
+                console.log('Pending payments:', data);
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                console.error('Error:', error);
+            }
+        }
+
+        // Auto-fill token if available
+        window.onload = function() {
+            if (token) {
+                document.getElementById('authToken').value = token;
+                document.getElementById('tokenStatus').innerHTML = '<span class="success">✓ Token loaded from localStorage</span>';
+            }
+        };
+    </script>
+</body>
+</html>

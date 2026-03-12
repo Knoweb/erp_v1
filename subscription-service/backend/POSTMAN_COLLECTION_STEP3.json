@@ -1,0 +1,135 @@
+{
+  "info": {
+    "name": "Subscription Access API - Step 3",
+    "description": "API endpoints for fetching subscribed systems and access control",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8091/api/subscriptions/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8091",
+          "path": ["api", "subscriptions", "health"]
+        }
+      }
+    },
+    {
+      "name": "Get My Subscribed Systems - Org 100",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8091/api/subscriptions/my-systems/100",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8091",
+          "path": ["api", "subscriptions", "my-systems", "100"]
+        }
+      }
+    },
+    {
+      "name": "Get My Subscribed Systems - Org 200",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8091/api/subscriptions/my-systems/200",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8091",
+          "path": ["api", "subscriptions", "my-systems", "200"]
+        }
+      }
+    },
+    {
+      "name": "Get My Subscribed Systems - Multi-System Org 300",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8091/api/subscriptions/my-systems/300",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8091",
+          "path": ["api", "subscriptions", "my-systems", "300"]
+        }
+      }
+    },
+    {
+      "name": "Get My Subscribed Systems - Not Found (404)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8091/api/subscriptions/my-systems/999",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8091",
+          "path": ["api", "subscriptions", "my-systems", "999"]
+        }
+      }
+    },
+    {
+      "name": "Check System Access - Has GINUMA",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8091/api/subscriptions/my-systems/100/access/GINUMA",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8091",
+          "path": ["api", "subscriptions", "my-systems", "100", "access", "GINUMA"]
+        }
+      }
+    },
+    {
+      "name": "Check System Access - No INVENTORY",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8091/api/subscriptions/my-systems/100/access/INVENTORY",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8091",
+          "path": ["api", "subscriptions", "my-systems", "100", "access", "INVENTORY"]
+        }
+      }
+    },
+    {
+      "name": "Get Company Status - Active",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8091/api/subscriptions/my-systems/100/status",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8091",
+          "path": ["api", "subscriptions", "my-systems", "100", "status"]
+        }
+      }
+    },
+    {
+      "name": "Get Company Status - Blocked",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8091/api/subscriptions/my-systems/400/status",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8091",
+          "path": ["api", "subscriptions", "my-systems", "400", "status"]
+        }
+      }
+    }
+  ]
+}

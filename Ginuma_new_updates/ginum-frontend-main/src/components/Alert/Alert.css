@@ -1,0 +1,79 @@
+/* Popup container — compact */
+.swal-custom-popup {
+  border-radius: 14px !important;
+  padding: 1.2rem 1.5rem 1.5rem !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15) !important;
+  font-family: 'Inter', 'Segoe UI', sans-serif !important;
+  border: none !important;
+  min-width: 300px !important;
+  max-width: 360px !important;
+}
+
+/* Title */
+.swal-custom-title {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  padding-top: 0.25rem !important;
+  margin-bottom: 0.2rem !important;
+}
+
+/* Body text */
+.swal2-html-container {
+  color: #64748b !important;
+  font-size: 0.9rem !important;
+  margin: 0.3rem 0 0.8rem !important;
+  padding: 0 !important;
+}
+
+/* Icon — only adjust margin, don't change size (breaks checkmark) */
+.swal2-icon {
+  margin: 0 auto 0.5rem !important;
+}
+
+/* Buttons row */
+.swal2-actions {
+  margin-top: 0.5rem !important;
+  gap: 0.5rem !important;
+}
+
+/* Confirm button */
+.swal-custom-confirm {
+  border-radius: 8px !important;
+  padding: 0.55rem 1.6rem !important;
+  font-weight: 600 !important;
+  font-size: 0.88rem !important;
+  letter-spacing: 0.01em !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+}
+
+.swal-custom-confirm:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Cancel button */
+.swal-custom-cancel {
+  border-radius: 8px !important;
+  padding: 0.55rem 1.6rem !important;
+  font-weight: 600 !important;
+  font-size: 0.88rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.swal-custom-cancel:hover {
+  transform: translateY(-1px) !important;
+  opacity: 0.9 !important;
+}
+
+/* Timer progress bar */
+.swal-progress-success {
+  background: linear-gradient(90deg, #16a34a, #4ade80) !important;
+  height: 4px !important;
+}
+
+.swal2-timer-progress-bar-container {
+  border-radius: 0 0 14px 14px !important;
+  overflow: hidden !important;
+}
