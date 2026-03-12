@@ -28,6 +28,7 @@ public class AuthController {
         }
     }
 
+    
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
         try {
