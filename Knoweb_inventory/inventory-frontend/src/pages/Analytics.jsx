@@ -24,6 +24,7 @@ import {
 } from 'recharts';
 import { analyticsService, pharmacyService, auditService } from '../services/api';
 
+
 const Analytics = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [loading, setLoading] = useState(true);
