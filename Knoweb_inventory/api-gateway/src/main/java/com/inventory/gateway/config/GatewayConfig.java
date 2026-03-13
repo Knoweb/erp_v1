@@ -170,7 +170,7 @@ public class GatewayConfig {
 
                                 // Subscription Service
                                 .route("subscription-service", r -> r
-                                                .path("/api/subscriptions/**")
+                                                .path("/api/subscriptions/**", "/api/superadmin/**")
                                                 .filters(f -> f.filter(jwtAuthenticationFilter
                                                                 .apply(new JwtAuthenticationFilter.Config())))
                                                 .uri("lb://subscription-service"))

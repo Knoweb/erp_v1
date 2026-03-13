@@ -21,7 +21,7 @@ const SuperAdminLogin = ({ onLoginSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!credentials.username || !credentials.password) {
       setError('Please enter both username and password');
       return;
@@ -33,7 +33,7 @@ const SuperAdminLogin = ({ onLoginSuccess }) => {
 
       // Call login API
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/api/auth/login`,
+        `${import.meta.env.VITE_API_BASE_URL || ''}/api/auth/login`,
         {
           username: credentials.username,
           password: credentials.password,
@@ -50,7 +50,7 @@ const SuperAdminLogin = ({ onLoginSuccess }) => {
           username: response.data.username,
           roles: response.data.roles
         }));
-        
+
         // Notify parent component
         if (onLoginSuccess) {
           onLoginSuccess(response.data);
@@ -60,7 +60,7 @@ const SuperAdminLogin = ({ onLoginSuccess }) => {
       }
     } catch (err) {
       console.error('Login error:', err);
-      
+
       if (err.response?.status === 401) {
         setError('Invalid username or password');
       } else if (err.response?.status === 403) {
@@ -90,7 +90,7 @@ const SuperAdminLogin = ({ onLoginSuccess }) => {
         {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Sign In</h2>
-          
+
           {/* Error Message */}
           {error && (
             <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start">
