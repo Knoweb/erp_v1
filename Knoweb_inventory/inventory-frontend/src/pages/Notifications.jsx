@@ -32,8 +32,10 @@ const Notifications = () => {
       }
 
       const response = await notificationService.getAll();
+      const data = response.data;
+      const list = Array.isArray(data) ? data : (data?.content ?? data?.data ?? []);
 
-      const mappedNotifications = response.data
+      const mappedNotifications = list
         .filter(notif => notif.orgId && String(notif.orgId) === String(orgId))
         .map(notif => ({
           id: notif.id,

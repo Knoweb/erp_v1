@@ -32,7 +32,9 @@ function CreatePurchaseOrderModal({ suppliers, onClose, onCreated }) {
 
     productService.getAll()
       .then(res => {
-        const prods = (res.data || []).map(p => ({
+        const data = res.data;
+        const list = Array.isArray(data) ? data : (data?.content ?? data?.data ?? []);
+        const prods = list.map(p => ({
           id: p.id,
           name: p.name || p.productName || p.sku || `Product #${p.id}`,
         }));
@@ -45,7 +47,11 @@ function CreatePurchaseOrderModal({ suppliers, onClose, onCreated }) {
       ? warehouseService.getByOrganization(orgId)
       : warehouseService.getAll();
     warehouseFetch
-      .then(res => setAvailableWarehouses((res.data || []).filter(w => w.isActive !== false)))
+      .then(res => {
+        const data = res.data;
+        const list = Array.isArray(data) ? data : (data?.content ?? data?.data ?? []);
+        setAvailableWarehouses(list.filter(w => w.isActive !== false));
+      })
       .catch(err => console.error('Failed to load warehouses:', err))
       .finally(() => setWarehousesLoading(false));
   }, []);
@@ -242,7 +248,9 @@ function CreateSalesOrderModal({ onClose, onCreated }) {
 
     productService.getAll()
       .then(res => {
-        const prods = (res.data || []).map(p => ({
+        const data = res.data;
+        const list = Array.isArray(data) ? data : (data?.content ?? data?.data ?? []);
+        const prods = list.map(p => ({
           id: p.id,
           name: p.name || p.productName || p.sku || `Product #${p.id}`,
         }));
@@ -255,7 +263,11 @@ function CreateSalesOrderModal({ onClose, onCreated }) {
       ? warehouseService.getByOrganization(orgId)
       : warehouseService.getAll();
     warehouseFetch
-      .then(res => setAvailableWarehouses((res.data || []).filter(w => w.isActive !== false)))
+      .then(res => {
+        const data = res.data;
+        const list = Array.isArray(data) ? data : (data?.content ?? data?.data ?? []);
+        setAvailableWarehouses(list.filter(w => w.isActive !== false));
+      })
       .catch(err => console.error('Failed to load warehouses:', err))
       .finally(() => setWarehousesLoading(false));
   }, []);
@@ -456,17 +468,30 @@ function Orders() {
         productService.getAll(),
         orgId ? warehouseService.getByOrganization(orgId) : warehouseService.getAll(),
       ]);
-      if (purchaseRes.status === 'fulfilled') setPurchaseOrders(purchaseRes.value.data);
-      if (salesRes.status === 'fulfilled') setSalesOrders(salesRes.value.data);
-      if (warehousesRes.status === 'fulfilled') setWarehouses(warehousesRes.value.data || []);
+      if (purchaseRes.status === 'fulfilled') {
+        const data = purchaseRes.value.data;
+        setPurchaseOrders(Array.isArray(data) ? data : (data?.content ?? data?.data ?? []));
+      }
+      if (salesRes.status === 'fulfilled') {
+        const data = salesRes.value.data;
+        setSalesOrders(Array.isArray(data) ? data : (data?.content ?? data?.data ?? []));
+      }
+      if (warehousesRes.status === 'fulfilled') {
+        const data = warehousesRes.value.data;
+        setWarehouses(Array.isArray(data) ? data : (data?.content ?? data?.data ?? []));
+      }
       if (suppliersRes.status === 'fulfilled') {
-        setSuppliers((suppliersRes.value.data || []).map((s) => ({
+        const data = suppliersRes.value.data;
+        const sList = Array.isArray(data) ? data : (data?.content ?? data?.data ?? []);
+        setSuppliers(sList.map((s) => ({
           id: s.id,
           name: s.name || s.supplierName || s.companyName || `Supplier #${s.id}`,
         })));
       }
       if (productsRes.status === 'fulfilled') {
-        setProducts((productsRes.value.data || []).map((p) => ({
+        const data = productsRes.value.data;
+        const pList = Array.isArray(data) ? data : (data?.content ?? data?.data ?? []);
+        setProducts(pList.map((p) => ({
           id: p.id,
           name: p.name || p.productName || p.sku || `Product #${p.id}`,
         })));

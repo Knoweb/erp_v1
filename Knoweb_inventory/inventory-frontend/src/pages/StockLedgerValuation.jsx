@@ -46,8 +46,14 @@ const StockLedgerValuation = () => {
                     warehouseService.getByOrganization(orgId)
                 ]);
 
-                const activeWarehouses = (warehousesRes.data || []).filter(w => w.isActive !== false);
-                setProducts(productsRes.data || []);
+                const pData = productsRes.data;
+                const pList = Array.isArray(pData) ? pData : (pData?.content ?? pData?.data ?? []);
+
+                const wData = warehousesRes.data;
+                const wList = Array.isArray(wData) ? wData : (wData?.content ?? wData?.data ?? []);
+
+                const activeWarehouses = wList.filter(w => w.isActive !== false);
+                setProducts(pList);
                 setWarehouses(activeWarehouses);
 
                 if (activeWarehouses.length > 0) {
@@ -82,7 +88,9 @@ const StockLedgerValuation = () => {
                 valuationService.compareMethods(selectedProductId, selectedWarehouseId)
             ]);
 
-            setLedgerData(ledgerRes.data || []);
+            const lData = ledgerRes.data;
+            const lList = Array.isArray(lData) ? lData : (lData?.content ?? lData?.data ?? []);
+            setLedgerData(lList);
             setValuationData(valuationRes.data);
             setIsLoaded(true);
         } catch (err) {

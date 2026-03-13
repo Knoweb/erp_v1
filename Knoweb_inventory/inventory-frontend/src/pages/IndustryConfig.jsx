@@ -20,13 +20,14 @@ const IndustryConfig = () => {
         industryConfigService.getTypes(),
         industryConfigService.getSummary()
       ]);
-      setIndustryTypes(typesData);
+      setIndustryTypes(Array.isArray(typesData) ? typesData : (typesData?.content ?? typesData?.data ?? []));
       setSummary(summaryData);
-      
+
       // Fetch features for the selected industry
       if (selectedIndustry) {
         const featuresData = await industryConfigService.getFeatures(selectedIndustry);
-        setFeatures({ ...features, [selectedIndustry]: featuresData });
+        const fList = Array.isArray(featuresData) ? featuresData : (featuresData?.content ?? featuresData?.data ?? []);
+        setFeatures({ ...features, [selectedIndustry]: fList });
       }
     } catch (error) {
       console.error('Error fetching industry configuration:', error);
@@ -38,12 +39,13 @@ const IndustryConfig = () => {
 
   const handleIndustryChange = async (type) => {
     setSelectedIndustry(type);
-    
+
     // Fetch features if not already loaded
     if (!features[type]) {
       try {
         const featuresData = await industryConfigService.getFeatures(type);
-        setFeatures({ ...features, [type]: featuresData });
+        const fList = Array.isArray(featuresData) ? featuresData : (featuresData?.content ?? featuresData?.data ?? []);
+        setFeatures({ ...features, [type]: fList });
       } catch (error) {
         console.error('Error fetching features for', type, error);
       }
@@ -106,19 +108,19 @@ const IndustryConfig = () => {
             <div className="stat-value">{summary.totalIndustries || 0}</div>
             <div className="stat-subtitle">Available industry types</div>
           </div>
-          
+
           <div className="stat-card" style={{ borderLeft: `4px solid #10b981` }}>
             <div className="stat-title">Total Features</div>
             <div className="stat-value">{summary.totalFeatures || 0}</div>
             <div className="stat-subtitle">Across all industries</div>
           </div>
-          
+
           <div className="stat-card" style={{ borderLeft: `4px solid #f59e0b` }}>
             <div className="stat-title">Active Features</div>
             <div className="stat-value">{summary.activeFeatures || 0}</div>
             <div className="stat-subtitle">Currently enabled</div>
           </div>
-          
+
           <div className="stat-card" style={{ borderLeft: `4px solid #8b5cf6` }}>
             <div className="stat-title">Industry Products</div>
             <div className="stat-value">{summary.industryProductCount || 0}</div>
@@ -175,10 +177,10 @@ const IndustryConfig = () => {
                 {type === 'MANUFACTURING' && 'Raw materials, WIP tracking, production lines, quality inspections'}
               </p>
               {selectedIndustry === type && (
-                <div style={{ 
-                  display: 'inline-block', 
-                  padding: '0.25rem 0.75rem', 
-                  backgroundColor: getIndustryColor(type), 
+                <div style={{
+                  display: 'inline-block',
+                  padding: '0.25rem 0.75rem',
+                  backgroundColor: getIndustryColor(type),
                   color: 'white',
                   borderRadius: '1rem',
                   fontSize: '0.75rem',
@@ -261,62 +263,62 @@ const IndustryConfig = () => {
         <div style={{ display: 'grid', gap: '1rem' }}>
           {selectedIndustry === 'PHARMACY' && (
             <>
-              <FeatureDescription 
-                title="Batch Tracking" 
+              <FeatureDescription
+                title="Batch Tracking"
                 description="Track pharmaceutical products by batch/lot number for compliance and recall management"
               />
-              <FeatureDescription 
-                title="Expiry Date Management" 
+              <FeatureDescription
+                title="Expiry Date Management"
                 description="Monitor product expiry dates with automated alerts for expiring and expired medications"
               />
-              <FeatureDescription 
-                title="Prescription Management" 
+              <FeatureDescription
+                title="Prescription Management"
                 description="Manage prescription-only medications with DEA schedule tracking and controlled substance monitoring"
               />
-              <FeatureDescription 
-                title="Cold Chain Monitoring" 
+              <FeatureDescription
+                title="Cold Chain Monitoring"
                 description="Track refrigerated products with storage temperature requirements and compliance alerts"
               />
             </>
           )}
-          
+
           {selectedIndustry === 'RETAIL' && (
             <>
-              <FeatureDescription 
-                title="Variant Management" 
+              <FeatureDescription
+                title="Variant Management"
                 description="Manage product variants by size, color, and style with parent-child SKU relationships"
               />
-              <FeatureDescription 
-                title="Seasonal Tracking" 
+              <FeatureDescription
+                title="Seasonal Tracking"
                 description="Track seasonal collections (Spring, Summer, Fall, Winter) with automated clearance marking"
               />
-              <FeatureDescription 
-                title="Promotions" 
+              <FeatureDescription
+                title="Promotions"
                 description="Apply sales, discounts, and promotional pricing with MSRP comparison"
               />
-              <FeatureDescription 
-                title="Display Features" 
+              <FeatureDescription
+                title="Display Features"
                 description="Mark products as featured, bestsellers, or new arrivals for merchandising"
               />
             </>
           )}
-          
+
           {selectedIndustry === 'MANUFACTURING' && (
             <>
-              <FeatureDescription 
-                title="WIP Tracking" 
+              <FeatureDescription
+                title="WIP Tracking"
                 description="Track work-in-progress by work order, production line, and completion percentage"
               />
-              <FeatureDescription 
-                title="Production Line Management" 
+              <FeatureDescription
+                title="Production Line Management"
                 description="Manage products across multiple production lines with real-time status updates"
               />
-              <FeatureDescription 
-                title="Quality Inspection" 
+              <FeatureDescription
+                title="Quality Inspection"
                 description="Conduct quality inspections with pass/fail grades, defect tracking, and inspector notes"
               />
-              <FeatureDescription 
-                title="Rework Tracking" 
+              <FeatureDescription
+                title="Rework Tracking"
                 description="Track rework, rejected, and scrapped products with reason codes and cost analysis"
               />
             </>

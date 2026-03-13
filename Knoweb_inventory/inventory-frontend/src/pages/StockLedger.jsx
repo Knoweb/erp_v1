@@ -42,8 +42,13 @@ const StockLedger = () => {
         productService.getAll(),
         warehouseService.getAll()
       ]);
-      setProducts(productsRes.data || []);
-      setWarehouses((warehousesRes.data || []).filter(w => w.isActive !== false));
+      const pData = productsRes.data;
+      const pList = Array.isArray(pData) ? pData : (pData?.content ?? pData?.data ?? []);
+      setProducts(pList);
+
+      const wData = warehousesRes.data;
+      const wList = Array.isArray(wData) ? wData : (wData?.content ?? wData?.data ?? []);
+      setWarehouses(wList.filter(w => w.isActive !== false));
     } catch (error) {
       console.error('Error fetching options:', error);
       setError("Infrastructure Connectivity Error: Failed to synchronize catalog and warehouse nodes.");
@@ -66,14 +71,18 @@ const StockLedger = () => {
           ledgerService.getByProduct(selectedProduct),
           ledgerService.getProductValuation(selectedProduct, valuationStrategy)
         ]);
-        setLedgerData(ledgerRes.data || []);
+        const lData = ledgerRes.data;
+        const lList = Array.isArray(lData) ? lData : (lData?.content ?? lData?.data ?? []);
+        setLedgerData(lList);
         setValuation(valuationRes.data);
       } else if (viewType === 'warehouse' && selectedWarehouse) {
         const [ledgerRes, valuationRes] = await Promise.all([
           ledgerService.getByWarehouse(selectedWarehouse),
           ledgerService.getWarehouseValuation(selectedWarehouse, valuationStrategy)
         ]);
-        setLedgerData(ledgerRes.data || []);
+        const lData = ledgerRes.data;
+        const lList = Array.isArray(lData) ? lData : (lData?.content ?? lData?.data ?? []);
+        setLedgerData(lList);
         setValuation(valuationRes.data);
       }
     } catch (error) {

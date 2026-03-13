@@ -69,11 +69,16 @@ function StockTransactionForm({ onClose, onSuccess }) {
                     productService.getAll(),
                     warehouseService.getAll(),
                 ]);
-                const prods = (productsRes.data || []).map((p) => ({
+                const pData = productsRes.data;
+                const pList = Array.isArray(pData) ? pData : (pData?.content ?? pData?.data ?? []);
+                const prods = pList.map((p) => ({
                     id: p.id,
                     name: p.name || p.productName || p.sku || `Product #${p.id}`,
                 }));
-                const whs = (warehousesRes.data || [])
+
+                const wData = warehousesRes.data;
+                const wList = Array.isArray(wData) ? wData : (wData?.content ?? wData?.data ?? []);
+                const whs = wList
                     .filter(w => w.isActive !== false)
                     .map((w) => ({
                         id: w.id,

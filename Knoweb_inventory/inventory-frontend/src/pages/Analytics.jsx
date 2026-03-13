@@ -68,9 +68,15 @@ const Analytics = () => {
 
         const dashboard = dashboardRes.data || {};
         const pharmacy = pharmacyRes.data || {};
-        const salesRaw = salesRes.data || [];
-        const inventoryRaw = inventoryRes.data || [];
-        const auditRaw = auditRes.data || [];
+
+        const salesData = salesRes.data;
+        const salesRaw = Array.isArray(salesData) ? salesData : (salesData?.content ?? salesData?.data ?? []);
+
+        const inventoryData = inventoryRes.data;
+        const inventoryRaw = Array.isArray(inventoryData) ? inventoryData : (inventoryData?.content ?? inventoryData?.data ?? []);
+
+        const auditData = auditRes.data;
+        const auditRaw = Array.isArray(auditData) ? auditData : (auditData?.content ?? auditData?.data ?? []);
 
         const last7Days = [...Array(7)].map((_, i) => {
           const d = new Date();
@@ -321,8 +327,8 @@ const Analytics = () => {
                   <td className="px-6 py-4 text-sm font-black text-slate-700">{item.stockQuantity !== undefined ? item.stockQuantity : item.quantity}</td>
                   <td className="px-6 py-4">
                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm border ${(item.isLowStock || (item.quantity <= item.reorderLevel))
-                        ? 'bg-rose-50 text-rose-600 border-rose-100'
-                        : 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                      ? 'bg-rose-50 text-rose-600 border-rose-100'
+                      : 'bg-emerald-50 text-emerald-600 border-emerald-100'
                       }`}>
                       {(item.isLowStock || (item.quantity <= item.reorderLevel)) ? '⚠️ Low Stock' : '✅ Healthy'}
                     </span>
@@ -382,12 +388,12 @@ const Analytics = () => {
                   <td className="px-6 py-4"><span className="text-xs font-black text-indigo-600 bg-indigo-50/50 px-2 py-1 rounded shadow-inner tracking-widest">#{order.orderId || order.id}</span></td>
                   <td className="px-6 py-4">
                     <span className={`px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 w-fit ${['DELIVERED', 'PAID', 'COMPLETED'].includes((order.orderStatus || order.status || '').toUpperCase())
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'bg-amber-100 text-amber-700'
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : 'bg-amber-100 text-amber-700'
                       }`}>
                       <span className={`w-1.5 h-1.5 rounded-full ${['DELIVERED', 'PAID', 'COMPLETED'].includes((order.orderStatus || order.status || '').toUpperCase())
-                          ? 'bg-emerald-500'
-                          : 'bg-amber-500 animate-pulse'
+                        ? 'bg-emerald-500'
+                        : 'bg-amber-500 animate-pulse'
                         }`} />
                       {order.orderStatus || order.status || 'Pending'}
                     </span>
@@ -474,8 +480,8 @@ const Analytics = () => {
           <button
             key={tab.id}
             className={`pb-4 px-1 text-xs font-black uppercase tracking-[0.15em] flex items-center gap-2.5 transition-all relative whitespace-nowrap ${activeTab === tab.id
-                ? 'text-indigo-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-1 after:bg-indigo-600 after:rounded-t-full ring-offset-4'
-                : 'text-slate-400 hover:text-slate-600'
+              ? 'text-indigo-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-1 after:bg-indigo-600 after:rounded-t-full ring-offset-4'
+              : 'text-slate-400 hover:text-slate-600'
               }`}
             onClick={() => setActiveTab(tab.id)}
           >

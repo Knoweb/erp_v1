@@ -25,9 +25,15 @@ const Catalog = () => {
         categoryService.getAll(),
         brandService.getAll()
       ]);
-      setProducts(productsRes.data);
-      setCategories(categoriesRes.data);
-      setBrands(brandsRes.data);
+
+      const pData = productsRes.data;
+      setProducts(Array.isArray(pData) ? pData : (pData?.content ?? pData?.data ?? []));
+
+      const cData = categoriesRes.data;
+      setCategories(Array.isArray(cData) ? cData : (cData?.content ?? cData?.data ?? []));
+
+      const bData = brandsRes.data;
+      setBrands(Array.isArray(bData) ? bData : (bData?.content ?? bData?.data ?? []));
     } catch (err) {
       console.error('Error fetching catalog data:', err);
       setError('Failed to load catalog information. Please check your connection.');

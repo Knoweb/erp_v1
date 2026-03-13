@@ -43,19 +43,22 @@ function PurchaseOrdersTable({
 
     const supplierMap = useMemo(() => {
         const map = {};
-        suppliers.forEach((s) => { map[s.id] = s.name; });
+        const list = Array.isArray(suppliers) ? suppliers : (suppliers?.content ?? suppliers?.data ?? []);
+        list.forEach((s) => { map[s.id] = s.name; });
         return map;
     }, [suppliers]);
 
     const productMap = useMemo(() => {
         const map = {};
-        products.forEach((p) => { map[String(p.id)] = p.name; });
+        const list = Array.isArray(products) ? products : (products?.content ?? products?.data ?? []);
+        list.forEach((p) => { map[String(p.id)] = p.name; });
         return map;
     }, [products]);
 
     const warehouseMap = useMemo(() => {
         const map = {};
-        warehouses.forEach((w) => {
+        const list = Array.isArray(warehouses) ? warehouses : (warehouses?.content ?? warehouses?.data ?? []);
+        list.forEach((w) => {
             map[w.id] = w.name || w.warehouseName || `Warehouse #${w.id}`;
         });
         return map;
@@ -63,8 +66,9 @@ function PurchaseOrdersTable({
 
     const filtered = useMemo(() => {
         const q = search.trim().toLowerCase();
-        if (!q) return orders;
-        return orders.filter((o) => {
+        const list = Array.isArray(orders) ? orders : (orders?.content ?? orders?.data ?? []);
+        if (!q) return list;
+        return list.filter((o) => {
             const supplierName = (supplierMap[o.supplierId] || `Supplier #${o.supplierId}`).toLowerCase();
             return (
                 String(o.id).includes(q) ||
