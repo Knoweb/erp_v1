@@ -2,10 +2,10 @@ spring:
   application:
     name: identity-service
   datasource:
-    jdbc-url: jdbc:mysql://localhost:3306/identity_db?createDatabaseIfNotExist=true
-    username: root
-    password: 1234
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    jdbc-url: ${SPRING_DATASOURCE_JDBC_URL:jdbc:mysql://localhost:3306/identity_db?createDatabaseIfNotExist=true}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:1234}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:com.mysql.cj.jdbc.Driver}
   jpa:
     hibernate:
       ddl-auto: update
@@ -18,10 +18,10 @@ spring:
 # Subscription Database Configuration
 subscription:
   datasource:
-    jdbc-url: jdbc:mysql://localhost:3306/subscription_db?createDatabaseIfNotExist=true
-    username: root
-    password: 1234
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    jdbc-url: ${SUBSCRIPTION_DATASOURCE_JDBC_URL:jdbc:mysql://localhost:3306/subscription_db?createDatabaseIfNotExist=true}
+    username: ${SUBSCRIPTION_DATASOURCE_USERNAME:root}
+    password: ${SUBSCRIPTION_DATASOURCE_PASSWORD:1234}
+    driver-class-name: ${SUBSCRIPTION_DATASOURCE_DRIVER_CLASS_NAME:com.mysql.cj.jdbc.Driver}
 
 server:
   port: 8088
@@ -29,7 +29,7 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
     register-with-eureka: true
     fetch-registry: true
   instance:

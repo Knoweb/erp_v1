@@ -35,10 +35,12 @@ services:
     container_name: identity-service
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/identity_db?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_JDBC_URL=jdbc:mysql://mysql:3306/identity_db?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=1234
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka/
+      - SUBSCRIPTION_DATASOURCE_URL=jdbc:mysql://mysql:3306/subscription_db?createDatabaseIfNotExist=true
       - SUBSCRIPTION_DATASOURCE_JDBC_URL=jdbc:mysql://mysql:3306/subscription_db?createDatabaseIfNotExist=true
       - SUBSCRIPTION_DATASOURCE_USERNAME=root
       - SUBSCRIPTION_DATASOURCE_PASSWORD=1234
