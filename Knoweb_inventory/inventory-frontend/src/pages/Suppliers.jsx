@@ -36,7 +36,8 @@ function Suppliers() {
     try {
       const orgId = user?.orgId || 1;
       const response = await supplierService.getByOrganization(orgId);
-      setSuppliers(response.data);
+      const sData = response.data;
+      setSuppliers(Array.isArray(sData) ? sData : (sData?.content ?? sData?.data ?? []));
     } catch (error) {
       console.error('Error fetching suppliers:', error);
       showToast('Failed to fetch suppliers', 'error');

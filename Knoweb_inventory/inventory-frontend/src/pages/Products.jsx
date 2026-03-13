@@ -41,16 +41,25 @@ function Products() {
         }
     }, [activeTab, expiringDays]);
 
+    const toArray = (data) => {
+        if (Array.isArray(data)) return data;
+        if (data && Array.isArray(data.content)) return data.content;
+        if (data && Array.isArray(data.data)) return data.data;
+        return [];
+    };
+
     const fetchMetadata = async () => {
         try {
             const [catRes, brandRes] = await Promise.all([
                 categoryService.getAll(),
                 brandService.getAll()
             ]);
-            setCategories(catRes.data);
-            setBrands(brandRes.data);
+            setCategories(toArray(catRes.data));
+            setBrands(toArray(brandRes.data));
         } catch (error) {
             console.error('Error fetching metadata:', error);
+            setCategories([]);
+            setBrands([]);
             showToast('Catalog synchronization failed', 'error');
         }
     };
@@ -68,9 +77,11 @@ function Products() {
     const fetchProducts = async () => {
         try {
             const response = await productService.getAll();
-            setProducts(response.data);
+            const data = response.data;
+            setProducts(Array.isArray(data) ? data : (data?.content ?? data?.data ?? []));
         } catch (error) {
             console.error('Error fetching products:', error);
+            setProducts([]);
             showToast('Critical product retrieval failure', 'error');
         } finally {
             setLoading(false);
@@ -105,7 +116,8 @@ function Products() {
                 default:
                     response = await pharmacyService.getByOrganization(orgId);
             }
-            setPharmacyProducts(response.data);
+            const pData = response.data;
+            setPharmacyProducts(Array.isArray(pData) ? pData : (pData?.content ?? pData?.data ?? []));
         } catch (error) {
             console.error('Error fetching pharmacy products:', error);
             setPharmacyProducts([]);

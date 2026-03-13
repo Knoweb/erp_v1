@@ -27,7 +27,8 @@ function Manufacturing() {
   const fetchProducts = async () => {
     try {
       const response = await productService.getAll();
-      setProducts(response.data);
+      const data = response.data;
+      setProducts(Array.isArray(data) ? data : (data?.content ?? data?.data ?? []));
     } catch (error) {
       console.error('Error fetching products:', error);
     }
@@ -62,7 +63,8 @@ function Manufacturing() {
         default:
           response = await manufacturingService.getWip(orgId);
       }
-      setManufacturingProducts(response.data);
+      const data = response.data;
+      setManufacturingProducts(Array.isArray(data) ? data : (data?.content ?? data?.data ?? []));
     } catch (error) {
       console.error('Error fetching manufacturing products:', error);
       setManufacturingProducts([]);
@@ -86,7 +88,7 @@ function Manufacturing() {
       };
 
       const response = await productService.create(productData);
-      
+
       // If initial stock provided, create stock record
       if (formData.warehouse && formData.quantity) {
         // Note: You may need to implement stock creation via inventory service
@@ -219,43 +221,43 @@ function Manufacturing() {
 
       {/* Tabs */}
       <div className="tabs">
-        <button 
+        <button
           className={activeTab === 'raw-materials' ? 'active' : ''}
           onClick={() => setActiveTab('raw-materials')}
         >
           Raw Materials
         </button>
-        <button 
+        <button
           className={activeTab === 'wip' ? 'active' : ''}
           onClick={() => setActiveTab('wip')}
         >
           All WIP
         </button>
-        <button 
+        <button
           className={activeTab === 'wip-active' ? 'active' : ''}
           onClick={() => setActiveTab('wip-active')}
         >
           Active WIP
         </button>
-        <button 
+        <button
           className={activeTab === 'wip-overdue' ? 'active' : ''}
           onClick={() => setActiveTab('wip-overdue')}
         >
           Overdue
         </button>
-        <button 
+        <button
           className={activeTab === 'finished-goods' ? 'active' : ''}
           onClick={() => setActiveTab('finished-goods')}
         >
           Finished Goods
         </button>
-        <button 
+        <button
           className={activeTab === 'pending-inspection' ? 'active' : ''}
           onClick={() => setActiveTab('pending-inspection')}
         >
           Inspection
         </button>
-        <button 
+        <button
           className={activeTab === 'rework' ? 'active' : ''}
           onClick={() => setActiveTab('rework')}
         >
@@ -289,9 +291,9 @@ function Manufacturing() {
               ) : (
                 manufacturingProducts.map((product) => (
                   <tr key={product.id} style={{
-                    backgroundColor: product.wipStatus === 'SCRAPPED' ? '#fee2e2' : 
-                                   product.reworkRequired ? '#fef3c7' : 
-                                   product.wipStatus === 'COMPLETED' ? '#d1fae5' : 'transparent',
+                    backgroundColor: product.wipStatus === 'SCRAPPED' ? '#fee2e2' :
+                      product.reworkRequired ? '#fef3c7' :
+                        product.wipStatus === 'COMPLETED' ? '#d1fae5' : 'transparent',
                     transition: 'background-color 0.2s'
                   }}>
                     <td>
@@ -303,10 +305,10 @@ function Manufacturing() {
                       </small>
                     </td>
                     <td>
-                      <span className="badge" style={{ 
+                      <span className="badge" style={{
                         backgroundColor: product.productType === 'RAW_MATERIAL' ? '#6b7280' :
-                                        product.productType === 'WIP' ? '#3b82f6' :
-                                        product.productType === 'FINISHED_GOOD' ? '#10b981' : '#8b5cf6',
+                          product.productType === 'WIP' ? '#3b82f6' :
+                            product.productType === 'FINISHED_GOOD' ? '#10b981' : '#8b5cf6',
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '0.25rem'
@@ -382,8 +384,8 @@ function Manufacturing() {
                         </select>
                       )}
                       {product.inspectionStatus === 'PENDING' && (
-                        <button 
-                          className="btn btn-primary btn-sm" 
+                        <button
+                          className="btn btn-primary btn-sm"
                           onClick={() => openInspectionModal(product)}
                         >
                           Inspect
@@ -417,10 +419,10 @@ function Manufacturing() {
             <form onSubmit={handleInspectionSubmit}>
               <div className="form-group">
                 <label>Product</label>
-                <input 
-                  type="text" 
-                  value={getProductName(selectedProduct.productId)} 
-                  disabled 
+                <input
+                  type="text"
+                  value={getProductName(selectedProduct.productId)}
+                  disabled
                 />
               </div>
               <div className="form-group">

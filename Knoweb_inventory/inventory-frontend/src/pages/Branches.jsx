@@ -30,7 +30,8 @@ const Branches = () => {
     try {
       setLoading(true);
       const response = await branchService.getAll();
-      setBranches(response.data);
+      const data = response.data;
+      setBranches(Array.isArray(data) ? data : (data?.content ?? data?.data ?? []));
     } catch (error) {
       console.error('Error fetching branches:', error);
       showToast('Failed to fetch branches', 'error');

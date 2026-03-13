@@ -45,7 +45,8 @@ const CatalogSettings = () => {
         try {
             setError(null);
             const response = await categoryService.getAll();
-            setCategories(response.data);
+            const data = response.data;
+            setCategories(Array.isArray(data) ? data : (data?.content ?? data?.data ?? []));
         } catch (err) {
             console.error('Error fetching categories:', err);
             setError('Failed to load categories. Please check your connection.');
@@ -56,7 +57,8 @@ const CatalogSettings = () => {
         try {
             setError(null);
             const response = await brandService.getAll();
-            setBrands(response.data);
+            const data = response.data;
+            setBrands(Array.isArray(data) ? data : (data?.content ?? data?.data ?? []));
         } catch (err) {
             console.error('Error fetching brands:', err);
             setError('Failed to load brands. Please check your connection.');

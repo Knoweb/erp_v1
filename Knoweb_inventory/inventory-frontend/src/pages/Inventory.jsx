@@ -64,8 +64,10 @@ function Inventory() {
         inventoryService.getAllStocks(),
         inventoryService.getAllTransactions(),
       ]);
-      setStocks(stocksRes.data || []);
-      setTransactions(txRes.data || []);
+      const sData = stocksRes.data;
+      const tData = txRes.data;
+      setStocks(Array.isArray(sData) ? sData : (sData?.content ?? sData?.data ?? []));
+      setTransactions(Array.isArray(tData) ? tData : (tData?.content ?? tData?.data ?? []));
     } catch (err) {
       console.error('Error fetching inventory data:', err);
     } finally {

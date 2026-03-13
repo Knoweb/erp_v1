@@ -56,7 +56,8 @@ function Retail() {
   const fetchProducts = async () => {
     try {
       const response = await productService.getAll();
-      setProducts(response.data);
+      const data = response.data;
+      setProducts(Array.isArray(data) ? data : (data?.content ?? data?.data ?? []));
     } catch (error) {
       console.error('Error fetching products:', error);
     }
@@ -88,7 +89,8 @@ function Retail() {
         default:
           response = await retailService.getByOrganization(orgId);
       }
-      setRetailProducts(response.data);
+      const data = response.data;
+      setRetailProducts(Array.isArray(data) ? data : (data?.content ?? data?.data ?? []));
     } catch (error) {
       console.error('Error fetching retail products:', error);
       setRetailProducts([]);
@@ -101,7 +103,8 @@ function Retail() {
     if (searchSku) {
       try {
         const response = await retailService.getVariants(searchSku);
-        setRetailProducts(response.data);
+        const data = response.data;
+        setRetailProducts(Array.isArray(data) ? data : (data?.content ?? data?.data ?? []));
       } catch (error) {
         console.error('Error searching variants:', error);
       }

@@ -38,8 +38,10 @@ function Warehouses() {
         warehouseService.getByOrganization(orgId),
         warehouseService.getBranches(orgId)
       ]);
-      setWarehouses(warehouseRes.data);
-      setBranches(branchRes.data || []);
+      const wData = warehouseRes.data;
+      const bData = branchRes.data;
+      setWarehouses(Array.isArray(wData) ? wData : (wData?.content ?? wData?.data ?? []));
+      setBranches(Array.isArray(bData) ? bData : (bData?.content ?? bData?.data ?? []));
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {

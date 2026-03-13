@@ -30,7 +30,8 @@ const Users = () => {
     try {
       setLoading(true);
       const response = await identityUserService.getAll();
-      setUsers(response.data);
+      const data = response.data;
+      setUsers(Array.isArray(data) ? data : (data?.content ?? data?.data ?? []));
     } catch (error) {
       console.error('Error fetching users:', error);
       showToast('Synchronization protocol failed', 'error');

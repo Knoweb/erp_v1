@@ -22,7 +22,8 @@ function Pharmacy() {
   const fetchProducts = async () => {
     try {
       const response = await productService.getAll();
-      setProducts(response.data);
+      const data = response.data;
+      setProducts(Array.isArray(data) ? data : (data?.content ?? data?.data ?? []));
     } catch (error) {
       console.error('Error fetching products:', error);
     }
@@ -54,7 +55,8 @@ function Pharmacy() {
         default:
           response = await pharmacyService.getByOrganization(orgId);
       }
-      setPharmacyProducts(response.data);
+      const data = response.data;
+      setPharmacyProducts(Array.isArray(data) ? data : (data?.content ?? data?.data ?? []));
     } catch (error) {
       console.error('Error fetching pharmacy products:', error);
       setPharmacyProducts([]);
@@ -151,37 +153,37 @@ function Pharmacy() {
 
       {/* Tabs */}
       <div className="tabs">
-        <button 
+        <button
           className={activeTab === 'all' ? 'active' : ''}
           onClick={() => setActiveTab('all')}
         >
           All Products
         </button>
-        <button 
+        <button
           className={activeTab === 'expiring' ? 'active' : ''}
           onClick={() => setActiveTab('expiring')}
         >
           Expiring Soon
         </button>
-        <button 
+        <button
           className={activeTab === 'expired' ? 'active' : ''}
           onClick={() => setActiveTab('expired')}
         >
           Expired
         </button>
-        <button 
+        <button
           className={activeTab === 'prescription' ? 'active' : ''}
           onClick={() => setActiveTab('prescription')}
         >
           Prescription Only
         </button>
-        <button 
+        <button
           className={activeTab === 'controlled' ? 'active' : ''}
           onClick={() => setActiveTab('controlled')}
         >
           Controlled
         </button>
-        <button 
+        <button
           className={activeTab === 'recalled' ? 'active' : ''}
           onClick={() => setActiveTab('recalled')}
         >
@@ -233,7 +235,7 @@ function Pharmacy() {
                     <td>{product.strength}</td>
                     <td>{product.expiryDate}</td>
                     <td>
-                      <span style={{ 
+                      <span style={{
                         color: product.isExpired ? '#ef4444' : product.daysUntilExpiry <= 30 ? '#f59e0b' : '#10b981'
                       }}>
                         {product.daysUntilExpiry} days
@@ -261,8 +263,8 @@ function Pharmacy() {
                       )}
                     </td>
                     <td>
-                      <button 
-                        className="btn btn-danger btn-sm" 
+                      <button
+                        className="btn btn-danger btn-sm"
                         onClick={() => handleRecall(product.id)}
                         disabled={product.isRecalled}
                       >
