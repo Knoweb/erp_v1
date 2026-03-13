@@ -28,6 +28,7 @@ const URLS = {
   ginuma: `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5176' : '3001'}`,
   inventory: `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5174' : '3002'}`,
   pirisahr: `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5175' : '3003'}`,
+  subscription: `${PROTOCOL}//${HOST}:8091`,
   gateway: `${PROTOCOL}//${HOST}:8080`
 };
 
@@ -464,7 +465,7 @@ const Dashboard = () => {
 
       // Make POST request to upgrade endpoint with Authorization header
       const response = await axios.post(
-        `${URLS.gateway}/api/subscriptions/upgrade`,
+        `${URLS.subscription}/api/subscriptions/upgrade`,
         {
           orgId: orgId,
           newSystem: systemName
