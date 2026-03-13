@@ -102,7 +102,53 @@ public class GatewayConfig {
                                                                 .apply(new JwtAuthenticationFilter.Config())))
                                                 .uri("lb://user-service"))
 
-                                // Supplier Service
+                                // --- GINUMA SERVICE ROUTES (MOVED UP TO PREVENT CONFLICTS) ---
+
+                                // Ginuma Service - Suppliers with company path (Specific to Ginuma)
+                                .route("ginuma-suppliers-company", r -> r
+                                                .path("/api/suppliers/companies/**")
+                                                .filters(f -> f.filter(jwtAuthenticationFilter
+                                                                .apply(new JwtAuthenticationFilter.Config())))
+                                                .uri("lb://ginuma-service"))
+
+                                // Ginuma Service - Employees with company path (Specific to Ginuma)
+                                .route("ginuma-employees-company-specific", r -> r
+                                                .path("/api/employees/companies/**")
+                                                .filters(f -> f.filter(jwtAuthenticationFilter
+                                                                .apply(new JwtAuthenticationFilter.Config())))
+                                                .uri("lb://ginuma-service"))
+
+                                // Ginuma Service - Company Management
+                                .route("ginuma-companies", r -> r
+                                                .path("/api/companies/**")
+                                                .filters(f -> f.filter(jwtAuthenticationFilter
+                                                                .apply(new JwtAuthenticationFilter.Config())))
+                                                .uri("lb://ginuma-service"))
+
+                                // Ginuma Service - Payroll & HR
+                                .route("ginuma-payroll", r -> r
+                                                .path("/api/payroll/**", "/api/employees/**", "/api/departments/**",
+                                                                "/api/designations/**")
+                                                .filters(f -> f.filter(jwtAuthenticationFilter
+                                                                .apply(new JwtAuthenticationFilter.Config())))
+                                                .uri("lb://ginuma-service"))
+
+                                // Ginuma Service - Common Ginuma Modules
+                                .route("ginuma-common", r -> r
+                                                .path("/api/currencies/**", "/api/countries/**",
+                                                                "/api/customers/**", "/api/suppliers/**",
+                                                                "/api/sales-orders/**", "/api/purchase-orders/**",
+                                                                "/api/projects/**", "/api/items/**",
+                                                                "/api/inventory/**",
+                                                                "/api/aged-receivables/**", "/api/aged-payables/**")
+                                                .filters(f -> f.filter(jwtAuthenticationFilter
+                                                                .apply(new JwtAuthenticationFilter.Config())))
+                                                .uri("lb://ginuma-service"))
+
+                                // --- END GINUMA SERVICE ROUTES ---
+
+                                // Standalone Inventory Supplier Service (Only matches if not caught by Ginuma
+                                // above)
                                 .route("supplier-service", r -> r
                                                 .path("/api/suppliers/**", "/api/suppliers")
                                                 .filters(f -> f.filter(jwtAuthenticationFilter
@@ -116,118 +162,25 @@ public class GatewayConfig {
                                                                 .apply(new JwtAuthenticationFilter.Config())))
                                                 .uri("lb://notification-service"))
 
-                                // Subscription Service - Protected (Dashboard access control)
+                                // Subscription Service
                                 .route("subscription-service", r -> r
                                                 .path("/api/subscriptions/**")
                                                 .filters(f -> f.filter(jwtAuthenticationFilter
                                                                 .apply(new JwtAuthenticationFilter.Config())))
                                                 .uri("lb://subscription-service"))
 
-                                // Catalog Service
+                                // Catalog & Reporting
                                 .route("catalog-service", r -> r
                                                 .path("/api/catalog/**", "/api/schemas/**")
                                                 .filters(f -> f.filter(jwtAuthenticationFilter
                                                                 .apply(new JwtAuthenticationFilter.Config())))
                                                 .uri("lb://catalog-service"))
 
-                                // Reporting Service
                                 .route("reporting-service", r -> r
                                                 .path("/api/reports/**", "/api/analytics/**", "/api/audit/**")
                                                 .filters(f -> f.filter(jwtAuthenticationFilter
                                                                 .apply(new JwtAuthenticationFilter.Config())))
                                                 .uri("lb://reporting-service"))
-
-                                // Ginuma Service - Super Admin (Protected)
-                                .route("ginuma-superadmin", r -> r
-                                                .path("/api/superadmin/**")
-                                                .filters(f -> f.filter(jwtAuthenticationFilter
-                                                                .apply(new JwtAuthenticationFilter.Config())))
-                                                .uri("lb://ginuma-service"))
-
-                                // Ginuma Service - Company-specific endpoints with companyId in path
-                                // Pattern: /api/companies/{companyId}/...
-                                .route("ginuma-company-specific", r -> r
-                                                .path("/api/companies/*/**")
-                                                .filters(f -> f.filter(jwtAuthenticationFilter
-                                                                .apply(new JwtAuthenticationFilter.Config())))
-                                                .uri("lb://ginuma-service"))
-
-                                // Ginuma Service - Companies base (Protected)
-                                .route("ginuma-companies", r -> r
-                                                .path("/api/companies/**")
-                                                .filters(f -> f.filter(jwtAuthenticationFilter
-                                                                .apply(new JwtAuthenticationFilter.Config())))
-                                                .uri("lb://ginuma-service"))
-
-                                // Ginuma Service - Employees with companyId
-                                // Pattern: /api/employees/{companyId}
-                                .route("ginuma-employees-company", r -> r
-                                                .path("/api/employees/*/**", "/api/employees/*")
-                                                .filters(f -> f.filter(jwtAuthenticationFilter
-                                                                .apply(new JwtAuthenticationFilter.Config())))
-                                                .uri("lb://ginuma-service"))
-
-                                // Ginuma Service - Employees base (Protected)
-                                .route("ginuma-employees", r -> r
-                                                .path("/api/employees/**")
-                                                .filters(f -> f.filter(jwtAuthenticationFilter
-                                                                .apply(new JwtAuthenticationFilter.Config())))
-                                                .uri("lb://ginuma-service"))
-
-                                // Ginuma Service - Departments with companyId first
-                                // Pattern: /api/{companyId}/departments
-                                .route("ginuma-company-departments", r -> r
-                                                .path("/api/*/departments/**", "/api/*/departments")
-                                                .filters(f -> f.filter(jwtAuthenticationFilter
-                                                                .apply(new JwtAuthenticationFilter.Config())))
-                                                .uri("lb://ginuma-service"))
-
-                                // Ginuma Service - Designations with companyId first
-                                // Pattern: /api/{companyId}/designations
-                                .route("ginuma-company-designations", r -> r
-                                                .path("/api/*/designations/**", "/api/*/designations")
-                                                .filters(f -> f.filter(jwtAuthenticationFilter
-                                                                .apply(new JwtAuthenticationFilter.Config())))
-                                                .uri("lb://ginuma-service"))
-
-                                // Ginuma Service - Purchase Orders with companyId first
-                                // Pattern: /api/{companyId}/purchase-orders
-                                .route("ginuma-company-purchase-orders", r -> r
-                                                .path("/api/*/purchase-orders/**", "/api/*/purchase-orders")
-                                                .filters(f -> f.filter(jwtAuthenticationFilter
-                                                                .apply(new JwtAuthenticationFilter.Config())))
-                                                .uri("lb://ginuma-service"))
-
-                                // Ginuma Service - Users with companyId
-                                // Pattern: /api/users/{companyId}
-                                .route("ginuma-users-company", r -> r
-                                                .path("/api/users/*/**", "/api/users/*")
-                                                .filters(f -> f.filter(jwtAuthenticationFilter
-                                                                .apply(new JwtAuthenticationFilter.Config())))
-                                                .uri("lb://ginuma-service"))
-
-                                // Ginuma Service - General departments (Protected)
-                                .route("ginuma-departments", r -> r
-                                                .path("/api/departments/**")
-                                                .filters(f -> f.filter(jwtAuthenticationFilter
-                                                                .apply(new JwtAuthenticationFilter.Config())))
-                                                .uri("lb://ginuma-service"))
-
-                                // Ginuma Service - General payroll (Protected)
-                                .route("ginuma-payroll", r -> r
-                                                .path("/api/payroll/**")
-                                                .filters(f -> f.filter(jwtAuthenticationFilter
-                                                                .apply(new JwtAuthenticationFilter.Config())))
-                                                .uri("lb://ginuma-service"))
-
-                                // Ginuma Service - Other common endpoints
-                                .route("ginuma-common", r -> r
-                                                .path("/api/currencies/**", "/api/countries/**",
-                                                                "/api/customers/**", "/api/suppliers/**",
-                                                                "/api/sales-orders/**", "/api/aged-receivables/**")
-                                                .filters(f -> f.filter(jwtAuthenticationFilter
-                                                                .apply(new JwtAuthenticationFilter.Config())))
-                                                .uri("lb://ginuma-service"))
 
                                 .build();
         }
