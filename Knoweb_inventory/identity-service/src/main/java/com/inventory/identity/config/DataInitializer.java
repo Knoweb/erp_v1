@@ -69,9 +69,20 @@ public class DataInitializer implements CommandLineRunner {
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             """).executeUpdate();
 
-            subscriptionEntityManager.createNativeQuery(
-                    "ALTER TABLE company_tenant ADD COLUMN IF NOT EXISTS plan_type VARCHAR(50)"
-            ).executeUpdate();
+                    Number columnCount = (Number) subscriptionEntityManager.createNativeQuery("""
+                        SELECT COUNT(*)
+                        FROM information_schema.columns
+                        WHERE table_schema = DATABASE()
+                          AND table_name = 'company_tenant'
+                          AND column_name = 'plan_type'
+                        """)
+                        .getSingleResult();
+
+                    if (columnCount.intValue() == 0) {
+                    subscriptionEntityManager.createNativeQuery(
+                        "ALTER TABLE company_tenant ADD COLUMN plan_type VARCHAR(50)"
+                    ).executeUpdate();
+                    }
 
             subscriptionEntityManager.createNativeQuery(
                     "UPDATE company_tenant SET plan_type = 'TRIAL' WHERE plan_type IS NULL OR plan_type = ''"
