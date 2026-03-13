@@ -1,33 +1,17 @@
 package com.inventory.subscription.config;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-@Configuration
-public class CorsConfig implements WebMvcConfigurer {
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins(
-                        "http://localhost:5173",
-                        "http://localhost:5174",
-                        "http://localhost:5175",
-                        "http://localhost:5176",
-                        "http://localhost:3000",
-                        "http://localhost:3001",
-                        "http://localhost:3002",
-                        "http://localhost:3003",
-                        "http://167.71.206.166:3000",
-                        "http://167.71.206.166:3001",
-                        "http://167.71.206.166:3002",
-                        "http://167.71.206.166:3003"
-                )
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-                .allowedHeaders("*")
-                .exposedHeaders("Authorization", "Content-Type")
-                .allowCredentials(true)
-                .maxAge(3600);
-    }
-}
+// ============================================================
+// CORS IS HANDLED BY THE API GATEWAY (Port 8080)
+// ============================================================
+// DO NOT add CORS configuration here. All requests from the
+// frontend go through the API Gateway (Spring Cloud Gateway),
+// which already applies CorsWebFilter with all allowed origins.
+//
+// Adding CORS config here causes a DUPLICATE Access-Control-Allow-Origin
+// header (one from Gateway + one from this service), which browsers
+// reject with: "The 'Access-Control-Allow-Origin' header contains
+// multiple values".
+//
+// See:
+// Knoweb_inventory/api-gateway/src/main/java/com/inventory/gateway/config/CorsConfig.java
+// ============================================================
