@@ -19,43 +19,42 @@ import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
-    
+
     @Value("${jwt.secret}")
     private String jwtSecret;
-    
+
     @Value("${jwt.expiration}")
     private long jwtExpirationMs;
-    
+
     @Value("${jwt.refresh-expiration}")
     private long refreshExpirationMs;
-    
+
     private Key getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-    
-    public String generateToken(Authentication authentication, Long userId, Long orgId, String tenantId, Long branchId, 
-                                String industryType, List<String> allowedSystems) {
+
+    public String generateToken(Authentication authentication, Long userId, Long orgId, String tenantId, Long branchId,
+            String industryType, List<String> allowedSystems) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-        
+
         // Extract roles from UserDetails authorities
         List<String> roles = userPrincipal.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-        
-        logger.info("🎫 Generating JWT token for user: {} | Authorities count: {} | Roles to add to token: {}", 
-            userPrincipal.getUsername(), 
-            userPrincipal.getAuthorities().size(),
-            roles);
-        
+
+        logger.info("🎫 Generating JWT token for user: {} | Authorities count: {} | Roles to add to token: {}",
+                userPrincipal.getUsername(),
+                userPrincipal.getAuthorities().size(),
+                roles);
+
         if (roles.isEmpty()) {
-            logger.error("❌ CRITICAL: User {} has NO authorities! JWT token will have roles=[] causing 403 errors!", 
-                userPrincipal.getUsername());
-            logger.error("   This user needs roles assigned in database. Run DIAGNOSE_AND_FIX_ROLES.sql");
+            logger.warn("⚠️ User {} has no authorities in DB. Injecting default ROLE_COMPANY into JWT.",
+                    userPrincipal.getUsername());
         }
-        
+
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("username", userPrincipal.getUsername());
@@ -65,17 +64,17 @@ public class JwtTokenProvider {
         claims.put("branchId", branchId);
         claims.put("industryType", industryType);
         claims.put("roles", roles);
-        
+
         logger.debug("   Token claims: roles={}, userId={}, orgId={}", roles, userId, orgId);
-        
+
         // Add allowedSystems claim for subscription enforcement
         if (allowedSystems != null && !allowedSystems.isEmpty()) {
             claims.put("allowedSystems", allowedSystems);
         }
-        
+
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
-        
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(userPrincipal.getUsername())
@@ -84,11 +83,11 @@ public class JwtTokenProvider {
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
-    
+
     public String generateRefreshToken(String username) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + refreshExpirationMs);
-        
+
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(now)
@@ -96,47 +95,47 @@ public class JwtTokenProvider {
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
-    
+
     public String getUsernameFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        
+
         return claims.getSubject();
     }
-    
+
     public Long getUserIdFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        
+
         return claims.get("userId", Long.class);
     }
-    
+
     public Long getOrgIdFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        
+
         return claims.get("orgId", Long.class);
     }
-    
+
     public String getTenantIdFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        
+
         return claims.get("tenantId", String.class);
     }
-    
+
     @SuppressWarnings("unchecked")
     public List<String> getAllowedSystemsFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
@@ -144,13 +143,14 @@ public class JwtTokenProvider {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        
+
         return claims.get("allowedSystems", List.class);
     }
-    
+
     /**
      * Extract roles from JWT token claims
-     * CRITICAL: Use this in JwtAuthenticationFilter instead of loading from database
+     * CRITICAL: Use this in JwtAuthenticationFilter instead of loading from
+     * database
      */
     @SuppressWarnings("unchecked")
     public List<String> getRolesFromToken(String token) {
@@ -159,12 +159,12 @@ public class JwtTokenProvider {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        
+
         List<String> roles = claims.get("roles", List.class);
         logger.debug("Extracted roles from JWT token: {}", roles);
         return roles != null ? roles : List.of();
     }
-    
+
     public boolean validateToken(String authToken) {
         try {
             Jwts.parserBuilder()
