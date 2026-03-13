@@ -36,7 +36,7 @@ const Sidebar = () => {
 
     const handleLogout = () => {
         logout();
-        window.location.href = 'http://localhost:5173/login';
+        window.location.href = 'http://167.71.206.166:3000/login';
     };
 
     const getIndustryMenuItems = () => {
@@ -64,14 +64,14 @@ const Sidebar = () => {
         <aside className="bg-slate-950 border-r border-slate-900 h-screen flex flex-col w-72 overflow-y-auto sticky top-0 custom-scrollbar shadow-2xl">
             <div className="px-8 py-8 mb-2 relative overflow-hidden">
                 <div className="absolute -top-10 -left-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl" />
-                
+
                 {/* Company Logo */}
                 <div className="flex items-center gap-4 relative z-10">
                     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-800 flex items-center justify-center shadow-[0_8px_30px_rgb(79,70,229,0.4)] border border-indigo-500/20 overflow-hidden">
                         {user?.companyLogo ? (
-                            <img 
+                            <img
                                 src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}${user.companyLogo}`}
-                                alt="Company Logo" 
+                                alt="Company Logo"
                                 className="w-full h-full object-cover"
                                 onLoad={() => {
                                     console.log('✅ Logo loaded successfully!');
@@ -91,9 +91,9 @@ const Sidebar = () => {
                             />
                         ) : (
                             <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" fillOpacity="0.3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" fillOpacity="0.3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         )}
                     </div>
@@ -195,7 +195,7 @@ const Sidebar = () => {
                     <LogOut className="w-5 h-5 flex-shrink-0 group-hover:-translate-x-1 transition-transform" />
                     <span>Disconnect</span>
                 </button>
-                <button 
+                <button
                     onClick={() => navigate('/profile')}
                     className="w-full px-6 pb-4 pt-2 hover:transform hover:scale-[1.02] transition-all duration-200"
                 >

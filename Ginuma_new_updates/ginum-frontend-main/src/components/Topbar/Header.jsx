@@ -16,7 +16,7 @@ const Header = ({ toggleSidebar, isSidebarVisible }) => {
   // Function to handle logout
   const handleLogout = () => {
     localStorage.clear();
-    window.location.href = "http://localhost:5173/login";
+    window.location.href = "http://167.71.206.166:3000/login";
   };
 
   // Function to close the sidebar on mobile/tablet screens
