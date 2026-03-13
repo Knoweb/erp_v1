@@ -4,7 +4,9 @@
  * for fetching subscribed systems and access control
  */
 
-const API_BASE_URL = import.meta.env.VITE_SUBSCRIPTION_API_URL || 'http://localhost:8091/api/subscriptions';
+const HOST = window.location.hostname;
+const PROTOCOL = window.location.protocol;
+const API_BASE_URL = import.meta.env.VITE_SUBSCRIPTION_API_URL || `${PROTOCOL}//${HOST}:8091/api/subscriptions`;
 
 /**
  * SystemAccessResponse interface matching backend DTO

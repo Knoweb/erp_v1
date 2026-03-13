@@ -7,6 +7,11 @@ import { Mail, Lock, Eye, EyeOff, ArrowLeft, LogIn } from 'lucide-react';
  * Authenticates users and redirects to dashboard
  */
 const Login = () => {
+  const host = window.location.hostname;
+  const protocol = window.location.protocol;
+  const gatewayBaseUrl = import.meta.env.VITE_API_BASE_URL || `${protocol}//${host}:8080`;
+  const subscriptionBaseUrl = import.meta.env.VITE_SUBSCRIPTION_BASE_URL || `${protocol}//${host}:8091`;
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -24,7 +29,7 @@ const Login = () => {
     try {
       // Call API Gateway (port 8080) instead of identity service directly
       // Gateway will route to identity-service internally
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      const response = await fetch(`${gatewayBaseUrl}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,7 +75,7 @@ const Login = () => {
         console.log(`🔍 Checking block status for orgId: ${orgId}`);
         
         const blockCheckResponse = await fetch(
-          `http://localhost:8091/api/internal/subscriptions/access/${orgId}`,
+          `${subscriptionBaseUrl}/api/internal/subscriptions/access/${orgId}`,
           {
             method: 'GET',
             headers: {

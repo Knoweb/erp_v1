@@ -19,6 +19,18 @@ import {
 } from 'lucide-react';
 import { getMySubscribedSystems, type SystemAccessResponse } from '../services/subscriptionApi';
 
+const HOST = window.location.hostname;
+const PROTOCOL = window.location.protocol;
+const IS_LOCAL = HOST === 'localhost' || HOST === '127.0.0.1';
+
+const URLS = {
+  main: `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5173' : '3000'}`,
+  ginuma: `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5176' : '3001'}`,
+  inventory: `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5174' : '3002'}`,
+  pirisahr: `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5175' : '3003'}`,
+  gateway: `${PROTOCOL}//${HOST}:8080`
+};
+
 // All available systems in the platform
 const ALL_AVAILABLE_SYSTEMS = ['GINUMA', 'INVENTORY', 'PIRISAHR', 'ALL_IN_ONE'];
 
@@ -37,7 +49,7 @@ const SYSTEM_INFO: Record<string, {
     color: 'from-blue-600 to-cyan-500',
     icon: Briefcase,
     features: ['Employee Management', 'Payroll Processing', 'Financial Accounting', 'Customer Relationship Management'],
-    frontendUrl: 'http://localhost:5176'
+    frontendUrl: URLS.ginuma
   },
   INVENTORY: {
     name: 'Inventory System',
@@ -45,7 +57,7 @@ const SYSTEM_INFO: Record<string, {
     color: 'from-green-600 to-emerald-500',
     icon: Package,
     features: ['Stock Management', 'Warehouse Operations', 'Order Processing', 'Supplier Management'],
-    frontendUrl: 'http://localhost:5174'
+    frontendUrl: URLS.inventory
   },
   PIRISAHR: {
     name: 'PirisaHR',
@@ -53,7 +65,7 @@ const SYSTEM_INFO: Record<string, {
     color: 'from-purple-600 to-pink-500',
     icon: User,
     features: ['Employee Records', 'Attendance Tracking', 'Leave Management', 'Performance Reviews'],
-    frontendUrl: 'http://localhost:5175'
+    frontendUrl: URLS.pirisahr
   },
   ALL_IN_ONE: {
     name: 'All-in-One Suite',
@@ -61,7 +73,7 @@ const SYSTEM_INFO: Record<string, {
     color: 'from-orange-600 to-red-500',
     icon: Sparkles,
     features: ['Full ERP Access', 'Complete Inventory Management', 'Comprehensive HR Suite', 'Unified Dashboard'],
-    frontendUrl: 'http://localhost:5173'
+    frontendUrl: URLS.main
   }
 };
 
@@ -388,9 +400,9 @@ const Dashboard = () => {
     sessionStorage.clear();
     
     // Build SSO logout chain URLs
-    const inventoryLogoutUrl = 'http://localhost:5174/auth/logout';
-    const ginumaLogoutUrl = 'http://localhost:5176/account/auth/logout';
-    const finalReturnUrl = 'http://localhost:5173/login';
+    const inventoryLogoutUrl = `${URLS.inventory}/auth/logout`;
+    const ginumaLogoutUrl = `${URLS.ginuma}/account/auth/logout`;
+    const finalReturnUrl = '/login';
     
     // Build the returnTo chain (working backwards):
     // Ginuma (5176) will redirect to: finalReturnUrl
@@ -452,7 +464,7 @@ const Dashboard = () => {
 
       // Make POST request to upgrade endpoint with Authorization header
       const response = await axios.post(
-        'http://localhost:8080/api/subscriptions/upgrade',
+        `${URLS.gateway}/api/subscriptions/upgrade`,
         {
           orgId: orgId,
           newSystem: systemName

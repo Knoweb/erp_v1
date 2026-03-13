@@ -5,7 +5,7 @@ const Inventory = () => {
   useEffect(() => {
     // Redirect to Knoweb Inventory registration after 3 seconds
     const timer = setTimeout(() => {
-      window.location.href = 'http://localhost:5173/register';
+      window.location.href = '/register';
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -25,7 +25,7 @@ const Inventory = () => {
           You will be redirected to our secure registration page in a moment...
         </p>
         <a
-          href="http://localhost:5173/register"
+          href="/register"
           className="inline-block w-full bg-gradient-to-r from-emerald-600 to-teal-500 text-white py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5"
         >
           Continue to Registration

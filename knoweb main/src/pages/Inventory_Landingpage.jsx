@@ -134,7 +134,7 @@ function Hero() {
                             make informed decisions with real-time insights.
                         </p>
                         <button 
-                            onClick={() => window.location.href = 'http://localhost:5173/register?system=INVENTORY'}
+                            onClick={() => window.location.href = '/register?system=INVENTORY'}
                             className="px-8 py-4 bg-sky-400 text-white text-lg font-bold rounded-full shadow-lg hover:bg-sky-500 transition-all transform hover:-translate-y-1"
                         >
                             Get Started
@@ -491,7 +491,7 @@ const Footer = () => {
                         </p>
                         <div className="pt-2">
                             <button 
-                                onClick={() => window.location.href = 'http://localhost:5173/register?system=INVENTORY'}
+                                onClick={() => window.location.href = '/register?system=INVENTORY'}
                                 className="px-8 py-3 bg-sky-400 text-white font-bold rounded-full shadow-lg hover:bg-sky-500 transition-colors"
                             >
                                 Get Started

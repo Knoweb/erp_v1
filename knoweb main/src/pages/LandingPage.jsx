@@ -156,7 +156,7 @@ const Hero = () => {
                         </p>
 
                         <button 
-                            onClick={() => window.location.href = 'http://localhost:5173/register?system=GINUMA'}
+                            onClick={() => window.location.href = '/register?system=GINUMA'}
                             className="px-10 py-3 bg-[#4DC4F4] text-white font-bold rounded-full shadow-lg hover:bg-cyan-400 transition-all duration-300 transform hover:-translate-y-1 text-lg"
                         >
                             Get Started
@@ -1208,7 +1208,7 @@ const Footer = () => {
                         </p>
                         <div className="pt-2">
                             <button 
-                                onClick={() => window.location.href = 'http://localhost:5173/register?system=GINUMA'}
+                                onClick={() => window.location.href = '/register?system=GINUMA'}
                                 className="px-8 py-3 bg-sky-400 text-white font-bold rounded-full shadow-lg hover:bg-sky-500 transition-colors"
                             >
                                 Get Started

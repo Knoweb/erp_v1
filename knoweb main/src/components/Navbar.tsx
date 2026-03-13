@@ -125,7 +125,7 @@ const Navbar = () => {
                         {/* Auth Section */}
                         <div className="hidden md:flex items-center space-x-4">
                             <a
-                                href="http://localhost:5173/register"
+                                href="/register"
                                 className="group flex items-center space-x-2 px-6 py-2.5 border-2 border-blue-600 rounded-full text-base font-bold text-gray-900 bg-white hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-sm hover:shadow-blue-500/30"
                             >
                                 <LogIn className="w-5 h-5 transition-transform group-hover:translate-x-1" />
@@ -208,7 +208,7 @@ const Navbar = () => {
                     {/* Mobile Menu Footer */}
                     <div className="p-6 border-t border-gray-100 space-y-4">
                         <a
-                            href="http://localhost:5173/register"
+                            href="/register"
                             className="group flex items-center justify-center space-x-2 w-full px-6 py-3 border-2 border-blue-600 rounded-xl font-bold text-gray-900 bg-white hover:bg-blue-600 hover:text-white transition-all duration-300"
                             onClick={() => setIsOpen(false)}
                         >

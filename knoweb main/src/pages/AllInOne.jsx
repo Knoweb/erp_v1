@@ -285,7 +285,7 @@ export default function LandingPage() {
                             </p>
                             <div className="flex flex-wrap gap-4">
                                 <button 
-                                    onClick={() => window.location.href = 'http://localhost:5173/register?system=ALL_IN_ONE'}
+                                    onClick={() => window.location.href = '/register?system=ALL_IN_ONE'}
                                     className="px-8 py-4 bg-sky-500 text-white font-bold rounded-full shadow-lg shadow-sky-500/20 hover:bg-sky-600 transition-all active:scale-95"
                                 >
                                     Get Started Free

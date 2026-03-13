@@ -102,6 +102,9 @@ const Register = () => {
     setLoading(true);
 
     try {
+      const HOST = window.location.hostname;
+      const PROTOCOL = window.location.protocol;
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `${PROTOCOL}//${HOST}:8080`;
       let logoUrl = '';
 
       // Step 1: Upload Logo if selected
@@ -109,7 +112,6 @@ const Register = () => {
         const uploadData = new FormData();
         uploadData.append('file', selectedFile);
 
-        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
         const uploadRes = await axios.post(`${API_BASE_URL}/api/organizations/logo/upload`, uploadData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
@@ -129,7 +131,7 @@ const Register = () => {
 
       // Call the unified registration endpoint through API Gateway (port 8080)
       // Gateway will route to identity-service internally
-      const response = await axios.post('http://localhost:8080/api/auth/register/unified', payload);
+        const response = await axios.post(`${API_BASE_URL}/api/auth/register/unified`, payload);
 
       // Check for successful registration
       if (response.data.success === true) {
