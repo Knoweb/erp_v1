@@ -37,7 +37,7 @@ Add these secrets:
 ```
 DOCKER_USERNAME: your_dockerhub_username
 DOCKER_PASSWORD: your_dockerhub_password_or_token
-DO_HOST: your_droplet_ip (e.g., 142.93.xxx.xxx)
+DO_HOST: 167.71.206.166
 DO_USERNAME: root (or ubuntu)
 DO_SSH_KEY: your_private_ssh_key_content
 ```
@@ -53,7 +53,7 @@ DO_SSH_KEY: your_private_ssh_key_content
 **Install Docker on Droplet:**
 ```bash
 # SSH into droplet
-ssh root@your_droplet_ip
+ssh root@167.71.206.166
 
 # Install Docker
 curl -fsSL https://get.docker.com -o get-docker.sh
@@ -74,9 +74,9 @@ sudo chown -R $USER:$USER /app
 Transfer these files to `/app` directory on your droplet:
 ```bash
 # From your local machine
-scp docker-compose.yml root@your_droplet_ip:/app/
-scp init.sql root@your_droplet_ip:/app/
-scp .env root@your_droplet_ip:/app/
+scp docker-compose.yml root@167.71.206.166:/app/
+scp init.sql root@167.71.206.166:/app/
+scp .env root@167.71.206.166:/app/
 ```
 
 Or use Git:
@@ -158,21 +158,21 @@ All services should show "Up" status.
 
 ### 2. Check Eureka Dashboard
 ```
-http://your_droplet_ip:8761
+http://167.71.206.166:8761
 ```
 All microservices should be registered.
 
 ### 3. Check API Gateway
 ```
-http://your_droplet_ip:8080/actuator/health
+http://167.71.206.166:8080/actuator/health
 ```
 Should return `{"status":"UP"}`
 
 ### 4. Check Frontend Applications
-- Knoweb Main: `http://your_droplet_ip:3000`
-- Ginuma Frontend: `http://your_droplet_ip:3001`
-- Inventory Frontend: `http://your_droplet_ip:3002`
-- Subscription Frontend: `http://your_droplet_ip:3003`
+- Knoweb Main: `http://167.71.206.166:3000`
+- Ginuma Frontend: `http://167.71.206.166:3001`
+- Inventory Frontend: `http://167.71.206.166:3002`
+- Subscription Frontend: `http://167.71.206.166:3003`
 
 ### 5. Check Database
 ```bash
@@ -344,7 +344,7 @@ sudo netstat -tulpn | grep :8080
 1. **Check Logs**: `docker compose logs -f <service-name>`
 2. **Check GitHub Actions**: Repository → Actions tab
 3. **Verify Secrets**: Settings → Secrets and variables → Actions
-4. **Test SSH**: `ssh -i your_key root@your_droplet_ip`
+4. **Test SSH**: `ssh -i your_key root@167.71.206.166`
 5. **Check Docker Hub**: Verify images are being pushed
 
 ---

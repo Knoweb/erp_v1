@@ -63,7 +63,7 @@ This repository contains a complete microservices-based ERP system with:
 3. **GitHub Repository Secrets** (Settings → Secrets → Actions):
    - `DOCKER_USERNAME` - Your Docker Hub username
    - `DOCKER_PASSWORD` - Your Docker Hub password or access token
-   - `DO_HOST` - DigitalOcean Droplet IP address
+   - `DO_HOST` - `167.71.206.166`
    - `DO_USERNAME` - SSH username (usually 'root' or 'ubuntu')
    - `DO_SSH_KEY` - Your private SSH key
 
@@ -227,15 +227,15 @@ docker compose rm -f <service-name>
 ## 📊 Monitoring
 
 ### Health Checks
-- Eureka Dashboard: `http://your-ip:8761`
-- API Gateway Health: `http://your-ip:8080/actuator/health`
-- Individual Service Health: `http://your-ip:<port>/actuator/health`
+- Eureka Dashboard: `http://167.71.206.166:8761`
+- API Gateway Health: `http://167.71.206.166:8080/actuator/health`
+- Individual Service Health: `http://167.71.206.166:<port>/actuator/health`
 
 ### Frontend Access
-- Knoweb Main: `http://your-ip:3000`
-- Ginuma Frontend: `http://your-ip:3001`
-- Inventory Frontend: `http://your-ip:3002`
-- Subscription Frontend: `http://your-ip:3003`
+- Knoweb Main: `http://167.71.206.166:3000`
+- Ginuma Frontend: `http://167.71.206.166:3001`
+- Inventory Frontend: `http://167.71.206.166:3002`
+- Subscription Frontend: `http://167.71.206.166:3003`
 
 ## 🐛 Troubleshooting
 

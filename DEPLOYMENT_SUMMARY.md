@@ -131,7 +131,7 @@ DigitalOcean Droplet
 ```
 DOCKER_USERNAME → Your Docker Hub username
 DOCKER_PASSWORD → Your Docker Hub password/token
-DO_HOST → Droplet IP (e.g., 142.93.xxx.xxx)
+DO_HOST → 167.71.206.166
 DO_USERNAME → SSH user (usually 'root')
 DO_SSH_KEY → Your private SSH key content
 ```
@@ -293,13 +293,13 @@ After deployment, verify:
 
 2. **Eureka Dashboard**
    ```
-   http://your_ip:8761
+   http://167.71.206.166:8761
    ```
    Should show 13 registered services
 
 3. **API Gateway Health**
    ```
-   http://your_ip:8080/actuator/health
+   http://167.71.206.166:8080/actuator/health
    ```
    Should return `{"status":"UP"}`
 
@@ -310,10 +310,10 @@ After deployment, verify:
    Should show all 12 databases
 
 5. **Frontend Apps**
-   - http://your_ip:3000 (knoweb-main)
-   - http://your_ip:3001 (ginuma-frontend)
-   - http://your_ip:3002 (inventory-frontend)
-   - http://your_ip:3003 (subscription-frontend)
+   - http://167.71.206.166:3000 (knoweb-main)
+   - http://167.71.206.166:3001 (ginuma-frontend)
+   - http://167.71.206.166:3002 (inventory-frontend)
+   - http://167.71.206.166:3003 (subscription-frontend)
 
 ---
 
