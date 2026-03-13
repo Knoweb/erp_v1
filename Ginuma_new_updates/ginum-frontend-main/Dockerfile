@@ -1,8 +1,8 @@
 # Multi-stage build for React application
-FROM node:18 AS build
+FROM node:22-bookworm-slim AS build
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN if [ -f package-lock.json ]; then npm ci --include=optional; else npm install --include=optional; fi
 COPY . .
 RUN npm run build
 
