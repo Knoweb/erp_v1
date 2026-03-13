@@ -14,25 +14,25 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SystemSetupResponse {
-    
+
     private boolean success;
     private String message;
-    
+
     // System-specific organization/tenant ID
     private Long orgId;
-    private Long tenantId;
+    private String tenantId;
     private Long companyId;
-    
+
     // Branch ID (primarily for Inventory system)
     private Long branchId;
-    
+
     // User ID in the target system
     private Long userId;
-    
+
     // Database/Schema information
     private String databaseName;
     private String schemaName;
-    
+
     // Error information
     private String errorCode;
     private String errorDetails;
