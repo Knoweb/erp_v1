@@ -140,21 +140,14 @@ public class GatewayConfig {
                                                                 .apply(new JwtAuthenticationFilter.Config())))
                                                 .uri("lb://ginuma-service"))
 
-                                // Ginuma Service - Common Ginuma Modules
+                                // Ginuma Service - Common Ginuma Modules (Curated to avoid standalone service
+                                // conflicts)
                                 .route("ginuma-common", r -> r
                                                 .path("/api/currencies/**", "/api/countries/**",
                                                                 "/api/customers/**",
                                                                 "/api/sales-orders/**", "/api/purchase-orders/**",
                                                                 "/api/projects/**", "/api/items/**",
-                                                                "/api/inventory/**",
                                                                 "/api/aged-receivables/**", "/api/aged-payables/**")
-                                                .filters(f -> f.filter(jwtAuthenticationFilter
-                                                                .apply(new JwtAuthenticationFilter.Config())))
-                                                .uri("lb://ginuma-service"))
-
-                                // Ginuma Service - Numeric Company ID Catch-all (Handle /api/{companyId}/**)
-                                .route("ginuma-company-id-catchall", r -> r
-                                                .path("/api/{companyId}/**")
                                                 .filters(f -> f.filter(jwtAuthenticationFilter
                                                                 .apply(new JwtAuthenticationFilter.Config())))
                                                 .uri("lb://ginuma-service"))
@@ -194,6 +187,15 @@ public class GatewayConfig {
                                                 .filters(f -> f.filter(jwtAuthenticationFilter
                                                                 .apply(new JwtAuthenticationFilter.Config())))
                                                 .uri("lb://reporting-service"))
+
+                                // Ginuma Service - Numeric Company ID Catch-all (Fallback)
+                                // This must be the very last route to avoid stealing requests from other
+                                // specific services
+                                .route("ginuma-company-id-catchall", r -> r
+                                                .path("/api/{companyId}/**")
+                                                .filters(f -> f.filter(jwtAuthenticationFilter
+                                                                .apply(new JwtAuthenticationFilter.Config())))
+                                                .uri("lb://ginuma-service"))
 
                                 .build();
         }
