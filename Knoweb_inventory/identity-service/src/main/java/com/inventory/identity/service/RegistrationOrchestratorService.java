@@ -25,8 +25,8 @@ import java.util.Collections;
  * 1. Creates user in identity_db (identity service)
  * 2. Creates company tenant in subscription_db (subscription service data)
  * 3. Routes to appropriate system based on selection:
- * - GINUMA: POST to http://localhost:8081/api/tenant/setup
- * - INVENTORY: POST to http://localhost:8086/api/users/org/setup
+ * - GINUMA: POST to http://ginuma-service:8081/api/tenant/setup
+ * - INVENTORY: POST to http://user-service:8086/api/users/org/setup
  * 
  * IMPLEMENTS STRICT ISOLATION: Each system's data stays in its own database
  */
@@ -270,7 +270,7 @@ public class RegistrationOrchestratorService {
 
     /**
      * Setup Ginuma ERP System
-     * Makes REST call to: http://localhost:8081/api/tenant/setup
+     * Makes REST call to: http://ginuma-service:8081/api/tenant/setup
      * Data saved to: ginuma_db
      */
     private SystemSetupResponse setupGinumaSystem(UnifiedRegistrationRequest request, Long orgId) {
@@ -334,7 +334,7 @@ public class RegistrationOrchestratorService {
 
     /**
      * Setup Inventory Management System
-     * Makes REST call to: http://localhost:8086/api/users/org/setup
+     * Makes REST call to: http://user-service:8086/api/users/org/setup
      * Data saved to: user_db
      */
     private SystemSetupResponse setupInventorySystem(UnifiedRegistrationRequest request, Long orgId) {
