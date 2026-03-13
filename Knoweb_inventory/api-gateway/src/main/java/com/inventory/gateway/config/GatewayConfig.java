@@ -145,6 +145,13 @@ public class GatewayConfig {
                                                                 .apply(new JwtAuthenticationFilter.Config())))
                                                 .uri("lb://ginuma-service"))
 
+                                // Ginuma Service - Numeric Company ID Catch-all (Handle /api/{companyId}/**)
+                                .route("ginuma-company-id-catchall", r -> r
+                                                .path("/api/{companyId}/**")
+                                                .filters(f -> f.filter(jwtAuthenticationFilter
+                                                                .apply(new JwtAuthenticationFilter.Config())))
+                                                .uri("lb://ginuma-service"))
+
                                 // --- END GINUMA SERVICE ROUTES ---
 
                                 // Standalone Inventory Supplier Service (Only matches if not caught by Ginuma
