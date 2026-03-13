@@ -104,14 +104,21 @@ public class GatewayConfig {
 
                                 // --- GINUMA SERVICE ROUTES (MOVED UP TO PREVENT CONFLICTS) ---
 
-                                // Ginuma Service - Suppliers with company path (Specific to Ginuma)
+                                // Ginuma Service - Suppliers (Specific to Ginuma)
                                 .route("ginuma-suppliers-company", r -> r
                                                 .path("/api/suppliers/companies/**")
                                                 .filters(f -> f.filter(jwtAuthenticationFilter
                                                                 .apply(new JwtAuthenticationFilter.Config())))
                                                 .uri("lb://ginuma-service"))
 
-                                // Ginuma Service - Employees with company path (Specific to Ginuma)
+                                // Inventory Service - Suppliers (Specific to Inventory Organization)
+                                .route("inventory-suppliers-org", r -> r
+                                                .path("/api/suppliers/organization/**")
+                                                .filters(f -> f.filter(jwtAuthenticationFilter
+                                                                .apply(new JwtAuthenticationFilter.Config())))
+                                                .uri("lb://supplier-service"))
+
+                                // Ginuma Service - Employees
                                 .route("ginuma-employees-company-specific", r -> r
                                                 .path("/api/employees/companies/**")
                                                 .filters(f -> f.filter(jwtAuthenticationFilter
@@ -136,7 +143,7 @@ public class GatewayConfig {
                                 // Ginuma Service - Common Ginuma Modules
                                 .route("ginuma-common", r -> r
                                                 .path("/api/currencies/**", "/api/countries/**",
-                                                                "/api/customers/**", "/api/suppliers/**",
+                                                                "/api/customers/**",
                                                                 "/api/sales-orders/**", "/api/purchase-orders/**",
                                                                 "/api/projects/**", "/api/items/**",
                                                                 "/api/inventory/**",
@@ -154,8 +161,7 @@ public class GatewayConfig {
 
                                 // --- END GINUMA SERVICE ROUTES ---
 
-                                // Standalone Inventory Supplier Service (Only matches if not caught by Ginuma
-                                // above)
+                                // Standalone Inventory Supplier Service - Catch-all
                                 .route("supplier-service", r -> r
                                                 .path("/api/suppliers/**", "/api/suppliers")
                                                 .filters(f -> f.filter(jwtAuthenticationFilter
