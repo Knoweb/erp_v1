@@ -9,6 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,14 +24,41 @@ public class DataInitializer implements CommandLineRunner {
     
     @Autowired
     private PermissionRepository permissionRepository;
+
+    @PersistenceContext(unitName = "subscription")
+    private EntityManager subscriptionEntityManager;
     
+    @Transactional
     @Override
     public void run(String... args) throws Exception {
+        // Ensure subscription table exists before registration queries run
+        ensureCompanyTenantTableExists();
+
         // Create permissions if they don't exist
         createPermissionsIfNotExist();
         
         // Create roles if they don't exist
         createRolesIfNotExist();
+    }
+
+    private void ensureCompanyTenantTableExists() {
+        subscriptionEntityManager.createNativeQuery("""
+            CREATE TABLE IF NOT EXISTS company_tenant (
+                id BIGINT NOT NULL AUTO_INCREMENT,
+                org_id BIGINT NOT NULL,
+                company_name VARCHAR(255) NOT NULL,
+                contact_email VARCHAR(255),
+                status VARCHAR(50),
+                subscription_start_date DATE,
+                subscription_end_date DATE,
+                subscribed_systems JSON,
+                created_at DATETIME(6),
+                updated_at DATETIME(6),
+                PRIMARY KEY (id),
+                UNIQUE KEY UK_company_tenant_org_id (org_id),
+                KEY IDX_company_tenant_contact_email (contact_email)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        """).executeUpdate();
     }
     
     private void createPermissionsIfNotExist() {
