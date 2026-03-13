@@ -1,12 +1,10 @@
 package com.example.GinumApps.model;
 
-
 import com.example.GinumApps.enums.AccountType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-
 
 import java.math.BigDecimal;
 
@@ -16,10 +14,10 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "accounts",uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"company_id", "accountCode"}),
-        @UniqueConstraint(columnNames = {"company_id", "normalizedName"})
-        })
+@Table(name = "accounts", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "company_id", "accountCode" }),
+        @UniqueConstraint(columnNames = { "company_id", "normalizedName" })
+})
 @RequiredArgsConstructor
 public class Account {
     @Id
@@ -53,8 +51,6 @@ public class Account {
 
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     @JsonIgnore
     private Company company;
 

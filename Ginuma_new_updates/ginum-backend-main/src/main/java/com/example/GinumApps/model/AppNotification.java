@@ -19,6 +19,7 @@ public class AppNotification {
     @Column(nullable = false)
     private String message;
 
+    @Builder.Default
     @Column(name = "is_read", nullable = false)
     private boolean readStatus = false;
 

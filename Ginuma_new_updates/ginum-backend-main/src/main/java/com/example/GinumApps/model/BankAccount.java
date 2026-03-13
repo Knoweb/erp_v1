@@ -3,9 +3,12 @@ package com.example.GinumApps.model;
 import com.example.GinumApps.enums.AccountType;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
+
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "bank_accounts")
 public class BankAccount extends Account {
@@ -30,6 +33,7 @@ public class BankAccount extends Account {
             super.setAccountName("Bank-" + bankName);
         }
     }
+
     @Override
     public void setAccountType(AccountType accountType) {
         // Prevent changing the account type

@@ -113,29 +113,21 @@ public class Company {
 
     @ManyToOne
     @JoinColumn(name = "freight_account_id")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     @JsonIgnore
     private Account freightAccount;
 
     @ManyToOne
     @JoinColumn(name = "tax_account_id")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     @JsonIgnore
     private Account taxAccount;
 
     @ManyToOne
     @JoinColumn(name = "accounts_payable_account_id")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     @JsonIgnore
     private Account accountsPayableAccount;
 
     @ManyToOne
     @JoinColumn(name = "accounts_receivable_account_id")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     @JsonIgnore
     private Account accountsReceivableAccount;
 
