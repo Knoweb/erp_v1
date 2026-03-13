@@ -49,6 +49,7 @@ public class DataInitializer implements CommandLineRunner {
                 company_name VARCHAR(255) NOT NULL,
                 contact_email VARCHAR(255),
                 status VARCHAR(50),
+                plan_type VARCHAR(50),
                 subscription_start_date DATE,
                 subscription_end_date DATE,
                 subscribed_systems JSON,
@@ -59,6 +60,14 @@ public class DataInitializer implements CommandLineRunner {
                 KEY IDX_company_tenant_contact_email (contact_email)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         """).executeUpdate();
+
+            subscriptionEntityManager.createNativeQuery(
+                "ALTER TABLE company_tenant ADD COLUMN IF NOT EXISTS plan_type VARCHAR(50)"
+            ).executeUpdate();
+
+            subscriptionEntityManager.createNativeQuery(
+                "UPDATE company_tenant SET plan_type = 'TRIAL' WHERE plan_type IS NULL OR plan_type = ''"
+            ).executeUpdate();
     }
     
     private void createPermissionsIfNotExist() {

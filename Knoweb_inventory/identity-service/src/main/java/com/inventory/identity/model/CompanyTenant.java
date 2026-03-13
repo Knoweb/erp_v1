@@ -41,6 +41,10 @@ public class CompanyTenant {
     @Column(name = "status", length = 50)
     @Builder.Default
     private String status = "ACTIVE";  // ACTIVE, BLOCKED, PENDING
+
+    @Column(name = "plan_type", length = 50)
+    @Builder.Default
+    private String planType = "TRIAL";
     
     @Column(name = "subscription_start_date")
     private LocalDate subscriptionStartDate;
@@ -66,6 +70,9 @@ public class CompanyTenant {
         updatedAt = LocalDateTime.now();
         if (subscriptionStartDate == null) {
             subscriptionStartDate = LocalDate.now();
+        }
+        if (planType == null || planType.isBlank()) {
+            planType = "TRIAL";
         }
     }
     

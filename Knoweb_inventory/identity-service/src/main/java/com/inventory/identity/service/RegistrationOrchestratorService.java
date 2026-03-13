@@ -210,6 +210,7 @@ public class RegistrationOrchestratorService {
                 .companyName(request.getCompanyName())
                 .contactEmail(request.getEmail())
                 .status(status)
+            .planType("TRIAL")
                 .subscriptionStartDate(startDate)
                 .subscriptionEndDate(endDate)
                 .subscribedSystems(Collections.singletonList(request.getSelectedSystem().toUpperCase()))
