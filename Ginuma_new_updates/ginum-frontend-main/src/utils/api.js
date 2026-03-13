@@ -1,15 +1,16 @@
 import axios from "axios";
 
-// Export base API URL - Points to API Gateway (from .env or production server)
-export const apiUrl = import.meta.env.VITE_API_URL;
+// Export base API URL - Points to API Gateway via Nginx proxy OR Environment Variable
+// Relative path "/ginuma-api" is preferred as it works on any server IP/domain
+export const apiUrl = import.meta.env.VITE_API_URL || "/ginuma-api";
 
-if (!apiUrl) {
-  console.warn("⚠️ VITE_API_URL is not defined! Falling back to localhost:8080. Check your .env files.");
-}
+console.log("🚀 API Configuration Initialized:");
+console.log("   - Base URL:", apiUrl);
+console.log("   - Vite Env:", import.meta.env.VITE_API_URL || "NOT SET (Using default)");
 
 // Create an Axios instance
 const api = axios.create({
-  baseURL: apiUrl || "http://localhost:8080",
+  baseURL: apiUrl,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
