@@ -15,16 +15,24 @@ import java.util.Arrays;
 @Configuration
 public class CorsConfig {
 
-    
+
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
         
         // Allow multiple frontend origins
-        corsConfig.addAllowedOrigin("http://localhost:5173"); // Knoweb Main Portal
-        corsConfig.addAllowedOrigin("http://localhost:5174"); // Inventory Frontend
-        corsConfig.addAllowedOrigin("http://localhost:5176"); // Ginuma Frontend
-        corsConfig.addAllowedOrigin("http://localhost:3000");  // Alternative Frontend
+        corsConfig.addAllowedOrigin("http://localhost:5173"); // Knoweb Main Portal (local)
+        corsConfig.addAllowedOrigin("http://localhost:5174"); // Inventory Frontend (local)
+        corsConfig.addAllowedOrigin("http://localhost:5175"); // Subscription Frontend (local)
+        corsConfig.addAllowedOrigin("http://localhost:5176"); // Ginuma Frontend (local)
+        corsConfig.addAllowedOrigin("http://localhost:3000"); // Knoweb Main Portal (docker)
+        corsConfig.addAllowedOrigin("http://localhost:3001"); // Ginuma Frontend (docker)
+        corsConfig.addAllowedOrigin("http://localhost:3002"); // Inventory Frontend (docker)
+        corsConfig.addAllowedOrigin("http://localhost:3003"); // Subscription Frontend (docker)
+        corsConfig.addAllowedOrigin("http://167.71.206.166:3000"); // Knoweb Main (prod)
+        corsConfig.addAllowedOrigin("http://167.71.206.166:3001"); // Ginuma Frontend (prod)
+        corsConfig.addAllowedOrigin("http://167.71.206.166:3002"); // Inventory Frontend (prod)
+        corsConfig.addAllowedOrigin("http://167.71.206.166:3003"); // Subscription Frontend (prod)
         
         // Allow all HTTP methods (GET, POST, PUT, DELETE, OPTIONS, etc.)
         corsConfig.addAllowedMethod("*");
