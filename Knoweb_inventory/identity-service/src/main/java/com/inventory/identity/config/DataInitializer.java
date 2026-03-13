@@ -6,12 +6,14 @@ import com.inventory.identity.model.RoleName;
 import com.inventory.identity.repository.PermissionRepository;
 import com.inventory.identity.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -27,8 +29,13 @@ public class DataInitializer implements CommandLineRunner {
 
     @PersistenceContext(unitName = "subscription")
     private EntityManager subscriptionEntityManager;
+
+    private final TransactionTemplate subscriptionTxTemplate;
+
+    public DataInitializer(@Qualifier("subscriptionTransactionManager") PlatformTransactionManager subscriptionTxManager) {
+        this.subscriptionTxTemplate = new TransactionTemplate(subscriptionTxManager);
+    }
     
-    @Transactional
     @Override
     public void run(String... args) throws Exception {
         // Ensure subscription table exists before registration queries run
@@ -42,32 +49,34 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void ensureCompanyTenantTableExists() {
-        subscriptionEntityManager.createNativeQuery("""
-            CREATE TABLE IF NOT EXISTS company_tenant (
-                id BIGINT NOT NULL AUTO_INCREMENT,
-                org_id BIGINT NOT NULL,
-                company_name VARCHAR(255) NOT NULL,
-                contact_email VARCHAR(255),
-                status VARCHAR(50),
-                plan_type VARCHAR(50),
-                subscription_start_date DATE,
-                subscription_end_date DATE,
-                subscribed_systems JSON,
-                created_at DATETIME(6),
-                updated_at DATETIME(6),
-                PRIMARY KEY (id),
-                UNIQUE KEY UK_company_tenant_org_id (org_id),
-                KEY IDX_company_tenant_contact_email (contact_email)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        """).executeUpdate();
+        subscriptionTxTemplate.executeWithoutResult(status -> {
+            subscriptionEntityManager.createNativeQuery("""
+                CREATE TABLE IF NOT EXISTS company_tenant (
+                    id BIGINT NOT NULL AUTO_INCREMENT,
+                    org_id BIGINT NOT NULL,
+                    company_name VARCHAR(255) NOT NULL,
+                    contact_email VARCHAR(255),
+                    status VARCHAR(50),
+                    plan_type VARCHAR(50),
+                    subscription_start_date DATE,
+                    subscription_end_date DATE,
+                    subscribed_systems JSON,
+                    created_at DATETIME(6),
+                    updated_at DATETIME(6),
+                    PRIMARY KEY (id),
+                    UNIQUE KEY UK_company_tenant_org_id (org_id),
+                    KEY IDX_company_tenant_contact_email (contact_email)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            """).executeUpdate();
 
             subscriptionEntityManager.createNativeQuery(
-                "ALTER TABLE company_tenant ADD COLUMN IF NOT EXISTS plan_type VARCHAR(50)"
+                    "ALTER TABLE company_tenant ADD COLUMN IF NOT EXISTS plan_type VARCHAR(50)"
             ).executeUpdate();
 
             subscriptionEntityManager.createNativeQuery(
-                "UPDATE company_tenant SET plan_type = 'TRIAL' WHERE plan_type IS NULL OR plan_type = ''"
+                    "UPDATE company_tenant SET plan_type = 'TRIAL' WHERE plan_type IS NULL OR plan_type = ''"
             ).executeUpdate();
+        });
     }
     
     private void createPermissionsIfNotExist() {
