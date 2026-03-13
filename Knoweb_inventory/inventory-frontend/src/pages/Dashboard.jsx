@@ -25,6 +25,22 @@ function Dashboard() {
     fetchStats();
   }, []);
 
+  const asArray = (value) => {
+    if (Array.isArray(value)) {
+      return value;
+    }
+    if (Array.isArray(value?.content)) {
+      return value.content;
+    }
+    if (Array.isArray(value?.data)) {
+      return value.data;
+    }
+    if (Array.isArray(value?.items)) {
+      return value.items;
+    }
+    return [];
+  };
+
   const fetchStats = async () => {
     try {
       setLoading(true);
@@ -61,46 +77,52 @@ function Dashboard() {
       const inventory = dashboardMetrics.inventory || {};
       const salesThisMonth = dashboardMetrics.salesThisMonth || {};
 
-      const totalProducts = products.status === 'fulfilled' ? products.value.data.length : 0;
-      const warehouseList = warehouses.status === 'fulfilled' ? warehouses.value.data : [];
+      const productList = products.status === 'fulfilled' ? asArray(products.value.data) : [];
+      const warehouseList = warehouses.status === 'fulfilled' ? asArray(warehouses.value.data) : [];
+      const purchaseOrderList = purchaseOrders.status === 'fulfilled' ? asArray(purchaseOrders.value.data) : [];
+      const salesOrderList = salesOrders.status === 'fulfilled' ? asArray(salesOrders.value.data) : [];
+      const stockList = stocks.status === 'fulfilled' ? asArray(stocks.value.data) : [];
+      const transactionList = transactions.status === 'fulfilled' ? asArray(transactions.value.data) : [];
+
+      const totalProducts = productList.length;
       const totalWarehouses = warehouseList.length;
       const activeWarehouses = warehouseList.filter(w => w.isActive !== false).length;
       const inactiveWarehouses = totalWarehouses - activeWarehouses;
-      const totalPurchaseOrders = purchaseOrders.status === 'fulfilled' ? purchaseOrders.value.data.length : 0;
-      const totalSalesOrders = salesOrders.status === 'fulfilled' ? salesOrders.value.data.length : 0;
+      const totalPurchaseOrders = purchaseOrderList.length;
+      const totalSalesOrders = salesOrderList.length;
       const totalOrders = totalPurchaseOrders + totalSalesOrders;
 
       let pendingOrdersCount = 0;
-      if (purchaseOrders.status === 'fulfilled') {
-        pendingOrdersCount += purchaseOrders.value.data.filter(
+      if (purchaseOrderList.length > 0) {
+        pendingOrdersCount += purchaseOrderList.filter(
           order => order.status === 'PENDING' || order.status === 'PROCESSING'
         ).length;
       }
-      if (salesOrders.status === 'fulfilled') {
-        pendingOrdersCount += salesOrders.value.data.filter(
+      if (salesOrderList.length > 0) {
+        pendingOrdersCount += salesOrderList.filter(
           order => order.status === 'PENDING' || order.status === 'PROCESSING'
         ).length;
       }
 
-      const totalStockItems = stocks.status === 'fulfilled'
-        ? stocks.value.data.reduce((sum, stock) => sum + (stock.quantity || 0), 0)
+      const totalStockItems = stockList.length > 0
+        ? stockList.reduce((sum, stock) => sum + (stock.quantity || 0), 0)
         : 0;
 
       const pMap = {};
-      if (products.status === 'fulfilled') {
-        products.value.data.forEach(p => { pMap[p.id] = p.name || p.productName || `Product #${p.id}`; });
+      if (productList.length > 0) {
+        productList.forEach(p => { pMap[p.id] = p.name || p.productName || `Product #${p.id}`; });
       }
       setProductMap(pMap);
 
-      const recentTransactions = transactions.status === 'fulfilled'
-        ? [...transactions.value.data]
+      const recentTransactions = transactionList.length > 0
+        ? [...transactionList]
           .sort((a, b) => new Date(b.createdAt || b.transactionDate) - new Date(a.createdAt || a.transactionDate))
           .slice(0, 8)
         : [];
 
       let lowStockCount = 0;
-      if (stocks.status === 'fulfilled') {
-        lowStockCount = stocks.value.data.filter((stock) => {
+      if (stockList.length > 0) {
+        lowStockCount = stockList.filter((stock) => {
           const qty = stock.quantity ?? 0;
           const reorder = stock.reorderLevel ?? stock.reorder_level ?? 10;
           return qty > 0 && qty <= reorder;
@@ -108,8 +130,8 @@ function Dashboard() {
       }
 
       let totalStockValue = 0;
-      if (stocks.status === 'fulfilled') {
-        totalStockValue = stocks.value.data.reduce((sum, stock) => {
+      if (stockList.length > 0) {
+        totalStockValue = stockList.reduce((sum, stock) => {
           const qty = stock.quantity ?? 0;
           const price = stock.unitPrice ?? stock.unit_price ?? 0;
           return sum + qty * price;
