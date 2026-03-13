@@ -186,6 +186,15 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/subscription-frontend:latest
 
       # Deploy to DigitalOcean
+      - name: Copy compose files to droplet
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          source: "docker-compose.yml,init.sql"
+          target: "/app/"
+
       - name: Deploy to DigitalOcean
         uses: appleboy/ssh-action@master
         with:
