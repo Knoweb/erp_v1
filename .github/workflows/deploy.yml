@@ -23,7 +23,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: |
             knoweb main/package-lock.json
@@ -152,7 +152,8 @@ jobs:
       - name: Build knoweb-main frontend
         working-directory: knoweb main
         run: |
-          npm ci
+          npm ci --include=optional
+          npm install --no-save @rollup/rollup-linux-x64-gnu
           npm run build
           docker build -t ${{ secrets.DOCKER_USERNAME }}/knoweb-main:latest -f Dockerfile .
           docker push ${{ secrets.DOCKER_USERNAME }}/knoweb-main:latest
@@ -160,7 +161,8 @@ jobs:
       - name: Build ginuma-frontend
         working-directory: Ginuma_new_updates/ginum-frontend-main
         run: |
-          npm ci
+          npm ci --include=optional
+          npm install --no-save @rollup/rollup-linux-x64-gnu
           npm run build
           docker build -t ${{ secrets.DOCKER_USERNAME }}/ginuma-frontend:latest -f Dockerfile .
           docker push ${{ secrets.DOCKER_USERNAME }}/ginuma-frontend:latest
@@ -168,7 +170,8 @@ jobs:
       - name: Build inventory-frontend
         working-directory: Knoweb_inventory/inventory-frontend
         run: |
-          npm ci
+          npm ci --include=optional
+          npm install --no-save @rollup/rollup-linux-x64-gnu
           npm run build
           docker build -t ${{ secrets.DOCKER_USERNAME }}/inventory-frontend:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/inventory-frontend:latest
@@ -176,7 +179,8 @@ jobs:
       - name: Build subscription-frontend
         working-directory: subscription-service/frontend
         run: |
-          npm ci
+          npm ci --include=optional
+          npm install --no-save @rollup/rollup-linux-x64-gnu
           npm run build
           docker build -t ${{ secrets.DOCKER_USERNAME }}/subscription-frontend:latest -f Dockerfile .
           docker push ${{ secrets.DOCKER_USERNAME }}/subscription-frontend:latest
