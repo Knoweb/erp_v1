@@ -29,63 +29,23 @@ const GlobalLogout = () => {
   alert('🟢 Ginuma GlobalLogout Component Mounted!');
 
   useEffect(() => {
-    const performLogout = async () => {
-      try {
-        console.log('🚪 [Ginuma ERP] GlobalLogout triggered - Starting cleanup');
-        alert('🚪 Ginuma Logout Executing - Starting cleanup');
-        
-        // Get the returnTo parameter from URL
-        const returnTo = searchParams.get('returnTo');
-        console.log('🔗 [Ginuma ERP] returnTo parameter:', returnTo);
-        
-        console.log('🧹 [Ginuma ERP] Clearing localStorage and sessionStorage...');
-        alert('🧹 About to clear BOTH localStorage and sessionStorage (auth_token, companyId, role)');
-        
-        // 🔴 PHASE 1: Remove specific Ginuma keys from BOTH storages
-        console.log('');
-        console.log('   📦 Removing from localStorage:');
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('companyId');
-        localStorage.removeItem('role');
-        console.log('      ✅ Specific keys removed from localStorage');
-        
-        console.log('   📦 Removing from sessionStorage:');
-        sessionStorage.removeItem('auth_token');
-        sessionStorage.removeItem('companyId');
-        sessionStorage.removeItem('role');
-        console.log('      ✅ Specific keys removed from sessionStorage');
-        
-        // 🔴 PHASE 2: Nuclear wipe - clear() on BOTH storages
-        console.log('');
-        console.log('   🧹 Executing full clear() on both storages...');
-        localStorage.clear();
-        sessionStorage.clear();
-        
-        console.log('');
-        console.error('💥💥💥 !!! BOTH STORAGES NUKED !!! 💥💥💥');
-        console.log('✅ [Ginuma ERP] Storage cleared successfully (auth_token, companyId, role from BOTH storages)');
-        alert('✅ BOTH Storages cleared! Redirecting in 150ms...');
-        
-        // Determine where to redirect next
-        if (returnTo) {
-          console.log(`🔗 [Ginuma ERP] Redirecting to final destination: ${returnTo}`);
-          
-          // Small delay to ensure storage is fully cleared before redirect
-          setTimeout(() => {
-            window.location.href = returnTo;
-          }, 150);
-        } else {
-          // Fallback: If no returnTo parameter, redirect to Main Dashboard login
-          console.warn('⚠️ [Ginuma ERP] No returnTo parameter found. Redirecting to Main Dashboard login.');
-          setTimeout(() => {
-            window.location.href = 'http://localhost:5173/login';
-          }, 150);
-        }
-      } catch (error) {
-        console.error('❌ [Ginuma ERP] Error during logout:', error);
-        alert(`❌ Error during logout: ${error.message}`);
-        // Still try to redirect even if there's an error
-        window.location.href = 'http://localhost:5173/login';
+    const performLogout = () => {
+      // 1. Get the returnTo parameter from URL
+      const returnTo = searchParams.get('returnTo');
+
+      // 2. Clear ALL authentication data
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // 3. Redirect to the final destination
+      if (returnTo) {
+        // Small delay to ensure storage is fully cleared
+        setTimeout(() => {
+          window.location.href = returnTo;
+        }, 100);
+      } else {
+        // Fallback: If no returnTo parameter, go to Main Dashboard login
+        window.location.href = 'http://167.71.206.166:3000/login';
       }
     };
 
@@ -119,27 +79,27 @@ const GlobalLogout = () => {
         animation: 'spin 0.8s linear infinite',
         marginBottom: '24px'
       }}></div>
-      
+
       {/* Title */}
-      <h2 style={{ 
-        fontSize: '24px', 
-        fontWeight: '600', 
+      <h2 style={{
+        fontSize: '24px',
+        fontWeight: '600',
         marginBottom: '12px',
         color: '#f1f5f9'
       }}>
         Logging out...
       </h2>
-      
+
       {/* Subtitle */}
-      <p style={{ 
-        fontSize: '14px', 
+      <p style={{
+        fontSize: '14px',
         color: '#94a3b8',
         textAlign: 'center',
         maxWidth: '300px'
       }}>
         Clearing session data from Ginuma ERP
       </p>
-      
+
       {/* Keyframe animation */}
       <style>{`
         @keyframes spin {

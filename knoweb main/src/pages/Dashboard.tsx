@@ -396,33 +396,35 @@ const Dashboard = () => {
   };
 
   const handleLogout = () => {
-    // Clear Main Dashboard's storage first
+    // 1. Clear Main Dashboard's storage first
     localStorage.clear();
     sessionStorage.clear();
 
-    // Build SSO logout chain URLs
-    const inventoryLogoutUrl = `${URLS.inventory}/auth/logout`;
-    const ginumaLogoutUrl = `${URLS.ginuma}/account/auth/logout`;
-    const finalReturnUrl = '/login';
+    // Production environment URLs
+    const URLS_PROD = {
+      inventory: "http://167.71.206.166:3002",
+      ginuma: "http://167.71.206.166:3001"
+    };
 
-    // Build the returnTo chain (working backwards):
-    // Ginuma (5176) will redirect to: finalReturnUrl
-    const ginumaReturnTo = finalReturnUrl;
+    // Final destination
+    const FINAL_DEST = "http://167.71.206.166:3000/login";
 
-    // Inventory (5174) will redirect to: Ginuma with returnTo=finalReturnUrl
-    const inventoryReturnTo = `${ginumaLogoutUrl}?returnTo=${encodeURIComponent(ginumaReturnTo)}`;
+    // 2. Build the domino-effect redirect chain
+    // Step B: Ginuma path and its returnTo (Final Destination)
+    const ginumaLogoutPath = "/account/auth/logout";
+    const ginumaChain = `${URLS_PROD.ginuma}${ginumaLogoutPath}?returnTo=${encodeURIComponent(FINAL_DEST)}`;
 
-    // Main Dashboard (5173) redirects to: Inventory with returnTo=Ginuma URL
-    const chainStartUrl = `${inventoryLogoutUrl}?returnTo=${encodeURIComponent(inventoryReturnTo)}`;
+    // Step A: Inventory path and its returnTo (The Ginuma Chain)
+    const inventoryLogoutPath = "/auth/logout";
+    const logoutChainUrl = `${URLS_PROD.inventory}${inventoryLogoutPath}?returnTo=${encodeURIComponent(ginumaChain)}`;
 
-    // Validate that the chain includes the correct Ginuma logout path
-    if (!inventoryReturnTo.includes('/account/auth/logout')) {
-      alert('SSO Logout chain error: Invalid logout URL configuration.');
-      return;
+    // 3. Safety validation check for Ginuma logout path
+    if (logoutChainUrl.includes("/account/auth/logout")) {
+      window.location.href = logoutChainUrl;
+    } else {
+      console.error("SSO Logout Chain validation failed.");
+      window.location.href = FINAL_DEST;
     }
-
-    // Initiate the logout chain
-    window.location.href = chainStartUrl;
   };
 
   const handleUpgradeSystem = async (systemName: string) => {
