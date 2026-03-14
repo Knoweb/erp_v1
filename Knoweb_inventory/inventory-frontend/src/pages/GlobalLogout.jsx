@@ -26,17 +26,17 @@ const GlobalLogout = () => {
       console.log('');
       console.log('🚪 [INVENTORY APP 5174] GlobalLogout triggered - Starting cleanup');
       console.log('');
-      
+
       // Get the returnTo parameter from URL
       const returnTo = searchParams.get('returnTo');
-      
+
       console.log('📋 [INVENTORY APP] returnTo parameter received:', returnTo);
       console.log('');
-      
+
       // ⚠️ CRITICAL VERIFICATION: Check if returnTo contains correct Ginuma logout path
       if (returnTo && returnTo.includes('localhost:5176')) {
         console.log('🔍 [INVENTORY APP] Verifying Ginuma URL in returnTo...');
-        
+
         if (returnTo.includes('/account/auth/logout')) {
           console.log('   ✅ CORRECT: Ginuma URL contains "/account/auth/logout"');
         } else if (returnTo.includes('/account/sso-login')) {
@@ -53,30 +53,30 @@ const GlobalLogout = () => {
         }
         console.log('');
       }
-      
+
       console.log('🧹 [INVENTORY APP] Clearing BOTH localStorage and sessionStorage...');
       console.log('   📦 Executing localStorage.clear()...');
-      
+
       // Clear ALL storage - works regardless of key names (token, user, sso_token, etc.)
       localStorage.clear();
       console.log('      ✅ localStorage cleared');
-      
+
       console.log('   📦 Executing sessionStorage.clear()...');
       sessionStorage.clear();
       console.log('      ✅ sessionStorage cleared');
-      
+
       console.log('');
       console.error('💥 [INVENTORY APP] !!! BOTH STORAGES NUKED !!!');
       console.log('✅ [INVENTORY APP] Storage cleared successfully (all keys removed from BOTH storages)');
       console.log('');
-      
+
       // Determine where to redirect next
       if (returnTo) {
         console.log(`🔗 [INVENTORY APP] Redirecting to next app in chain:`);
         console.log('   Target:', returnTo);
         console.log('   Waiting 150ms before redirect...');
         console.log('');
-        
+
         // Small delay to ensure storage is fully cleared before redirect
         setTimeout(() => {
           console.log('🚀 [INVENTORY APP] REDIRECT NOW!');
@@ -124,27 +124,27 @@ const GlobalLogout = () => {
         animation: 'spin 0.8s linear infinite',
         marginBottom: '24px'
       }}></div>
-      
+
       {/* Title */}
-      <h2 style={{ 
-        fontSize: '24px', 
-        fontWeight: '600', 
+      <h2 style={{
+        fontSize: '24px',
+        fontWeight: '600',
         marginBottom: '12px',
         color: '#f1f5f9'
       }}>
         Logging out...
       </h2>
-      
+
       {/* Subtitle */}
-      <p style={{ 
-        fontSize: '14px', 
+      <p style={{
+        fontSize: '14px',
         color: '#94a3b8',
         textAlign: 'center',
         maxWidth: '300px'
       }}>
         Clearing session data from Inventory App
       </p>
-      
+
       {/* Keyframe animation */}
       <style>{`
         @keyframes spin {
