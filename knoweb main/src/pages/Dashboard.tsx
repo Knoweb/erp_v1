@@ -403,7 +403,7 @@ const Dashboard = () => {
     // Build SSO logout chain URLs
     const inventoryLogoutUrl = `${URLS.inventory}/auth/logout`;
     const ginumaLogoutUrl = `${URLS.ginuma}/account/auth/logout`;
-    const finalReturnUrl = '/login';
+    const finalReturnUrl = `${URLS.main}/login`;
 
     // Build the returnTo chain (working backwards):
     // Ginuma (5176) will redirect to: finalReturnUrl
