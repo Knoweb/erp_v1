@@ -396,15 +396,33 @@ const Dashboard = () => {
   };
 
   const handleLogout = () => {
-    // Clear Main Dashboard's storage
+    // Clear Main Dashboard's storage first
     localStorage.clear();
     sessionStorage.clear();
 
-    // Build direct return URL
-    const finalReturnUrl = `${URLS.main}/login`;
+    // Build SSO logout chain URLs
+    const inventoryLogoutUrl = `${URLS.inventory}/auth/logout`;
+    const ginumaLogoutUrl = `${URLS.ginuma}/account/auth/logout`;
+    const finalReturnUrl = '/login';
 
-    // Redirect to login
-    window.location.href = finalReturnUrl;
+    // Build the returnTo chain (working backwards):
+    // Ginuma (5176) will redirect to: finalReturnUrl
+    const ginumaReturnTo = finalReturnUrl;
+
+    // Inventory (5174) will redirect to: Ginuma with returnTo=finalReturnUrl
+    const inventoryReturnTo = `${ginumaLogoutUrl}?returnTo=${encodeURIComponent(ginumaReturnTo)}`;
+
+    // Main Dashboard (5173) redirects to: Inventory with returnTo=Ginuma URL
+    const chainStartUrl = `${inventoryLogoutUrl}?returnTo=${encodeURIComponent(inventoryReturnTo)}`;
+
+    // Validate that the chain includes the correct Ginuma logout path
+    if (!inventoryReturnTo.includes('/account/auth/logout')) {
+      alert('SSO Logout chain error: Invalid logout URL configuration.');
+      return;
+    }
+
+    // Initiate the logout chain
+    window.location.href = chainStartUrl;
   };
 
   const handleUpgradeSystem = async (systemName: string) => {
