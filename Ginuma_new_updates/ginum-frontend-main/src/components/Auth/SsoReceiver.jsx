@@ -15,20 +15,20 @@ const SsoReceiver = () => {
       // Save authentication data to localStorage ONLY (no sessionStorage)
       localStorage.setItem('auth_token', token);
       localStorage.setItem('token', token);
-      
+
       // Also store with ginuma_ prefix for cross-app navigation
       localStorage.setItem('ginuma_token', token);
-      
+
       if (refreshToken) {
         localStorage.setItem('ginuma_refreshToken', refreshToken);
         localStorage.setItem('refresh_token', refreshToken);
       }
-      
+
       if (userId) {
         localStorage.setItem('ginuma_userId', userId);
         localStorage.setItem('userId', userId);
       }
-      
+
       if (orgId) {
         localStorage.setItem('ginuma_orgId', orgId);
         localStorage.setItem('orgId', orgId);
@@ -40,16 +40,21 @@ const SsoReceiver = () => {
       localStorage.setItem('ginuma_loginTime', new Date().toISOString());
 
       console.log('SSO: Token received and stored successfully');
-      
+
       // Redirect to app dashboard after successful SSO
       setTimeout(() => {
         navigate('/app/dashboard', { replace: true });
       }, 500);
     } else {
-      // No token found, redirect to Knoweb inventory login
+      // No token found, redirect to Knoweb main dashboard login
       console.warn('SSO: No token found in URL parameters');
       setTimeout(() => {
-        window.location.href = 'http://localhost:5173/login';
+        const HOST = window.location.hostname;
+        const PROTOCOL = window.location.protocol;
+        const IS_LOCAL = HOST === 'localhost' || HOST === '127.0.0.1';
+        const mainDashboardUrl = `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5173' : '3000'}`;
+
+        window.location.href = `${mainDashboardUrl}/login`;
       }, 1000);
     }
   }, [searchParams, navigate]);

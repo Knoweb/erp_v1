@@ -21,7 +21,11 @@ const SuperAdminSideBar = ({ isCollapsed }) => {
   const handleLogout = () => {
     localStorage.clear();
     sessionStorage.clear();
-    window.location.href = "http://localhost:5173/login";
+    const HOST = window.location.hostname;
+    const PROTOCOL = window.location.protocol;
+    const IS_LOCAL = HOST === 'localhost' || HOST === '127.0.0.1';
+    const mainDashboardUrl = `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5173' : '3000'}`;
+    window.location.href = `${mainDashboardUrl}/login`;
   };
   return (
     <div className="flex">

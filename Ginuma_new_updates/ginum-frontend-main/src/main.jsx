@@ -39,77 +39,82 @@ if (shouldWipeStorage) {
   console.error('');
   console.error('!!! GINUMA EMERGENCY WIPE EXECUTED !!!');
   console.log('🛑 React Router WILL NOT MOUNT');
-  console.log('🔥 Trigger reason:', 
+  console.log('🔥 Trigger reason:',
     hasLogoutInPath ? '✓ LOGOUT PATH' : '✗ No logout path',
     hasReturnToInURL ? '✓ RETURNTO IN URL' : '✗ No returnTo in URL',
     hasReturnToInSearch ? '✓ RETURNTO IN SEARCH' : '✗ No returnTo in search'
   );
-  
+
   // Extract returnTo parameter
+  const HOST = window.location.hostname;
+  const PROTOCOL = window.location.protocol;
+  const IS_LOCAL = HOST === 'localhost' || HOST === '127.0.0.1';
+  const mainDashboardUrl = `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5173' : '3000'}`;
+
   const urlParams = new URLSearchParams(searchParams);
-  const returnTo = urlParams.get('returnTo') || 'http://localhost:5173/login';
+  const returnTo = urlParams.get('returnTo') || `${mainDashboardUrl}/login`;
   console.log('🔗 Redirect target:', returnTo);
-  
+
   // NUCLEAR OPTION: Remove specific keys from BOTH localStorage AND sessionStorage
   console.log('');
   console.log('🧹🧹🧹 PHASE 1: Removing specific Ginuma keys from BOTH storages...');
   console.log('');
-  
+
   // 🔴 localStorage specific keys
   console.log('   📦 localStorage:');
   try {
     localStorage.removeItem('auth_token');
     console.log('      ✅ auth_token removed from localStorage');
   } catch (e) { console.log('      ⚠️ auth_token removal failed:', e.message); }
-  
+
   try {
     localStorage.removeItem('companyId');
     console.log('      ✅ companyId removed from localStorage');
   } catch (e) { console.log('      ⚠️ companyId removal failed:', e.message); }
-  
+
   try {
     localStorage.removeItem('role');
     console.log('      ✅ role removed from localStorage');
   } catch (e) { console.log('      ⚠️ role removal failed:', e.message); }
-  
+
   console.log('');
-  
+
   // 🔴 sessionStorage specific keys (THE HIDDEN BUG!)
   console.log('   📦 sessionStorage (ROOT CAUSE OF BUG):');
   try {
     sessionStorage.removeItem('auth_token');
     console.log('      ✅ auth_token removed from sessionStorage');
   } catch (e) { console.log('      ⚠️ auth_token removal failed:', e.message); }
-  
+
   try {
     sessionStorage.removeItem('companyId');
     console.log('      ✅ companyId removed from sessionStorage');
   } catch (e) { console.log('      ⚠️ companyId removal failed:', e.message); }
-  
+
   try {
     sessionStorage.removeItem('role');
     console.log('      ✅ role removed from sessionStorage');
   } catch (e) { console.log('      ⚠️ role removal failed:', e.message); }
-  
+
   console.log('');
   console.log('🧹🧹🧹 PHASE 2: Nuclear wipe - clear() on BOTH storages...');
   try {
     localStorage.clear();
     console.log('   ✅ localStorage.clear() executed');
   } catch (e) { console.log('   ⚠️ localStorage.clear() failed:', e.message); }
-  
+
   try {
     sessionStorage.clear();
     console.log('   ✅ sessionStorage.clear() executed');
   } catch (e) { console.log('   ⚠️ sessionStorage.clear() failed:', e.message); }
-  
+
   console.log('');
   console.error('💥💥💥 !!! BOTH STORAGES NUKED !!! 💥💥💥');
   console.error('✅✅✅ GINUMA STORAGE WIPED SUCCESSFULLY ✅✅✅');
   console.log('✅ All Ginuma auth data destroyed from BOTH localStorage & sessionStorage');
   console.log('✅ Keys removed: auth_token, companyId, role (from BOTH storages)');
   console.log('');
-  
+
   // Show immediate RED emergency screen
   document.body.innerHTML = `
     <div style="
@@ -145,17 +150,17 @@ if (shouldWipeStorage) {
       </style>
     </div>
   `;
-  
+
   // Use window.location.replace() to prevent back button
   console.error(`🔗🔗🔗 [REDIRECT] Using window.location.replace() to: ${returnTo}`);
   console.log('⏱️ Redirecting in 300ms...');
   console.log('');
-  
+
   setTimeout(() => {
     console.log('🚀 REDIRECT NOW!');
     window.location.replace(returnTo);
   }, 300);
-  
+
   // CRITICAL: Throw error to stop React from mounting
   throw new Error('[GINUMA ULTRA-AGGRESSIVE BYPASS] Emergency logout complete - React mount BLOCKED');
 }
