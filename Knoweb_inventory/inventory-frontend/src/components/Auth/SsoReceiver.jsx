@@ -16,15 +16,15 @@ const SsoReceiver = () => {
     if (token) {
       // Save authentication data to localStorage
       localStorage.setItem('knoweb_token', token);
-      
+
       if (refreshToken) {
         localStorage.setItem('knoweb_refreshToken', refreshToken);
       }
-      
+
       if (userId) {
         localStorage.setItem('knoweb_userId', userId);
       }
-      
+
       if (orgId) {
         localStorage.setItem('knoweb_orgId', orgId);
       }
@@ -41,16 +41,20 @@ const SsoReceiver = () => {
       localStorage.setItem('knoweb_loginTime', new Date().toISOString());
 
       console.log('SSO: Token received and stored successfully');
-      
+
       // Redirect to dashboard after successful SSO (root path renders Dashboard)
       setTimeout(() => {
         navigate('/', { replace: true });
       }, 500);
     } else {
-      // No token found, redirect to login
+      // No token found, redirect to Main Dashboard login
       console.warn('SSO: No token found in URL parameters');
       setTimeout(() => {
-        navigate('/login', { replace: true });
+        const HOST = window.location.hostname;
+        const PROTOCOL = window.location.protocol;
+        const IS_LOCAL = HOST === 'localhost' || HOST === '127.0.0.1';
+        const mainDashboardUrl = `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5173' : '3000'}`;
+        window.location.href = `${mainDashboardUrl}/login`;
       }, 1000);
     }
   }, [searchParams, navigate]);

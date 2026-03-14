@@ -46,7 +46,11 @@ apiClient.interceptors.response.use(
       // Handle 401 Unauthorized - Clear localStorage and redirect to login
       if (error.response.status === 401) {
         localStorage.clear();
-        window.location.href = '/login';
+        const HOST = window.location.hostname;
+        const PROTOCOL = window.location.protocol;
+        const IS_LOCAL = HOST === 'localhost' || HOST === '127.0.0.1';
+        const mainDashboardUrl = `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5173' : '3000'}`;
+        window.location.href = `${mainDashboardUrl}/login`;
         return Promise.reject(error);
       }
 

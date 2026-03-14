@@ -19,54 +19,54 @@ const Login = () => {
   // 🔐 SSO Auto-Redirect: Check for existing token on component mount
   useEffect(() => {
     console.log('🔍 SSO Check: Inspecting for existing token...');
-    
+
     // Step 1: Check if token is passed in URL (e.g., ?token=XYZ)
     const searchParams = new URLSearchParams(location.search);
     const urlToken = searchParams.get('token');
-    
+
     if (urlToken) {
       console.log('✅ SSO Token found in URL:', urlToken.substring(0, 20) + '...');
-      
+
       // CRITICAL: Use 'knoweb_token' to match AuthContext expectations
       localStorage.setItem('knoweb_token', urlToken);
-      
+
       // ✅ DECODE JWT TOKEN to extract user data (instead of relying on URL params)
       const userData = getUserFromToken(urlToken);
-      
+
       if (!userData) {
         console.error('❌ Failed to decode JWT token');
         setError('Invalid SSO token. Please try logging in again.');
         return;
       }
-      
+
       console.log('✅ Decoded User Data from JWT:', userData);
-      
+
       // CRITICAL: Use 'user' key to match AuthContext expectations
       localStorage.setItem('user', JSON.stringify(userData));
-      
+
       if (userData.tenantId) {
         localStorage.setItem('tenantId', userData.tenantId);
       }
-      
+
       console.log('🚀 Redirecting to dashboard (/)...');
       // Force page reload to reinitialize AuthContext
       window.location.href = '/';
       return;
     }
-    
+
     // Step 2: Check if token already exists in localStorage
     // Check both possible token keys for backward compatibility
     const existingToken = localStorage.getItem('knoweb_token') || localStorage.getItem('token');
-    
+
     if (existingToken && existingToken !== 'undefined' && existingToken !== 'null') {
       console.log('✅ Existing token found in localStorage');
-      
+
       // Migrate old 'token' to 'knoweb_token' if needed
       if (!localStorage.getItem('knoweb_token') && localStorage.getItem('token')) {
         console.log('🔄 Migrating token key from "token" to "knoweb_token"');
         localStorage.setItem('knoweb_token', existingToken);
         localStorage.removeItem('token');
-        
+
         // ✅ Decode JWT to get user data if user object doesn't exist
         if (!localStorage.getItem('user')) {
           console.log('🔍 No user object found - decoding JWT token...');
@@ -80,14 +80,19 @@ const Login = () => {
           }
         }
       }
-      
+
       console.log('🚀 Auto-redirecting to dashboard (/)...');
       // Force page reload to reinitialize AuthContext
       window.location.href = '/';
       return;
     }
-    
-    console.log('ℹ️ No valid token found. User needs to login.');
+
+    console.log('ℹ️ No valid token found. Redirecting to Main Dashboard Login.');
+    const HOST = window.location.hostname;
+    const PROTOCOL = window.location.protocol;
+    const IS_LOCAL = HOST === 'localhost' || HOST === '127.0.0.1';
+    const mainDashboardUrl = `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5173' : '3000'}`;
+    window.location.href = `${mainDashboardUrl}/login`;
   }, [location, navigate]);
 
   const handleChange = (e) => {
@@ -110,7 +115,7 @@ const Login = () => {
     }
 
     const result = await login(formData.username, formData.password);
-    
+
     if (result.success) {
       navigate('/');
     } else {
@@ -126,7 +131,7 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
-        
+
         {/* Logo & Title */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
