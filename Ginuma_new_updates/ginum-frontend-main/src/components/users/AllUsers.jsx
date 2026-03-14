@@ -24,7 +24,7 @@ const AllUsers = () => {
       }
 
       setLoading(true);
-      const response = await fetch(`${apiUrl}/api/users/${companyId}`, {
+      const response = await fetch(`${apiUrl}/api/ginuma/users/${companyId}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -63,7 +63,7 @@ const AllUsers = () => {
 
     try {
       const response = await fetch(
-        `${apiUrl}/api/users/${companyId}/${currentUser.id}`,
+        `${apiUrl}/api/ginuma/users/${companyId}/${currentUser.id}`,
         {
           method: "PUT",
           headers: {
@@ -97,7 +97,7 @@ const AllUsers = () => {
     if (result.isConfirmed) {
       try {
         const response = await fetch(
-          `${apiUrl}/api/users/${companyId}/${userId}`,
+          `${apiUrl}/api/ginuma/users/${companyId}/${userId}`,
           {
             method: "DELETE",
             headers: {

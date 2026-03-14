@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/users/{companyId}")
+@RequestMapping("/api/ginuma/users/{companyId}")
 @RequiredArgsConstructor
 public class AppUserController {
 

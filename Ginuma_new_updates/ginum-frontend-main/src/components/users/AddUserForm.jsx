@@ -117,7 +117,7 @@ const AddUserForm = () => {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch(`${apiUrl}/api/users/${companyId}`, {
+      const response = await fetch(`${apiUrl}/api/ginuma/users/${companyId}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
