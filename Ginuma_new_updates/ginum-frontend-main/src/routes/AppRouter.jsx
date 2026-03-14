@@ -5,7 +5,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import SsoReceiver from "../components/Auth/SsoReceiver";
-import GlobalLogout from "../pages/GlobalLogout";
+import SSOLogoutHandler from "../components/Auth/SSOLogoutHandler";
 import AddAccountForm from "../components/account/AddAccountForm";
 import AllAccounts from "../components/account/AllAccounts";
 import LandingPage from "../pages/LandingPage";
@@ -66,15 +66,15 @@ function AppRouter() {
   console.log('🔧 [Ginuma Router] BASE_URL:', import.meta.env.BASE_URL);
   console.log('🔧 [Ginuma Router] Current pathname:', window.location.pathname);
   console.log('🔧 [Ginuma Router] Current search:', window.location.search);
-  
+
   return (
     <Router basename={import.meta.env.BASE_URL}>
       <Routes>
         {/* Public Routes - NO LAYOUT */}
         <Route path="/" element={<Navigate to="/sso-login" replace />} />
         <Route path="/sso-login" element={<SsoReceiver />} />
-        <Route path="/auth/logout" element={<GlobalLogout />} />
-        
+        <Route path="/auth/logout" element={<SSOLogoutHandler />} />
+
         {/* 🚨 DEBUGGING: Log when routes are rendered */}
         {console.log('🔧 [Ginuma Router] Public routes registered: /, /sso-login, /auth/logout')}
 

@@ -3,7 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import SsoReceiver from './components/Auth/SsoReceiver';
-import GlobalLogout from './pages/GlobalLogout';
+import SSOLogoutHandler from './components/Auth/SSOLogoutHandler';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -33,7 +33,7 @@ function AppContent() {
       <Routes>
         {/* Public Routes - NO SIDEBAR, NO LAYOUT */}
         <Route path="/sso-login" element={<SsoReceiver />} />
-        <Route path="/auth/logout" element={<GlobalLogout />} />
+        <Route path="/auth/logout" element={<SSOLogoutHandler />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
