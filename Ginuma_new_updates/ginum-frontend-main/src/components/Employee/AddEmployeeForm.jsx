@@ -245,6 +245,8 @@ const AddEmployeeForm = ({ employeeToEdit = null, onSuccess, onCancel }) => {
     } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
       newErrors.email = "Email is invalid";
     }
+    if (!formData.address.trim()) newErrors.address = "Address is required";
+    if (!formData.nic.trim()) newErrors.nic = "NIC is required";
     if (!formData.departmentId)
       newErrors.departmentId = "Department is required";
     if (!formData.designationId)
@@ -313,7 +315,7 @@ const AddEmployeeForm = ({ employeeToEdit = null, onSuccess, onCancel }) => {
 
       const employee = data?.employeeId ? data : data?.data;
 
-      if (employee && employee.employeeId) {
+      if (response.ok && employee && employee.employeeId) {
         Alert.success(
           `Employee ${employee.firstName} ${employee.lastName} ${isEditMode ? "updated" : "created"} successfully!`,
           { autoClose: 5000 }
@@ -339,8 +341,9 @@ const AddEmployeeForm = ({ employeeToEdit = null, onSuccess, onCancel }) => {
           });
         }
       } else {
-        console.error("Unexpected response format:", data);
-        Alert.error(`Failed to ${isEditMode ? "update" : "create"} employee. Invalid response format.`);
+        const errorMessage = data?.message || data?.error || "Invalid request format";
+        console.error("API Error Response:", data);
+        Alert.error(`Failed to ${isEditMode ? "update" : "create"} employee: ${errorMessage}`);
       }
     } catch (error) {
       let errorMessage = `Failed to ${isEditMode ? "update" : "create"} employee.`;
@@ -482,7 +485,9 @@ const AddEmployeeForm = ({ employeeToEdit = null, onSuccess, onCancel }) => {
 
             {/* NIC No. */}
             <div className="w-full md:w-1/2 px-2">
-              <label className="block text-gray-700">NIC No.</label>
+              <label className="block text-gray-700">
+                NIC No. <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="nic"
@@ -490,6 +495,9 @@ const AddEmployeeForm = ({ employeeToEdit = null, onSuccess, onCancel }) => {
                 value={formData.nic}
                 onChange={handleChange}
               />
+              {errors.nic && (
+                <p className="text-red-500 text-sm">{errors.nic}</p>
+              )}
             </div>
 
             {/* Mobile No. */}
@@ -528,13 +536,18 @@ const AddEmployeeForm = ({ employeeToEdit = null, onSuccess, onCancel }) => {
 
             {/* Address */}
             <div className="w-full px-2">
-              <label className="block text-gray-700">Address</label>
+              <label className="block text-gray-700">
+                Address <span className="text-red-500">*</span>
+              </label>
               <textarea
                 name="address"
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                 value={formData.address}
                 onChange={handleChange}
               />
+              {errors.address && (
+                <p className="text-red-500 text-sm">{errors.address}</p>
+              )}
             </div>
 
             {/* Date Added */}
