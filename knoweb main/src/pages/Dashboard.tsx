@@ -595,10 +595,10 @@ const Dashboard = () => {
             <div className="flex items-center gap-4">
               {/* Status Badge */}
               <div className={`px-4 py-2 rounded-xl font-semibold flex items-center gap-2 ${systemData?.isActive
-                  ? 'bg-red-600 text-white border border-red-500 shadow-lg shadow-red-900/20'
-                  : systemData?.isBlocked
-                    ? 'bg-red-500/20 text-red-300 border border-red-500/30'
-                    : 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                ? 'bg-red-600 text-white border border-red-500 shadow-lg shadow-red-900/20'
+                : systemData?.isBlocked
+                  ? 'bg-red-500/20 text-red-300 border border-red-500/30'
+                  : 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
                 }`}>
                 {systemData?.isActive ? (
                   <CheckCircle2 className="w-5 h-5" />
@@ -736,8 +736,8 @@ const Dashboard = () => {
                           <div
                             key={tier.name}
                             className={`relative bg-white rounded-xl transition-all duration-300 hover:scale-[1.02] ${tier.isPopular
-                                ? 'border-2 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.3)]'
-                                : 'border-2 border-gray-200 shadow-md'
+                              ? 'border-2 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.3)]'
+                              : 'border-2 border-gray-200 shadow-md'
                               }`}
                           >
                             {/* Popular Badge */}
@@ -768,8 +768,8 @@ const Dashboard = () => {
                                 onClick={() => handleUpgradeSystem(systemCode)}
                                 disabled={isUpgrading}
                                 className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${tier.isPopular
-                                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                                    : 'bg-gray-800 text-white hover:bg-gray-700'
+                                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                                  : 'bg-gray-800 text-white hover:bg-gray-700'
                                   }`}
                               >
                                 {isUpgrading ? (
