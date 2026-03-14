@@ -19,7 +19,7 @@ const SuppliersList = () => {
         throw new Error("Missing company ID or auth token");
       }
       setLoading(true);
-      const response = await fetch(`${apiUrl}/api/suppliers/companies/${companyId}`, {
+      const response = await fetch(`${apiUrl}/api/ginuma/suppliers/companies/${companyId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -50,7 +50,7 @@ const SuppliersList = () => {
     );
     if (result.isConfirmed) {
       try {
-        const response = await fetch(`${apiUrl}/api/suppliers/companies/${companyId}/${supplierId}`, {
+        const response = await fetch(`${apiUrl}/api/ginuma/suppliers/companies/${companyId}/${supplierId}`, {
           method: 'DELETE',
           headers: {
             Authorization: `Bearer ${token}`

@@ -137,7 +137,7 @@ export default function AddSupplierForm() {
           formDataToSend.append("file", formData.br_document);
         }
 
-        const response = await fetch(`${apiUrl}/api/suppliers`, {
+        const response = await fetch(`${apiUrl}/api/ginuma/suppliers`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,

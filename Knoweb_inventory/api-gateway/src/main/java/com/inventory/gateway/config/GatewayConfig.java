@@ -147,7 +147,8 @@ public class GatewayConfig {
                                                                 "/api/customers/**",
                                                                 "/api/sales-orders/**", "/api/purchase-orders/**",
                                                                 "/api/projects/**", "/api/items/**",
-                                                                "/api/aged-receivables/**", "/api/aged-payables/**")
+                                                                "/api/aged-receivables/**", "/api/aged-payables/**",
+                                                                "/api/ginuma/**")
                                                 .filters(f -> f.filter(jwtAuthenticationFilter
                                                                 .apply(new JwtAuthenticationFilter.Config())))
                                                 .uri("lb://ginuma-service"))

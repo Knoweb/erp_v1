@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/suppliers")
+@RequestMapping("/api/ginuma/suppliers")
 @RequiredArgsConstructor
 public class SupplierController {
     private final SupplierService supplierService;
