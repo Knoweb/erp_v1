@@ -35,8 +35,26 @@ const Sidebar = () => {
     }, [user]);
 
     const handleLogout = () => {
-        logout();
-        window.location.href = 'http://167.71.206.166:3000/login';
+        const HOST = window.location.hostname;
+        const PROTOCOL = window.location.protocol;
+        const IS_LOCAL = HOST === 'localhost' || HOST === '127.0.0.1';
+
+        const URLS = {
+            main: `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5173' : '3000'}`,
+            ginuma: `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5176' : '3001'}`,
+            inventory: `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5174' : '3002'}`
+        };
+
+        // SSO Logout Chain: Current (Inventory) -> Ginuma -> Main Dashboard Login
+        const ginumaLogoutUrl = `${URLS.ginuma}/account/auth/logout`;
+        const finalReturnUrl = `${URLS.main}/login`;
+
+        // The Inventory GlobalLogout component handles clearing storage
+        // We just need to trigger it with the next step in the returnTo chain
+        const inventoryLogoutUrl = `/auth/logout`;
+        const returnTo = `${ginumaLogoutUrl}?returnTo=${encodeURIComponent(finalReturnUrl)}`;
+
+        window.location.href = `${inventoryLogoutUrl}?returnTo=${encodeURIComponent(returnTo)}`;
     };
 
     const getIndustryMenuItems = () => {

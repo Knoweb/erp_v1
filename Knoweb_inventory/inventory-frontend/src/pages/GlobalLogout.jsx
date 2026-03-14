@@ -70,6 +70,11 @@ const GlobalLogout = () => {
       console.log('✅ [INVENTORY APP] Storage cleared successfully (all keys removed from BOTH storages)');
       console.log('');
 
+      const HOST = window.location.hostname;
+      const PROTOCOL = window.location.protocol;
+      const IS_LOCAL = HOST === 'localhost' || HOST === '127.0.0.1';
+      const mainDashboardUrl = `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5173' : '3000'}`;
+
       // Determine where to redirect next
       if (returnTo) {
         console.log(`🔗 [INVENTORY APP] Redirecting to next app in chain:`);
@@ -89,7 +94,7 @@ const GlobalLogout = () => {
         console.warn('   Redirecting to Main Dashboard login as fallback.');
         console.warn('');
         setTimeout(() => {
-          window.location.href = 'http://localhost:5173/login';
+          window.location.href = `${mainDashboardUrl}/login`;
         }, 150);
       }
     };

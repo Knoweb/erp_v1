@@ -66,6 +66,11 @@ const GlobalLogout = () => {
         console.log('✅ [Ginuma ERP] Storage cleared successfully (auth_token, companyId, role from BOTH storages)');
         alert('✅ BOTH Storages cleared! Redirecting in 150ms...');
 
+        const HOST = window.location.hostname;
+        const PROTOCOL = window.location.protocol;
+        const IS_LOCAL = HOST === 'localhost' || HOST === '127.0.0.1';
+        const mainDashboardUrl = `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5173' : '3000'}`;
+
         // Determine where to redirect next
         if (returnTo) {
           console.log(`🔗 [Ginuma ERP] Redirecting to final destination: ${returnTo}`);
@@ -78,14 +83,15 @@ const GlobalLogout = () => {
           // Fallback: If no returnTo parameter, redirect to Main Dashboard login
           console.warn('⚠️ [Ginuma ERP] No returnTo parameter found. Redirecting to Main Dashboard login.');
           setTimeout(() => {
-            window.location.href = 'http://localhost:5173/login';
+            window.location.href = `${mainDashboardUrl}/login`;
           }, 150);
         }
       } catch (error) {
         console.error('❌ [Ginuma ERP] Error during logout:', error);
         alert(`❌ Error during logout: ${error.message}`);
         // Still try to redirect even if there's an error
-        window.location.href = 'http://localhost:5173/login';
+        const mainDashboardUrl = `${window.location.protocol}//${window.location.hostname}:${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? '5173' : '3000'}`;
+        window.location.href = `${mainDashboardUrl}/login`;
       }
     };
 

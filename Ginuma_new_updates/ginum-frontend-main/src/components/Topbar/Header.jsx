@@ -15,8 +15,26 @@ const Header = ({ toggleSidebar, isSidebarVisible }) => {
 
   // Function to handle logout
   const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = "http://167.71.206.166:3000/login";
+    const HOST = window.location.hostname;
+    const PROTOCOL = window.location.protocol;
+    const IS_LOCAL = HOST === 'localhost' || HOST === '127.0.0.1';
+
+    const URLS = {
+      main: `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5173' : '3000'}`,
+      ginuma: `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5176' : '3001'}`,
+      inventory: `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5174' : '3002'}`,
+    };
+
+    // SSO Logout Chain: Current (Ginuma) -> Inventory -> Main Dashboard Login
+    const inventoryLogoutUrl = `${URLS.inventory}/auth/logout`;
+    const finalReturnUrl = `${URLS.main}/login`;
+
+    // The Ginuma GlobalLogout component handles clearing storage
+    // We trigger it with the next step in the returnTo chain
+    const ginumaLogoutUrl = "/auth/logout";
+    const returnTo = `${inventoryLogoutUrl}?returnTo=${encodeURIComponent(finalReturnUrl)}`;
+
+    window.location.href = `${ginumaLogoutUrl}?returnTo=${encodeURIComponent(returnTo)}`;
   };
 
   // Function to close the sidebar on mobile/tablet screens
