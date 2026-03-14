@@ -125,7 +125,7 @@ const Navbar = () => {
                         {/* Auth Section */}
                         <div className="hidden md:flex items-center space-x-4">
                             <a
-                                href="/register"
+                                href="/login"
                                 className="group flex items-center space-x-2 px-6 py-2.5 border-2 border-blue-600 rounded-full text-base font-bold text-gray-900 bg-white hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-sm hover:shadow-blue-500/30"
                             >
                                 <LogIn className="w-5 h-5 transition-transform group-hover:translate-x-1" />

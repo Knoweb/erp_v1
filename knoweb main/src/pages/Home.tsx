@@ -27,7 +27,7 @@ const Home = () => {
                     </p>
                     <div className="flex justify-center gap-4 pt-5">
                         <a
-                            href="/register"
+                            href="/login"
                             className="inline-flex items-center px-10 py-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-full font-bold shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 transition-all transform hover:-translate-y-1 hover:scale-105"
                         >
                             Get Started

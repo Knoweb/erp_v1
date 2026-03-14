@@ -69,7 +69,7 @@ const Navbar = () => {
                     <div className="flex-grow"></div>
 
                     {/* Auth Buttons - Positioned over the cyan background */}
-                  {/*  <div className="hidden lg:flex items-center space-x-4 pl-8">
+                    {/*  <div className="hidden lg:flex items-center space-x-4 pl-8">
                         <button className="px-8 py-3 bg-slate-800 text-white font-medium rounded-full hover:bg-slate-900 transition-transform hover:scale-105 shadow-xl text-sm">
                             Login
                         </button>
@@ -155,7 +155,7 @@ const Hero = () => {
                             Manage your finances effortlessly and make informed decisions with real-time insights.
                         </p>
 
-                        <button 
+                        <button
                             onClick={() => window.location.href = '/register?system=GINUMA'}
                             className="px-10 py-3 bg-[#4DC4F4] text-white font-bold rounded-full shadow-lg hover:bg-cyan-400 transition-all duration-300 transform hover:-translate-y-1 text-lg"
                         >
@@ -502,7 +502,7 @@ const PaymentModal = ({ isOpen, onClose, selectedPlan }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         const subscriptionData = {
             ...formData,
             planName: selectedPlan?.name,
@@ -880,12 +880,12 @@ const Pricing = () => {
                                 </ul>
 
                                 <div className="mt-auto">
-                                    <button 
+                                    <button
                                         disabled
                                         className={`w-full py-3 px-6 rounded-xl font-bold cursor-not-allowed transition-all duration-300 ${plan.recommended
-                                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg opacity-60'
-                                        : 'bg-gray-200 text-gray-500 opacity-60'
-                                        }`}>
+                                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg opacity-60'
+                                            : 'bg-gray-200 text-gray-500 opacity-60'
+                                            }`}>
                                         Choose Plan
                                     </button>
                                 </div>
@@ -1207,7 +1207,7 @@ const Footer = () => {
                             A seamless accounting experience for businesses of all sizes. Automate your finances, track progress, and achieve your goals faster.
                         </p>
                         <div className="pt-2">
-                            <button 
+                            <button
                                 onClick={() => window.location.href = '/register?system=GINUMA'}
                                 className="px-8 py-3 bg-sky-400 text-white font-bold rounded-full shadow-lg hover:bg-sky-500 transition-colors"
                             >

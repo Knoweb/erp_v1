@@ -395,9 +395,7 @@ const Dashboard = () => {
     window.open(urlWithToken, '_blank');
   };
 
-  // SSO Logout chain (Emergency logout - do not change per user request)
-  // @ts-ignore: Keeping this as requested by the user, even if unused for now
-  const handleEmergencyLogout = () => {
+  const handleLogout = () => {
     // Clear Main Dashboard's storage first
     localStorage.clear();
     sessionStorage.clear();
@@ -425,14 +423,6 @@ const Dashboard = () => {
 
     // Initiate the logout chain
     window.location.href = chainStartUrl;
-  };
-
-  // Standard Logout for Main Dashboard
-  const handleLogout = () => {
-    localStorage.clear();
-    sessionStorage.clear();
-    // Redirect directly to the main portal login page
-    window.location.href = 'http://167.71.206.166:3000/login';
   };
 
   const handleUpgradeSystem = async (systemName: string) => {

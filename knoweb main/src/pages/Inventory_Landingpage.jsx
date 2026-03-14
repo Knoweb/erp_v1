@@ -133,7 +133,7 @@ function Hero() {
                             businesses of all sizes. Manage your stock effortlessly and
                             make informed decisions with real-time insights.
                         </p>
-                        <button 
+                        <button
                             onClick={() => window.location.href = '/register?system=INVENTORY'}
                             className="px-8 py-4 bg-sky-400 text-white text-lg font-bold rounded-full shadow-lg hover:bg-sky-500 transition-all transform hover:-translate-y-1"
                         >
@@ -312,7 +312,7 @@ function Modules() {
 /* ================= PRICING ================= */
 function Pricing() {
     const navigate = useNavigate();
-    
+
     const handleChoosePlan = (plan) => {
         const price = plan.price.replace('$', '');
         navigate(`/payment?system=inventory&package=${encodeURIComponent(plan.name)}&price=${price}`);
@@ -416,11 +416,10 @@ function Pricing() {
                     {plans.map((plan, index) => (
                         <div
                             key={index}
-                            className={`relative bg-white rounded-3xl shadow-2xl overflow-hidden border-2 ${
-                                plan.recommended
-                                    ? 'border-blue-500 ring-4 ring-blue-100 scale-105 z-10'
-                                    : 'border-gray-200'
-                            } transition-all duration-300 flex flex-col`}
+                            className={`relative bg-white rounded-3xl shadow-2xl overflow-hidden border-2 ${plan.recommended
+                                ? 'border-blue-500 ring-4 ring-blue-100 scale-105 z-10'
+                                : 'border-gray-200'
+                                } transition-all duration-300 flex flex-col`}
                         >
                             {plan.recommended && (
                                 <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-600 to-purple-600" />
@@ -455,11 +454,10 @@ function Pricing() {
                                 <div className="mt-auto">
                                     <button
                                         disabled
-                                        className={`w-full py-3 px-6 rounded-xl font-bold cursor-not-allowed transition-all duration-300 ${
-                                            plan.recommended
-                                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg opacity-60'
-                                                : 'bg-gray-200 text-gray-500 opacity-60'
-                                        }`}
+                                        className={`w-full py-3 px-6 rounded-xl font-bold cursor-not-allowed transition-all duration-300 ${plan.recommended
+                                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg opacity-60'
+                                            : 'bg-gray-200 text-gray-500 opacity-60'
+                                            }`}
                                     >
                                         Choose Plan
                                     </button>
@@ -490,7 +488,7 @@ const Footer = () => {
                             A seamless inventory management experience for businesses of all sizes. Automate your tracking, optimize stock levels, and achieve your goals faster.
                         </p>
                         <div className="pt-2">
-                            <button 
+                            <button
                                 onClick={() => window.location.href = '/register?system=INVENTORY'}
                                 className="px-8 py-3 bg-sky-400 text-white font-bold rounded-full shadow-lg hover:bg-sky-500 transition-colors"
                             >
