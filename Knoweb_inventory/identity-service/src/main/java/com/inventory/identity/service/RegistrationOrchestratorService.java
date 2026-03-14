@@ -236,6 +236,12 @@ public class RegistrationOrchestratorService {
         if (request.isGinumaSystem()) {
             return setupGinumaSystem(request, orgId);
         } else if (request.isInventorySystem()) {
+            // FIX: For Inventory registrations, we also need to create the company in
+            // Ginuma
+            // to ensure unified data and allow the company to appear in the switch-app
+            // list.
+            log.info("Inventory system selected - performing mandatory Ginuma setup for unified company data");
+            setupGinumaSystem(request, orgId);
             return setupInventorySystem(request, orgId);
         } else if (request.isPirisaHRSystem()) {
             // PirisaHR is part of Ginuma ecosystem, route to Ginuma setup
