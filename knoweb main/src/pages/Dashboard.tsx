@@ -395,35 +395,48 @@ const Dashboard = () => {
     window.open(urlWithToken, '_blank');
   };
 
+  /**
+ * Single Sign-Out (SSO) Logout Chain
+ * Flow: Dashboard -> Inventory -> Ginuma -> Final Destination
+ */
   const handleLogout = () => {
-    // Clear Main Dashboard's storage first
+    // 1. Clear local session for the Main Dashboard
     localStorage.clear();
     sessionStorage.clear();
 
-    // Build SSO logout chain URLs
-    const inventoryLogoutUrl = `${URLS.inventory}/auth/logout`;
-    const ginumaLogoutUrl = `${URLS.ginuma}/account/auth/logout`;
-    const finalReturnUrl = '/login';
+    // Reference URLs (As per your platform configuration)
+    const URLS = {
+      inventory: "http://167.71.206.166:3002",
+      ginuma: "http://167.71.206.166:3001"
+    };
 
-    // Build the returnTo chain (working backwards):
-    // Ginuma (5176) will redirect to: finalReturnUrl
-    const ginumaReturnTo = finalReturnUrl;
+    // Final destination after all systems are cleared
+    const FINAL_DESTINATION = "http://167.71.206.166:3000/login";
 
-    // Inventory (5174) will redirect to: Ginuma with returnTo=finalReturnUrl
-    const inventoryReturnTo = `${ginumaLogoutUrl}?returnTo=${encodeURIComponent(ginumaReturnTo)}`;
+    try {
+      // 2. Build the domino-effect redirect chain
+      // Step B: Ginuma clears its state and then sends user to the Final Login
+      const ginumaLogoutPath = "/account/auth/logout";
+      const ginumaChain = `${URLS.ginuma}${ginumaLogoutPath}?returnTo=${encodeURIComponent(FINAL_DESTINATION)}`;
 
-    // Main Dashboard (5173) redirects to: Inventory with returnTo=Ginuma URL
-    const chainStartUrl = `${inventoryLogoutUrl}?returnTo=${encodeURIComponent(inventoryReturnTo)}`;
+      // Step A: Inventory clears its state and then sends user to Ginuma
+      // Note: This becomes the entry point for the redirect chain
+      const logoutChainUrl = `${URLS.inventory}/logout?returnTo=${encodeURIComponent(ginumaChain)}`;
 
-    // Validate that the chain includes the correct Ginuma logout path
-    if (!inventoryReturnTo.includes('/account/auth/logout')) {
-      alert('SSO Logout chain error: Invalid logout URL configuration.');
-      return;
+      // 3. Safety validation check
+      // We strictly verify that the Ginuma logout path is present in the final string
+      if (logoutChainUrl.includes(ginumaLogoutPath)) {
+        window.location.href = logoutChainUrl;
+      } else {
+        throw new Error("Invalid SSO Logout Chain: Missing required logout paths.");
+      }
+    } catch (error) {
+      console.error("SSO Logout Failure:", error);
+      // Emergency Fallback: If the chain construction fails, force redirect to main login
+      window.location.href = FINAL_DESTINATION;
     }
-
-    // Initiate the logout chain
-    window.location.href = chainStartUrl;
   };
+
 
   const handleUpgradeSystem = async (systemName: string) => {
     // Show browser confirmation
