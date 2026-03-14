@@ -396,6 +396,7 @@ const Dashboard = () => {
   };
 
   // SSO Logout chain (Emergency logout - do not change per user request)
+  // @ts-ignore: Keeping this as requested by the user, even if unused for now
   const handleEmergencyLogout = () => {
     // Clear Main Dashboard's storage first
     localStorage.clear();
