@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { 
-  Briefcase, 
-  Package, 
-  AlertCircle, 
-  Loader2, 
-  LogOut, 
-  User, 
+import {
+  Briefcase,
+  Package,
+  AlertCircle,
+  Loader2,
+  LogOut,
+  User,
   Building2,
   ArrowRight,
   CheckCircle2,
@@ -36,10 +36,10 @@ const URLS = {
 const ALL_AVAILABLE_SYSTEMS = ['GINUMA', 'INVENTORY', 'PIRISAHR', 'ALL_IN_ONE'];
 
 // System metadata for display
-const SYSTEM_INFO: Record<string, { 
-  name: string; 
-  description: string; 
-  color: string; 
+const SYSTEM_INFO: Record<string, {
+  name: string;
+  description: string;
+  color: string;
   icon: typeof Briefcase;
   features: string[];
   frontendUrl: string;
@@ -329,7 +329,7 @@ const Dashboard = () => {
 
         // Fetch subscribed systems from API
         const response = await getMySubscribedSystems(orgId);
-        
+
         // 🚨 CRITICAL: Check if account is blocked BEFORE setting any state
         if (response.isBlocked || response.status === 'BLOCKED') {
           // Show custom modal instead of browser alert
@@ -353,7 +353,7 @@ const Dashboard = () => {
   const handleSystemLaunch = (systemCode: string, frontendUrl: string) => {
     // Get JWT token from localStorage
     const jwtToken = localStorage.getItem('token');
-    
+
     if (!jwtToken) {
       alert('No authentication token found. Please log in again.');
       navigate('/login');
@@ -362,16 +362,16 @@ const Dashboard = () => {
 
     // Store token in sessionStorage for the target system to pick up
     sessionStorage.setItem('sso_token', jwtToken);
-    
+
     // Store orgId and other user details for the target system
     const userDetailsStr = localStorage.getItem('userDetails');
     let ssoParams = `token=${encodeURIComponent(jwtToken)}`;
-    
+
     if (userDetailsStr) {
       try {
         const userDetails = JSON.parse(userDetailsStr);
         sessionStorage.setItem('sso_orgId', userDetails.orgId?.toString() || '');
-        
+
         // Add user details as URL parameters for SSO
         if (userDetails.orgId) ssoParams += `&orgId=${encodeURIComponent(userDetails.orgId)}`;
         if (userDetails.email) ssoParams += `&email=${encodeURIComponent(userDetails.email)}`;
@@ -384,7 +384,7 @@ const Dashboard = () => {
 
     // Build the login URL with base path for systems that require it
     let loginPath = '/login';
-    
+
     // Ginuma ERP uses /account as base public URL with SSO endpoint
     if (systemCode === 'GINUMA') {
       loginPath = '/account/sso-login';
@@ -396,33 +396,15 @@ const Dashboard = () => {
   };
 
   const handleLogout = () => {
-    // Clear Main Dashboard's storage first
+    // Clear Main Dashboard's storage
     localStorage.clear();
     sessionStorage.clear();
-    
-    // Build SSO logout chain URLs
-    const inventoryLogoutUrl = `${URLS.inventory}/auth/logout`;
-    const ginumaLogoutUrl = `${URLS.ginuma}/account/auth/logout`;
-    const finalReturnUrl = '/login';
-    
-    // Build the returnTo chain (working backwards):
-    // Ginuma (5176) will redirect to: finalReturnUrl
-    const ginumaReturnTo = finalReturnUrl;
-    
-    // Inventory (5174) will redirect to: Ginuma with returnTo=finalReturnUrl
-    const inventoryReturnTo = `${ginumaLogoutUrl}?returnTo=${encodeURIComponent(ginumaReturnTo)}`;
-    
-    // Main Dashboard (5173) redirects to: Inventory with returnTo=Ginuma URL
-    const chainStartUrl = `${inventoryLogoutUrl}?returnTo=${encodeURIComponent(inventoryReturnTo)}`;
-    
-    // Validate that the chain includes the correct Ginuma logout path
-    if (!inventoryReturnTo.includes('/account/auth/logout')) {
-      alert('SSO Logout chain error: Invalid logout URL configuration.');
-      return;
-    }
-    
-    // Initiate the logout chain
-    window.location.href = chainStartUrl;
+
+    // Build direct return URL
+    const finalReturnUrl = `${URLS.main}/login`;
+
+    // Redirect to login
+    window.location.href = finalReturnUrl;
   };
 
   const handleUpgradeSystem = async (systemName: string) => {
@@ -481,7 +463,7 @@ const Dashboard = () => {
       if (response.data.success) {
         // Show success message
         alert(`Successfully subscribed to ${SYSTEM_INFO[systemName]?.name || systemName}!`);
-        
+
         // Reload the page to fetch updated subscriptions
         window.location.reload();
       } else {
@@ -496,7 +478,7 @@ const Dashboard = () => {
         navigate('/login');
         return;
       }
-      
+
       const errorMessage = err.response?.data?.error || err.message || 'Failed to upgrade subscription';
       alert(`Error: ${errorMessage}`);
     } finally {
@@ -537,7 +519,7 @@ const Dashboard = () => {
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 text-center mb-4">Access Issue</h2>
           <p className="text-gray-700 text-center mb-6">{error}</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-all"
           >
@@ -558,7 +540,7 @@ const Dashboard = () => {
           <p className="text-gray-700 text-center mb-6">
             You don't have access to any systems yet. Please contact your administrator.
           </p>
-          <button 
+          <button
             onClick={handleLogout}
             className="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2"
           >
@@ -594,13 +576,12 @@ const Dashboard = () => {
             </div>
             <div className="flex items-center gap-4">
               {/* Status Badge */}
-              <div className={`px-4 py-2 rounded-xl font-semibold flex items-center gap-2 ${
-                systemData?.isActive 
-                  ? 'bg-red-600 text-white border border-red-500 shadow-lg shadow-red-900/20' 
-                  : systemData?.isBlocked 
-                  ? 'bg-red-500/20 text-red-300 border border-red-500/30'
-                  : 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
-              }`}>
+              <div className={`px-4 py-2 rounded-xl font-semibold flex items-center gap-2 ${systemData?.isActive
+                  ? 'bg-red-600 text-white border border-red-500 shadow-lg shadow-red-900/20'
+                  : systemData?.isBlocked
+                    ? 'bg-red-500/20 text-red-300 border border-red-500/30'
+                    : 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                }`}>
                 {systemData?.isActive ? (
                   <CheckCircle2 className="w-5 h-5" />
                 ) : (
@@ -608,7 +589,7 @@ const Dashboard = () => {
                 )}
                 <span>{systemData?.status}</span>
               </div>
-              
+
               {/* Logout Button */}
               <button
                 onClick={handleLogout}
@@ -619,7 +600,7 @@ const Dashboard = () => {
               </button>
             </div>
           </div>
-          
+
           {/* Status Message */}
           <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <p className="text-gray-700">{systemData?.statusMessage}</p>
@@ -640,7 +621,7 @@ const Dashboard = () => {
               const Icon = system.icon;
 
               return (
-                <div 
+                <div
                   key={systemCode}
                   className="bg-white backdrop-blur-md rounded-xl p-5 border-2 border-gray-200 hover:border-blue-500 hover:shadow-xl transition-all duration-300 hover:transform hover:scale-[1.02] group"
                 >
@@ -707,7 +688,7 @@ const Dashboard = () => {
             {unsubscribedSystems.map((systemCode) => {
               const system = SYSTEM_INFO[systemCode];
               const pricingTiers = PRICING_PACKAGES[systemCode];
-              
+
               if (!system || !pricingTiers) return null;
 
               const Icon = system.icon;
@@ -732,15 +713,14 @@ const Dashboard = () => {
                     <div className="grid md:grid-cols-3 gap-5">
                       {pricingTiers.map((tier) => {
                         const isUpgrading = upgradingSystem === systemCode;
-                        
+
                         return (
                           <div
                             key={tier.name}
-                            className={`relative bg-white rounded-xl transition-all duration-300 hover:scale-[1.02] ${
-                              tier.isPopular 
-                                ? 'border-2 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.3)]' 
+                            className={`relative bg-white rounded-xl transition-all duration-300 hover:scale-[1.02] ${tier.isPopular
+                                ? 'border-2 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.3)]'
                                 : 'border-2 border-gray-200 shadow-md'
-                            }`}
+                              }`}
                           >
                             {/* Popular Badge */}
                             {tier.isPopular && (
@@ -769,11 +749,10 @@ const Dashboard = () => {
                               <button
                                 onClick={() => handleUpgradeSystem(systemCode)}
                                 disabled={isUpgrading}
-                                className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                                  tier.isPopular
+                                className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${tier.isPopular
                                     ? 'bg-blue-600 hover:bg-blue-700 text-white'
                                     : 'bg-gray-800 text-white hover:bg-gray-700'
-                                }`}
+                                  }`}
                               >
                                 {isUpgrading ? (
                                   <span className="flex items-center justify-center gap-2">
@@ -840,7 +819,7 @@ const Dashboard = () => {
       {showBlockedModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
           {/* Backdrop */}
-          <div 
+          <div
             className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             onClick={() => {
               // Prevent closing by clicking backdrop - force user to use button
@@ -851,7 +830,7 @@ const Dashboard = () => {
           <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl shadow-2xl max-w-md w-full border border-red-500/30 animate-in zoom-in-95 duration-300">
             {/* Glowing Red Border Effect */}
             <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-red-800 rounded-2xl blur opacity-30 animate-pulse"></div>
-            
+
             {/* Content */}
             <div className="relative bg-slate-900/95 backdrop-blur-xl rounded-2xl p-8">
               {/* Icon */}
@@ -887,7 +866,7 @@ const Dashboard = () => {
                   localStorage.removeItem('userDetails');
                   localStorage.clear();
                   sessionStorage.clear();
-                  
+
                   // Redirect to login
                   navigate('/login', { replace: true });
                 }}
