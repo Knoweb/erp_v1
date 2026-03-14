@@ -23,22 +23,74 @@ const GlobalLogout = () => {
 
   useEffect(() => {
     const performLogout = () => {
-      // 1. Get the returnTo parameter from URL
+      console.log('');
+      console.log('🚪 [INVENTORY APP 5174] GlobalLogout triggered - Starting cleanup');
+      console.log('');
+
+      // Get the returnTo parameter from URL
       const returnTo = searchParams.get('returnTo');
 
-      // 2. Clear ALL authentication data
-      localStorage.clear();
-      sessionStorage.clear();
+      console.log('📋 [INVENTORY APP] returnTo parameter received:', returnTo);
+      console.log('');
 
-      // 3. Redirect to the next app in the chain
+      // ⚠️ CRITICAL VERIFICATION: Check if returnTo contains correct Ginuma logout path
+      if (returnTo && returnTo.includes('localhost:5176')) {
+        console.log('🔍 [INVENTORY APP] Verifying Ginuma URL in returnTo...');
+
+        if (returnTo.includes('/account/auth/logout')) {
+          console.log('   ✅ CORRECT: Ginuma URL contains "/account/auth/logout"');
+        } else if (returnTo.includes('/account/sso-login')) {
+          console.error('');
+          console.error('   ❌ ERROR: Ginuma URL contains "/account/sso-login" (WRONG!)');
+          console.error('   Expected: /account/auth/logout');
+          console.error('   Got:', returnTo);
+          console.error('   This will cause Ginuma storage to NOT be cleared!');
+          console.error('');
+        } else {
+          console.warn('   ⚠️ WARNING: Ginuma URL does not contain expected path');
+          console.warn('   Expected: /account/auth/logout');
+          console.warn('   Got:', returnTo);
+        }
+        console.log('');
+      }
+
+      console.log('🧹 [INVENTORY APP] Clearing BOTH localStorage and sessionStorage...');
+      console.log('   📦 Executing localStorage.clear()...');
+
+      // Clear ALL storage - works regardless of key names (token, user, sso_token, etc.)
+      localStorage.clear();
+      console.log('      ✅ localStorage cleared');
+
+      console.log('   📦 Executing sessionStorage.clear()...');
+      sessionStorage.clear();
+      console.log('      ✅ sessionStorage cleared');
+
+      console.log('');
+      console.error('💥 [INVENTORY APP] !!! BOTH STORAGES NUKED !!!');
+      console.log('✅ [INVENTORY APP] Storage cleared successfully (all keys removed from BOTH storages)');
+      console.log('');
+
+      // Determine where to redirect next
       if (returnTo) {
-        // Small delay to ensure storage is fully cleared
+        console.log(`🔗 [INVENTORY APP] Redirecting to next app in chain:`);
+        console.log('   Target:', returnTo);
+        console.log('   Waiting 150ms before redirect...');
+        console.log('');
+
+        // Small delay to ensure storage is fully cleared before redirect
         setTimeout(() => {
+          console.log('🚀 [INVENTORY APP] REDIRECT NOW!');
           window.location.href = returnTo;
-        }, 100);
+        }, 150);
       } else {
-        // Fallback: If no returnTo parameter, go to Main Dashboard login
-        window.location.href = 'http://167.71.206.166:3000/login';
+        // Fallback: If no returnTo parameter, redirect to Main Dashboard login
+        console.warn('');
+        console.warn('⚠️ [INVENTORY APP] No returnTo parameter found!');
+        console.warn('   Redirecting to Main Dashboard login as fallback.');
+        console.warn('');
+        setTimeout(() => {
+          window.location.href = 'http://localhost:5173/login';
+        }, 150);
       }
     };
 

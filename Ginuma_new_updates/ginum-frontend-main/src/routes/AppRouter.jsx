@@ -5,7 +5,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import SsoReceiver from "../components/Auth/SsoReceiver";
-import SSOLogoutHandler from "../components/Auth/SSOLogoutHandler";
+import GlobalLogout from "../pages/GlobalLogout";
 import AddAccountForm from "../components/account/AddAccountForm";
 import AllAccounts from "../components/account/AllAccounts";
 import LandingPage from "../pages/LandingPage";
@@ -73,7 +73,7 @@ function AppRouter() {
         {/* Public Routes - NO LAYOUT */}
         <Route path="/" element={<Navigate to="/sso-login" replace />} />
         <Route path="/sso-login" element={<SsoReceiver />} />
-        <Route path="/auth/logout" element={<SSOLogoutHandler />} />
+        <Route path="/auth/logout" element={<GlobalLogout />} />
 
         {/* 🚨 DEBUGGING: Log when routes are rendered */}
         {console.log('🔧 [Ginuma Router] Public routes registered: /, /sso-login, /auth/logout')}
