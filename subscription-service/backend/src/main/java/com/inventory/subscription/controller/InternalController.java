@@ -48,20 +48,30 @@ public class InternalController {
      * Returns a JSON response containing the boolean isBlocked and a List<String> allowedSystems
      */
     @GetMapping("/access/{orgId}")
-    public ResponseEntity<AccessResponse> getAccess(@PathVariable Long orgId) {
+    public ResponseEntity<?> getAccess(@PathVariable Long orgId) {
         log.info("Internal: Checking access for orgId={}", orgId);
         
-        CompanyTenant company = subscriptionService.getCompanyByOrgId(orgId);
-        List<String> allowedSystems = subscriptionService.getAllowedSystemsForCompany(orgId);
-        
-        boolean isBlocked = company.getStatus() == CompanyStatus.BLOCKED;
-        
-        AccessResponse response = AccessResponse.builder()
-                .orgId(orgId)
-                .isBlocked(isBlocked)
-                .allowedSystems(allowedSystems)
-                .build();
-        
-        return ResponseEntity.ok(response);
+        try {
+            CompanyTenant company = subscriptionService.getCompanyByOrgId(orgId);
+            List<String> allowedSystems = subscriptionService.getAllowedSystemsForCompany(orgId);
+            
+            boolean isBlocked = company.getStatus() == com.inventory.subscription.enums.CompanyStatus.BLOCKED;
+            
+            AccessResponse response = AccessResponse.builder()
+                    .orgId(orgId)
+                    .isBlocked(isBlocked)
+                    .allowedSystems(allowedSystems)
+                    .build();
+            
+            return ResponseEntity.ok(response);
+        } catch (com.inventory.subscription.exception.CompanyNotFoundException e) {
+            log.warn("Internal: Company not found for orgId={}", orgId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Company not found in subscription system");
+        } catch (Exception e) {
+            log.error("Internal: Error checking access for orgId={}", orgId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error retrieving subscription data: " + e.getMessage());
+        }
     }
 }
