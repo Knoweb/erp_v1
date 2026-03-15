@@ -8,6 +8,7 @@ const CompanyManagementTab = () => {
   const [error, setError] = useState(null);
   const [blockingOrgId, setBlockingOrgId] = useState(null);
 
+
   // Fetch companies on mount
   useEffect(() => {
     fetchCompanies();
@@ -35,10 +36,10 @@ const CompanyManagementTab = () => {
     try {
       setBlockingOrgId(orgId);
       await subscriptionApi.blockCompany(orgId);
-      
+
       // Success notification
       alert(`Successfully blocked ${companyName}`);
-      
+
       // Refresh the list
       await fetchCompanies();
     } catch (err) {
@@ -57,10 +58,10 @@ const CompanyManagementTab = () => {
     try {
       setBlockingOrgId(orgId);
       await subscriptionApi.unblockCompany(orgId);
-      
+
       // Success notification
       alert(`Successfully unblocked ${companyName}`);
-      
+
       // Refresh the list
       await fetchCompanies();
     } catch (err) {
