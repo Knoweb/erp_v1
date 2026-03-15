@@ -132,7 +132,7 @@ const CreatePurchase = () => {
         const companyId = localStorage.getItem("companyId");
         if (!companyId) return;
 
-        const data = await api.get(`/api/suppliers/companies/${companyId}`);
+        const data = await api.get(`/api/ginuma/suppliers/companies/${companyId}`);
         setSuppliers(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching suppliers:", error);

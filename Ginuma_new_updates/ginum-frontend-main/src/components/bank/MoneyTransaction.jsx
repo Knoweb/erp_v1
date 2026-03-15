@@ -102,7 +102,7 @@ const MoneyTransaction = ({ type = "spend" }) => {
 
   const fetchSuppliers = async () => {
     try {
-      const response = await api.get(`/api/suppliers/companies/${companyId}`);
+      const response = await api.get(`/api/ginuma/suppliers/companies/${companyId}`);
       setSuppliers(response.data || response || []);
     } catch (error) {
       console.error("Error fetching suppliers:", error);
