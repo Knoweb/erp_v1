@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -146,7 +145,7 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public List<InventoryTransactionDto> getTransactionsByItem(Long itemId) {
         List<InventoryTransaction> transactions = transactionRepository
-            .findByItem_ItemIdOrderByTransactionDateDesc(itemId);
+            .findByItem_IdOrderByTransactionDateDesc(itemId);
         return transactions.stream()
             .map(this::convertTransactionToDto)
             .collect(Collectors.toList());
@@ -165,7 +164,7 @@ public class InventoryServiceImpl implements InventoryService {
     public StockLevelDto getStockLevel(Long itemId, String warehouse) {
         String warehouseName = warehouse != null ? warehouse : "MAIN";
         StockLevel stockLevel = stockLevelRepository
-            .findByItem_ItemIdAndWarehouse(itemId, warehouseName)
+            .findByItem_IdAndWarehouse(itemId, warehouseName)
             .orElseThrow(() -> new RuntimeException("Stock level not found for item " + itemId + " in warehouse " + warehouseName));
         return convertStockLevelToDto(stockLevel);
     }
@@ -199,7 +198,7 @@ public class InventoryServiceImpl implements InventoryService {
     public StockLevelDto updateReorderLevel(Long itemId, String warehouse, BigDecimal reorderLevel, BigDecimal maximumLevel) {
         String warehouseName = warehouse != null ? warehouse : "MAIN";
         StockLevel stockLevel = stockLevelRepository
-            .findByItem_ItemIdAndWarehouse(itemId, warehouseName)
+            .findByItem_IdAndWarehouse(itemId, warehouseName)
             .orElseThrow(() -> new RuntimeException("Stock level not found"));
 
         stockLevel.setReorderLevel(reorderLevel);
@@ -225,7 +224,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     private StockLevel getOrCreateStockLevel(Item item, Company company, String warehouse) {
         String warehouseName = warehouse != null ? warehouse : "MAIN";
-        Optional<StockLevel> existing = stockLevelRepository.findByItem_ItemIdAndWarehouse(item.getItemId(), warehouseName);
+        Optional<StockLevel> existing = stockLevelRepository.findByItem_IdAndWarehouse(item.getItemId(), warehouseName);
         
         if (existing.isPresent()) {
             return existing.get();

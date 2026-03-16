@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface InventoryTransactionRepository extends JpaRepository<InventoryTransaction, Long> {
     List<InventoryTransaction> findByCompany_CompanyIdOrderByTransactionDateDesc(Integer companyId);
-    List<InventoryTransaction> findByItem_ItemIdOrderByTransactionDateDesc(Long itemId);
+    List<InventoryTransaction> findByItem_IdOrderByTransactionDateDesc(Long itemId);
     List<InventoryTransaction> findByCompany_CompanyIdAndTransactionDateBetween(
         Integer companyId, LocalDateTime start, LocalDateTime end);
 }

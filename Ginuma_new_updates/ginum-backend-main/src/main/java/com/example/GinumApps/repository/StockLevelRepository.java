@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface StockLevelRepository extends JpaRepository<StockLevel, Long> {
-    Optional<StockLevel> findByItem_ItemIdAndWarehouse(Long itemId, String warehouse);
+    Optional<StockLevel> findByItem_IdAndWarehouse(Long itemId, String warehouse);
     List<StockLevel> findByCompany_CompanyId(Integer companyId);
     
     @Query("SELECT s FROM StockLevel s WHERE s.company.companyId = :companyId " +
