@@ -175,7 +175,7 @@ const ProductRegistrationModal = ({ isOpen, onClose, onSuccess, categories, bran
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Base Valuation (Price)</label>
                             <div className="relative">
-                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 font-black text-sm">$</span>
+                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 font-black text-sm">Rs.</span>
                                 <input
                                     type="number"
                                     name="price"

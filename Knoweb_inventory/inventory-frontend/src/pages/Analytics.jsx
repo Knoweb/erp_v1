@@ -144,11 +144,11 @@ const Analytics = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-all group">
           <div className="p-3 rounded-xl bg-indigo-50 text-indigo-600 group-hover:scale-110 transition-transform">
-            <DollarSign size={24} />
+            <TrendingUp size={24} />
           </div>
           <div>
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Monthly Revenue</h3>
-            <p className="text-2xl font-black text-slate-800">${parseFloat(data.kpis.revenue).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+            <p className="text-2xl font-black text-slate-800">Rs.{parseFloat(data.kpis.revenue).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
           </div>
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-all group">
@@ -286,7 +286,7 @@ const Analytics = () => {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col border-l-4 border-l-indigo-500">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Inventory Value</span>
           <span className="text-3xl font-black text-slate-800 tracking-tight">
-            ${data.inventoryItems.reduce((sum, item) => sum + (item.stockValue || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            Rs.{data.inventoryItems.reduce((sum, item) => sum + (item.stockValue || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </span>
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
@@ -333,7 +333,7 @@ const Analytics = () => {
                       {(item.isLowStock || (item.quantity <= item.reorderLevel)) ? '⚠️ Low Stock' : '✅ Healthy'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm font-black text-slate-800">${(item.stockValue !== undefined ? item.stockValue : (item.quantity * (item.unitPrice || 0))).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td className="px-6 py-4 text-sm font-black text-slate-800">Rs.{(item.stockValue !== undefined ? item.stockValue : (item.quantity * (item.unitPrice || 0))).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                   <td className="px-6 py-4 text-xs font-bold text-slate-400 italic">{item.lastMovementDate || item.updatedAt ? new Date(item.lastMovementDate || item.updatedAt).toLocaleDateString() : '—'}</td>
                 </tr>
               ))}
@@ -353,12 +353,12 @@ const Analytics = () => {
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col border-l-4 border-l-indigo-500">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Gross Merchandise Volume</span>
-          <span className="text-3xl font-black text-slate-800 tracking-tight">${data.salesOrders.reduce((sum, s) => sum + (s.totalAmount || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+          <span className="text-3xl font-black text-slate-800 tracking-tight">Rs.{data.salesOrders.reduce((sum, s) => sum + (s.totalAmount || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Average Ticket</span>
           <span className="text-3xl font-black text-slate-800 tracking-tight">
-            ${(data.salesOrders.length > 0
+            Rs.{(data.salesOrders.length > 0
               ? data.salesOrders.reduce((sum, s) => sum + (s.totalAmount || 0), 0) / data.salesOrders.length
               : 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </span>
@@ -424,7 +424,7 @@ const Analytics = () => {
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm font-black text-slate-800 tracking-tight">${(order.totalAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td className="px-6 py-4 text-sm font-black text-slate-800 tracking-tight">Rs.{(order.totalAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                   <td className="px-6 py-4 text-xs font-bold text-slate-600">{order.customerName || order.customer_name || 'Walk-in'}</td>
                   <td className="px-6 py-4 text-[10px] font-bold text-slate-400 italic">{new Date(order.saleDate || order.createdAt || order.created_at).toLocaleDateString()}</td>
                 </tr>

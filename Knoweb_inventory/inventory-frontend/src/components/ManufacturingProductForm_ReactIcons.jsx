@@ -151,7 +151,7 @@ function ManufacturingProductForm({ onSubmit, onCancel }) {
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2 ml-1">
-                  <FaDollarSign size={12} className="text-indigo-400" /> Std. Cost ($) *
+                  <FaDollarSign size={12} className="text-indigo-400" /> Std. Cost (Rs.) *
                 </label>
                 <input type="number" name="standardCost" value={formData.standardCost} onChange={handleChange} step="0.01" className={`w-full px-5 py-3.5 bg-white border ${errors.standardCost ? 'border-rose-400' : 'border-slate-200'} rounded-2xl text-sm font-black text-slate-700 outline-none focus:border-indigo-400`} />
               </div>

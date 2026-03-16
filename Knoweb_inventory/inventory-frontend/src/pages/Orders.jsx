@@ -210,7 +210,7 @@ function CreatePurchaseOrderModal({ suppliers, onClose, onCreated }) {
             <div className="flex justify-end pt-4">
               <div className="bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100">
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mr-4">Projected Total</span>
-                <span className="text-xl font-black text-indigo-600">${computedTotal.toFixed(2)}</span>
+                <span className="text-xl font-black text-indigo-600">Rs.{computedTotal.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -411,7 +411,7 @@ function CreateSalesOrderModal({ onClose, onCreated }) {
             <div className="flex justify-end pt-4">
               <div className="bg-emerald-50 px-6 py-3 rounded-2xl border border-emerald-100">
                 <span className="text-[10px] font-black text-emerald-600/60 uppercase tracking-[0.2em] mr-4">Settlement Value</span>
-                <span className="text-xl font-black text-emerald-600">${computedTotal.toFixed(2)}</span>
+                <span className="text-xl font-black text-emerald-600">Rs.{computedTotal.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -622,7 +622,7 @@ function Orders() {
                 </div>
                 <div>
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Contract Valuation</label>
-                  <div className="text-xl font-black text-slate-800 tracking-tight">${Number(viewOrder.totalAmount ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                  <div className="text-xl font-black text-slate-800 tracking-tight">Rs.{Number(viewOrder.totalAmount ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
                 </div>
               </div>
 
@@ -649,7 +649,7 @@ function Orders() {
                       <div key={i} className="p-3 grid grid-cols-3 gap-2 font-bold text-slate-600 hover:bg-slate-50 transition-colors">
                         <span className="truncate">{getProductName(item.productId)}</span>
                         <span className="text-center">{item.quantity}</span>
-                        <span className="text-right text-indigo-600">${Number(item.unitPrice).toFixed(2)}</span>
+                        <span className="text-right text-indigo-600">Rs.{Number(item.unitPrice).toFixed(2)}</span>
                       </div>
                     ))}
                   </div>
@@ -777,7 +777,7 @@ function Orders() {
                           <td className="px-6 py-4 text-center"><span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded shadow-inner tracking-widest font-mono">#SO-{String(order.id).padStart(3, '0')}</span></td>
                           <td className="px-6 py-4"><span className="text-sm font-black text-slate-800">{order.customerName}</span></td>
                           <td className="px-6 py-4 font-bold text-slate-400 text-xs italic">{getWarehouseName(order.warehouseId)}</td>
-                          <td className="px-6 py-4 text-sm font-black text-slate-900 tracking-tighter">${(order.totalAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                          <td className="px-6 py-4 text-sm font-black text-slate-900 tracking-tighter">Rs.{(order.totalAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                           <td className="px-6 py-4">
                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border ${order.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'
                               }`}>

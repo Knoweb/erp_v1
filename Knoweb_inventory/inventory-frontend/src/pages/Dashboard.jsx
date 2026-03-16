@@ -161,11 +161,11 @@ function Dashboard() {
   };
 
   const formatCurrency = (value) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-LK', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'LKR',
       minimumFractionDigits: 2
-    }).format(value);
+    }).format(value).replace('LKR', 'Rs.');
   };
 
   const formatDate = (dateString) => {
@@ -318,7 +318,7 @@ function Dashboard() {
             <p className="text-xl font-bold text-gray-900">{formatCurrency(stats.totalStockValue)}</p>
           </div>
           <div className="text-green-600 bg-green-50 p-3 rounded-lg">
-            <FaDollarSign size={24} />
+            <FaChartLine size={24} />
           </div>
         </div>
       </div>

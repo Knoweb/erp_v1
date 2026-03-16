@@ -410,7 +410,7 @@ function Products() {
                                                 {isPharmacy && <td className="px-6 py-4 text-xs font-medium text-gray-500 italic">{genericName}</td>}
                                                 <td className="px-6 py-4"><span className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 text-[10px] font-bold uppercase tracking-wider border border-gray-200">{product.category || '-'}</span></td>
                                                 <td className="px-6 py-4 text-sm text-gray-500">{product.brand || '-'}</td>
-                                                <td className="px-6 py-4 font-black text-gray-900 text-sm">${product.price?.toFixed(2)}</td>
+                                                <td className="px-6 py-4 font-black text-gray-900 text-sm">Rs.{product.price?.toFixed(2)}</td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex flex-col text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
                                                         <span>Unit: <span className="text-gray-600">{unit}</span></span>

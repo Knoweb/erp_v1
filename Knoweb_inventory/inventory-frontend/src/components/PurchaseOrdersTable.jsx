@@ -9,11 +9,11 @@ const STATUS_META = {
 };
 
 const formatCurrency = (value) =>
-    new Intl.NumberFormat('en-US', {
+    new Intl.NumberFormat('en-LK', {
         style: 'currency',
-        currency: 'USD',
+        currency: 'LKR',
         minimumFractionDigits: 2,
-    }).format(value ?? 0);
+    }).format(value ?? 0).replace('LKR', 'Rs.');
 
 const formatDate = (dateStr) => {
     if (!dateStr) return '—';

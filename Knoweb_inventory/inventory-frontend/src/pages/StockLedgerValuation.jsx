@@ -269,10 +269,10 @@ const StockLedgerValuation = () => {
                                                 </span>
                                             </td>
                                             <td className="px-10 py-8 text-right text-xs font-black text-slate-700 tracking-tight">
-                                                ${parseFloat(row.unitCost || 0).toFixed(2)}
+                                                Rs.{parseFloat(row.unitCost || 0).toFixed(2)}
                                             </td>
                                             <td className="px-10 py-8 text-right text-sm font-black text-slate-900 italic">
-                                                ${parseFloat(row.totalCost || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                Rs.{parseFloat(row.totalCost || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                             </td>
                                             <td className="px-10 py-8 text-right bg-slate-50/30">
                                                 <span className="text-lg font-black text-indigo-600 tracking-widest italic">{row.runningBalance || row.quantityBalance}</span>
@@ -309,7 +309,7 @@ const StockLedgerValuation = () => {
                                 <h4 className="text-xl font-black text-slate-800 italic uppercase">FIFO Evaluation</h4>
                             </div>
                             <h5 className="text-4xl font-black text-slate-900 tracking-tighter">
-                                ${(valuationData?.fifoValue || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                Rs.{(valuationData?.fifoValue || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                             </h5>
                             <p className="text-[10px] font-semibold text-slate-400 leading-relaxed uppercase italic">
                                 Values remaining stack using oldest cost sequence. Optimizes reported equity value in inflationary growth cycles.
@@ -328,7 +328,7 @@ const StockLedgerValuation = () => {
                                 <h4 className="text-xl font-black text-slate-800 italic uppercase">LIFO Evaluation</h4>
                             </div>
                             <h5 className="text-4xl font-black text-slate-900 tracking-tighter">
-                                ${(valuationData?.lifoValue || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                Rs.{(valuationData?.lifoValue || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                             </h5>
                             <p className="text-[10px] font-semibold text-slate-400 leading-relaxed uppercase italic">
                                 Aligns newest costs with current revenue. Critical methodology for specific cross-border tax optimization.
@@ -347,7 +347,7 @@ const StockLedgerValuation = () => {
                                 <h4 className="text-xl font-black text-slate-800 italic uppercase">Weighted Average</h4>
                             </div>
                             <h5 className="text-4xl font-black text-slate-900 tracking-tighter">
-                                ${(valuationData?.weightedAvgValue || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                Rs.{(valuationData?.weightedAvgValue || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                             </h5>
                             <p className="text-[10px] font-semibold text-slate-400 leading-relaxed uppercase italic">
                                 Dynamic mean cost distribution across entire node history. Provides maximum stability for longitudinal reporting.

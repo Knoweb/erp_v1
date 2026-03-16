@@ -253,7 +253,7 @@ const StockLedger = () => {
             <div>
               <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">Asset Valuation</p>
               <h4 className="text-3xl font-black text-slate-800 italic">
-                ${valuation.totalValue ? parseFloat(valuation.totalValue).toLocaleString(undefined, { minimumFractionDigits: 2 }) : '0.00'}
+                Rs.{valuation.totalValue ? parseFloat(valuation.totalValue).toLocaleString(undefined, { minimumFractionDigits: 2 }) : '0.00'}
               </h4>
               <p className="text-[10px] font-semibold text-slate-400 mt-1 uppercase italic tracking-tighter">Gross Inventory Equity</p>
             </div>
@@ -267,7 +267,7 @@ const StockLedger = () => {
             <div>
               <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">Unit Average</p>
               <h4 className="text-3xl font-black text-slate-800 italic">
-                ${valuation.averageCost ? parseFloat(valuation.averageCost).toFixed(2) : '0.00'}
+                Rs.{valuation.averageCost ? parseFloat(valuation.averageCost).toFixed(2) : '0.00'}
               </h4>
               <p className="text-[10px] font-semibold text-slate-400 mt-1 uppercase italic tracking-tighter">Computational Cost / Unit</p>
             </div>
@@ -349,8 +349,8 @@ const StockLedger = () => {
                     </td>
                     <td className="px-10 py-8 text-right">
                       <div className="space-y-1">
-                        <div className="text-xs font-black text-slate-700 tracking-tight">${parseFloat(entry.unitCost || 0).toFixed(2)}</div>
-                        <div className="text-[9px] font-black text-slate-300 uppercase tracking-widest leading-none italic">Total: ${parseFloat(entry.totalCost || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                        <div className="text-xs font-black text-slate-700 tracking-tight">Rs.{parseFloat(entry.unitCost || 0).toFixed(2)}</div>
+                        <div className="text-[9px] font-black text-slate-300 uppercase tracking-widest leading-none italic">Total: Rs.{parseFloat(entry.totalCost || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
                       </div>
                     </td>
                     <td className="px-10 py-8 text-right bg-slate-50/30">

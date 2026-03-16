@@ -365,11 +365,11 @@ function Retail() {
                     </td>
                     <td>{product.sizeValue}</td>
                     <td>{product.season} {product.seasonYear}</td>
-                    <td>${product.msrp}</td>
+                    <td>Rs.{product.msrp}</td>
                     <td>
                       {product.isOnSale ? (
                         <span style={{ color: '#ef4444', fontWeight: 'bold' }}>
-                          ${product.salePrice} ({product.discountPercentage}% off)
+                          Rs.{product.salePrice} ({product.discountPercentage}% off)
                         </span>
                       ) : (
                         '-'
@@ -601,7 +601,7 @@ function Retail() {
             <form onSubmit={handleApplySale}>
               <div className="form-group">
                 <label>Original Price (MSRP)</label>
-                <input type="text" value={`$${selectedProduct?.msrp}`} disabled />
+                <input type="text" value={`Rs.${selectedProduct?.msrp}`} disabled />
               </div>
               <div className="form-group">
                 <label>Sale Price *</label>
