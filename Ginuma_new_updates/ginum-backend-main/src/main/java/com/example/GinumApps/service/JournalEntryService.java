@@ -26,6 +26,10 @@ public class JournalEntryService {
     private final JournalEntryRepository journalEntryRepo;
     private final AccountRepository accountRepo;
     private final CompanyRepository companyRepo;
+    
+    public List<JournalEntry> getJournalEntriesByCompany(Integer companyId) {
+        return journalEntryRepo.findByCompany_CompanyIdOrderByEntryDateDesc(companyId);
+    }
 
     @Transactional
     public JournalEntry createJournalEntry(JournalEntryDto dto) {

@@ -43,6 +43,5 @@ public class JournalEntry {
 
     @OneToMany(mappedBy = "journalEntry", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    @JsonIgnore
     private List<JournalEntryLine> journalEntryLines = new ArrayList<>();
 }

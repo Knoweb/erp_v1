@@ -49,7 +49,7 @@ import AllPurchases from "../components/supplier/AllPurchases";
 import AllSales from "../components/customer/AllSales";
 import NewProjectForm from "../components/projects/NewProjectForm";
 import GeneralJournalTransaction from "../components/transactions/GeneralJournalTransaction";
-import AllTransactions from "../components/transactions/AllTranactions";
+import AllTransactions from "../components/transactions/AllTransactions";
 import AllProjects from "../components/projects/AllProject";
 import BankAccount from "../components/bank/BankAccount";
 import BankReconsilation from "../components/bank/BankReconsilation";
