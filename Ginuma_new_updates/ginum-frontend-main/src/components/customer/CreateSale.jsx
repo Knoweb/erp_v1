@@ -6,6 +6,7 @@ import NewProjectForm from "../projects/NewProjectForm";
 import api from "../../utils/api";
 import Alert from "../../components/Alert/Alert";
 import { useNavigate } from "react-router-dom";
+import { AccountContext, filterAccountsByContext } from "../../utils/accountFilters";
 
 const CreateSaleOrder = () => {
   const [isServiceMode, setIsServiceMode] = useState(false);
@@ -492,7 +493,7 @@ const CreateSaleOrder = () => {
                     ) : accounts.length === 0 ? (
                       <option value="">No accounts available</option>
                     ) : (
-                      accounts.map((account) => (
+                      filterAccountsByContext(accounts, AccountContext.SALES_ITEM_ACCOUNT).map((account) => (
                         <option key={account.id} value={account.id}>
                           {account.name}
                         </option>
@@ -654,7 +655,7 @@ const CreateSaleOrder = () => {
             disabled={isLoadingAccounts || parseFloat(amountPaid) <= 0}
           >
             <option value="">Select Account</option>
-            {accounts.map((account) => (
+            {filterAccountsByContext(accounts, AccountContext.SALES_PAYMENT_ACCOUNT).map((account) => (
               <option key={account.id} value={account.accountCode}>
                 {account.name}
               </option>

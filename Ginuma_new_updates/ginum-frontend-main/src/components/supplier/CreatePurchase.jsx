@@ -4,6 +4,7 @@ import { FaTimes } from "react-icons/fa";
 import AddAccountForm from "../account/AddAccountForm";
 import NewProjectForm from "../projects/NewProjectForm";
 import api from "../../utils/api";
+import { AccountContext, filterAccountsByContext } from "../../utils/accountFilters";
 
 const CreatePurchase = () => {
   const [isServiceMode, setIsServiceMode] = useState(false);
@@ -426,7 +427,7 @@ const CreatePurchase = () => {
                     ) : accounts.length === 0 ? (
                       <option value="">No accounts available</option>
                     ) : (
-                      accounts.map((account) => (
+                      filterAccountsByContext(accounts, AccountContext.PURCHASE_ITEM_ACCOUNT).map((account) => (
                         <option key={account.id} value={account.id}>
                           {account.name}
                         </option>

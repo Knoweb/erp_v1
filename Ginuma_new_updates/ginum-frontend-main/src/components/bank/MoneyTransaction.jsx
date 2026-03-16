@@ -5,6 +5,7 @@ import api from "../../utils/api";
 import Alert from "../Alert/Alert";
 import PayerPayee from "../PayerPayee/PayerPayee";
 import AddAccountForm from "../account/AddAccountForm";
+import { AccountContext, filterAccountsByContext } from "../../utils/accountFilters";
 
 const MoneyTransaction = ({ type = "spend" }) => {
   const [date, setDate] = useState(new Date().toISOString().substring(0, 10));
@@ -72,8 +73,12 @@ const MoneyTransaction = ({ type = "spend" }) => {
 
   const fetchBankAccounts = async () => {
     try {
-      const accounts = await api.get(`/api/companies/${companyId}/accounts`);
-      const banks = (Array.isArray(accounts) ? accounts : []).filter(a => a.accountType === "ASSET_BANK");
+      const response = await api.get(`/api/companies/${companyId}/accounts`);
+      const allAccounts = Array.isArray(response) ? response : (response.data || []);
+      
+      // Use SALES_PAYMENT_ACCOUNT as it covers Bank/Cash assets for both money in and out
+      const banks = filterAccountsByContext(allAccounts, AccountContext.SALES_PAYMENT_ACCOUNT);
+      
       setBankAccounts(banks);
       if (banks.length > 0 && !selectedBankAccountId) {
         setSelectedBankAccountId(banks[0].id);
@@ -85,14 +90,12 @@ const MoneyTransaction = ({ type = "spend" }) => {
 
   const fetchChargeAccounts = async () => {
     try {
-      const accounts = await api.get(`/api/companies/${companyId}/accounts`);
-      const allAccounts = Array.isArray(accounts) ? accounts : [];
+      const response = await api.get(`/api/companies/${companyId}/accounts`);
+      const allAccounts = Array.isArray(response) ? response : (response.data || []);
 
-      // For SPEND_MONEY: Show expense accounts (EXPENSE, OTHER_EXPENSE, COST_OF_SALES)
-      // For RECEIVE_MONEY: Show income accounts (INCOME, OTHER_INCOME)
       const filtered = type === "spend"
-        ? allAccounts.filter(a => a.accountType === "EXPENSE" || a.accountType === "OTHER_EXPENSE" || a.accountType === "COST_OF_SALES")
-        : allAccounts.filter(a => a.accountType === "INCOME" || a.accountType === "OTHER_INCOME");
+        ? filterAccountsByContext(allAccounts, AccountContext.PURCHASE_ITEM_ACCOUNT)
+        : filterAccountsByContext(allAccounts, AccountContext.SALES_ITEM_ACCOUNT);
 
       setChargeAccounts(filtered);
     } catch (error) {
