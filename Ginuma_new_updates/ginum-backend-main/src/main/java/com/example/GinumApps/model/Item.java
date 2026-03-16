@@ -48,5 +48,12 @@ public class Item {
     @JsonIgnore
     private Company company;
     private boolean isActive = true;
+
+    private String unit;
+
+    // Helper for legacy code that expects getItemId()
+    public Long getItemId() {
+        return this.id;
+    }
 }
 
