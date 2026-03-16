@@ -16,10 +16,12 @@ const CompanyProfile = () => {
 
     const fetchOrganizationDetails = async () => {
         try {
-            if (user?.orgId) {
-                const response = await axios.get(`${API_BASE_URL}/api/organizations/${user.orgId}`, {
+            const effectiveOrgId = user?.orgId || user?.orgid;
+            const token = localStorage.getItem('knoweb_token');
+            if (effectiveOrgId && token) {
+                const response = await axios.get(`${API_BASE_URL}/api/organizations/${effectiveOrgId}`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
                 setOrganizationData(response.data);

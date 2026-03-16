@@ -156,7 +156,7 @@ function ManufacturingProductForm({ onSubmit, onCancel }) {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Std. Cost Calibration ($) *</label>
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Std. Cost Calibration (Rs.) *</label>
                 <input type="number" name="standardCost" value={formData.standardCost} onChange={handleChange} step="0.01" className={`w-full px-5 py-3.5 bg-white border ${errors.standardCost ? 'border-rose-400' : 'border-slate-200'} rounded-2xl text-sm font-black text-slate-700 outline-none focus:border-indigo-400`} placeholder="0.00" />
               </div>
             </div>

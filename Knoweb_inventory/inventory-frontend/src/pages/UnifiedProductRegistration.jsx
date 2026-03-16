@@ -285,7 +285,7 @@ function UnifiedProductRegistration({ categories: propsCategories, brands: props
 
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-slate-600" htmlFor="price">
-                    Selling Price {!(user?.industryType === 'MANUFACTURING' && formData.itemType === 'RAW_MATERIAL') && <span className="text-red-500">*</span>}
+                    Selling Price (Rs.) {!(user?.industryType === 'MANUFACTURING' && formData.itemType === 'RAW_MATERIAL') && <span className="text-red-500">*</span>}
                   </label>
                   <input
                     type="number" id="price" name="price"
@@ -420,7 +420,7 @@ function UnifiedProductRegistration({ categories: propsCategories, brands: props
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-600" htmlFor="batch_purchasePrice">Purchase Price <span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-bold text-slate-600" htmlFor="batch_purchasePrice">Purchase Price (Rs.) <span className="text-red-500">*</span></label>
                   <input
                     type="number" id="batch_purchasePrice" name="batch_purchasePrice"
                     value={formData.initialBatch.purchasePrice} onChange={handleChange}

@@ -13,20 +13,25 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('knoweb_token');
-    const tenantId = localStorage.getItem('tenantId');
+    const tenantId = localStorage.getItem('tenantId') || localStorage.getItem('tenantid');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    // Extract values case-insensitively
+    const effectiveOrgId = user.orgId || user.orgid;
+    const effectiveTenantId = tenantId || user.tenantId || user.tenantid;
+    const effectiveIndustryType = user.industryType || user.industrytype;
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    if (tenantId) {
-      config.headers['X-Tenant-ID'] = tenantId;
+    if (effectiveTenantId) {
+      config.headers['X-Tenant-ID'] = effectiveTenantId;
     }
-    if (user.orgId) {
-      config.headers['X-Org-ID'] = user.orgId;
+    if (effectiveOrgId) {
+      config.headers['X-Org-ID'] = effectiveOrgId;
     }
-    if (user.industryType) {
-      config.headers['X-Industry-Type'] = user.industryType;
+    if (effectiveIndustryType) {
+      config.headers['X-Industry-Type'] = effectiveIndustryType;
     }
     return config;
   },

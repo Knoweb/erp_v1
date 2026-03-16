@@ -189,7 +189,7 @@ const Catalog = () => {
                     <td className="px-8 py-5">
                       <div className="flex flex-col">
                         <span className="font-black text-slate-900 tracking-tighter text-sm">
-                          {product.price ? `$ ${parseFloat(product.price).toFixed(2)}` : 'N/A'}
+                          {product.price ? `Rs. ${parseFloat(product.price).toFixed(2)}` : 'N/A'}
                         </span>
                         <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Base Rate</span>
                       </div>

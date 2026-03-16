@@ -39,7 +39,13 @@ export const AuthProvider = ({ children }) => {
           }
           
           // ✅ DECODE JWT TOKEN if user is missing OR has null critical fields
-          if (!userData || !userData.id || !userData.tenantId || !userData.industryType) {
+          // Check case-insensitively for fields from localStorage
+          const hasCriticalInfo = userData && 
+            userData.id && 
+            (userData.tenantId || userData.tenantid) && 
+            (userData.industryType || userData.industrytype);
+
+          if (!hasCriticalInfo) {
             console.log('🔍 User data incomplete or missing - decoding JWT token...');
             const decodedUser = getUserFromToken(storedToken);
             
@@ -65,10 +71,11 @@ export const AuthProvider = ({ children }) => {
           }
 
           // Patch for missing orgName in existing sessions (optional fallback)
-          if (userData && userData.orgId && !userData.orgName) {
+          const effectiveOrgId = userData?.orgId || userData?.orgid;
+          if (userData && effectiveOrgId && !userData.orgName) {
             try {
               const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
-              const orgRes = await axios.get(`${API_BASE_URL}/api/organizations/${userData.orgId}`, {
+              const orgRes = await axios.get(`${API_BASE_URL}/api/organizations/${effectiveOrgId}`, {
                 headers: { Authorization: `Bearer ${storedToken}` }
               });
               if (orgRes.data && orgRes.data.name) {
@@ -77,6 +84,12 @@ export const AuthProvider = ({ children }) => {
               }
             } catch (err) {
               console.warn('Failed to auto-patch orgName:', err);
+              // IF we get a 401 here, clearly the token is invalid/expired
+              if (err.response?.status === 401) {
+                console.error('🔓 Token unauthorized during initialization. Resetting session.');
+                logout();
+                return;
+              }
             }
           }
 
