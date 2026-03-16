@@ -3,6 +3,7 @@ import { MdOutlineCancel, MdAddCircleOutline } from "react-icons/md";
 import { FaTimes } from "react-icons/fa";
 import AddAccountForm from "../account/AddAccountForm";
 import NewProjectForm from "../projects/NewProjectForm";
+import CreateItem from "../item/CreateItem";
 import api from "../../utils/api";
 import { AccountContext, filterAccountsByContext } from "../../utils/accountFilters";
 
@@ -333,7 +334,8 @@ const CreatePurchase = () => {
                   Item ID <span className="text-red-500">*</span>
                   <button
                     onClick={() => setShowItemModal(true)}
-                    className="text-blue-600 hover:text-blue-700"
+                    className="ml-1 text-blue-600 hover:text-blue-700"
+                    title="Add New Item"
                   >
                     <MdAddCircleOutline className="h-5 w-5" />
                   </button>
@@ -363,7 +365,7 @@ const CreatePurchase = () => {
                 </>
               )}
               <th className="p-2">
-                Amount ($) <span className="text-red-500">*</span>
+                Amount (Rs.) <span className="text-red-500">*</span>
               </th>
               <th className="p-2">
                 Project
@@ -483,7 +485,7 @@ const CreatePurchase = () => {
                   <input
                     type="number"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                    placeholder="Amount ($)"
+                    placeholder="Amount (Rs.)"
                     value={row.amount}
                     onChange={(e) =>
                       handleRowChange(index, "amount", e.target.value)
@@ -540,10 +542,10 @@ const CreatePurchase = () => {
       <div className="flex flex-col items-end gap-4 mb-6">
         <div className="w-full md:w-1/2 flex justify-between items-center">
           <span className="text-gray-700 font-medium">Subtotal:</span>
-          <span className="text-gray-900">${subtotal.toFixed(2)}</span>
+          <span className="text-gray-900">Rs. {subtotal.toFixed(2)}</span>
         </div>
         <div className="w-full md:w-1/2 flex justify-between items-center">
-          <label className="text-gray-700 font-medium">Freight ($):</label>
+          <label className="text-gray-700 font-medium">Freight (Rs.):</label>
           <input
             type="number"
             className="w-1/2 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
@@ -556,14 +558,14 @@ const CreatePurchase = () => {
         </div>
         <div className="w-full md:w-1/2 flex justify-between items-center">
           <span className="text-gray-700 font-medium">Tax:</span>
-          <span className="text-gray-900">${tax.toFixed(2)}</span>
+          <span className="text-gray-900">Rs. {tax.toFixed(2)}</span>
         </div>
         <div className="w-full md:w-1/2 flex justify-between items-center">
           <span className="text-gray-700 font-medium">Total:</span>
-          <span className="text-gray-900">${total.toFixed(2)}</span>
+          <span className="text-gray-900">Rs. {total.toFixed(2)}</span>
         </div>
         <div className="w-full md:w-1/2 flex justify-between items-center">
-          <label className="text-gray-700 font-medium">Amount Paid ($):</label>
+          <label className="text-gray-700 font-medium">Amount Paid (Rs.):</label>
           <input
             type="number"
             className="w-1/2 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
@@ -576,7 +578,7 @@ const CreatePurchase = () => {
         </div>
         <div className="w-full md:w-1/2 flex justify-between items-center">
           <span className="text-gray-700 font-medium">Balance Due:</span>
-          <span className="text-gray-900">${balanceDue.toFixed(2)}</span>
+          <span className="text-gray-900">Rs. {balanceDue.toFixed(2)}</span>
         </div>
         {balanceDue > 0 && (
           <div className="w-full md:w-1/2 flex justify-between items-center">
@@ -643,12 +645,22 @@ const CreatePurchase = () => {
         >
           <div className="w-11/12 sm:w-3/4 md:w-1/2 lg:w-2/5 xl:w-1/3  p-2 rounded-lg max-h-[90vh] overflow-y-auto relative">
             <button
-              className="absolute top-2 right-2 text-black-600 text-xl"
-              onClick={() => setShowItemModal(false)}
+               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10 p-1 hover:bg-gray-100 rounded-full transition-all"
+               onClick={() => setShowItemModal(false)}
             >
-              <FaTimes />
+               <FaTimes size={18} />
             </button>
-            {/* <AddAccountForm /> */}
+            <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
+               <div className="p-1">
+                  <CreateItem
+                     isModal={true}
+                     onSuccess={(newItem) => {
+                        setItems(prev => [...prev, newItem]);
+                        setShowItemModal(false);
+                     }}
+                  />
+               </div>
+            </div>
           </div>
         </div>
       )}

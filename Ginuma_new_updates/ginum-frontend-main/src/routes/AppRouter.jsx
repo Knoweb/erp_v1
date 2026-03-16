@@ -55,7 +55,7 @@ import BankAccount from "../components/bank/BankAccount";
 import BankReconsilation from "../components/bank/BankReconsilation";
 import AgedPayables from "../components/supplier/AgedPayables";
 import AgedReceivables from "../components/customer/AgedReceivables";
-import InventoryDashboard from "../components/Inventory/InventoryDashboard";
+// import InventoryDashboard from "../components/Inventory/InventoryDashboard";
 import AllPayrolls from "../components/payroll/AllPayrolls";
 import CreatePayroll from "../components/payroll/CreatePayroll";
 import EmployeeSalaries from "../components/payroll/EmployeeSalaries";
@@ -191,8 +191,7 @@ function AppRouter() {
             <Route path="new" element={<GeneralJournalTransaction />} />
           </Route>
           <Route path="inventory">
-            <Route index element={<Navigate to="all" replace />} />
-            <Route path="all" element={<InventoryDashboard />} />
+            <Route index element={<Navigate to="items/all" replace />} />
             <Route path="items">
                <Route path="all" element={<AllItems />} />
                <Route path="new" element={<CreateItem />} />

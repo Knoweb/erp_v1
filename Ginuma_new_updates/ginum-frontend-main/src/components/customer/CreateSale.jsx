@@ -3,6 +3,7 @@ import { MdOutlineCancel, MdAddCircleOutline } from "react-icons/md";
 import { FaTimes } from "react-icons/fa";
 import AddAccountForm from "../account/AddAccountForm";
 import NewProjectForm from "../projects/NewProjectForm";
+import CreateItem from "../item/CreateItem";
 import api from "../../utils/api";
 import Alert from "../../components/Alert/Alert";
 import { useNavigate } from "react-router-dom";
@@ -29,6 +30,7 @@ const CreateSaleOrder = () => {
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
   const [isLoadingItemsProjects, setIsLoadingItemsProjects] = useState(true);
   const [showAccountModal, setShowAccountModal] = useState(false);
+  const [showItemModal, setShowItemModal] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [modalTransition, setModalTransition] = useState("opacity-0 invisible");
   const [accounts, setAccounts] = useState([]);
@@ -65,12 +67,12 @@ const CreateSaleOrder = () => {
   }, [rows, freight, amountPaid]);
 
   useEffect(() => {
-    if (showAccountModal || showProjectModal) {
+    if (showAccountModal || showProjectModal || showItemModal) {
       setModalTransition("opacity-100 visible");
     } else {
       setModalTransition("opacity-0 invisible");
     }
-  }, [showAccountModal, showProjectModal]);
+  }, [showAccountModal, showProjectModal, showItemModal]);
 
   const handleModalClick = (e, setModal) => {
     if (e.target === e.currentTarget) {
@@ -396,7 +398,11 @@ const CreateSaleOrder = () => {
               {!isServiceMode && (
                 <th className="p-2">
                   Item ID <span className="text-red-500">*</span>
-                  <button className="text-blue-600 hover:text-blue-700">
+                  <button 
+                    onClick={() => setShowItemModal(true)}
+                    className="ml-1 text-blue-600 hover:text-blue-700"
+                    title="Add New Item"
+                  >
                     <MdAddCircleOutline className="h-5 w-5" />
                   </button>
                 </th>
@@ -425,7 +431,7 @@ const CreateSaleOrder = () => {
                 </>
               )}
               <th className="p-2">
-                Amount ($) <span className="text-red-500">*</span>
+                Amount (Rs.) <span className="text-red-500">*</span>
               </th>
               <th className="p-2">
                 Project
@@ -549,7 +555,7 @@ const CreateSaleOrder = () => {
                   <input
                     type="number"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                    placeholder="Amount ($)"
+                    placeholder="Amount (Rs.)"
                     value={row.amount}
                     onChange={(e) =>
                       handleRowChange(index, "amount", e.target.value)
@@ -612,10 +618,10 @@ const CreateSaleOrder = () => {
       <div className="flex flex-col items-end gap-4 mb-6">
         <div className="w-full md:w-1/2 flex justify-between items-center">
           <span className="text-gray-700 font-medium">Subtotal:</span>
-          <span className="text-gray-900">${subtotal.toFixed(2)}</span>
+          <span className="text-gray-900">Rs. {subtotal.toFixed(2)}</span>
         </div>
         <div className="w-full md:w-1/2 flex justify-between items-center">
-          <label className="text-gray-700 font-medium">Freight ($):</label>
+          <label className="text-gray-700 font-medium">Freight (Rs.):</label>
           <input
             type="number"
             className="w-1/2 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
@@ -628,14 +634,14 @@ const CreateSaleOrder = () => {
         </div>
         <div className="w-full md:w-1/2 flex justify-between items-center">
           <span className="text-gray-700 font-medium">Tax:</span>
-          <span className="text-gray-900">${tax.toFixed(2)}</span>
+          <span className="text-gray-900">Rs. {tax.toFixed(2)}</span>
         </div>
         <div className="w-full md:w-1/2 flex justify-between items-center">
           <span className="text-gray-700 font-medium">Total:</span>
-          <span className="text-gray-900">${total.toFixed(2)}</span>
+          <span className="text-gray-900">Rs. {total.toFixed(2)}</span>
         </div>
         <div className="w-full md:w-1/2 flex justify-between items-center">
-          <label className="text-gray-700 font-medium">Amount Paid ($):</label>
+          <label className="text-gray-700 font-medium">Amount Paid (Rs.):</label>
           <input
             type="number"
             className="w-1/2 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
@@ -664,7 +670,7 @@ const CreateSaleOrder = () => {
         </div>
         <div className="w-full md:w-1/2 flex justify-between items-center">
           <span className="text-gray-700 font-medium">Balance Due:</span>
-          <span className="text-gray-900">${balanceDue.toFixed(2)}</span>
+          <span className="text-gray-900">Rs. {balanceDue.toFixed(2)}</span>
         </div>
 
         {balanceDue > 0 && (
@@ -728,6 +734,33 @@ const CreateSaleOrder = () => {
               <FaTimes />
             </button>
             <NewProjectForm />
+          </div>
+        </div>
+      )}
+
+      {showItemModal && (
+        <div
+          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-500 ${modalTransition}`}
+          onClick={(e) => handleModalClick(e, setShowItemModal)} // Close modal when clicking outside
+        >
+          <div className="w-11/12 sm:w-3/4 md:w-1/2 lg:w-2/5 xl:w-1/3  p-2 rounded-lg max-h-[90vh] overflow-y-auto relative">
+            <button
+               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10 p-1 hover:bg-gray-100 rounded-full transition-all"
+               onClick={() => setShowItemModal(false)}
+            >
+               <FaTimes size={18} />
+            </button>
+            <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
+               <div className="p-1">
+                  <CreateItem
+                     isModal={true}
+                     onSuccess={(newItem) => {
+                        setItems(prev => [...prev, newItem]);
+                        setShowItemModal(false);
+                     }}
+                  />
+               </div>
+            </div>
           </div>
         </div>
       )}
