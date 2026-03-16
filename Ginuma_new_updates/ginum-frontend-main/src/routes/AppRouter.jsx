@@ -61,6 +61,7 @@ import CreatePayroll from "../components/payroll/CreatePayroll";
 import EmployeeSalaries from "../components/payroll/EmployeeSalaries";
 import EditRequests from "../components/requests/EditRequests";
 import CreateItem from "../components/item/CreateItem";
+import AllItems from "../components/item/AllItems";
 
 function AppRouter() {
   // 🚨 DEBUGGING: Log the BASE_URL being used
@@ -193,6 +194,7 @@ function AppRouter() {
             <Route index element={<Navigate to="all" replace />} />
             <Route path="all" element={<InventoryDashboard />} />
             <Route path="items">
+               <Route path="all" element={<AllItems />} />
                <Route path="new" element={<CreateItem />} />
             </Route>
           </Route>
