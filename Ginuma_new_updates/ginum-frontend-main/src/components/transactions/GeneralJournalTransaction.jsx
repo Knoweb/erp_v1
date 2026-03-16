@@ -29,6 +29,7 @@ const CreateGeneralJournalTransaction = () => {
   const [totalCredit, setTotalCredit] = useState(0);
   const [tax, setTax] = useState(0);
   const [outOfBalance, setOutOfBalance] = useState(0);
+  const [mainDescription, setMainDescription] = useState("General Journal Transaction");
 
   useEffect(() => {
     const today = new Date();
@@ -188,11 +189,11 @@ const CreateGeneralJournalTransaction = () => {
     try {
       const companyId = localStorage.getItem("companyId");
       const payload = {
-        entryType: "GENERAL_JOURNAL",
+        entryType: "MANUAL",
         entryDate: date, // Using the state for date input
         journalTitle: "General Journal",
         referenceNo: referenceNumber,
-        description: "General Journal Transaction",
+        description: mainDescription,
         companyId: parseInt(companyId),
         lines: []
       };
@@ -220,7 +221,8 @@ const CreateGeneralJournalTransaction = () => {
 
     } catch (err) {
       console.error("Failed to record entry:", err);
-      Alert.error(err.response?.data?.error || "Failed to record entry. Be sure Debit/Credit balances match.");
+      const serverMessage = err.response?.data?.error || err.response?.data?.message || (typeof err.response?.data === 'string' ? err.response.data : null);
+      Alert.error(serverMessage || "Failed to record entry. Be sure Debit/Credit balances match.");
     } finally {
       setIsSubmitting(false);
     }
@@ -268,6 +270,8 @@ const CreateGeneralJournalTransaction = () => {
             className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             rows={2}
             placeholder="Description"
+            value={mainDescription}
+            onChange={(e) => setMainDescription(e.target.value)}
           ></textarea>
         </div>
       </div>

@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class JournalEntryDto {
     private JournalEntryType entryType;
     private LocalDate entryDate;

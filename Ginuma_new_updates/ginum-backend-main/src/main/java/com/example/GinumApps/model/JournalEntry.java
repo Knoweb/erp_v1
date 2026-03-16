@@ -20,6 +20,7 @@ public class JournalEntry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     private JournalEntryType entryType;
 
     @Column(nullable = false)

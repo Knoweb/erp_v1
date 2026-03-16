@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
-
+@NoArgsConstructor
 public class JournalEntryLineDto {
     private String accountCode;
     private BigDecimal amount;
