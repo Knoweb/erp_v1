@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { MdOutlineCancel, MdAddCircleOutline } from "react-icons/md";
 import { FaTimes } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import AddAccountForm from "../account/AddAccountForm";
 import NewProjectForm from "../projects/NewProjectForm";
 import api from "../../utils/api";
@@ -17,6 +18,7 @@ const CreateGeneralJournalTransaction = () => {
       description: "",
     },
   ]);
+  const navigate = useNavigate();
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [referenceNumber, setReferenceNumber] = useState("");
@@ -218,6 +220,11 @@ const CreateGeneralJournalTransaction = () => {
       // Reset
       setRows([{ account: "", debit: "", credit: "", quantity: "", description: "" }]);
       setReferenceNumber(`GJ-${Math.floor(Math.random() * 1000000)}`);
+      
+      // Redirect to list after short delay for user to see success
+      setTimeout(() => {
+        navigate("/app/transactions/all");
+      }, 1500);
 
     } catch (err) {
       console.error("Failed to record entry:", err);
@@ -411,6 +418,13 @@ const CreateGeneralJournalTransaction = () => {
             total credit.
           </p>
         )}
+        <button
+          type="button"
+          onClick={() => navigate("/app/transactions/all")}
+          className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 text-sm sm:text-base transition duration-200"
+        >
+          Cancel
+        </button>
         <button
           disabled={outOfBalance > 0 || isSubmitting}
           onClick={handleSaveTransaction}
