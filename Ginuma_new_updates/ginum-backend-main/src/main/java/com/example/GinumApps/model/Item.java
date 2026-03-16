@@ -3,7 +3,6 @@ package com.example.GinumApps.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMin;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,36 +10,43 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "item")
+@Table(name = "items", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"company_id", "itemCode"})
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long itemId;
+    private Long id;
 
-    @Column( nullable = false)
+    @Column(nullable = false)
+    private String itemCode;
+
+    @Column(nullable = false)
     private String name;
 
-//    @Column(nullable = false)
     private String description;
 
-    @DecimalMin("0.01")
-    private BigDecimal unitPrice;
+    @Column(precision = 19, scale = 2)
+    private BigDecimal salesPrice;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "account_id", nullable = false)
-//    private Account account;
+    @ManyToOne
+    @JoinColumn(name = "income_account_id")
+    private Account incomeAccount;
 
-    @Column(length = 20)
-    private String unit;
+    @Column(precision = 19, scale = 2)
+    private BigDecimal purchasePrice;
+
+    @ManyToOne
+    @JoinColumn(name = "expense_account_id")
+    private Account expenseAccount;
 
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     @JsonIgnore
     private Company company;
-
     private boolean isActive = true;
 }
 

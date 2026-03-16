@@ -1,26 +1,23 @@
 package com.example.GinumApps.dto;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Data
-@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemDto {
     private Long id;
-
-    @NotBlank
+    private String itemCode;
     private String name;
-
     private String description;
-
-    @NotNull
-    @DecimalMin("0.0")
-    private BigDecimal unitPrice;
-
-    private String unit;
+    private BigDecimal salesPrice;
+    private Long incomeAccountId;
+    private BigDecimal purchasePrice;
+    private Long expenseAccountId;
+    private Integer companyId;
+    private boolean isActive = true;
 }

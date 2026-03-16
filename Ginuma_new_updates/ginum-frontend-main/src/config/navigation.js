@@ -141,7 +141,10 @@ export const navItems = [
     path: "/app/inventory",
     label: "Inventory",
     icon: FaWarehouse,
-    subItems: [],
+    subItems: [
+      { id: "all-items", path: "/app/inventory/items/all", label: "All Items" },
+      { id: "new-item", path: "/app/inventory/items/new", label: "New Item" },
+    ],
   },
 
   {
