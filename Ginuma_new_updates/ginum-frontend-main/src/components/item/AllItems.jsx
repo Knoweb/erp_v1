@@ -12,20 +12,34 @@ const AllItems = () => {
   const navigate = useNavigate();
 
   // Get companyId from localStorage
-  const companyId = JSON.parse(localStorage.getItem("user"))?.companyId;
+  const companyId = localStorage.getItem("companyId");
 
   useEffect(() => {
     if (companyId) {
       fetchItems();
+    } else {
+      setLoading(false);
+      setError("Company ID not found. Please log in again.");
     }
   }, [companyId]);
 
   const fetchItems = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/api/companies/${companyId}/items`);
-      setItems(response.data);
       setError(null);
+      const response = await api.get(`/api/companies/${companyId}/items`);
+      
+      // Handle the response data robustly
+      let itemsData = [];
+      if (Array.isArray(response)) {
+        itemsData = response;
+      } else if (response && Array.isArray(response.data)) {
+        itemsData = response.data;
+      } else if (response && response.items && Array.isArray(response.items)) {
+        itemsData = response.items;
+      }
+      
+      setItems(itemsData);
     } catch (err) {
       console.error("Error fetching items:", err);
       setError("Failed to load items. Please try again.");
@@ -46,10 +60,14 @@ const AllItems = () => {
     }
   };
 
-  const filteredItems = items.filter((item) =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.itemCode.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredItems = items.filter((item) => {
+    const name = item.name || "";
+    const itemCode = item.itemCode || "";
+    return (
+      name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      itemCode.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
@@ -138,8 +156,8 @@ const AllItems = () => {
                        </div>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${item.active ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
-                        {item.active ? 'ACTIVE' : 'INACTIVE'}
+                      <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${item.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+                        {item.isActive ? 'ACTIVE' : 'INACTIVE'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
