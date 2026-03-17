@@ -47,8 +47,17 @@ public class Item {
     @JoinColumn(name = "company_id", nullable = false)
     @JsonIgnore
     private Company company;
-    @Column(name = "is_active", nullable = false)
+    @Column(name = "active", nullable = false)
     private boolean active = true;
+
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive = true;
+
+    @PrePersist
+    @PreUpdate
+    public void syncStatus() {
+        this.isActive = this.active;
+    }
 
     private String unit;
 
