@@ -47,6 +47,7 @@ public class Item {
     @JoinColumn(name = "company_id", nullable = false)
     @JsonIgnore
     private Company company;
+    @Column(name = "is_active", nullable = false)
     private boolean active = true;
 
     private String unit;
