@@ -24,7 +24,6 @@ public class MoneyTransactionRequestDto {
     @NotNull(message = "Payee type is required")
     private PayeeType payeeType;
     
-    @NotNull(message = "Payee is required")
     private Integer payeeId;
     
     @NotNull(message = "Charge account is required")

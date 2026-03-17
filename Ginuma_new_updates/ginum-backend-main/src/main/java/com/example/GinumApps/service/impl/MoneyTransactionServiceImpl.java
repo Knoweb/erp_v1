@@ -22,7 +22,7 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
     
     private final MoneyTransactionRepository moneyTransactionRepository;
     private final CompanyRepository companyRepository;
-    private final BankAccountRepository bankAccountRepository;
+
     private final AccountRepository accountRepository;
     private final SupplierRepository supplierRepository;
     private final CustomerRepository customerRepository;
@@ -38,9 +38,9 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
         Company company = companyRepository.findById(companyId)
             .orElseThrow(() -> new RuntimeException("Company not found"));
         
-        // Validate bank account
-        BankAccount bankAccount = bankAccountRepository.findById(Long.valueOf(request.getBankAccountId()))
-            .orElseThrow(() -> new RuntimeException("Bank account not found"));
+        // Validate bank account (which could be a cash account)
+        Account bankAccount = accountRepository.findById(Long.valueOf(request.getBankAccountId()))
+            .orElseThrow(() -> new RuntimeException("Bank/Payment account not found"));
         
         if (!bankAccount.getCompany().getCompanyId().equals(companyId)) {
             throw new RuntimeException("Bank account does not belong to this company");
@@ -72,7 +72,8 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
         transaction.setTransactionDate(request.getTransactionDate());
         transaction.setBankAccount(bankAccount);
         transaction.setPayeeType(request.getPayeeType());
-        transaction.setPayeeId(request.getPayeeId());
+        // If payeeId is null (e.g. for OTHER payeeType), set a default of 0 to satisfy not-null DB constraint
+        transaction.setPayeeId(request.getPayeeId() != null ? request.getPayeeId() : 0);
         transaction.setPayeeName(payeeName);
         transaction.setChargeAccount(chargeAccount);
         transaction.setAmount(request.getAmount());
@@ -98,7 +99,7 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
         return moneyTransactionRepository.save(transaction);
     }
     
-    private JournalEntry createJournalEntry(MoneyTransaction transaction, BankAccount bankAccountLedger) {
+    private JournalEntry createJournalEntry(MoneyTransaction transaction, Account bankAccountLedger) {
         JournalEntry entry = new JournalEntry();
         entry.setCompany(transaction.getCompany());
         entry.setEntryDate(transaction.getTransactionDate());
@@ -153,21 +154,27 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
     }
     
     private String getPayeeName(com.example.GinumApps.enums.PayeeType payeeType, Integer payeeId) {
+        if (payeeType == com.example.GinumApps.enums.PayeeType.OTHER) {
+            return "Other";
+        }
+        
+        if (payeeId == null || payeeId <= 0) {
+            return "Unknown";
+        }
+        
         switch (payeeType) {
             case SUPPLIER:
                 return supplierRepository.findById(Long.valueOf(payeeId))
                     .map(Supplier::getSupplierName)
-                    .orElseThrow(() -> new RuntimeException("Supplier not found"));
+                    .orElse("Unknown Supplier");
             case CUSTOMER:
                 return customerRepository.findById(Long.valueOf(payeeId))
                     .map(Customer::getName)
-                    .orElseThrow(() -> new RuntimeException("Customer not found"));
+                    .orElse("Unknown Customer");
             case EMPLOYEE:
                 return employeeRepository.findById(payeeId)
                     .map(employee -> employee.getFirstName() + " " + employee.getLastName())
-                    .orElseThrow(() -> new RuntimeException("Employee not found"));
-            case OTHER:
-                return "Other";
+                    .orElse("Unknown Employee");
             default:
                 return "Unknown";
         }
