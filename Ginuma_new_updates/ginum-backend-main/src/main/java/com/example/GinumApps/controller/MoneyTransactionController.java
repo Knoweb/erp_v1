@@ -29,10 +29,11 @@ public class MoneyTransactionController {
     public ResponseEntity<?> createTransaction(
             @PathVariable Integer companyId,
             @Valid @RequestBody MoneyTransactionRequestDto request,
-            @AuthenticationPrincipal AppUser user) {
+            @AuthenticationPrincipal Object principal) {
         try {
+            Integer userId = resolveUserId(principal);
             MoneyTransaction transaction = moneyTransactionService.createTransaction(
-                companyId, request, user.getId()
+                companyId, request, userId
             );
             return ResponseEntity.status(HttpStatus.CREATED).body(transaction);
         } catch (Exception e) {
@@ -40,6 +41,20 @@ public class MoneyTransactionController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("message", errorMessage));
         }
+    }
+    
+    private final com.example.GinumApps.repository.AppUserRepository appUserRepository;
+
+    private Integer resolveUserId(Object principal) {
+        if (principal instanceof AppUser appUser) {
+            return appUser.getId();
+        }
+        if (principal instanceof String email) {
+            return appUserRepository.findByEmail(email)
+                .map(AppUser::getId)
+                .orElse(null);
+        }
+        return null; // Fallback for other principal types
     }
     
     @GetMapping

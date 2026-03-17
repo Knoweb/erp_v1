@@ -57,9 +57,10 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
         // Get payee name
         String payeeName = getPayeeName(request.getPayeeType(), request.getPayeeId());
         
-        // Get user
-        AppUser user = appUserRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+        // Get user — nullable: Company admins may not have an AppUser record
+        AppUser user = (userId != null)
+            ? appUserRepository.findById(userId).orElse(null)
+            : null;
         
         // Generate transaction number
         String transactionNumber = generateTransactionNumber(companyId);
@@ -116,7 +117,7 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
         entry.setReferenceNo(transaction.getTransactionNumber());
         entry.setJournalTitle("Money Transaction - " + transaction.getTransactionNumber());
         entry.setDescription(transaction.getDescription());
-        entry.setAuthorId(transaction.getCreatedBy().getId());
+        entry.setAuthorId(transaction.getCreatedBy() != null ? transaction.getCreatedBy().getId() : null);
         
         List<JournalEntryLine> lines = new ArrayList<>();
         
@@ -300,8 +301,10 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
         }
         
         // Created by info
-        dto.setCreatedById(transaction.getCreatedBy().getId());
-        dto.setCreatedByName(transaction.getCreatedBy().getEmail());
+        if (transaction.getCreatedBy() != null) {
+            dto.setCreatedById(transaction.getCreatedBy().getId());
+            dto.setCreatedByName(transaction.getCreatedBy().getEmail());
+        }
         dto.setCreatedAt(transaction.getCreatedAt());
         
         return dto;
