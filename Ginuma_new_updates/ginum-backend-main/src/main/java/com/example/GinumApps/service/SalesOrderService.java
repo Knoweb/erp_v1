@@ -90,6 +90,8 @@ public class SalesOrderService {
         order.setTaxPercent(request.getTaxPercent());
         order.setTaxAmount(request.getTaxAmount());
 
+        validateCompanyAccounts(company, order);
+
         processItems(request.getItems(), order, company);
         calculateFinancials(order);
 
@@ -150,6 +152,21 @@ public class SalesOrderService {
         
         order.setTotal(subtotalPlusFreight.add(order.getTaxAmount()));
         order.setBalanceDue(order.getTotal().subtract(order.getAmountPaid() != null ? order.getAmountPaid() : BigDecimal.ZERO));
+    }
+
+    private void validateCompanyAccounts(Company company, SalesOrder order) {
+        if (order.getBalanceDue().compareTo(BigDecimal.ZERO) > 0 && company.getAccountsReceivableAccount() == null) {
+            throw new IllegalStateException("Accounts Receivable account is not configured for this company. Please set it in Company Profile.");
+        }
+        if (order.getTaxAmount().compareTo(BigDecimal.ZERO) > 0 && company.getTaxAccount() == null) {
+            throw new IllegalStateException("Sales Tax account is not configured for this company. Please set it in Company Profile.");
+        }
+        if (order.getFreight().compareTo(BigDecimal.ZERO) > 0 && company.getFreightAccount() == null) {
+            throw new IllegalStateException("Freight Revenue account is not configured for this company. Please set it in Company Profile.");
+        }
+        if (order.getAmountPaid().compareTo(BigDecimal.ZERO) > 0 && order.getPaymentAccount() == null) {
+            throw new IllegalArgumentException("Payment account is required when amount paid is greater than zero.");
+        }
     }
 
     private void createJournalEntries(SalesOrder order) {

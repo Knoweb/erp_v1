@@ -115,6 +115,8 @@ public class PurchaseOrderService {
         po.setAmountPaid(request.getAmountPaid() != null ? request.getAmountPaid() : BigDecimal.ZERO);
         po.setDueDate(request.getDueDate());
 
+        validateCompanyAccounts(company, po);
+
         processItems(request.getItems(), po, company);
         calculateFinancials(po, request.getFreight(), request.getTaxAmount());
 
@@ -198,6 +200,21 @@ public class PurchaseOrderService {
         
         po.setTotal(subtotalPlusFreight.add(po.getTaxAmount()));
         po.setBalanceDue(po.getTotal().subtract(po.getAmountPaid() != null ? po.getAmountPaid() : BigDecimal.ZERO));
+    }
+
+    private void validateCompanyAccounts(Company company, PurchaseOrder po) {
+        if (po.getBalanceDue().compareTo(BigDecimal.ZERO) > 0 && company.getAccountsPayableAccount() == null) {
+            throw new IllegalStateException("Accounts Payable account is not configured for this company. Please set it in Company Profile.");
+        }
+        if (po.getTaxAmount().compareTo(BigDecimal.ZERO) > 0 && company.getTaxAccount() == null) {
+            throw new IllegalStateException("Sales Tax account is not configured for this company. Please set it in Company Profile.");
+        }
+        if (po.getFreight().compareTo(BigDecimal.ZERO) > 0 && company.getFreightAccount() == null) {
+            throw new IllegalStateException("Freight Expense account is not configured for this company. Please set it in Company Profile.");
+        }
+        if (po.getAmountPaid().compareTo(BigDecimal.ZERO) > 0 && po.getPaymentAccount() == null) {
+            throw new IllegalArgumentException("Payment account is required when amount paid is greater than zero.");
+        }
     }
 
     /**

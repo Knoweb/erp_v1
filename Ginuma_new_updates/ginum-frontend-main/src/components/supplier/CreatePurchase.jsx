@@ -301,7 +301,8 @@ const CreatePurchase = () => {
       }
     } catch (error) {
       console.error("Error creating purchase order:", error);
-      Alert.error("Failed to create purchase order");
+      const errorMsg = error.response?.data?.message || "Failed to create purchase order";
+      Alert.error(errorMsg);
     } finally {
       setIsSubmitting(false);
     }

@@ -17,11 +17,19 @@ public class SalesOrderController {
     private final SalesOrderService salesOrderService;
 
     @PostMapping("/company/{companyId}")
-    public ResponseEntity<SalesOrderResponseDto> createSalesOrder(
+    public ResponseEntity<?> createSalesOrder(
             @PathVariable Integer companyId,
             @Valid @RequestBody SalesOrderRequestDto requestDto) {
-        SalesOrderResponseDto response = salesOrderService.createSalesOrder(requestDto, companyId);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        try {
+            SalesOrderResponseDto response = salesOrderService.createSalesOrder(requestDto, companyId);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            e.printStackTrace(); // Log on server
+            java.util.Map<String, String> errorResponse = new java.util.HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            errorResponse.put("error", e.getClass().getSimpleName());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
     @GetMapping("/company/{companyId}/next-so-number")

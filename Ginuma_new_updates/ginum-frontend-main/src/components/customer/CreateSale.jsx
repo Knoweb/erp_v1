@@ -322,7 +322,8 @@ const CreateSaleOrder = () => {
       }
     } catch (error) {
       console.error("Error creating sales order:", error);
-      Alert.error("Failed to create sales order.");
+      const errorMsg = error.response?.data?.message || "Failed to create sales order.";
+      Alert.error(errorMsg);
     } finally {
       setIsSubmitting(false);
     }
