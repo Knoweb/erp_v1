@@ -195,6 +195,7 @@ function AppRouter() {
             <Route path="items">
                <Route path="all" element={<AllItems />} />
                <Route path="new" element={<CreateItem />} />
+               <Route path="edit/:id" element={<CreateItem />} />
             </Route>
           </Route>
           <Route path="edit-requests" element={<EditRequests />} />

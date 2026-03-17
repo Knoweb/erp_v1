@@ -163,6 +163,7 @@ const AllItems = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-2">
                         <button 
+                          onClick={() => navigate(`/app/inventory/items/edit/${item.id}`)}
                           className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors shadow-sm bg-white border border-blue-100"
                           title="Edit Item"
                         >

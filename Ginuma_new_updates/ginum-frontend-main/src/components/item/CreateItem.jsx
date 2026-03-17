@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../../utils/api";
 import Alert from "../Alert/Alert";
 import { AccountContext, filterAccountsByContext } from "../../utils/accountFilters";
 
 const CreateItem = ({ isModal = false, onSuccess }) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const isEditMode = !!id && !isModal;
+
   const [formData, setFormData] = useState({
     itemCode: "",
     name: "",
@@ -27,17 +32,41 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
         setAccounts(allAccounts);
       } catch (error) {
         console.error("Error fetching accounts:", error);
-        // Using window.alert for simplicity if the Alert component is not available or buggy
         alert("Failed to load accounts for dropdowns.");
+      }
+    };
+
+    const fetchItemDetails = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get(`/api/companies/${companyId}/items/${id}`);
+        const item = response.data || response;
+        setFormData({
+          itemCode: item.itemCode || "",
+          name: item.name || "",
+          description: item.description || "",
+          salesPrice: item.salesPrice || "",
+          incomeAccountId: item.incomeAccount?.id || "",
+          purchasePrice: item.purchasePrice || "",
+          expenseAccountId: item.expenseAccount?.id || "",
+          isActive: item.isActive !== undefined ? item.isActive : true,
+        });
+      } catch (error) {
+        console.error("Error fetching item details:", error);
+        alert("Failed to load item details.");
+      } finally {
+        setLoading(false);
       }
     };
 
     if (companyId) {
       fetchAccounts();
+      if (isEditMode) {
+        fetchItemDetails();
+      }
     }
-  }, [companyId]);
+  }, [companyId, id, isEditMode]);
 
-  // Use the robust utility to filter accounts for the dropdowns
   const incomeAccounts = filterAccountsByContext(accounts, AccountContext.SALES_ITEM_ACCOUNT);
   const expenseAccounts = filterAccountsByContext(accounts, AccountContext.PURCHASE_ITEM_ACCOUNT);
 
@@ -58,31 +87,38 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
         ...formData,
         salesPrice: parseFloat(formData.salesPrice) || 0,
         purchasePrice: parseFloat(formData.purchasePrice) || 0,
-        incomeAccountId: parseInt(formData.incomeAccountId) || null,
-        expenseAccountId: parseInt(formData.expenseAccountId) || null,
+        incomeAccountId: formData.incomeAccountId ? parseInt(formData.incomeAccountId) : null,
+        expenseAccountId: formData.expenseAccountId ? parseInt(formData.expenseAccountId) : null,
       };
 
-      const response = await api.post(`/api/companies/${companyId}/items`, payload);
-      alert("Item created successfully!");
-      
-      if (isModal && onSuccess) {
-        onSuccess(response.data);
+      let response;
+      if (isEditMode) {
+        response = await api.put(`/api/companies/${companyId}/items/${id}`, payload);
+        alert("Item updated successfully!");
+        navigate("/app/inventory/items/all");
       } else {
-        // Reset form
-        setFormData({
-          itemCode: "",
-          name: "",
-          description: "",
-          salesPrice: "",
-          incomeAccountId: "",
-          purchasePrice: "",
-          expenseAccountId: "",
-          isActive: true,
-        });
+        response = await api.post(`/api/companies/${companyId}/items`, payload);
+        alert("Item created successfully!");
+        
+        if (isModal && onSuccess) {
+          onSuccess(response.data || response);
+        } else {
+          setFormData({
+            itemCode: "",
+            name: "",
+            description: "",
+            salesPrice: "",
+            incomeAccountId: "",
+            purchasePrice: "",
+            expenseAccountId: "",
+            isActive: true,
+          });
+          navigate("/app/inventory/items/all");
+        }
       }
     } catch (error) {
-      console.error("Error creating item:", error);
-      alert(error.response?.data?.error || "Failed to create item.");
+      console.error("Error saving item:", error);
+      alert(error.response?.data?.error || "Failed to save item.");
     } finally {
       setLoading(false);
     }
@@ -93,9 +129,11 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h2 className={`${isModal ? "text-xl" : "text-3xl"} font-extrabold text-gray-900 tracking-tight`}>
-            {isModal ? "Add New Item" : "Create New Item"}
+            {isModal ? "Add New Item" : isEditMode ? "Update Item" : "Create New Item"}
           </h2>
-          {!isModal && <p className="mt-2 text-gray-500">Add a non-inventory product or service to your catalog.</p>}
+          {!isModal && <p className="mt-2 text-gray-500">
+            {isEditMode ? "Modify existing item details." : "Add a non-inventory product or service to your catalog."}
+          </p>}
         </div>
         {!isModal && (
           <div className="h-12 w-12 bg-blue-50 rounded-lg flex items-center justify-center">
@@ -107,7 +145,6 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Basic Info Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
             <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">Item Code</label>
@@ -116,7 +153,7 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
               name="itemCode"
               value={formData.itemCode}
               onChange={handleChange}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-gray-50/50"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50/50"
               placeholder="e.g. ITM-001"
               required
             />
@@ -128,7 +165,7 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-gray-50/50"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50/50"
               placeholder="e.g. Graphic Design"
               required
             />
@@ -148,7 +185,6 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Sales Information */}
           <div className="bg-blue-50/40 p-5 rounded-xl border border-blue-100/50">
             <h3 className="text-sm font-bold text-blue-900 mb-3 flex items-center">
                 <span className="mr-2">💰</span> Sales Info
@@ -188,7 +224,6 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
             </div>
           </div>
 
-          {/* Purchase Information */}
           <div className="bg-orange-50/40 p-5 rounded-xl border border-orange-100/50">
             <h3 className="text-sm font-bold text-orange-900 mb-3 flex items-center">
                 <span className="mr-2">🛒</span> Purchase Info
@@ -229,6 +264,20 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
           </div>
         </div>
 
+        <div className="flex items-center space-x-3 pt-2">
+            <input
+              type="checkbox"
+              name="isActive"
+              id="isActive"
+              checked={formData.isActive}
+              onChange={handleChange}
+              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+            />
+            <label htmlFor="isActive" className="text-sm font-medium text-gray-700 cursor-pointer">
+                This item is active and available for use in transactions
+            </label>
+        </div>
+
         <div className="flex justify-end pt-4">
           <button
             type="submit"
@@ -237,7 +286,7 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
               loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
-            {loading ? "Processing..." : isModal ? "Add Item" : "Create Item"}
+            {loading ? "Processing..." : isModal ? "Add Item" : isEditMode ? "Update Item" : "Create Item"}
           </button>
         </div>
       </form>
