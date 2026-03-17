@@ -30,7 +30,29 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = new Item();
         mapDtoToEntity(dto, item, company);
+
+        // Auto-generate code if not provided
+        if (item.getItemCode() == null || item.getItemCode().trim().isEmpty()) {
+            item.setItemCode(generateItemCode(dto.getCompanyId()));
+        }
+
         return itemRepo.save(item);
+    }
+
+    private String generateItemCode(Integer companyId) {
+        String lastCode = itemRepo.findLastItemCodeByCompanyId(companyId);
+        int nextNumber = 1;
+
+        if (lastCode != null && lastCode.startsWith("ITM-")) {
+            try {
+                String numberPart = lastCode.substring(4);
+                nextNumber = Integer.parseInt(numberPart) + 1;
+            } catch (NumberFormatException e) {
+                // Ignore and use 1
+            }
+        }
+
+        return String.format("ITM-%03d", nextNumber);
     }
 
     @Override

@@ -145,14 +145,21 @@ const AllItems = () => {
                     </td>
                     <td className="px-6 py-4">
                        <div className="text-[10px] space-y-1">
-                          <div className="flex items-center gap-1">
-                             <span className="bg-green-100 text-green-700 px-1 rounded">I</span>
-                             <span className="text-gray-500">{item.incomeAccount?.name || 'N/A'}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                             <span className="bg-orange-100 text-orange-700 px-1 rounded">E</span>
-                             <span className="text-gray-500">{item.expenseAccount?.name || 'N/A'}</span>
-                          </div>
+                          {item.incomeAccount?.accountName && (
+                            <div className="flex items-center gap-1">
+                               <span className="bg-green-100 text-green-700 px-1 rounded font-bold" title="Income Account">I</span>
+                               <span className="text-gray-600 font-medium">{item.incomeAccount.accountName}</span>
+                            </div>
+                          )}
+                          {item.expenseAccount?.accountName && (
+                            <div className="flex items-center gap-1">
+                               <span className="bg-orange-100 text-orange-700 px-1 rounded font-bold" title="Expense Account">E</span>
+                               <span className="text-gray-600 font-medium">{item.expenseAccount.accountName}</span>
+                            </div>
+                          )}
+                          {!item.incomeAccount?.accountName && !item.expenseAccount?.accountName && (
+                            <span className="text-gray-400 italic">No account mapped</span>
+                          )}
                        </div>
                     </td>
                     <td className="px-6 py-4 text-center">

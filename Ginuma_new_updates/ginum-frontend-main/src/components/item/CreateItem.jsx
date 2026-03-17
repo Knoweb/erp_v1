@@ -158,10 +158,12 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
               name="itemCode"
               value={formData.itemCode}
               onChange={handleChange}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50/50"
-              placeholder="e.g. ITM-001"
-              required
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-gray-100 cursor-not-allowed"
+              placeholder="Auto-generated (e.g. ITM-001)"
+              readOnly={!isEditMode}
+              disabled={!isEditMode}
             />
+            {!isEditMode && <p className="text-[10px] text-gray-400 mt-1 italic">* This will be uniquely assigned upon saving.</p>}
           </div>
           <div className="space-y-1">
             <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">Item Name</label>
