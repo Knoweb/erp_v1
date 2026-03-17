@@ -36,8 +36,9 @@ public class MoneyTransactionController {
             );
             return ResponseEntity.status(HttpStatus.CREATED).body(transaction);
         } catch (Exception e) {
+            String errorMessage = e.getMessage() != null ? e.getMessage() : "Unknown error occurred";
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("error", e.getMessage()));
+                .body(Map.of("message", errorMessage));
         }
     }
     

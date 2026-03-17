@@ -101,6 +101,16 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
     
     private JournalEntry createJournalEntry(MoneyTransaction transaction, Account bankAccountLedger) {
         JournalEntry entry = new JournalEntry();
+        
+        // Set Entry Type based on Transaction Type
+        if (transaction.getType() == TransactionType.SPEND_MONEY) {
+            entry.setEntryType(com.example.GinumApps.enums.JournalEntryType.PAYMENT);
+        } else if (transaction.getType() == TransactionType.RECEIVE_MONEY) {
+            entry.setEntryType(com.example.GinumApps.enums.JournalEntryType.RECEIPT);
+        } else {
+            entry.setEntryType(com.example.GinumApps.enums.JournalEntryType.SYSTEM_GENERATED);
+        }
+        
         entry.setCompany(transaction.getCompany());
         entry.setEntryDate(transaction.getTransactionDate());
         entry.setReferenceNo(transaction.getTransactionNumber());
