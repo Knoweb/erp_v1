@@ -44,6 +44,7 @@ const CreatePurchase = () => {
   const [subtotal, setSubtotal] = useState(0);
   const [freight, setFreight] = useState(0);
   const [tax, setTax] = useState(0);
+  const [taxPercent, setTaxPercent] = useState(0);
   const [total, setTotal] = useState(0);
   const [amountPaid, setAmountPaid] = useState(0);
   const [balanceDue, setBalanceDue] = useState(0);
@@ -66,15 +67,16 @@ const CreatePurchase = () => {
     }, 0);
     setSubtotal(newSubtotal);
 
-    const newTax = newSubtotal * 0; // 0.1 == 10% tax - adjust as needed
+    const subtotalPlusFreight = newSubtotal + (parseFloat(freight) || 0);
+    const newTax = subtotalPlusFreight * (parseFloat(taxPercent) / 100);
     setTax(newTax);
 
-    const newTotal = newSubtotal + (parseFloat(freight) || 0) + newTax;
+    const newTotal = subtotalPlusFreight + newTax;
     setTotal(newTotal);
 
     const newBalanceDue = Math.max(newTotal - (parseFloat(amountPaid) || 0), 0);
     setBalanceDue(newBalanceDue);
-  }, [rows, freight, amountPaid]);
+  }, [rows, freight, amountPaid, taxPercent]);
 
   const handleModalClick = (e, setModal) => {
     if (e.target === e.currentTarget) {
@@ -573,6 +575,19 @@ const CreatePurchase = () => {
             value={freight}
             onChange={(e) => setFreight(e.target.value)}
             min="0"
+            step="0.01"
+          />
+        </div>
+        <div className="w-full md:w-1/2 flex justify-between items-center">
+          <label className="text-gray-700 font-medium">Cost of Tax (%):</label>
+          <input
+            type="number"
+            className="w-1/2 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+            placeholder="0"
+            value={taxPercent}
+            onChange={(e) => setTaxPercent(e.target.value)}
+            min="0"
+            max="100"
             step="0.01"
           />
         </div>
