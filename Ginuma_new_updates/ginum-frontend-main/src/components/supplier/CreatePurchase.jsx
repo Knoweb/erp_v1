@@ -49,6 +49,11 @@ const CreatePurchase = () => {
   const [amountPaid, setAmountPaid] = useState(0);
   const [balanceDue, setBalanceDue] = useState(0);
   const [dueDate, setDueDate] = useState("");
+  const [issueDate, setIssueDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [notes, setNotes] = useState("");
+  const [paymentAccountCode, setPaymentAccountCode] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (showAccountModal || showProjectModal || showItemModal) {
@@ -239,9 +244,65 @@ const CreatePurchase = () => {
     setRows(updatedRows);
   };
 
-  const removeRow = (index) => {
-    const updatedRows = rows.filter((_, i) => i !== index);
-    setRows(updatedRows);
+  const handleSubmit = async () => {
+    if (!selectedSupplier) {
+      alert("Please select a supplier");
+      return;
+    }
+    const companyId = localStorage.getItem("companyId");
+    if (!companyId) return;
+
+    const validRows = rows.filter(
+      (row) =>
+        (isServiceMode || row.itemId) &&
+        row.description &&
+        row.account &&
+        (!isServiceMode ? row.quantity && row.unitPrice : row.amount)
+    );
+
+    if (validRows.length === 0) {
+      alert("Please add at least one valid row");
+      return;
+    }
+
+    const payload = {
+      supplierId: parseInt(selectedSupplier),
+      poNumber: poNumber,
+      supplierInvoiceNumber: supplierInvoiceNumber,
+      issueDate: issueDate,
+      dueDate: dueDate || null,
+      notes: notes,
+      purchaseType: isServiceMode ? "SERVICE" : "ITEM",
+      amountPaid: parseFloat(amountPaid) || 0,
+      paymentAccountCode: paymentAccountCode || null,
+      freight: parseFloat(freight) || 0,
+      taxPercent: parseFloat(taxPercent) || 0,
+      taxAmount: parseFloat(tax) || 0,
+      items: validRows.map((row) => ({
+        itemId: isServiceMode ? null : parseInt(row.itemId),
+        description: row.description,
+        accountCode: accounts.find(a => a.id.toString() === row.account.toString())?.accountCode || "",
+        quantity: isServiceMode ? 1 : parseInt(row.quantity),
+        unitPrice: isServiceMode ? parseFloat(row.amount) : parseFloat(row.unitPrice),
+        discount: isServiceMode ? 0 : parseFloat(row.discount) || 0,
+        projectId: row.project ? parseInt(row.project) : null,
+        itemType: isServiceMode ? "SERVICE" : "GOODS"
+      }))
+    };
+
+    setIsSubmitting(true);
+    try {
+      const response = await api.post(`/api/${companyId}/purchase-orders`, payload);
+      if (response.status === 201 || response.status === 200) {
+        alert("Purchase order created successfully!");
+        navigate("/account/app/purchases");
+      }
+    } catch (error) {
+      console.error("Error creating purchase order:", error);
+      alert("Failed to create purchase order");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -313,7 +374,8 @@ const CreatePurchase = () => {
           <input
             type="date"
             className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-            defaultValue={new Date().toISOString().split('T')[0]}
+            value={issueDate}
+            onChange={(e) => setIssueDate(e.target.value)}
           />
         </div>
       </div>
@@ -557,6 +619,8 @@ const CreatePurchase = () => {
           className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
           rows={3}
           placeholder="Notes"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
         ></textarea>
       </div>
 
@@ -611,6 +675,22 @@ const CreatePurchase = () => {
             step="0.01"
           />
         </div>
+        <div className="w-full md:w-1/2 flex justify-between items-center mb-2">
+          <label className="text-gray-700 font-medium">Payment Account:</label>
+          <select
+            className="w-1/2 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+            value={paymentAccountCode}
+            onChange={(e) => setPaymentAccountCode(e.target.value)}
+            disabled={isLoadingAccounts || parseFloat(amountPaid) <= 0}
+          >
+            <option value="">Select Account</option>
+            {filterAccountsByContext(accounts, AccountContext.PURCHASE_PAYMENT_ACCOUNT).map((account) => (
+              <option key={account.id} value={account.accountCode}>
+                {account.name}
+              </option>
+            ))}
+          </select>
+        </div>
         <div className="w-full md:w-1/2 flex justify-between items-center">
           <span className="text-gray-700 font-medium">Balance Due:</span>
           <span className="text-gray-900">Rs. {balanceDue.toFixed(2)}</span>
@@ -636,8 +716,12 @@ const CreatePurchase = () => {
         {/* <button className="bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 text-sm sm:text-base">
           Cancel
         </button> */}
-        <button className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 text-sm sm:text-base">
-          Save
+        <button 
+          className={`px-3 py-2 rounded-lg text-sm sm:text-base text-white ${isSubmitting ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Saving..." : "Save"}
         </button>
       </div>
       {showAccountModal && (

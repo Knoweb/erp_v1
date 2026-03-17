@@ -28,11 +28,14 @@ public class SalesOrderRequestDto {
     @NotEmpty
     private List<SalesOrderItemRequestDto> items;
 
-//    @DecimalMin("0.00")
-//    private BigDecimal freight = BigDecimal.ZERO;
-//
-//    @DecimalMin("0.00")
-//    private BigDecimal taxAmount = BigDecimal.ZERO;
+    @DecimalMin("0.00")
+    private BigDecimal freight = BigDecimal.ZERO;
+
+    @DecimalMin("0.00")
+    private BigDecimal taxPercent = BigDecimal.ZERO;
+
+    @DecimalMin("0.00")
+    private BigDecimal taxAmount = BigDecimal.ZERO;
 
     @DecimalMin("0.00")
     private BigDecimal amountPaid = BigDecimal.ZERO;

@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 
 @Data
 public class SalesOrderItemRequestDto {
-    @NotNull
     private Long itemId;
 
     @NotBlank

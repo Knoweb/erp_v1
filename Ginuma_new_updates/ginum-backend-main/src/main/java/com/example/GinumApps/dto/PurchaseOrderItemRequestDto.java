@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 @Data
 public class PurchaseOrderItemRequestDto {
 
-    @NotNull(message = "Item ID is required")
     private Long itemId;
 
 //    @NotBlank(message = "Description is required")
@@ -31,4 +30,6 @@ public class PurchaseOrderItemRequestDto {
     private String accountCode; // Linked to chart of accounts
 
     private Long projectId; // Optional
+
+    private com.example.GinumApps.enums.LineItemType itemType; 
 }

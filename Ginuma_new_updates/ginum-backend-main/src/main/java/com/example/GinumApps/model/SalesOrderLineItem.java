@@ -26,7 +26,7 @@ public class SalesOrderLineItem {
     private SalesOrder salesOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id", nullable = false)
+    @JoinColumn(name = "item_id", nullable = true)
     @ToString.Exclude
     private Item item;
 

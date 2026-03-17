@@ -40,6 +40,9 @@ public class PurchaseOrderRequestDto {
     @DecimalMin(value = "0.00", message = "Freight cannot be negative")
     private BigDecimal freight = BigDecimal.ZERO;
 
+    @DecimalMin(value = "0.00", message = "Tax percentage cannot be negative")
+    private BigDecimal taxPercent = BigDecimal.ZERO;
+
     @DecimalMin(value = "0.00", message = "Tax cannot be negative")
     private BigDecimal taxAmount = BigDecimal.ZERO;
 

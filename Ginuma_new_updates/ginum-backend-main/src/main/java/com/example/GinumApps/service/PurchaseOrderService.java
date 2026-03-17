@@ -111,6 +111,9 @@ public class PurchaseOrderService {
         po.setIssueDate(request.getIssueDate());
         po.setNotes(request.getNotes());
         po.setPaymentAccount(paymentAccount);
+        po.setTaxPercent(request.getTaxPercent());
+        po.setAmountPaid(request.getAmountPaid() != null ? request.getAmountPaid() : BigDecimal.ZERO);
+        po.setDueDate(request.getDueDate());
 
         processItems(request.getItems(), po, company);
         calculateFinancials(po, request.getFreight(), request.getTaxAmount());
@@ -149,8 +152,11 @@ public class PurchaseOrderService {
                     itemRequest.getAccountCode(), company.getCompanyId()).orElseThrow(
                             () -> new EntityNotFoundException(
                                     "Account not found: " + itemRequest.getAccountCode()));
-            Item item = itemRepository.findById(itemRequest.getItemId())
-                    .orElseThrow(() -> new EntityNotFoundException("Item not found: " + itemRequest.getItemId()));
+            Item item = null;
+            if (itemRequest.getItemId() != null) {
+                item = itemRepository.findById(itemRequest.getItemId())
+                        .orElseThrow(() -> new EntityNotFoundException("Item not found: " + itemRequest.getItemId()));
+            }
 
             PurchaseOrderLineItem lineItem = new PurchaseOrderLineItem();
             lineItem.setItem(item);
@@ -160,6 +166,7 @@ public class PurchaseOrderService {
             lineItem.setDiscountPercent(itemRequest.getDiscount());
             lineItem.setAccount(account);
             lineItem.setPurchaseOrder(po);
+            lineItem.setItemType(itemRequest.getItemType());
             po.getItems().add(lineItem);
         });
     }
@@ -173,17 +180,24 @@ public class PurchaseOrderService {
      */
     private void calculateFinancials(PurchaseOrder po, BigDecimal freight, BigDecimal taxAmount) {
         BigDecimal subtotal = po.getItems().stream()
-                .map(item -> item.getUnitPrice()
-                        .multiply(BigDecimal.valueOf(item.getQuantity()))
-                        .multiply(BigDecimal.ONE.subtract(item.getDiscountPercent()
-                                .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP))))
+                .map(item -> {
+                    BigDecimal base = item.getUnitPrice()
+                            .multiply(BigDecimal.valueOf(item.getQuantity()));
+                    BigDecimal discount = base.multiply(item.getDiscountPercent()
+                            .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
+                    return base.subtract(discount);
+                })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         po.setSubtotal(subtotal);
         po.setFreight(freight != null ? freight : BigDecimal.ZERO);
-        po.setTaxAmount(taxAmount != null ? taxAmount : BigDecimal.ZERO);
-        po.setTotal(po.getSubtotal().add(po.getFreight()).add(po.getTaxAmount()));
-        po.setBalanceDue(po.getTotal());
+        
+        BigDecimal subtotalPlusFreight = subtotal.add(po.getFreight());
+        po.setTaxAmount(subtotalPlusFreight.multiply(po.getTaxPercent() != null ? po.getTaxPercent() : BigDecimal.ZERO)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP));
+        
+        po.setTotal(subtotalPlusFreight.add(po.getTaxAmount()));
+        po.setBalanceDue(po.getTotal().subtract(po.getAmountPaid() != null ? po.getAmountPaid() : BigDecimal.ZERO));
     }
 
     /**
@@ -273,6 +287,7 @@ public class PurchaseOrderService {
         dto.setNotes(po.getNotes());
         dto.setSubtotal(po.getSubtotal());
         dto.setFreight(po.getFreight());
+        dto.setTaxPercent(po.getTaxPercent());
         dto.setTaxAmount(po.getTaxAmount());
         dto.setTotal(po.getTotal());
         dto.setAmountPaid(po.getAmountPaid());
@@ -296,8 +311,10 @@ public class PurchaseOrderService {
 
     private PurchaseOrderItemResponseDto convertItemToDto(PurchaseOrderLineItem item) {
         PurchaseOrderItemResponseDto itemDto = new PurchaseOrderItemResponseDto();
-        itemDto.setItemId(item.getItem().getItemId());
-        itemDto.setItemName(item.getItem().getDescription());
+        if (item.getItem() != null) {
+            itemDto.setItemId(item.getItem().getItemId());
+            itemDto.setItemName(item.getItem().getDescription());
+        }
         itemDto.setDescription(item.getDescription());
         itemDto.setQuantity(item.getQuantity());
         itemDto.setUnitPrice(item.getUnitPrice());

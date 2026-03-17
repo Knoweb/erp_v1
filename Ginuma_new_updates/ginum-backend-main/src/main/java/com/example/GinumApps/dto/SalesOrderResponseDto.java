@@ -18,8 +18,9 @@ public class SalesOrderResponseDto {
     private LocalDate dueDate;
     private String notes;
     private BigDecimal subtotal;
-//    private BigDecimal freight;
-//    private BigDecimal taxAmount;
+    private BigDecimal freight;
+    private BigDecimal taxPercent;
+    private BigDecimal taxAmount;
     private BigDecimal total;
     private BigDecimal amountPaid;
     private BigDecimal balanceDue;

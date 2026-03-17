@@ -298,6 +298,9 @@ const CreateSaleOrder = () => {
       salesType: isServiceMode ? "SERVICE" : "ITEMS",
       amountPaid: parseFloat(amountPaid) || 0,
       paymentAccountCode: paymentAccountCode || null,
+      freight: parseFloat(freight) || 0,
+      taxPercent: parseFloat(taxPercent) || 0,
+      taxAmount: parseFloat(tax) || 0, // In the UI, 'tax' is the calculated amount
       items: validRows.map((row) => ({
         itemId: isServiceMode ? null : parseInt(row.itemId),
         description: row.description,

@@ -45,11 +45,14 @@ public class SalesOrder {
     @DecimalMin("0.00")
     private BigDecimal subtotal = BigDecimal.ZERO;
 
-//    @DecimalMin("0.00")
-//    private BigDecimal freight = BigDecimal.ZERO;
+    @DecimalMin("0.00")
+    private BigDecimal freight = BigDecimal.ZERO;
 
-//    @DecimalMin("0.00")
-//    private BigDecimal taxAmount = BigDecimal.ZERO;
+    @DecimalMin("0.00")
+    private BigDecimal taxPercent = BigDecimal.ZERO;
+
+    @DecimalMin("0.00")
+    private BigDecimal taxAmount = BigDecimal.ZERO;
 
     @DecimalMin("0.00")
     private BigDecimal total = BigDecimal.ZERO;
@@ -75,18 +78,20 @@ public class SalesOrder {
     @PreUpdate
     private void calculateTotals() {
         this.subtotal = items.stream()
-                .map(item -> item.getUnitPrice()
-                        .multiply(BigDecimal.valueOf(item.getQuantity()))
-                        .multiply(BigDecimal.ONE.subtract(
-                                item.getDiscountPercent().divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
-                        ))
-                )
+                .map(item -> {
+                    BigDecimal base = item.getUnitPrice()
+                            .multiply(BigDecimal.valueOf(item.getQuantity()));
+                    BigDecimal discount = base.multiply(item.getDiscountPercent()
+                            .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
+                    return base.subtract(discount);
+                })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-//        this.total = subtotal
-//                .add(freight != null ? freight : BigDecimal.ZERO)
-//                .add(taxAmount != null ? taxAmount : BigDecimal.ZERO);
-
+        BigDecimal subtotalPlusFreight = subtotal.add(freight != null ? freight : BigDecimal.ZERO);
+        this.taxAmount = subtotalPlusFreight.multiply(taxPercent != null ? taxPercent : BigDecimal.ZERO)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        
+        this.total = subtotalPlusFreight.add(taxAmount);
         this.balanceDue = total.subtract(amountPaid != null ? amountPaid : BigDecimal.ZERO);
 
         if (balanceDue.compareTo(BigDecimal.ZERO) < 0) {
