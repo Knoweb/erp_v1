@@ -17,7 +17,7 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
     incomeAccountId: "",
     purchasePrice: "",
     expenseAccountId: "",
-    isActive: true,
+    active: true,
   });
 
   const [accounts, setAccounts] = useState([]);
@@ -41,6 +41,11 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
         setLoading(true);
         const response = await api.get(`/api/companies/${companyId}/items/${id}`);
         const item = response.data || response;
+        
+        // Handle both 'active' and 'isActive' from backend
+        const itemActive = item.active !== undefined ? item.active : 
+                         (item.isActive !== undefined ? item.isActive : true);
+
         setFormData({
           itemCode: item.itemCode || "",
           name: item.name || "",
@@ -49,7 +54,7 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
           incomeAccountId: item.incomeAccount?.id || "",
           purchasePrice: item.purchasePrice || "",
           expenseAccountId: item.expenseAccount?.id || "",
-          isActive: item.isActive !== undefined ? item.isActive : true,
+          active: itemActive,
         });
       } catch (error) {
         console.error("Error fetching item details:", error);
@@ -111,7 +116,7 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
             incomeAccountId: "",
             purchasePrice: "",
             expenseAccountId: "",
-            isActive: true,
+            active: true,
           });
           navigate("/app/inventory/items/all");
         }
@@ -267,13 +272,13 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
         <div className="flex items-center space-x-3 pt-2">
             <input
               type="checkbox"
-              name="isActive"
-              id="isActive"
-              checked={formData.isActive}
+              name="active"
+              id="active"
+              checked={formData.active}
               onChange={handleChange}
               className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
             />
-            <label htmlFor="isActive" className="text-sm font-medium text-gray-700 cursor-pointer">
+            <label htmlFor="active" className="text-sm font-medium text-gray-700 cursor-pointer">
                 This item is active and available for use in transactions
             </label>
         </div>

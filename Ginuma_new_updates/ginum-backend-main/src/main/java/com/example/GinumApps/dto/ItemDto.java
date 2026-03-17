@@ -19,5 +19,5 @@ public class ItemDto {
     private BigDecimal purchasePrice;
     private Long expenseAccountId;
     private Integer companyId;
-    private boolean isActive = true;
+    private boolean active = true;
 }

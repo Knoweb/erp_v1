@@ -156,9 +156,14 @@ const AllItems = () => {
                        </div>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${item.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
-                        {item.isActive ? 'ACTIVE' : 'INACTIVE'}
-                      </span>
+                      {(() => {
+                        const isActive = item.active !== undefined ? item.active : item.isActive;
+                        return (
+                          <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+                            {isActive ? 'ACTIVE' : 'INACTIVE'}
+                          </span>
+                        );
+                      })()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-2">
