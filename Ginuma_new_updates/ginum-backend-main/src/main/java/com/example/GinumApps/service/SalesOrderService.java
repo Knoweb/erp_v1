@@ -90,10 +90,9 @@ public class SalesOrderService {
         order.setTaxPercent(request.getTaxPercent());
         order.setTaxAmount(request.getTaxAmount());
 
-        validateCompanyAccounts(company, order);
-
         processItems(request.getItems(), order, company);
         calculateFinancials(order);
+        validateCompanyAccounts(company, order);
 
         SalesOrder savedOrder = (SalesOrder) salesOrderRepo.save(order);
         createJournalEntries(savedOrder);

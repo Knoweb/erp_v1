@@ -115,10 +115,9 @@ public class PurchaseOrderService {
         po.setAmountPaid(request.getAmountPaid() != null ? request.getAmountPaid() : BigDecimal.ZERO);
         po.setDueDate(request.getDueDate());
 
-        validateCompanyAccounts(company, po);
-
         processItems(request.getItems(), po, company);
         calculateFinancials(po, request.getFreight(), request.getTaxAmount());
+        validateCompanyAccounts(company, po);
 
         PurchaseOrder savedPO = purchaseOrderRepo.save(po);
         createJournalEntries(savedPO);
