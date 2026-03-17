@@ -192,9 +192,27 @@ const CreatePurchase = () => {
     const updatedRows = [...rows];
     updatedRows[index][field] = value;
 
+    // Auto-fill details when an item is selected
+    if (field === "itemId" && value) {
+      const selectedItem = items.find((item) => (item.id || item.itemId).toString() === value.toString());
+      if (selectedItem) {
+        updatedRows[index].description = selectedItem.description || selectedItem.name || "";
+        updatedRows[index].unitPrice = selectedItem.purchasePrice || "";
+        if (selectedItem.expenseAccount && selectedItem.expenseAccount.id) {
+          updatedRows[index].account = selectedItem.expenseAccount.id.toString();
+        } else {
+          updatedRows[index].account = "";
+        }
+      }
+    } else if (field === "itemId" && !value) {
+      updatedRows[index].description = "";
+      updatedRows[index].unitPrice = "";
+      updatedRows[index].account = "";
+    }
+
     if (
       !isServiceMode &&
-      (field === "quantity" || field === "unitPrice" || field === "discount")
+      (field === "quantity" || field === "unitPrice" || field === "discount" || field === "itemId")
     ) {
       const quantity = parseFloat(updatedRows[index].quantity) || 0;
       const unitPrice = parseFloat(updatedRows[index].unitPrice) || 0;
@@ -204,7 +222,7 @@ const CreatePurchase = () => {
       updatedRows[index].amount = (quantity * discountedAmount).toFixed(2);
     }
 
-    if (index === rows.length - 1 && value.trim() !== "") {
+    if (index === rows.length - 1 && value.trim() !== "" && field !== "project") {
       updatedRows.push({
         itemId: "",
         description: "",
@@ -393,8 +411,10 @@ const CreatePurchase = () => {
                       disabled={isLoadingItems}
                     >
                       <option value="">Select Item</option>
-                      {!isLoadingItems && items.map((item) => (
-                        <option key={item.id} value={item.id}>
+                      {!isLoadingItems && items
+                        .filter(item => item.expenseAccount != null)
+                        .map((item) => (
+                        <option key={item.id || item.itemId} value={item.id || item.itemId}>
                           {item.name}
                         </option>
                       ))}
