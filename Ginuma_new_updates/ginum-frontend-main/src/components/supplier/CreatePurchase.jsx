@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { MdOutlineCancel, MdAddCircleOutline } from "react-icons/md";
 import { FaTimes } from "react-icons/fa";
 import AddAccountForm from "../account/AddAccountForm";
 import NewProjectForm from "../projects/NewProjectForm";
 import CreateItem from "../item/CreateItem";
 import api from "../../utils/api";
+import Alert from "../../components/Alert/Alert";
 import { AccountContext, filterAccountsByContext } from "../../utils/accountFilters";
 
 const CreatePurchase = () => {
@@ -14,7 +16,7 @@ const CreatePurchase = () => {
       itemId: "",
       description: "",
       account: "",
-      noOfUnits: "",
+      quantity: "",
       unitPrice: "",
       discount: "",
       amount: "",
@@ -246,7 +248,7 @@ const CreatePurchase = () => {
 
   const handleSubmit = async () => {
     if (!selectedSupplier) {
-      alert("Please select a supplier");
+      Alert.error("Please select a supplier");
       return;
     }
     const companyId = localStorage.getItem("companyId");
@@ -261,7 +263,7 @@ const CreatePurchase = () => {
     );
 
     if (validRows.length === 0) {
-      alert("Please add at least one valid row");
+      Alert.error("Please add at least one valid row");
       return;
     }
 
@@ -294,12 +296,12 @@ const CreatePurchase = () => {
     try {
       const response = await api.post(`/api/${companyId}/purchase-orders`, payload);
       if (response.status === 201 || response.status === 200) {
-        alert("Purchase order created successfully!");
+        Alert.success("Purchase order created successfully!");
         navigate("/account/app/purchases");
       }
     } catch (error) {
       console.error("Error creating purchase order:", error);
-      alert("Failed to create purchase order");
+      Alert.error("Failed to create purchase order");
     } finally {
       setIsSubmitting(false);
     }
