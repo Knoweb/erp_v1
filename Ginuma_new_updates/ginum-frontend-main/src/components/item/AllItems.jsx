@@ -49,13 +49,15 @@ const AllItems = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this item?")) {
+    const result = await Alert.confirm("Are you sure you want to delete this item?");
+    if (result.isConfirmed) {
       try {
         await api.delete(`/api/companies/${companyId}/items/${id}`);
         setItems(items.filter((item) => item.id !== id));
+        Alert.success("Item deleted successfully!");
       } catch (err) {
         console.error("Error deleting item:", err);
-        alert("Failed to delete item.");
+        Alert.error("Failed to delete item.");
       }
     }
   };
@@ -85,7 +87,14 @@ const AllItems = () => {
         </button>
       </div>
 
-      {error && <Alert type="error" message={error} onClose={() => setError(null)} />}
+      {error && (
+        <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <span className="block">{error}</span>
+          <button className="absolute top-0 bottom-0 right-0 px-4 py-3" onClick={() => setError(null)}>
+            <span className="text-xl">&times;</span>
+          </button>
+        </div>
+      )}
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row gap-4 justify-between items-center">

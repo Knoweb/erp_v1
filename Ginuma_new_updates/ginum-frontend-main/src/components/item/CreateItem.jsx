@@ -32,7 +32,7 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
         setAccounts(allAccounts);
       } catch (error) {
         console.error("Error fetching accounts:", error);
-        alert("Failed to load accounts for dropdowns.");
+        Alert.error("Failed to load accounts for dropdowns.");
       }
     };
 
@@ -58,7 +58,7 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
         });
       } catch (error) {
         console.error("Error fetching item details:", error);
-        alert("Failed to load item details.");
+        Alert.error("Failed to load item details.");
       } finally {
         setLoading(false);
       }
@@ -99,11 +99,11 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
       let response;
       if (isEditMode) {
         response = await api.put(`/api/companies/${companyId}/items/${id}`, payload);
-        alert("Item updated successfully!");
+        Alert.success("Item updated successfully!");
         navigate("/app/inventory/items/all");
       } else {
         response = await api.post(`/api/companies/${companyId}/items`, payload);
-        alert("Item created successfully!");
+        Alert.success("Item created successfully!");
         
         if (isModal && onSuccess) {
           onSuccess(response.data || response);
@@ -123,7 +123,7 @@ const CreateItem = ({ isModal = false, onSuccess }) => {
       }
     } catch (error) {
       console.error("Error saving item:", error);
-      alert(error.response?.data?.error || "Failed to save item.");
+      Alert.error(error.response?.data?.error || "Failed to save item.");
     } finally {
       setLoading(false);
     }
