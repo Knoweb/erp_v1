@@ -397,15 +397,15 @@ const CreateGeneralJournalTransaction = () => {
         <div></div>
         <div className="text-right">
           <p className="text-sm font-medium text-gray-700">
-            Total debit: ${totalDebit.toFixed(2)}
+            Total debit: Rs. {totalDebit.toFixed(2)}
           </p>
           <p className="text-sm font-medium text-gray-700">
-            Total credit: ${totalCredit.toFixed(2)}
+            Total credit: Rs. {totalCredit.toFixed(2)}
           </p>
           <p
             className={`text-sm font-medium ${outOfBalance !== 0 ? "text-red-600" : "text-green-600"}`}
           >
-            Out of balance: ${outOfBalance.toFixed(2)}
+            Out of balance: Rs. {outOfBalance.toFixed(2)}
           </p>
         </div>
       </div>

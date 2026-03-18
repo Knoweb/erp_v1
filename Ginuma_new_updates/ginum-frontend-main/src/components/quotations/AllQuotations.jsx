@@ -241,7 +241,7 @@ const AllQuotations = () => {
                         {expired && quotation.status !== "ACCEPTED" && " (Expired)"}
                       </span>
                     </td>
-                    <td className="p-3 text-sm text-right font-medium">${quotation.total.toFixed(2)}</td>
+                    <td className="p-3 text-sm text-right font-medium">Rs. {quotation.total.toFixed(2)}</td>
                     <td className="p-3 text-center">{getStatusBadge(quotation.status)}</td>
                     <td className="p-3">
                       <div className="flex justify-center gap-2">
@@ -370,9 +370,9 @@ const AllQuotations = () => {
                       <tr key={idx} className="border-b">
                         <td className="p-2">{item.description}</td>
                         <td className="p-2 text-right">{item.quantity}</td>
-                        <td className="p-2 text-right">${item.unitPrice.toFixed(2)}</td>
+                        <td className="p-2 text-right">Rs. {item.unitPrice.toFixed(2)}</td>
                         <td className="p-2 text-right">{item.discountPercent}%</td>
-                        <td className="p-2 text-right font-medium">${item.totalPrice.toFixed(2)}</td>
+                        <td className="p-2 text-right font-medium">Rs. {item.totalPrice.toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -382,15 +382,15 @@ const AllQuotations = () => {
               <div className="border-t pt-4">
                 <div className="flex justify-between mb-2">
                   <span className="text-gray-600">Subtotal:</span>
-                  <span className="font-medium">${selectedQuotation.subtotal.toFixed(2)}</span>
+                  <span className="font-medium">Rs. {selectedQuotation.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between mb-2">
                   <span className="text-gray-600">Tax ({selectedQuotation.taxPercent}%):</span>
-                  <span className="font-medium">${selectedQuotation.taxAmount.toFixed(2)}</span>
+                  <span className="font-medium">Rs. {selectedQuotation.taxAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-lg font-bold border-t pt-2">
                   <span>Total:</span>
-                  <span className="text-blue-600">${selectedQuotation.total.toFixed(2)}</span>
+                  <span className="text-blue-600">Rs. {selectedQuotation.total.toFixed(2)}</span>
                 </div>
               </div>
 

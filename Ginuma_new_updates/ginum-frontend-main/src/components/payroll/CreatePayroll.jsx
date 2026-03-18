@@ -396,15 +396,15 @@ const CreatePayroll = () => {
                       <div className="bg-gray-50 rounded p-3 text-sm">
                         <div className="flex justify-between mb-1">
                           <span className="text-gray-600">Gross Pay:</span>
-                          <span className="font-semibold">${calculateGrossPay(item).toFixed(2)}</span>
+                          <span className="font-semibold">Rs. {calculateGrossPay(item).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between mb-1">
                           <span className="text-gray-600">Total Deductions:</span>
-                          <span className="font-semibold text-red-600">-${calculateTotalDeductions(item).toFixed(2)}</span>
+                          <span className="font-semibold text-red-600">-Rs. {calculateTotalDeductions(item).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between pt-1 border-t border-gray-300">
                           <span className="font-semibold text-gray-800">Net Pay:</span>
-                          <span className="font-bold text-green-600">${calculateNetPay(item).toFixed(2)}</span>
+                          <span className="font-bold text-green-600">Rs. {calculateNetPay(item).toFixed(2)}</span>
                         </div>
                       </div>
                     </>

@@ -101,7 +101,7 @@ const AllTransactions = () => {
                       {tx.description || tx.journalTitle}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold text-gray-900">
-                      ${calculateTotal(tx.journalEntryLines || [])}
+                      Rs. {calculateTotal(tx.journalEntryLines || [])}
                     </td>
                   </tr>
                 ))

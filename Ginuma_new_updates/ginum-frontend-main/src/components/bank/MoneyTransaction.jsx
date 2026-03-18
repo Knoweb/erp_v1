@@ -495,7 +495,7 @@ const MoneyTransaction = ({ type = "spend" }) => {
                     <td className="p-3 text-sm text-xs">{txn.bankAccountName}</td>
                     <td className="p-3 text-sm text-xs">{txn.chargeAccountName}</td>
                     <td className="p-3 text-sm">{txn.paymentMethod?.replace("_", " ")}</td>
-                    <td className="p-3 text-sm text-right font-medium">${txn.amount.toFixed(2)}</td>
+                    <td className="p-3 text-sm text-right font-medium">Rs. {txn.amount.toFixed(2)}</td>
                     <td className="p-3 text-center">
                       <button
                         onClick={() => handleDelete(txn.id)}

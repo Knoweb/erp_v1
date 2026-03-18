@@ -229,10 +229,10 @@ const AllPayrolls = () => {
                       }
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                      ${fmt(payroll.totalGrossPay)}
+                      Rs. {fmt(payroll.totalGrossPay)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-700">
-                      ${fmt(payroll.totalNetPay)}
+                      Rs. {fmt(payroll.totalNetPay)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(payroll.status)}`}>
@@ -299,8 +299,8 @@ const AllPayrolls = () => {
                   {[
                     { label: 'Pay Period', value: `${selectedPayroll.payPeriodStart} → ${selectedPayroll.payPeriodEnd}`, icon: <FiCalendar size={16} /> },
                     { label: 'Payment Date', value: selectedPayroll.paymentDate, icon: <FiCalendar size={16} /> },
-                    { label: 'Total Gross', value: `$${fmt(selectedPayroll.totalGrossPay)}`, icon: <FiFileText size={16} />, highlight: 'text-gray-900 font-bold' },
-                    { label: 'Total Net Pay', value: `$${fmt(selectedPayroll.totalNetPay)}`, icon: <FiFileText size={16} />, highlight: 'text-green-700 font-bold' },
+                    { label: 'Total Gross', value: `Rs. ${fmt(selectedPayroll.totalGrossPay)}`, icon: <FiFileText size={16} />, highlight: 'text-gray-900 font-bold' },
+                    { label: 'Total Net Pay', value: `Rs. ${fmt(selectedPayroll.totalNetPay)}`, icon: <FiFileText size={16} />, highlight: 'text-green-700 font-bold' },
                   ].map(card => (
                     <div key={card.label} className="bg-gray-50 rounded-lg p-3">
                       <div className="flex items-center gap-1 text-gray-500 text-xs mb-1">{card.icon}{card.label}</div>
@@ -345,8 +345,8 @@ const AllPayrolls = () => {
                             </div>
                           </div>
                           <div className="flex items-center gap-6 text-sm">
-                            <span className="text-gray-500">Gross: <span className="font-semibold text-gray-800">${fmt(item.grossPay)}</span></span>
-                            <span className="text-gray-500">Net: <span className="font-semibold text-green-700">${fmt(item.netPay)}</span></span>
+                            <span className="text-gray-500">Gross: <span className="font-semibold text-gray-800">Rs. {fmt(item.grossPay)}</span></span>
+                            <span className="text-gray-500">Net: <span className="font-semibold text-green-700">Rs. {fmt(item.netPay)}</span></span>
                             {expandedEmployee === idx ? <FiChevronUp size={16} className="text-gray-400" /> : <FiChevronDown size={16} className="text-gray-400" />}
                           </div>
                         </button>
@@ -356,14 +356,14 @@ const AllPayrolls = () => {
                           <div className="px-4 py-4 bg-white">
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                               {[
-                                { label: 'Basic Salary', value: `$${fmt(item.basicSalary)}` },
-                                { label: 'Allowances', value: `$${fmt(item.allowances)}` },
-                                { label: 'Overtime Pay', value: `$${fmt(item.overtimePay)}` },
-                                { label: 'Bonus', value: `$${fmt(item.bonus)}` },
+                                { label: 'Basic Salary', value: `Rs. ${fmt(item.basicSalary)}` },
+                                { label: 'Allowances', value: `Rs. ${fmt(item.allowances)}` },
+                                { label: 'Overtime Pay', value: `Rs. ${fmt(item.overtimePay)}` },
+                                { label: 'Bonus', value: `Rs. ${fmt(item.bonus)}` },
                                 { label: 'Worked Days', value: item.workedDays ?? '-' },
                                 { label: 'Overtime Hours', value: item.overtimeHours ?? '-' },
-                                { label: 'Total Deductions', value: `$${fmt(item.totalDeductions)}`, cls: 'text-red-600 font-semibold' },
-                                { label: 'Net Pay', value: `$${fmt(item.netPay)}`, cls: 'text-green-700 font-bold' },
+                                { label: 'Total Deductions', value: `Rs. ${fmt(item.totalDeductions)}`, cls: 'text-red-600 font-semibold' },
+                                { label: 'Net Pay', value: `Rs. ${fmt(item.netPay)}`, cls: 'text-green-700 font-bold' },
                               ].map(field => (
                                 <div key={field.label} className="bg-gray-50 rounded p-2">
                                   <p className="text-xs text-gray-500">{field.label}</p>
@@ -390,7 +390,7 @@ const AllPayrolls = () => {
                                       <tr key={di}>
                                         <td className="px-3 py-2 font-medium">{d.deductionType}</td>
                                         <td className="px-3 py-2 text-gray-500">{d.description || '-'}</td>
-                                        <td className="px-3 py-2 text-right text-red-600">${fmt(d.amount)}</td>
+                                        <td className="px-3 py-2 text-right text-red-600">Rs. {fmt(d.amount)}</td>
                                         <td className="px-3 py-2 text-center">{d.mandatory ? '✅' : '-'}</td>
                                       </tr>
                                     ))}

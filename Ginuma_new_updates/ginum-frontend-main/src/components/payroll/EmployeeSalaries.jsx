@@ -279,7 +279,7 @@ const EmployeeSalaries = () => {
                     <div className="flex justify-between items-center">
                       <span className="text-gray-700 font-medium">Total Salary:</span>
                       <span className="text-xl font-bold text-blue-600">
-                        ${(
+                        Rs. {(
                           salaryForm.basicSalary +
                           salaryForm.housingAllowance +
                           salaryForm.transportAllowance +
@@ -321,26 +321,26 @@ const EmployeeSalaries = () => {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                         <div>
                           <p className="text-sm text-gray-600">Basic Salary</p>
-                          <p className="text-lg font-semibold">${employee.currentSalary.basicSalary?.toFixed(2)}</p>
+                          <p className="text-lg font-semibold">Rs. {employee.currentSalary.basicSalary?.toFixed(2)}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Housing</p>
-                          <p className="text-lg font-semibold">${employee.currentSalary.housingAllowance?.toFixed(2)}</p>
+                          <p className="text-lg font-semibold">Rs. {employee.currentSalary.housingAllowance?.toFixed(2)}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Transport</p>
-                          <p className="text-lg font-semibold">${employee.currentSalary.transportAllowance?.toFixed(2)}</p>
+                          <p className="text-lg font-semibold">Rs. {employee.currentSalary.transportAllowance?.toFixed(2)}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Other</p>
-                          <p className="text-lg font-semibold">${employee.currentSalary.otherAllowances?.toFixed(2)}</p>
+                          <p className="text-lg font-semibold">Rs. {employee.currentSalary.otherAllowances?.toFixed(2)}</p>
                         </div>
                       </div>
                       <div className="flex justify-between items-center bg-gray-50 rounded p-3">
                         <div>
                           <p className="text-sm text-gray-600">Total Salary</p>
                           <p className="text-xl font-bold text-gray-800">
-                            ${calculateTotalSalary(employee.currentSalary).toFixed(2)}
+                            Rs. {calculateTotalSalary(employee.currentSalary).toFixed(2)}
                           </p>
                           <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
                             <FiClock size={12} /> {employee.currentSalary.frequency} • Effective from {employee.currentSalary.effectiveFrom}

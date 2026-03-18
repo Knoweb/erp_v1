@@ -144,12 +144,12 @@ export default function AgedPayables() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{row.supplier?.supplierName || "Unknown"}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-medium">{row.poNumber}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{row.dueDate}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">${Math.max(0, notDueYet).toFixed(2)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-600 font-medium">${row.bucket0to30?.toFixed(2) || '0.00'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-500 font-medium">${row.bucket31to60?.toFixed(2) || '0.00'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-600 font-medium">${row.bucket61to90?.toFixed(2) || '0.00'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold">${row.bucket91plus?.toFixed(2) || '0.00'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">${row.balanceDue?.toFixed(2) || '0.00'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">Rs. {Math.max(0, notDueYet).toFixed(2)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-600 font-medium">Rs. {row.bucket0to30?.toFixed(2) || '0.00'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-500 font-medium">Rs. {row.bucket31to60?.toFixed(2) || '0.00'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-600 font-medium">Rs. {row.bucket61to90?.toFixed(2) || '0.00'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold">Rs. {row.bucket91plus?.toFixed(2) || '0.00'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">Rs. {row.balanceDue?.toFixed(2) || '0.00'}</td>
                 </tr>
               )
             })}

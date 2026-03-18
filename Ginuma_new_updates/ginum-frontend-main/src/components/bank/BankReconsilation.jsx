@@ -176,7 +176,7 @@ function BankReconsilation() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Statement Balance</label>
             <div className="relative">
-              <span className="absolute left-4 top-2.5 text-gray-500 font-medium">$</span>
+              <span className="absolute left-4 top-2.5 text-gray-500 font-medium">Rs.</span>
               <input type="number" value={statementBalance} onChange={e => setStatementBalance(e.target.value)}
                 className="w-full h-11 pl-8 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-gray-900 font-medium" />
             </div>
@@ -212,18 +212,18 @@ function BankReconsilation() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 relative z-10">
             <div className="flex flex-col">
               <span className="text-blue-200 text-sm mb-1">Statement Balance</span>
-              <span className="text-2xl font-bold">${parseFloat(statementBalance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+              <span className="text-2xl font-bold">Rs. {parseFloat(statementBalance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
             </div>
 
             <div className="flex flex-col">
               <span className="text-blue-200 text-sm mb-1">Cleared Balance</span>
-              <span className="text-2xl font-bold">${calculatedBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+              <span className="text-2xl font-bold">Rs. {calculatedBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
             </div>
 
             <div className="flex flex-col md:col-span-2 bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/20">
               <span className="text-blue-100 text-sm mb-1 uppercase tracking-wider font-semibold">Difference</span>
               <span className={`text-3xl font-bold ${difference === 0 ? "text-green-300" : "text-red-300"}`}>
-                ${Math.abs(difference).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                Rs. {Math.abs(difference).toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </span>
               {difference === 0 && (
                 <span className="text-xs text-green-200 mt-1 mt-auto flex items-center">
@@ -271,10 +271,10 @@ function BankReconsilation() {
                   <td className="py-3 px-4 text-gray-700 whitespace-nowrap">{t.date}</td>
                   <td className="py-3 px-4 text-gray-800 font-medium">{t.description}</td>
                   <td className="py-3 px-4 text-right">
-                    {t.type === "withdrawal" && <span className="text-gray-800">${t.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>}
+                    {t.type === "withdrawal" && <span className="text-gray-800">Rs. {t.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>}
                   </td>
                   <td className="py-3 px-4 text-right">
-                    {t.type === "deposit" && <span className="text-gray-800">${t.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>}
+                    {t.type === "deposit" && <span className="text-gray-800">Rs. {t.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>}
                   </td>
                 </tr>
               ))}
