@@ -202,12 +202,26 @@ public class SalesOrderService {
 
     private Account getTaxAccount(Company company) {
         if (company.getTaxAccount() != null) return company.getTaxAccount();
-        return accountRepo.findByAccountCodeAndCompany_CompanyId(Company.TAX_ACCOUNT_CODE, company.getCompanyId()).orElse(null);
+        // Fallback 1: Try code 5200
+        Optional<Account> byCode = accountRepo.findByAccountCodeAndCompany_CompanyId(Company.TAX_ACCOUNT_CODE, company.getCompanyId());
+        if (byCode.isPresent()) return byCode.get();
+        // Fallback 2: Try by name "Sales Tax" (Normalized)
+        Optional<Account> byName = accountRepo.findFirstByNormalizedNameAndCompany_CompanyId("SALESTAX", company.getCompanyId());
+        if (byName.isPresent()) return byName.get();
+        // Fallback 3: Try any Expense account (common classification)
+        return accountRepo.findFirstByAccountTypeAndCompany_CompanyId(AccountType.EXPENSE, company.getCompanyId()).orElse(null);
     }
 
     private Account getFreightAccount(Company company) {
         if (company.getFreightAccount() != null) return company.getFreightAccount();
-        return accountRepo.findByAccountCodeAndCompany_CompanyId(Company.FREIGHT_ACCOUNT_CODE, company.getCompanyId()).orElse(null);
+        // Fallback 1: Try code 5100
+        Optional<Account> byCode = accountRepo.findByAccountCodeAndCompany_CompanyId(Company.FREIGHT_ACCOUNT_CODE, company.getCompanyId());
+        if (byCode.isPresent()) return byCode.get();
+        // Fallback 2: Try by name "Freight" (Normalized)
+        Optional<Account> byName = accountRepo.findFirstByNormalizedNameAndCompany_CompanyId("FREIGHT", company.getCompanyId());
+        if (byName.isPresent()) return byName.get();
+        // Fallback 3: Try any Expense account
+        return accountRepo.findFirstByAccountTypeAndCompany_CompanyId(AccountType.EXPENSE, company.getCompanyId()).orElse(null);
     }
 
     private void createJournalEntries(SalesOrder order) {
