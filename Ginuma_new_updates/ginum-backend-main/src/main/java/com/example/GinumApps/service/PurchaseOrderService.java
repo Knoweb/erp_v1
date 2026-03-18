@@ -54,6 +54,26 @@ public class PurchaseOrderService {
         return candidate;
     }
 
+    public String getNextSupplierInvoiceNumber(Integer companyId) {
+        long count = purchaseOrderRepo.countByCompanyId(companyId.longValue());
+        long nextNum = count + 1;
+
+        String candidate = String.format("INV-%08d", nextNum);
+        String lastInv = purchaseOrderRepo.findLastSupplierInvoiceNumberByCompanyId(companyId.longValue());
+        if (lastInv != null && !lastInv.isEmpty()) {
+            try {
+                String numPart = lastInv.startsWith("INV-") ? lastInv.substring(4) : lastInv;
+                long lastNum = Long.parseLong(numPart);
+                if (lastNum >= nextNum) {
+                    candidate = String.format("INV-%08d", lastNum + 1);
+                }
+            } catch (NumberFormatException ignored) {
+                // fallback
+            }
+        }
+        return candidate;
+    }
+
     /**
      * Creates a purchase order with full financial tracking and journal entries
      * 

@@ -176,24 +176,31 @@ const CreatePurchase = () => {
       }
     };
 
-    const fetchPoNumber = async () => {
+    const fetchPoAndInvoiceNumber = async () => {
       try {
         const companyId = localStorage.getItem("companyId");
         if (!companyId) return;
 
-        const response = await api.get(`/api/${companyId}/purchase-orders/next-po-number`);
-        if (response && response.poNumber) {
-          setPoNumber(response.poNumber);
+        const [poRes, invRes] = await Promise.all([
+          api.get(`/api/${companyId}/purchase-orders/next-po-number`),
+          api.get(`/api/${companyId}/purchase-orders/next-invoice-number`)
+        ]);
+
+        if (poRes && poRes.poNumber) {
+          setPoNumber(poRes.poNumber);
+        }
+        if (invRes && invRes.invoiceNumber) {
+          setSupplierInvoiceNumber(invRes.invoiceNumber);
         }
       } catch (error) {
-        console.error("Error fetching next PO number:", error);
+        console.error("Error fetching next PO or Invoice number:", error);
       }
     };
 
     fetchAccounts();
     fetchSuppliers();
     fetchItemsAndProjects();
-    fetchPoNumber();
+    fetchPoAndInvoiceNumber();
   }, []);
 
 
@@ -365,10 +372,10 @@ const CreatePurchase = () => {
           </label>
           <input
             type="text"
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-            placeholder="Supplier Invoice Number"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-gray-100"
+            placeholder="INV-00000001"
             value={supplierInvoiceNumber}
-            onChange={(e) => setSupplierInvoiceNumber(e.target.value)}
+            readOnly
           />
         </div>
         <div>

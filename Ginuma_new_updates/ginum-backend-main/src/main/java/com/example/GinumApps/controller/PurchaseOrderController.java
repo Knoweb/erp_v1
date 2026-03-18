@@ -36,6 +36,14 @@ public class PurchaseOrderController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/next-invoice-number")
+    public ResponseEntity<java.util.Map<String, String>> getNextSupplierInvoiceNumber(@PathVariable Integer companyId) {
+        String nextInvoiceNumber = purchaseOrderService.getNextSupplierInvoiceNumber(companyId);
+        java.util.Map<String, String> response = new java.util.HashMap<>();
+        response.put("invoiceNumber", nextInvoiceNumber);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping
     public ResponseEntity<java.util.List<PurchaseOrderResponseDto>> getAllPurchaseOrdersByCompany(
             @PathVariable Integer companyId) {

@@ -20,4 +20,7 @@ public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, Lo
 
         boolean existsByCompany_CompanyIdAndSupplier_IdAndSupplierInvoiceNumber(Integer companyId, Long supplierId,
                         String supplierInvoiceNumber);
+
+        @Query("SELECT MAX(p.supplierInvoiceNumber) FROM PurchaseOrder p WHERE p.company.companyId = :companyId")
+        String findLastSupplierInvoiceNumberByCompanyId(@Param("companyId") Long companyId);
 }
