@@ -27,5 +27,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     List<Account> findByCompany_CompanyId(Integer companyId);
 
     Optional<Account> findByAccountCodeAndCompany_CompanyId(String accountCode, Integer companyId);
-
+    
+    Optional<Account> findFirstByAccountTypeAndCompany_CompanyId(AccountType accountType, Integer companyId);
 }

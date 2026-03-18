@@ -4,7 +4,9 @@ import com.example.GinumApps.dto.*;
 import com.example.GinumApps.enums.JournalEntryType;
 import com.example.GinumApps.exception.ResourceNotFoundException;
 import com.example.GinumApps.model.*;
+import com.example.GinumApps.enums.*;
 import com.example.GinumApps.repository.*;
+import java.util.Optional;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -191,7 +193,11 @@ public class SalesOrderService {
 
     private Account getAccountsReceivableAccount(Company company) {
         if (company.getAccountsReceivableAccount() != null) return company.getAccountsReceivableAccount();
-        return accountRepo.findByAccountCodeAndCompany_CompanyId(Company.RECEIVABLE_ACCOUNT_CODE, company.getCompanyId()).orElse(null);
+        // Fallback 1: Try code 1100
+        Optional<Account> byCode = accountRepo.findByAccountCodeAndCompany_CompanyId(Company.RECEIVABLE_ACCOUNT_CODE, company.getCompanyId());
+        if (byCode.isPresent()) return byCode.get();
+        // Fallback 2: Try any account of type ASSET_ACCOUNT_RECEIVABLE
+        return accountRepo.findFirstByAccountTypeAndCompany_CompanyId(AccountType.ASSET_ACCOUNT_RECEIVABLE, company.getCompanyId()).orElse(null);
     }
 
     private Account getTaxAccount(Company company) {

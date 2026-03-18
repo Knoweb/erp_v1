@@ -4,6 +4,7 @@ import com.example.GinumApps.dto.*;
 import com.example.GinumApps.enums.JournalEntryType;
 import com.example.GinumApps.exception.ResourceNotFoundException;
 import com.example.GinumApps.model.*;
+import com.example.GinumApps.enums.*;
 import com.example.GinumApps.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -16,6 +17,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -221,7 +223,11 @@ public class PurchaseOrderService {
 
     private Account getAccountsPayableAccount(Company company) {
         if (company.getAccountsPayableAccount() != null) return company.getAccountsPayableAccount();
-        return accountRepo.findByAccountCodeAndCompany_CompanyId(Company.PAYABLE_ACCOUNT_CODE, company.getCompanyId()).orElse(null);
+        // Fallback 1: Try code 2100
+        Optional<Account> byCode = accountRepo.findByAccountCodeAndCompany_CompanyId(Company.PAYABLE_ACCOUNT_CODE, company.getCompanyId());
+        if (byCode.isPresent()) return byCode.get();
+        // Fallback 2: Try any account of type LIABILITY_ACCOUNTS_PAYABLE
+        return accountRepo.findFirstByAccountTypeAndCompany_CompanyId(AccountType.LIABILITY_ACCOUNTS_PAYABLE, company.getCompanyId()).orElse(null);
     }
 
     private Account getTaxAccount(Company company) {
