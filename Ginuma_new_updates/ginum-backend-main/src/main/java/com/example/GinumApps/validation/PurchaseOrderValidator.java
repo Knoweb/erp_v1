@@ -23,14 +23,14 @@ public class PurchaseOrderValidator implements Validator {
 
         for (int i = 0; i < request.getItems().size(); i++) {
             PurchaseOrderItemRequestDto item = request.getItems().get(i);
-            if (request.getPurchaseType() == PurchaseType.GOODS) {
+            if (request.getPurchaseType() == PurchaseType.ITEM) {
                 if (item.getQuantity() == null || item.getQuantity() <= 0) {
                     errors.rejectValue("items[" + i + "].quantity", "field.required", "Quantity is required for ITEMS");
                 }
                 if (item.getUnitPrice() == null || item.getUnitPrice().compareTo(BigDecimal.ZERO) <= 0) {
                     errors.rejectValue("items[" + i + "].unitPrice", "field.required", "Unit price is required for ITEMS");
                 }
-            } else if (request.getPurchaseType() == PurchaseType.SERVICES) {
+            } else if (request.getPurchaseType() == PurchaseType.SERVICE) {
                 if (item.getAmount() == null || item.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
                     errors.rejectValue("items[" + i + "].amount", "field.required", "Amount is required for SERVICES");
                 }

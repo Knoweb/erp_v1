@@ -114,6 +114,7 @@ public class PurchaseOrderService {
         po.setTaxPercent(request.getTaxPercent());
         po.setAmountPaid(request.getAmountPaid() != null ? request.getAmountPaid() : BigDecimal.ZERO);
         po.setDueDate(request.getDueDate());
+        po.setPurchaseType(request.getPurchaseType());
 
         processItems(request.getItems(), po, company);
         calculateFinancials(po, request.getFreight(), request.getTaxAmount());
