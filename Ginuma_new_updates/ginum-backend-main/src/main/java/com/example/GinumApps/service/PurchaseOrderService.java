@@ -205,18 +205,33 @@ public class PurchaseOrderService {
     }
 
     private void validateCompanyAccounts(Company company, PurchaseOrder po) {
-        if (po.getBalanceDue().compareTo(BigDecimal.ZERO) > 0 && company.getAccountsPayableAccount() == null) {
-            throw new IllegalStateException("Accounts Payable account is not configured for this company. Please set it in Company Profile.");
+        if (po.getBalanceDue().compareTo(BigDecimal.ZERO) > 0 && getAccountsPayableAccount(company) == null) {
+            throw new IllegalStateException("Accounts Payable account (code 2100) is not configured for this company. Please ensure it exists in your Chart of Accounts.");
         }
-        if (po.getTaxAmount().compareTo(BigDecimal.ZERO) > 0 && company.getTaxAccount() == null) {
-            throw new IllegalStateException("Sales Tax account is not configured for this company. Please set it in Company Profile.");
+        if (po.getTaxAmount().compareTo(BigDecimal.ZERO) > 0 && getTaxAccount(company) == null) {
+            throw new IllegalStateException("Sales Tax account (code 5200) is not configured for this company. Please ensure it exists in your Chart of Accounts.");
         }
-        if (po.getFreight().compareTo(BigDecimal.ZERO) > 0 && company.getFreightAccount() == null) {
-            throw new IllegalStateException("Freight Expense account is not configured for this company. Please set it in Company Profile.");
+        if (po.getFreight().compareTo(BigDecimal.ZERO) > 0 && getFreightAccount(company) == null) {
+            throw new IllegalStateException("Freight Expense account (code 5100) is not configured for this company. Please ensure it exists in your Chart of Accounts.");
         }
         if (po.getAmountPaid().compareTo(BigDecimal.ZERO) > 0 && po.getPaymentAccount() == null) {
             throw new IllegalArgumentException("Payment account is required when amount paid is greater than zero.");
         }
+    }
+
+    private Account getAccountsPayableAccount(Company company) {
+        if (company.getAccountsPayableAccount() != null) return company.getAccountsPayableAccount();
+        return accountRepo.findByAccountCodeAndCompany_CompanyId(Company.PAYABLE_ACCOUNT_CODE, company.getCompanyId()).orElse(null);
+    }
+
+    private Account getTaxAccount(Company company) {
+        if (company.getTaxAccount() != null) return company.getTaxAccount();
+        return accountRepo.findByAccountCodeAndCompany_CompanyId(Company.TAX_ACCOUNT_CODE, company.getCompanyId()).orElse(null);
+    }
+
+    private Account getFreightAccount(Company company) {
+        if (company.getFreightAccount() != null) return company.getFreightAccount();
+        return accountRepo.findByAccountCodeAndCompany_CompanyId(Company.FREIGHT_ACCOUNT_CODE, company.getCompanyId()).orElse(null);
     }
 
     /**
@@ -256,38 +271,41 @@ public class PurchaseOrderService {
 
         // 2. Debit freight (if applicable)
         if (po.getFreight().compareTo(BigDecimal.ZERO) > 0) {
+            Account freightAcc = getFreightAccount(po.getCompany());
             entryDto.getLines().add(new JournalEntryLineDto(
-                    po.getCompany().getFreightAccount().getAccountCode(), // From Company
+                    freightAcc.getAccountCode(), // From smart lookup
                     po.getFreight(),
-                    true,
-                    "Freight charges"));
+                    true, // Debit
+                    "Freight Charges"));
         }
 
         // 3. Debit tax (if applicable)
         if (po.getTaxAmount().compareTo(BigDecimal.ZERO) > 0) {
+            Account taxAcc = getTaxAccount(po.getCompany());
             entryDto.getLines().add(new JournalEntryLineDto(
-                    po.getCompany().getTaxAccount().getAccountCode(), // From Company
+                    taxAcc.getAccountCode(), // From smart lookup
                     po.getTaxAmount(),
-                    true,
-                    "Sales tax"));
+                    true, // Debit
+                    "Sales Tax on Purchase"));
         }
 
-        // 4. Credit payment account if payment exists
+        // 4. Credit payment account if paid (CASH/BANK)
         if (po.getAmountPaid().compareTo(BigDecimal.ZERO) > 0) {
             entryDto.getLines().add(new JournalEntryLineDto(
                     po.getPaymentAccount().getAccountCode(),
                     po.getAmountPaid(),
-                    false, // Credit payment account
-                    "Payment for PO #" + po.getId()));
+                    false, // Credit Asset
+                    "Payment for Purchase"));
         }
 
-        // 3. Credit accounts payable for remaining balance
+        // 5. Credit accounts payable for balance
         if (po.getBalanceDue().compareTo(BigDecimal.ZERO) > 0) {
+            Account payableAcc = getAccountsPayableAccount(po.getCompany());
             entryDto.getLines().add(new JournalEntryLineDto(
-                    po.getCompany().getAccountsPayableAccount().getAccountCode(),
+                    payableAcc.getAccountCode(), // From smart lookup
                     po.getBalanceDue(),
-                    false, // Credit liability
-                    "Payable to " + po.getSupplier().getSupplierName()));
+                    false, // Credit Liability
+                    "Accounts Payable to " + po.getSupplier().getName()));
         }
         // Correct service call with proper DTO
         journalEntryService.createJournalEntry(entryDto);

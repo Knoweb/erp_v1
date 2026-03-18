@@ -175,18 +175,33 @@ public class SalesOrderService {
     }
 
     private void validateCompanyAccounts(Company company, SalesOrder order) {
-        if (order.getBalanceDue().compareTo(BigDecimal.ZERO) > 0 && company.getAccountsReceivableAccount() == null) {
-            throw new IllegalStateException("Accounts Receivable account is not configured for this company. Please set it in Company Profile.");
+        if (order.getBalanceDue().compareTo(BigDecimal.ZERO) > 0 && getAccountsReceivableAccount(company) == null) {
+            throw new IllegalStateException("Accounts Receivable account (code 1100) is not configured or missing for this company. Please ensure it exists in your Chart of Accounts.");
         }
-        if (order.getTaxAmount().compareTo(BigDecimal.ZERO) > 0 && company.getTaxAccount() == null) {
-            throw new IllegalStateException("Sales Tax account is not configured for this company. Please set it in Company Profile.");
+        if (order.getTaxAmount().compareTo(BigDecimal.ZERO) > 0 && getTaxAccount(company) == null) {
+            throw new IllegalStateException("Sales Tax account (code 5200) is not configured or missing for this company. Please ensure it exists in your Chart of Accounts.");
         }
-        if (order.getFreight().compareTo(BigDecimal.ZERO) > 0 && company.getFreightAccount() == null) {
-            throw new IllegalStateException("Freight Revenue account is not configured for this company. Please set it in Company Profile.");
+        if (order.getFreight().compareTo(BigDecimal.ZERO) > 0 && getFreightAccount(company) == null) {
+            throw new IllegalStateException("Freight Revenue account (code 5100) is not configured or missing for this company. Please ensure it exists in your Chart of Accounts.");
         }
         if (order.getAmountPaid().compareTo(BigDecimal.ZERO) > 0 && order.getPaymentAccount() == null) {
             throw new IllegalArgumentException("Payment account is required when amount paid is greater than zero.");
         }
+    }
+
+    private Account getAccountsReceivableAccount(Company company) {
+        if (company.getAccountsReceivableAccount() != null) return company.getAccountsReceivableAccount();
+        return accountRepo.findByAccountCodeAndCompany_CompanyId(Company.RECEIVABLE_ACCOUNT_CODE, company.getCompanyId()).orElse(null);
+    }
+
+    private Account getTaxAccount(Company company) {
+        if (company.getTaxAccount() != null) return company.getTaxAccount();
+        return accountRepo.findByAccountCodeAndCompany_CompanyId(Company.TAX_ACCOUNT_CODE, company.getCompanyId()).orElse(null);
+    }
+
+    private Account getFreightAccount(Company company) {
+        if (company.getFreightAccount() != null) return company.getFreightAccount();
+        return accountRepo.findByAccountCodeAndCompany_CompanyId(Company.FREIGHT_ACCOUNT_CODE, company.getCompanyId()).orElse(null);
     }
 
     private void createJournalEntries(SalesOrder order) {
@@ -219,9 +234,10 @@ public class SalesOrderService {
         // Credit Freight Revenue if applicable
         if (order.getFreight().compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal freightAmt = order.getFreight().setScale(2, RoundingMode.HALF_UP);
-            System.err.println("DEBUG: Journal Line - Freight: " + order.getCompany().getFreightAccount().getAccountCode() + " Amount: " + freightAmt);
+            Account freightAcc = getFreightAccount(order.getCompany());
+            System.err.println("DEBUG: Journal Line - Freight: " + (freightAcc != null ? freightAcc.getAccountCode() : "NULL") + " Amount: " + freightAmt);
             lines.add(new JournalEntryLineDto(
-                    order.getCompany().getFreightAccount().getAccountCode(),
+                    freightAcc.getAccountCode(),
                     freightAmt,
                     false, // Credit Freight Revenue
                     "Freight Charges"));
@@ -230,9 +246,10 @@ public class SalesOrderService {
         // Credit Tax Liability if applicable
         if (order.getTaxAmount().compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal taxAmt = order.getTaxAmount().setScale(2, RoundingMode.HALF_UP);
-            System.err.println("DEBUG: Journal Line - Tax: " + order.getCompany().getTaxAccount().getAccountCode() + " Amount: " + taxAmt);
+            Account taxAcc = getTaxAccount(order.getCompany());
+            System.err.println("DEBUG: Journal Line - Tax: " + (taxAcc != null ? taxAcc.getAccountCode() : "NULL") + " Amount: " + taxAmt);
             lines.add(new JournalEntryLineDto(
-                    order.getCompany().getTaxAccount().getAccountCode(),
+                    taxAcc.getAccountCode(),
                     taxAmt,
                     false, // Credit Tax
                     "Sales Tax"));
@@ -252,9 +269,10 @@ public class SalesOrderService {
         // Debit Accounts Receivable for remaining balance
         if (order.getBalanceDue().compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal receivableAmt = order.getBalanceDue().setScale(2, RoundingMode.HALF_UP);
-            System.err.println("DEBUG: Journal Line - Receivable: " + order.getCompany().getAccountsReceivableAccount().getAccountCode() + " Amount: " + receivableAmt);
+            Account recAcc = getAccountsReceivableAccount(order.getCompany());
+            System.err.println("DEBUG: Journal Line - Receivable: " + (recAcc != null ? recAcc.getAccountCode() : "NULL") + " Amount: " + receivableAmt);
             lines.add(new JournalEntryLineDto(
-                    order.getCompany().getAccountsReceivableAccount().getAccountCode(),
+                    recAcc.getAccountCode(),
                     receivableAmt,
                     true, // Debit Asset
                     "Receivable from " + order.getCustomer().getName()));
