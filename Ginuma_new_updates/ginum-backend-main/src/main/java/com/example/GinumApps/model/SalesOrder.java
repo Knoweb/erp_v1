@@ -72,7 +72,8 @@ public class SalesOrder {
     private List<SalesOrderLineItem> items = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
-    private SalesType salesType; // ITEMS or SERVICE
+    @Column(name = "sales_type", length = 50)
+    private SalesType salesType; // GOODS, SERVICES, ITEMS, SERVICE
 
     @PrePersist
     @PreUpdate

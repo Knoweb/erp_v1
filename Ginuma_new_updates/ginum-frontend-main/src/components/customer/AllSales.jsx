@@ -17,8 +17,8 @@ const AllSales = () => {
       if (!companyId) return;
       setLoading(true);
       const response = await api.get(`/api/sales-orders/company/${companyId}`);
-      if (response && response.data) {
-        setSalesOrders(Array.isArray(response.data) ? response.data : []);
+      if (response) {
+        setSalesOrders(Array.isArray(response) ? response : []);
       }
     } catch (e) {
       console.error(e);

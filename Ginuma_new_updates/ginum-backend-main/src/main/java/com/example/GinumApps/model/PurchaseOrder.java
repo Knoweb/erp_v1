@@ -75,7 +75,8 @@ public class PurchaseOrder {
 
 
     @Enumerated(EnumType.STRING)
-    private PurchaseType purchaseType; // ITEM or SERVICE
+    @Column(name = "purchase_type", length = 50)
+    private PurchaseType purchaseType; // GOODS, SERVICES, ITEMS, ITEM, SERVICE
 
 //    @ManyToOne
 //    private Project project;

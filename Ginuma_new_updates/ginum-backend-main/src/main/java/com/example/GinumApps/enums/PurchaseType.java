@@ -1,5 +1,5 @@
 package com.example.GinumApps.enums;
 
 public enum PurchaseType {
-    ITEM, SERVICE
+    GOODS, SERVICES, ITEMS, ITEM, SERVICE
 }

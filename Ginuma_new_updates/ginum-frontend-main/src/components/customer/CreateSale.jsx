@@ -316,9 +316,10 @@ const CreateSaleOrder = () => {
     setIsSubmitting(true);
     try {
       const response = await api.post(`/api/sales-orders/company/${companyId}`, payload);
-      if (response.status === 201 || response.status === 200) {
+      // api.js returns response.data directly, so we check if the request was successful (response defined)
+      if (response) {
         Alert.success("Sales order created successfully!");
-        navigate("/account/app/sales"); // Replace with correct route
+        navigate("/app/customer/sales/all"); 
       }
     } catch (error) {
       console.error("Error creating sales order:", error);
