@@ -305,7 +305,7 @@ public class PurchaseOrderService {
                     payableAcc.getAccountCode(), // From smart lookup
                     po.getBalanceDue(),
                     false, // Credit Liability
-                    "Accounts Payable to " + po.getSupplier().getName()));
+                    "Accounts Payable to " + po.getSupplier().getSupplierName()));
         }
         // Correct service call with proper DTO
         journalEntryService.createJournalEntry(entryDto);
