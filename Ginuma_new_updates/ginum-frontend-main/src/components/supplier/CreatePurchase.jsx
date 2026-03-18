@@ -295,9 +295,10 @@ const CreatePurchase = () => {
     setIsSubmitting(true);
     try {
       const response = await api.post(`/api/${companyId}/purchase-orders`, payload);
-      if (response.status === 201 || response.status === 200) {
+      // api.js returns response.data directly, so we check if the request was successful (response defined)
+      if (response) {
         Alert.success("Purchase order created successfully!");
-        navigate("/account/app/purchases");
+        navigate("/app/supplier/purchase/all");
       }
     } catch (error) {
       console.error("Error creating purchase order:", error);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiSearch, FiPlus, FiFileText, FiDollarSign } from 'react-icons/fi';
-import { apiUrl } from '../../utils/api';
+import api from '../../utils/api';
 import Alert from '../../components/Alert/Alert';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,28 +16,19 @@ const AllPurchases = () => {
   useEffect(() => {
     const fetchPurchases = async () => {
       try {
-        if (!companyId || !token) return;
+        if (!companyId) return;
         setLoading(true);
-        const response = await fetch(`${apiUrl}/api/${companyId}/purchase-orders`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setPurchases(Array.isArray(data) ? data : []);
-        } else {
-          Alert.error("Failed to load purchases");
-        }
+        const data = await api.get(`/api/${companyId}/purchase-orders`);
+        setPurchases(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
-        Alert.error("Error loading purchases");
+        Alert.error("Error loading purchase orders");
       } finally {
         setLoading(false);
       }
     };
     fetchPurchases();
-  }, [companyId, token]);
+  }, [companyId]);
 
   const filteredPurchases = purchases.filter(p =>
     (p.supplierName && p.supplierName.toLowerCase().includes(searchTerm.toLowerCase())) ||
