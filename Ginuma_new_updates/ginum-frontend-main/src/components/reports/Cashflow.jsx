@@ -38,10 +38,10 @@ function Cashflow() {
   };
 
   const formatCurrency = (amount) => {
-    if (amount === null || amount === undefined) return "$0.00";
+    if (amount === null || amount === undefined) return "Rs. 0.00";
     const formatted = new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "LKR",
     }).format(Math.abs(amount));
     return amount < 0 ? `(${formatted})` : formatted;
   };

@@ -26,8 +26,8 @@ const StatCard = ({ title, value, previous, color }) => {
   return (
     <div className="bg-white p-5 rounded-lg shadow flex flex-col items-center">
       <p className="text-gray-500 text-sm">{title}</p>
-      <p className={`text-3xl font-semibold ${color}`}>${Number(value).toLocaleString()}</p>
-      <p className="text-gray-400 text-xs">from ${Number(previous).toLocaleString()}</p>
+      <p className={`text-3xl font-semibold ${color}`}>Rs. {Number(value).toLocaleString()}</p>
+      <p className="text-gray-400 text-xs">from Rs. {Number(previous).toLocaleString()}</p>
       <span
         className={`mt-2 text-sm font-medium px-2 py-1 rounded-full ${
           isPositive ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
@@ -99,7 +99,7 @@ const DashboardPage = () => {
     labels: financeStats.topClients?.map(c => c.customerName) || [],
     datasets: [
       {
-        label: "Total Sales ($)",
+        label: "Total Sales (Rs.)",
         data: financeStats.topClients?.map(c => c.totalSales) || [],
         backgroundColor: "rgba(54, 162, 235, 0.6)",
         borderColor: "rgba(54, 162, 235, 1)",
@@ -212,11 +212,11 @@ const DashboardPage = () => {
                     <tr key={idx} className="border-b hover:bg-gray-50">
                       <td className="py-2 px-4">{client.customerName}</td>
                       <td className="py-2 px-4 text-right font-medium text-green-600">
-                        ${Number(client.totalSales).toLocaleString()}
+                        Rs. {Number(client.totalSales).toLocaleString()}
                       </td>
                       <td className="py-2 px-4 text-right">{client.orderCount}</td>
                       <td className="py-2 px-4 text-right">
-                        ${(Number(client.totalSales) / client.orderCount).toFixed(2)}
+                        Rs. {(Number(client.totalSales) / client.orderCount).toFixed(2)}
                       </td>
                     </tr>
                   ))}
@@ -261,7 +261,7 @@ const DashboardPage = () => {
                     <td className={`py-2 px-4 text-right font-medium ${
                       tx.type === 'SALE' ? 'text-green-600' : 'text-red-600'
                     }`}>
-                      ${Number(tx.amount).toLocaleString()}
+                      Rs. {Number(tx.amount).toLocaleString()}
                     </td>
                   </tr>
                 ))}

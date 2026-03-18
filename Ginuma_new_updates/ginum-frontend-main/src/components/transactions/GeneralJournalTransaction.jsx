@@ -298,10 +298,10 @@ const CreateGeneralJournalTransaction = () => {
                 </button>
               </th>
               <th className="p-2">
-                Debit ($) <span className="text-red-500">*</span>
+                Debit (Rs.) <span className="text-red-500">*</span>
               </th>
               <th className="p-2">
-                Credit ($) <span className="text-red-500">*</span>
+                Credit (Rs.) <span className="text-red-500">*</span>
               </th>
               <th className="p-2">Description</th>
               <th className="p-2"></th>

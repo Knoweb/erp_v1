@@ -18,17 +18,10 @@ export default function AgedPayables() {
       try {
         if (!companyId || !token) return;
         setLoading(true);
-        const res = await fetch(`${apiUrl}/api/companies/${companyId}/aged-payables`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setPayables(Array.isArray(data) ? data : []);
-        } else {
-          Alert.error("Failed to fetch aged payables");
-        }
+        const data = await api.get(`/api/companies/${companyId}/aged-payables`);
+        setPayables(Array.isArray(data) ? data : []);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching aged payables:", err);
         Alert.error("Error fetching aged payables");
       } finally {
         setLoading(false);

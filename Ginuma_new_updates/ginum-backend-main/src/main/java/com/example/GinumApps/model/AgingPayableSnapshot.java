@@ -17,10 +17,12 @@ public class AgingPayableSnapshot {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Company company;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supplier_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"company", "hibernateLazyInitializer", "handler"})
     private Supplier supplier;
 
     @Column(nullable = false)

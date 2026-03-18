@@ -19,7 +19,7 @@ export default function AddCustomerForm() {
     swift_no: "",
     billing_address: "",
     delivery_address: "",
-    currency: "USD",
+    currency: "LKR",
     discount: "",
     tax: "inclusive", // Options: inclusive, exclusive, no_tax
   });
@@ -389,9 +389,9 @@ export default function AddCustomerForm() {
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                 required
               >
+                <option value="LKR">LKR</option>
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
-                <option value="LKR">LKR</option>
               </select>
             </div>
 
