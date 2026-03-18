@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { apiUrl } from '../../utils/api';
+import api from '../../utils/api';
 import Alert from '../../components/Alert/Alert';
 
 export default function AgedPayables() {
