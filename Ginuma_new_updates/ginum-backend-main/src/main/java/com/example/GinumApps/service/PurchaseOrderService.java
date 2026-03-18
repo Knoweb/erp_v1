@@ -186,7 +186,9 @@ public class PurchaseOrderService {
                             .multiply(BigDecimal.valueOf(item.getQuantity()));
                     BigDecimal discount = base.multiply(item.getDiscountPercent()
                             .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
-                    return base.subtract(discount);
+                    BigDecimal lineAmount = base.subtract(discount);
+                    item.setAmount(lineAmount); // Enforce consistency
+                    return lineAmount;
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 

@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -108,7 +109,7 @@ public class JournalEntryService {
             JournalEntryLine line = new JournalEntryLine();
             line.setJournalEntry(entry);
             line.setAccount(account);
-            line.setAmount(lineDto.getAmount());
+            line.setAmount(lineDto.getAmount().setScale(2, RoundingMode.HALF_UP));
             line.setDebit(lineDto.isDebit());
             line.setDescription(lineDto.getDescription());
 
@@ -127,14 +128,8 @@ public class JournalEntryService {
     }
 
     private void updateAccountBalance(Account account, BigDecimal amount) {
-        BigDecimal newBalance = account.getCurrentBalance().add(amount);
-
-        if (newBalance.compareTo(BigDecimal.ZERO) < 0 &&
-                !account.getAccountType().getMainCategory().equals("Liability")) {
-            throw new InvalidJournalEntryException(
-                    "Account " + account.getAccountName() + " cannot have negative balance"
-            );
-        }
+        BigDecimal currentBalance = account.getCurrentBalance() != null ? account.getCurrentBalance() : BigDecimal.ZERO;
+        BigDecimal newBalance = currentBalance.add(amount);
 
         account.setCurrentBalance(newBalance);
         accountRepo.save(account);

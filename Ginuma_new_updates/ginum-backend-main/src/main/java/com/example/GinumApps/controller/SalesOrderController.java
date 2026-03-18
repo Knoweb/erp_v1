@@ -24,10 +24,20 @@ public class SalesOrderController {
             SalesOrderResponseDto response = salesOrderService.createSalesOrder(requestDto, companyId);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
+            System.err.println("CRITICAL ERROR in createSalesOrder: " + e.getMessage());
             e.printStackTrace(); // Log on server
             java.util.Map<String, String> errorResponse = new java.util.HashMap<>();
-            errorResponse.put("message", e.getMessage());
-            errorResponse.put("error", e.getClass().getSimpleName());
+            
+            // Get the root cause message if possible
+            Throwable cause = e;
+            while(cause.getCause() != null) cause = cause.getCause();
+            
+            String message = cause.getMessage();
+            if (message == null || message.isEmpty()) {
+                message = "An unexpected error occurred: " + cause.getClass().getSimpleName();
+            }
+            errorResponse.put("message", message);
+            errorResponse.put("error", cause.getClass().getSimpleName());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }

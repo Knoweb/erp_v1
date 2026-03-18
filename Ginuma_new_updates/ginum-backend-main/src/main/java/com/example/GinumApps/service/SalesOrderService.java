@@ -88,15 +88,30 @@ public class SalesOrderService {
         order.setSalesType(request.getSalesType());
         order.setFreight(request.getFreight());
         order.setTaxPercent(request.getTaxPercent());
-        order.setTaxAmount(request.getTaxAmount());
+        order.setTaxAmount(request.getTaxAmount().setScale(2, RoundingMode.HALF_UP));
 
+        System.err.println("DEBUG: Starting processItems for " + order.getSoNumber());
         processItems(request.getItems(), order, company);
+        
+        System.err.println("DEBUG: Starting calculateFinancials");
         calculateFinancials(order);
+        
+        System.err.println("DEBUG: Starting validateCompanyAccounts");
         validateCompanyAccounts(company, order);
 
-        SalesOrder savedOrder = (SalesOrder) salesOrderRepo.save(order);
-        createJournalEntries(savedOrder);
+        System.err.println("DEBUG: Saving SalesOrder to DB");
+        SalesOrder savedOrder = salesOrderRepo.save(order);
+        
+        System.err.println("DEBUG: Creating Journal Entries");
+        try {
+            createJournalEntries(savedOrder);
+        } catch (Exception je) {
+            System.err.println("DEBUG: CRITICAL ERROR in Journal Entry creation: " + je.getMessage());
+            je.printStackTrace();
+            throw je;
+        }
 
+        System.err.println("DEBUG: Sales Order Created Successfully");
         return convertToDto(savedOrder);
     }
 
@@ -138,19 +153,25 @@ public class SalesOrderService {
                 .map(item -> {
                     BigDecimal base = item.getUnitPrice()
                             .multiply(BigDecimal.valueOf(item.getQuantity()));
-                    BigDecimal discount = base.multiply(item.getDiscountPercent()
+                    BigDecimal discountAmt = base.multiply(item.getDiscountPercent()
                             .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
-                    return base.subtract(discount);
+                    BigDecimal lineAmount = base.subtract(discountAmt).setScale(2, RoundingMode.HALF_UP);
+                    item.setAmount(lineAmount);
+                    return lineAmount;
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        order.setSubtotal(subtotal);
-        BigDecimal subtotalPlusFreight = subtotal.add(order.getFreight() != null ? order.getFreight() : BigDecimal.ZERO);
-        order.setTaxAmount(subtotalPlusFreight.multiply(order.getTaxPercent() != null ? order.getTaxPercent() : BigDecimal.ZERO)
-                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP));
+        order.setSubtotal(subtotal.setScale(2, RoundingMode.HALF_UP));
+        BigDecimal freight = order.getFreight() != null ? order.getFreight().setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO;
+        order.setFreight(freight);
+
+        BigDecimal subtotalPlusFreight = subtotal.add(freight);
+        BigDecimal taxAmount = subtotalPlusFreight.multiply(order.getTaxPercent() != null ? order.getTaxPercent() : BigDecimal.ZERO)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        order.setTaxAmount(taxAmount);
         
-        order.setTotal(subtotalPlusFreight.add(order.getTaxAmount()));
-        order.setBalanceDue(order.getTotal().subtract(order.getAmountPaid() != null ? order.getAmountPaid() : BigDecimal.ZERO));
+        order.setTotal(subtotalPlusFreight.add(taxAmount).setScale(2, RoundingMode.HALF_UP));
+        order.setBalanceDue(order.getTotal().subtract(order.getAmountPaid() != null ? order.getAmountPaid().setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO));
     }
 
     private void validateCompanyAccounts(Company company, SalesOrder order) {
@@ -185,8 +206,9 @@ public class SalesOrderService {
                     .multiply(BigDecimal.valueOf(item.getQuantity()));
             BigDecimal discount = lineTotal.multiply(item.getDiscountPercent()
                     .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
-            BigDecimal amountAfterDiscount = lineTotal.subtract(discount);
+            BigDecimal amountAfterDiscount = lineTotal.subtract(discount).setScale(2, RoundingMode.HALF_UP);
 
+            System.err.println("DEBUG: Journal Line - Revenue: " + item.getAccount().getAccountCode() + " Amount: " + amountAfterDiscount);
             lines.add(new JournalEntryLineDto(
                     item.getAccount().getAccountCode(),
                     amountAfterDiscount,
@@ -196,36 +218,44 @@ public class SalesOrderService {
 
         // Credit Freight Revenue if applicable
         if (order.getFreight().compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal freightAmt = order.getFreight().setScale(2, RoundingMode.HALF_UP);
+            System.err.println("DEBUG: Journal Line - Freight: " + order.getCompany().getFreightAccount().getAccountCode() + " Amount: " + freightAmt);
             lines.add(new JournalEntryLineDto(
                     order.getCompany().getFreightAccount().getAccountCode(),
-                    order.getFreight(),
+                    freightAmt,
                     false, // Credit Freight Revenue
                     "Freight Charges"));
         }
 
         // Credit Tax Liability if applicable
         if (order.getTaxAmount().compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal taxAmt = order.getTaxAmount().setScale(2, RoundingMode.HALF_UP);
+            System.err.println("DEBUG: Journal Line - Tax: " + order.getCompany().getTaxAccount().getAccountCode() + " Amount: " + taxAmt);
             lines.add(new JournalEntryLineDto(
                     order.getCompany().getTaxAccount().getAccountCode(),
-                    order.getTaxAmount(),
+                    taxAmt,
                     false, // Credit Tax
                     "Sales Tax"));
         }
 
         // Debit payment account if payment made (Cash/Bank)
         if (order.getAmountPaid().compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal paidAmt = order.getAmountPaid().setScale(2, RoundingMode.HALF_UP);
+            System.err.println("DEBUG: Journal Line - Payment: " + order.getPaymentAccount().getAccountCode() + " Amount: " + paidAmt);
             lines.add(new JournalEntryLineDto(
                     order.getPaymentAccount().getAccountCode(),
-                    order.getAmountPaid(),
+                    paidAmt,
                     true, // Debit Asset
                     "Received Payment"));
         }
 
         // Debit Accounts Receivable for remaining balance
         if (order.getBalanceDue().compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal receivableAmt = order.getBalanceDue().setScale(2, RoundingMode.HALF_UP);
+            System.err.println("DEBUG: Journal Line - Receivable: " + order.getCompany().getAccountsReceivableAccount().getAccountCode() + " Amount: " + receivableAmt);
             lines.add(new JournalEntryLineDto(
                     order.getCompany().getAccountsReceivableAccount().getAccountCode(),
-                    order.getBalanceDue(),
+                    receivableAmt,
                     true, // Debit Asset
                     "Receivable from " + order.getCustomer().getName()));
         }
