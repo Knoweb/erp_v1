@@ -44,6 +44,7 @@ public class RegistrationOrchestratorService {
     // System endpoint configurations (using Docker internal service names)
     private static final String GINUMA_SETUP_ENDPOINT = "http://ginuma-service:8081/api/tenant/setup";
     private static final String INVENTORY_SETUP_ENDPOINT = "http://user-service:8086/api/users/org/setup";
+    private static final String PIRISA_SETUP_ENDPOINT = "http://152.42.213.138:8080/api/company/register";
 
     /**
      * Main orchestration method
@@ -233,44 +234,23 @@ public class RegistrationOrchestratorService {
      * - ALL_IN_ONE: Setup both Ginuma ERP and Inventory System for unified access
      */
     private SystemSetupResponse routeToSystemSetup(UnifiedRegistrationRequest request, Long orgId) {
-        if (request.isGinumaSystem()) {
-            return setupGinumaSystem(request, orgId);
-        } else if (request.isInventorySystem()) {
-            // FIX: For Inventory registrations, we also need to create the company in
-            // Ginuma
-            // to ensure unified data and allow the company to appear in the switch-app
-            // list.
-            log.info("Inventory system selected - performing mandatory Ginuma setup for unified company data");
-            setupGinumaSystem(request, orgId);
-            return setupInventorySystem(request, orgId);
+        log.info("Performing mandatory multi-system setup for unified experience (orgId: {})", orgId);
+
+        // Always perform cross-system registration to ensure all modules are ready
+        // Regardless of which landing page or selection was made
+        SystemSetupResponse ginumaResponse = setupGinumaSystem(request, orgId);
+        SystemSetupResponse inventoryResponse = setupInventorySystem(request, orgId);
+        SystemSetupResponse pirisaResponse = setupPirisaHRSystem(request, orgId);
+
+        log.info("Multi-system setup completed for org_id: {}", orgId);
+
+        // Return the appropriate response based on selection (or pirisa as default)
+        if (request.isInventorySystem()) {
+            return inventoryResponse;
         } else if (request.isPirisaHRSystem()) {
-            // PirisaHR is part of Ginuma ecosystem, route to Ginuma setup
-            log.info("PirisaHR system selected, routing to Ginuma ERP setup");
-            return setupGinumaSystem(request, orgId);
-        } else if (request.isAllInOneSystem()) {
-            // All In One: Setup both systems for unified access
-            log.info("All In One system selected, setting up both Ginuma and Inventory");
-
-            SystemSetupResponse ginumaResponse = setupGinumaSystem(request, orgId);
-            SystemSetupResponse inventoryResponse = setupInventorySystem(request, orgId);
-
-            // Return combined response
-            boolean bothSuccessful = ginumaResponse.isSuccess() && inventoryResponse.isSuccess();
-            return SystemSetupResponse.builder()
-                    .success(bothSuccessful)
-                    .message(bothSuccessful
-                            ? "All In One setup completed successfully"
-                            : "All In One setup partially failed")
-                    .orgId(orgId)
-                    .tenantId(ginumaResponse.getTenantId())
-                    .errorCode(bothSuccessful ? null : "PARTIAL_SETUP_FAILURE")
-                    .errorDetails(bothSuccessful ? null
-                            : String.format("Ginuma: %s, Inventory: %s",
-                                    ginumaResponse.getMessage(),
-                                    inventoryResponse.getMessage()))
-                    .build();
+            return pirisaResponse;
         } else {
-            throw new IllegalArgumentException("Unsupported system: " + request.getSelectedSystem());
+            return ginumaResponse;
         }
     }
 
@@ -399,6 +379,59 @@ public class RegistrationOrchestratorService {
                     .success(false)
                     .message("Inventory setup failed")
                     .errorCode("INVENTORY_SETUP_ERROR")
+                    .errorDetails(e.getMessage())
+                    .build();
+        }
+    }
+
+    /**
+     * Setup PirisaHR System
+     * Makes REST call to: http://152.42.213.138:8080/api/company/register
+     * Data saved to: pirisa_db (separate droplet)
+     */
+    private SystemSetupResponse setupPirisaHRSystem(UnifiedRegistrationRequest request, Long orgId) {
+        log.info("Setting up PirisaHR System for org_id: {} on remote IP", orgId);
+
+        try {
+            // Build request Map for Pirisa (matching CompanyRegistrationRequest)
+            java.util.Map<String, Object> pirisaRequest = new java.util.HashMap<>();
+            pirisaRequest.put("cmpName", request.getCompanyName());
+            pirisaRequest.put("cmpEmail", request.getEmail());
+            pirisaRequest.put("cmpPhone", request.getContactPhone());
+            pirisaRequest.put("cmpAddress", request.getRegisteredAddress());
+            pirisaRequest.put("username", request.getEmail()); // Use email as username for SSO link
+            pirisaRequest.put("password", request.getPassword());
+            pirisaRequest.put("orgId", orgId); // Unified orgId
+
+            // Make HTTP POST request
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<java.util.Map<String, Object>> entity = new HttpEntity<>(pirisaRequest, headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    PIRISA_SETUP_ENDPOINT,
+                    HttpMethod.POST,
+                    entity,
+                    String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.info("PirisaHR setup successful for org_id: {}", orgId);
+                return SystemSetupResponse.builder()
+                        .success(true)
+                        .message("PirisaHR setup completed successfully")
+                        .orgId(orgId)
+                        .build();
+            } else {
+                throw new RuntimeException("PirisaHR setup failed with status: " + response.getStatusCode());
+            }
+
+        } catch (Exception e) {
+            log.error("Failed to setup PirisaHR system for org_id: {}, error: {}", orgId, e.getMessage(), e);
+
+            return SystemSetupResponse.builder()
+                    .success(false)
+                    .message("PirisaHR setup failed")
+                    .errorCode("PIRISA_SETUP_ERROR")
                     .errorDetails(e.getMessage())
                     .build();
         }
