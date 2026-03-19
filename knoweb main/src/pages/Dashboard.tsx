@@ -27,7 +27,7 @@ const URLS = {
   main: `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5173' : '3000'}`,
   ginuma: `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5176' : '3001'}`,
   inventory: `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5174' : '3002'}`,
-  pirisahr: `${PROTOCOL}//${HOST}:${IS_LOCAL ? '5175' : '3003'}`,
+  pirisahr: IS_LOCAL ? `${PROTOCOL}//${HOST}:5175` : 'http://152.42.213.138',
   subscription: `${PROTOCOL}//${HOST}:8091`,
   gateway: `${PROTOCOL}//${HOST}:8080`
 };
@@ -401,6 +401,7 @@ const Dashboard = () => {
     sessionStorage.clear();
 
     // Build SSO logout chain URLs
+    const pirisaLogoutUrl = `${URLS.pirisahr}/auth/logout`;
     const inventoryLogoutUrl = `${URLS.inventory}/auth/logout`;
     const ginumaLogoutUrl = `${URLS.ginuma}/account/auth/logout`;
     const finalReturnUrl = `${URLS.main}/login`;
@@ -411,9 +412,12 @@ const Dashboard = () => {
 
     // Inventory (5174) will redirect to: Ginuma with returnTo=finalReturnUrl
     const inventoryReturnTo = `${ginumaLogoutUrl}?returnTo=${encodeURIComponent(ginumaReturnTo)}`;
+    
+    // PirisaHR (Remote Droplet) will redirect to: Inventory with returnTo=Ginuma URL
+    const pirisaReturnTo = `${inventoryLogoutUrl}?returnTo=${encodeURIComponent(inventoryReturnTo)}`;
 
-    // Main Dashboard (5173) redirects to: Inventory with returnTo=Ginuma URL
-    const chainStartUrl = `${inventoryLogoutUrl}?returnTo=${encodeURIComponent(inventoryReturnTo)}`;
+    // Main Dashboard (5173) initiates logout starting with PirisaHR
+    const chainStartUrl = `${pirisaLogoutUrl}?returnTo=${encodeURIComponent(pirisaReturnTo)}`;
 
     // Validate that the chain includes the correct Ginuma logout path
     if (!inventoryReturnTo.includes('/account/auth/logout')) {
