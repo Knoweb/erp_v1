@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class JwtResponse {
+
     private String token;
     private String refreshToken;
     private String type = "Bearer";
