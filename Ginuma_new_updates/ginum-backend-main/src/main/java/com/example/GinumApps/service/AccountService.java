@@ -1,6 +1,7 @@
 package com.example.GinumApps.service;
 
 import com.example.GinumApps.dto.AccountRequestDto;
+import java.math.BigDecimal;
 import com.example.GinumApps.dto.AccountResponseDto;
 import com.example.GinumApps.enums.AccountType;
 import com.example.GinumApps.model.Account;
@@ -62,6 +63,7 @@ public class AccountService {
         account.setSubAccountName(request.getSubAccountName());
         account.setAccountType(request.getAccountType());
         account.setCurrentBalance(request.getCurrentBalance());
+        account.setOpeningBalance(request.getCurrentBalance() != null ? request.getCurrentBalance() : BigDecimal.ZERO);
         account.setCompany(company);
         account.setAccountCode(accountCode);
 

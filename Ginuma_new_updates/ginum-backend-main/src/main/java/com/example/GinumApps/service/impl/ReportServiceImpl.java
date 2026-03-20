@@ -210,13 +210,28 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private BigDecimal calculateOpeningBalance(Long accountId, LocalDate beforeDate) {
+        Account account = accountRepository.findById(accountId).orElse(null);
+        if (account == null) return BigDecimal.ZERO;
+
+        BigDecimal initialBase = account.getOpeningBalance();
+        if (initialBase == null) {
+            // Fallback for existing accounts: Initial = Current - Net Sum of all JEs
+            List<JournalEntryLine> allLines = journalEntryLineRepository.findByAccount(accountId);
+            BigDecimal netEffect = BigDecimal.ZERO;
+            for (JournalEntryLine line : allLines) {
+                if (account.getAccountType().isDebitType()) {
+                    netEffect = line.isDebit() ? netEffect.add(line.getAmount()) : netEffect.subtract(line.getAmount());
+                } else {
+                    netEffect = !line.isDebit() ? netEffect.add(line.getAmount()) : netEffect.subtract(line.getAmount());
+                }
+            }
+            initialBase = account.getCurrentBalance() != null ? account.getCurrentBalance().subtract(netEffect) : BigDecimal.ZERO;
+        }
+
         List<JournalEntryLine> lines = journalEntryLineRepository
                 .findByAccountBeforeDate(accountId, beforeDate);
 
-        BigDecimal balance = BigDecimal.ZERO;
-        Account account = accountRepository.findById(accountId).orElse(null);
-        
-        if (account == null) return balance;
+        BigDecimal balance = initialBase;
 
         for (JournalEntryLine line : lines) {
             if (account.getAccountType().isDebitType()) {

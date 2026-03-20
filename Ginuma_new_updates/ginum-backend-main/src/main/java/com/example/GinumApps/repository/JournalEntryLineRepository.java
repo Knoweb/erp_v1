@@ -30,4 +30,7 @@ public interface JournalEntryLineRepository extends JpaRepository<JournalEntryLi
     List<JournalEntryLine> findByAccountBeforeDate(
             @Param("accountId") Long accountId,
             @Param("beforeDate") LocalDate beforeDate);
+
+    @Query("SELECT jel FROM JournalEntryLine jel WHERE jel.account.id = :accountId")
+    List<JournalEntryLine> findByAccount(@Param("accountId") Long accountId);
 }

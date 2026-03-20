@@ -49,6 +49,9 @@ public class Account {
     @Column(precision = 19, scale = 2)
     private BigDecimal currentBalance;
 
+    @Column(precision = 19, scale = 2)
+    private BigDecimal openingBalance;
+
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     @JsonIgnore
