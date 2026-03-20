@@ -24,7 +24,7 @@ function IncomeStatement() {
           params: { startDate, endDate },
         }
       );
-      setReportData(response.data);
+      setReportData(response);
     } catch (error) {
       console.error("Error fetching income statement:", error);
       Alert.error("Failed to load income statement");

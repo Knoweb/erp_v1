@@ -23,7 +23,7 @@ function BalanceSheet() {
           params: { asOfDate },
         }
       );
-      setReportData(response.data);
+      setReportData(response);
     } catch (error) {
       console.error("Error fetching balance sheet:", error);
       Alert.error("Failed to load balance sheet");
