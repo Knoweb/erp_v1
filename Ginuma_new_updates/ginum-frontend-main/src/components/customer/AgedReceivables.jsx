@@ -231,11 +231,11 @@ export default function AgedReceivables() {
               {paginatedData.map((row, index) => (
                 <tr key={index} className="hover:bg-gray-50">
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{row.customer}</td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${parseFloat(row.notDueYet).toFixed(2)}</td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${parseFloat(row.age1).toFixed(2)}</td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${parseFloat(row.age2).toFixed(2)}</td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${parseFloat(row.age3).toFixed(2)}</td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 font-semibold">${parseFloat(row.total).toFixed(2)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">Rs. {parseFloat(row.notDueYet).toFixed(2)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">Rs. {parseFloat(row.age1).toFixed(2)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">Rs. {parseFloat(row.age2).toFixed(2)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">Rs. {parseFloat(row.age3).toFixed(2)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 font-semibold">Rs. {parseFloat(row.total).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -265,12 +265,12 @@ export default function AgedReceivables() {
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{row.invoice}</td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{row.invoiceDate}</td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{row.dueDate}</td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${parseFloat(row.notDueYet).toFixed(2)}</td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${parseFloat(row.age1).toFixed(2)}</td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${parseFloat(row.age2).toFixed(2)}</td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${parseFloat(row.age3).toFixed(2)}</td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 font-semibold">${parseFloat(row.total).toFixed(2)}</td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 font-bold">${parseFloat(row.balance).toFixed(2)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">Rs. {parseFloat(row.notDueYet).toFixed(2)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">Rs. {parseFloat(row.age1).toFixed(2)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">Rs. {parseFloat(row.age2).toFixed(2)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">Rs. {parseFloat(row.age3).toFixed(2)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 font-semibold">Rs. {parseFloat(row.total).toFixed(2)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 font-bold">Rs. {parseFloat(row.balance).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>

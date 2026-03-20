@@ -161,7 +161,7 @@ function GeneralLedger() {
           <div className="mb-4 flex justify-between items-center bg-gray-50 p-4 rounded-lg">
             <span className="font-semibold text-gray-700">Opening Balance:</span>
             <span className="text-lg font-bold text-gray-900">
-              ${parseFloat(ledgerData.openingBalance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              Rs. {parseFloat(ledgerData.openingBalance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
             </span>
           </div>
 
@@ -188,13 +188,13 @@ function GeneralLedger() {
                       <td className="py-3 px-4 text-gray-700">{tx.referenceNo}</td>
                       <td className="py-3 px-4 text-gray-800">{tx.description}</td>
                       <td className="py-3 px-4 text-right text-gray-800">
-                        {tx.debit > 0 && `$${parseFloat(tx.debit).toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                        {tx.debit > 0 && `Rs. ${parseFloat(tx.debit).toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
                       </td>
                       <td className="py-3 px-4 text-right text-gray-800">
-                        {tx.credit > 0 && `$${parseFloat(tx.credit).toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                        {tx.credit > 0 && `Rs. ${parseFloat(tx.credit).toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
                       </td>
                       <td className="py-3 px-4 text-right font-medium text-gray-900">
-                        ${parseFloat(tx.balance).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        Rs. {parseFloat(tx.balance).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                       </td>
                     </tr>
                   ))
@@ -213,7 +213,7 @@ function GeneralLedger() {
           <div className="mt-4 flex justify-between items-center bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
             <span className="font-semibold text-gray-700">Closing Balance:</span>
             <span className="text-xl font-bold text-blue-600">
-              ${parseFloat(ledgerData.closingBalance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              Rs. {parseFloat(ledgerData.closingBalance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
             </span>
           </div>
         </div>

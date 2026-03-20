@@ -148,11 +148,11 @@ function TrialBalance() {
                           <td className="py-2 px-4 text-gray-800">{account.accountName}</td>
                           <td className="py-2 px-4 text-right text-gray-800">
                             {account.debitBalance > 0 && 
-                              `$${parseFloat(account.debitBalance).toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                              `Rs. ${parseFloat(account.debitBalance).toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
                           </td>
                           <td className="py-2 px-4 text-right text-gray-800">
                             {account.creditBalance > 0 && 
-                              `$${parseFloat(account.creditBalance).toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                              `Rs. ${parseFloat(account.creditBalance).toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
                           </td>
                         </tr>
                       ))}
@@ -161,11 +161,11 @@ function TrialBalance() {
                         <td colSpan="2" className="py-2 px-4 text-gray-800">{category} Total</td>
                         <td className="py-2 px-4 text-right text-gray-800">
                           {categoryTotalDebit > 0 && 
-                            `$${categoryTotalDebit.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                            `Rs. ${categoryTotalDebit.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
                         </td>
                         <td className="py-2 px-4 text-right text-gray-800">
                           {categoryTotalCredit > 0 && 
-                            `$${categoryTotalCredit.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                            `Rs. ${categoryTotalCredit.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
                         </td>
                       </tr>
                     </tbody>
@@ -183,13 +183,13 @@ function TrialBalance() {
                 <div className="text-right">
                   <div className="text-sm text-gray-600">Debit</div>
                   <div className="text-xl font-bold text-blue-600">
-                    ${parseFloat(trialBalanceData.totalDebits || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    Rs. {parseFloat(trialBalanceData.totalDebits || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="text-sm text-gray-600">Credit</div>
                   <div className="text-xl font-bold text-blue-600">
-                    ${parseFloat(trialBalanceData.totalCredits || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    Rs. {parseFloat(trialBalanceData.totalCredits || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </div>
                 </div>
               </div>
@@ -197,7 +197,7 @@ function TrialBalance() {
             {!trialBalanceData.balanced && (
               <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
                 <p className="text-red-700 font-medium">
-                  ⚠️ Difference: ${Math.abs(trialBalanceData.totalDebits - trialBalanceData.totalCredits).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  ⚠️ Difference: Rs. {Math.abs(trialBalanceData.totalDebits - trialBalanceData.totalCredits).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </p>
                 <p className="text-red-600 text-sm mt-1">The trial balance is not balanced. Please check your journal entries.</p>
               </div>

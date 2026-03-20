@@ -104,11 +104,11 @@ const AllSales = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{so.soNumber}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{so.customerName}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{so.issueDate}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">${so.total?.toFixed(2)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">Rs. {so.total?.toFixed(2)}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${so.balanceDue <= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                         }`}>
-                        ${so.balanceDue?.toFixed(2)}
+                        Rs. {so.balanceDue?.toFixed(2)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

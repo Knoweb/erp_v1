@@ -93,7 +93,7 @@ function AllAccounts() {
 
   const formatBalance = (balance) => {
     if (balance === null || balance === undefined) return "Rs. 0.00";
-    return `$${parseFloat(balance).toLocaleString(undefined, {
+    return `Rs. ${parseFloat(balance).toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;

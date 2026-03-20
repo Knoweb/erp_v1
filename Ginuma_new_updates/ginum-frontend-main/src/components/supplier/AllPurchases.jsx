@@ -115,8 +115,7 @@ const AllPurchases = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-bold text-gray-900 flex items-center">
-                        <FiDollarSign className="text-gray-400 mr-1" />
-                        {po.total?.toFixed(2) || '0.00'}
+                        Rs. {po.total?.toFixed(2) || '0.00'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

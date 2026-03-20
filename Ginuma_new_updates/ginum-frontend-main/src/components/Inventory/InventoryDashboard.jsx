@@ -178,10 +178,10 @@ const InventoryDashboard = () => {
                     </span>
                   </td>
                   <td className="py-3 px-4">
-                    {item.averageCost != null ? `$${parseFloat(item.averageCost).toFixed(2)}` : '—'}
+                    {item.averageCost != null ? `Rs. ${parseFloat(item.averageCost).toFixed(2)}` : '—'}
                   </td>
                   <td className="py-3 px-4 font-medium text-blue-700">
-                    {item.totalValue != null ? `$${parseFloat(item.totalValue).toFixed(2)}` : '—'}
+                    {item.totalValue != null ? `Rs. ${parseFloat(item.totalValue).toFixed(2)}` : '—'}
                   </td>
                   <td className="py-3 px-4 text-gray-500">
                     {item.reorderLevel != null ? parseFloat(item.reorderLevel) : '—'}
