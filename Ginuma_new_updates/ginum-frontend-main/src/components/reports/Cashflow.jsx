@@ -24,7 +24,7 @@ function Cashflow() {
           params: { startDate, endDate },
         }
       );
-      setReportData(response.data);
+      setReportData(response);
     } catch (error) {
       console.error("Error fetching cashflow statement:", error);
       Alert.error("Failed to load cashflow statement");
