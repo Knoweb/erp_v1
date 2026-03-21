@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/sales-orders")
 @RequiredArgsConstructor
 public class SalesOrderController {
-
     private final SalesOrderService salesOrderService;
 
     @PostMapping("/company/{companyId}")
@@ -27,11 +26,12 @@ public class SalesOrderController {
             System.err.println("CRITICAL ERROR in createSalesOrder: " + e.getMessage());
             e.printStackTrace(); // Log on server
             java.util.Map<String, String> errorResponse = new java.util.HashMap<>();
-            
+
             // Get the root cause message if possible
             Throwable cause = e;
-            while(cause.getCause() != null) cause = cause.getCause();
-            
+            while (cause.getCause() != null)
+                cause = cause.getCause();
+
             String message = cause.getMessage();
             if (message == null || message.isEmpty()) {
                 message = "An unexpected error occurred: " + cause.getClass().getSimpleName();
