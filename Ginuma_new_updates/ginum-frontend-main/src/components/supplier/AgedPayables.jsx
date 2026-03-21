@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import Alert from '../../components/Alert/Alert';
 
 export default function AgedPayables() {
+  const navigate = useNavigate();
   const [payables, setPayables] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -71,6 +73,23 @@ export default function AgedPayables() {
     Alert.info('Export functionality coming soon!');
   };
 
+  const handlePayBill = (row) => {
+    if (!row) {
+      Alert.info("Please select a specific bill from the list to pay.");
+      return;
+    }
+    
+    // Redirect to Spend Money with pre-filled details
+    const params = new URLSearchParams({
+      amount: row.balanceDue,
+      payeeId: row.supplier?.id,
+      payeeType: 'SUPPLIER',
+      description: `Payment for PO: ${row.poNumber}`
+    });
+    
+    navigate(`/app/bank/spend-money?${params.toString()}`);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center flex-col items-center h-64">
@@ -111,7 +130,12 @@ export default function AgedPayables() {
         </button>
 
         <div className="flex space-x-2 md:ml-auto w-full md:w-auto justify-end">
-          <button className="px-4 py-2 bg-green-600 hover:bg-green-700 transition-colors text-white rounded-md">Pay Bill</button>
+          <button 
+            onClick={() => handlePayBill(paginatedData[0])}
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 transition-colors text-white rounded-md"
+          >
+            Pay Bill
+          </button>
         </div>
       </div>
 

@@ -6,15 +6,19 @@ import Alert from "../Alert/Alert";
 import PayerPayee from "../PayerPayee/PayerPayee";
 import AddAccountForm from "../account/AddAccountForm";
 import { AccountContext, filterAccountsByContext } from "../../utils/accountFilters";
+import { useLocation } from "react-router-dom";
 
 const MoneyTransaction = ({ type = "spend" }) => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+
   const [date, setDate] = useState(new Date().toISOString().substring(0, 10));
   const [selectedBankAccountId, setSelectedBankAccountId] = useState("");
-  const [payeeType, setPayeeType] = useState("SUPPLIER");
-  const [payeeId, setPayeeId] = useState("");
+  const [payeeType, setPayeeType] = useState(searchParams.get("payeeType") || "SUPPLIER");
+  const [payeeId, setPayeeId] = useState(searchParams.get("payeeId") || "");
   const [chargeAccountId, setChargeAccountId] = useState("");
-  const [amount, setAmount] = useState("");
-  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState(searchParams.get("amount") || "");
+  const [description, setDescription] = useState(searchParams.get("description") || "");
   const [paymentMethod, setPaymentMethod] = useState("BANK_TRANSFER");
   const [referenceNumber, setReferenceNumber] = useState("");
 
