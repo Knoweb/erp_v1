@@ -361,10 +361,9 @@ public class SalesOrderService {
                 "Customer payment received"));
 
         // Credit accounts receivable
-        Account arAccount = order.getCompany().getAccountsReceivableAccount();
+        Account arAccount = getAccountsReceivableAccount(order.getCompany());
         if (arAccount == null) {
-            arAccount = accountRepo.findByAccountCodeAndCompany_CompanyId("1200", request.getCompanyId())
-                    .orElseThrow(() -> new ResourceNotFoundException("No Accounts Receivable account (Code 1200) found for this company. Please configure it in settings."));
+            throw new ResourceNotFoundException("No Accounts Receivable account (Code 1100) found for this company. Please configure it in Chart of Accounts.");
         }
         
         lines.add(new JournalEntryLineDto(
