@@ -29,5 +29,8 @@ public class JournalEntryLine {
     private BigDecimal amount;
 
     @Column(nullable = false)
-    private boolean debit;
+    private boolean reconciled = false;
+
+    @Column
+    private java.time.LocalDate reconciledDate;
 }

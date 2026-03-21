@@ -161,10 +161,10 @@ public class ReportServiceImpl implements ReportService {
             throw new RuntimeException("Bank account does not belong to this company");
         }
 
-        // Get all money transactions for this bank account up to statement date
-        List<MoneyTransaction> transactions = moneyTransactionRepository
-                .findByBankAccount_IdAndTransactionDateLessThanEqualOrderByTransactionDateDesc(
-                    bankAccountId, statementDate);
+        // IMPORTANT: We now fetch transactions from JournalEntryLine instead of MoneyTransaction
+        // This ensures ALL GL impact on the bank account is included (Payments, Receipts, Manual Entries, etc.)
+        List<JournalEntryLine> transactions = journalEntryLineRepository
+                .findByAccountAndDateDesc(bankAccountId, statementDate);
 
         BigDecimal systemBalance = bankAccount.getCurrentBalance() != null 
                 ? bankAccount.getCurrentBalance() : BigDecimal.ZERO;
@@ -172,11 +172,14 @@ public class ReportServiceImpl implements ReportService {
         BigDecimal clearedBalance = BigDecimal.ZERO;
         List<BankReconciliationDto.TransactionItemDto> transactionItems = new ArrayList<>();
 
-        for (MoneyTransaction tx : transactions) {
-            String type = tx.getType().toString().equals("MONEY_IN") ? "deposit" : "withdrawal";
-            BigDecimal amount = BigDecimal.valueOf(tx.getAmount());
+        for (JournalEntryLine jel : transactions) {
+            JournalEntry je = jel.getJournalEntry();
+            
+            // Debit bank account = Deposit, Credit bank account = Withdrawal
+            String type = jel.isDebit() ? "deposit" : "withdrawal";
+            BigDecimal amount = jel.getAmount();
 
-            if (tx.isReconciled()) {
+            if (jel.isReconciled()) {
                 if (type.equals("deposit")) {
                     clearedBalance = clearedBalance.add(amount);
                 } else {
@@ -185,15 +188,14 @@ public class ReportServiceImpl implements ReportService {
             }
 
             transactionItems.add(BankReconciliationDto.TransactionItemDto.builder()
-                    .transactionId(Long.valueOf(tx.getId()))
-                    .date(tx.getTransactionDate())
-                    .referenceNo(tx.getTransactionNumber())
-                    .description(tx.getDescription() != null ? tx.getDescription() : 
-                                tx.getType() + " - " + tx.getPayeeName())
+                    .transactionId(jel.getId())
+                    .date(je.getEntryDate())
+                    .referenceNo(je.getReferenceNo())
+                    .description(jel.getDescription() != null ? jel.getDescription() : je.getJournalTitle())
                     .type(type)
                     .amount(amount)
-                    .reconciled(tx.isReconciled())
-                    .reconciledDate(tx.getReconciledDate())
+                    .reconciled(jel.isReconciled())
+                    .reconciledDate(jel.getReconciledDate())
                     .build());
         }
 
@@ -216,7 +218,7 @@ public class ReportServiceImpl implements ReportService {
         BigDecimal initialBase = account.getOpeningBalance();
         if (initialBase == null) {
             // Fallback for existing accounts: Initial = Current - Net Sum of all JEs
-            List<JournalEntryLine> allLines = journalEntryLineRepository.findByAccount(accountId);
+            List<JournalEntryLine> allLines = journalEntryLineRepository.findByAccountAndDateDesc(accountId, LocalDate.now().plusYears(100));
             BigDecimal netEffect = BigDecimal.ZERO;
             for (JournalEntryLine line : allLines) {
                 if (account.getAccountType().isDebitType()) {
@@ -254,17 +256,17 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public void markTransactionReconciled(Integer companyId, Long transactionId, boolean reconciled) {
-        MoneyTransaction transaction = moneyTransactionRepository.findById(transactionId.intValue())
-                .orElseThrow(() -> new RuntimeException("Transaction not found"));
+        JournalEntryLine jel = journalEntryLineRepository.findById(transactionId)
+                .orElseThrow(() -> new RuntimeException("Transaction line not found"));
 
         // Verify transaction belongs to the company
-        if (!transaction.getBankAccount().getCompany().getCompanyId().equals(companyId)) {
+        if (!jel.getAccount().getCompany().getCompanyId().equals(companyId)) {
             throw new RuntimeException("Transaction does not belong to this company");
         }
 
-        transaction.setReconciled(reconciled);
-        transaction.setReconciledDate(reconciled ? LocalDate.now() : null);
-        moneyTransactionRepository.save(transaction);
+        jel.setReconciled(reconciled);
+        jel.setReconciledDate(reconciled ? LocalDate.now() : null);
+        journalEntryLineRepository.save(jel);
     }
 
     @Override
