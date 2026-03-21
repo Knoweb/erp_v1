@@ -29,6 +29,9 @@ public class JournalEntryLine {
     private BigDecimal amount;
 
     @Column(nullable = false)
+    private boolean debit;
+
+    @Column(nullable = false)
     private boolean reconciled = false;
 
     @Column
