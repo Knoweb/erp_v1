@@ -56,7 +56,7 @@ public class SalesOrderController {
         return ResponseEntity.ok(salesOrderService.getAllSalesOrdersByCompany(companyId));
     }
 
-    @PostMapping("/company/{companyId}/{soId}/pay")
+    @PostMapping("/company/{companyId}/pay/{soId}")
     public ResponseEntity<?> paySalesOrder(
             @PathVariable Integer companyId,
             @PathVariable Long soId,
