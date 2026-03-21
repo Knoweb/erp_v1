@@ -190,7 +190,7 @@ export default function AgedReceivables() {
           </button>
           <button
             className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition"
-            onClick={() => Alert.info("Payment feature coming soon!")}
+            onClick={() => navigate('/app/bank/receive-money')}
           >
             Add Payment
           </button>
@@ -256,6 +256,7 @@ export default function AgedReceivables() {
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">61–90+</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Total</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Balance</th>
+                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600">Action</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -271,6 +272,14 @@ export default function AgedReceivables() {
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">Rs. {parseFloat(row.age3).toFixed(2)}</td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 font-semibold">Rs. {parseFloat(row.total).toFixed(2)}</td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 font-bold">Rs. {parseFloat(row.balance).toFixed(2)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-center">
+                    <button
+                      className="px-3 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600 transition"
+                      onClick={() => navigate(`/app/bank/receive-money?salesOrderId=${row.id}&salesOrderNumber=${row.invoice}&payeeType=CUSTOMER&payeeId=${row.customerId}&amount=${row.balance}&description=Payment for SO: ${row.invoice}`)}
+                    >
+                      Get Payment
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

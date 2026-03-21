@@ -55,4 +55,12 @@ public class SalesOrderController {
             @PathVariable Integer companyId) {
         return ResponseEntity.ok(salesOrderService.getAllSalesOrdersByCompany(companyId));
     }
+
+    @PostMapping("/{soId}/pay")
+    public ResponseEntity<?> paySalesOrder(
+            @PathVariable Long soId,
+            @RequestBody @Valid com.example.GinumApps.dto.SalesPaymentRequestDto request) {
+        salesOrderService.paySalesOrder(soId, request);
+        return ResponseEntity.ok("Payment recorded successfully");
+    }
 }

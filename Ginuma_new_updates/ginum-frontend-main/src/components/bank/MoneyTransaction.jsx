@@ -23,7 +23,10 @@ const MoneyTransaction = ({ type = "spend" }) => {
   const [referenceNumber, setReferenceNumber] = useState("");
 
   const purchaseOrderId = searchParams.get("purchaseOrderId");
-  const purchaseOrderNo = searchParams.get("description")?.split("PO: ")[1] || "";
+  const purchaseOrderNo = searchParams.get("purchaseOrderNumber") || searchParams.get("description")?.split("PO: ")[1] || "";
+
+  const salesOrderId = searchParams.get("salesOrderId");
+  const salesOrderNo = searchParams.get("salesOrderNumber") || "";
 
   const [bankAccounts, setBankAccounts] = useState([]);
   const [chargeAccounts, setChargeAccounts] = useState([]);
@@ -203,6 +206,17 @@ const MoneyTransaction = ({ type = "spend" }) => {
 
         await api.post(`/api/${companyId}/purchase-orders/${purchaseOrderId}/pay`, payload);
         Alert.success(`Payment for PO ${purchaseOrderNo} recorded successfully!`);
+      } else if (salesOrderId) {
+        // Special case: Receiving payment for a specific Sales Order
+        const bankAccount = bankAccounts.find(b => b.id.toString() === selectedBankAccountId.toString());
+        const payload = {
+          amount: parseFloat(amount),
+          paymentAccountCode: bankAccount.accountCode,
+          companyId: parseInt(companyId)
+        };
+
+        await api.post(`/api/sales-orders/${salesOrderId}/pay`, payload);
+        Alert.success(`Payment for SO ${salesOrderNo} recorded successfully!`);
       } else {
         // Standard case: General Money Transaction
         const payload = {

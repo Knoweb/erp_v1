@@ -7,6 +7,8 @@ import java.time.LocalDate;
 
 @Data
 public class AgedReceivableResponseDto {
+    private Long id;
+    private Long customerId;
     private String customer;
     private String invoice;
     private LocalDate invoiceDate;

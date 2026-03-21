@@ -32,6 +32,8 @@ public class AgedReceivablesController {
                 .filter(so -> so.getBalanceDue().compareTo(BigDecimal.ZERO) > 0)
                 .map(so -> {
                     AgedReceivableResponseDto dto = new AgedReceivableResponseDto();
+                    dto.setId(so.getId());
+                    dto.setCustomerId(so.getCustomer().getId());
                     dto.setCustomer(so.getCustomer().getName());
                     dto.setInvoice(so.getSoNumber());
                     dto.setInvoiceDate(so.getIssueDate());
