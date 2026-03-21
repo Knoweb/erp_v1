@@ -461,7 +461,7 @@ public class PurchaseOrderService {
                 "Payment from account for PO"));
 
         lines.add(new JournalEntryLineDto(
-                po.getCompany().getAccountsPayableAccount().getAccountCode(),
+                getAccountsPayableAccount(po.getCompany()).getAccountCode(),
                 request.getAmount(),
                 true,
                 "Reduce payable for PO"));
