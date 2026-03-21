@@ -171,7 +171,7 @@ const MoneyTransaction = ({ type = "spend" }) => {
       return;
     }
 
-    if (!chargeAccountId && !purchaseOrderId) {
+    if (!chargeAccountId && !purchaseOrderId && !salesOrderId) {
       Alert.error(`Please select ${type === "spend" ? "an expense" : "an income"} account`);
       return;
     }
@@ -215,7 +215,7 @@ const MoneyTransaction = ({ type = "spend" }) => {
           companyId: parseInt(companyId)
         };
 
-        await api.post(`/api/sales-orders/${salesOrderId}/pay`, payload);
+        await api.post(`/api/sales-orders/company/${companyId}/${salesOrderId}/pay`, payload);
         Alert.success(`Payment for SO ${salesOrderNo} recorded successfully!`);
       } else {
         // Standard case: General Money Transaction
