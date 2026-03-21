@@ -6,6 +6,7 @@ import com.example.GinumApps.enums.TransactionType;
 import com.example.GinumApps.model.*;
 import com.example.GinumApps.repository.*;
 import com.example.GinumApps.service.MoneyTransactionService;
+import com.example.GinumApps.service.JournalEntryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
     private final ProjectRepository projectRepository;
     private final AppUserRepository appUserRepository;
     private final JournalEntryRepository journalEntryRepository;
+    private final JournalEntryService journalEntryService;
     
     @Override
     @Transactional
@@ -93,75 +95,70 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
         // Save the transaction first
         transaction = moneyTransactionRepository.save(transaction);
         
-        // Create Journal Entry for Double Entry Bookkeeping
-        JournalEntry journalEntry = createJournalEntry(transaction, bankAccount);
+        // Create Journal Entry via Service to ensure balance updates
+        JournalEntry journalEntry = createJournalEntryViaService(transaction, companyId);
         transaction.setJournalEntry(journalEntry);
         
         return moneyTransactionRepository.save(transaction);
     }
     
-    private JournalEntry createJournalEntry(MoneyTransaction transaction, Account bankAccountLedger) {
-        JournalEntry entry = new JournalEntry();
+    private JournalEntry createJournalEntryViaService(MoneyTransaction transaction, Integer companyId) {
+        com.example.GinumApps.dto.JournalEntryDto dto = new com.example.GinumApps.dto.JournalEntryDto();
         
-        // Set Entry Type based on Transaction Type
         if (transaction.getType() == TransactionType.SPEND_MONEY) {
-            entry.setEntryType(com.example.GinumApps.enums.JournalEntryType.PAYMENT);
+            dto.setEntryType(com.example.GinumApps.enums.JournalEntryType.PAYMENT);
         } else if (transaction.getType() == TransactionType.RECEIVE_MONEY) {
-            entry.setEntryType(com.example.GinumApps.enums.JournalEntryType.RECEIPT);
+            dto.setEntryType(com.example.GinumApps.enums.JournalEntryType.RECEIPT);
         } else {
-            entry.setEntryType(com.example.GinumApps.enums.JournalEntryType.SYSTEM_GENERATED);
+            dto.setEntryType(com.example.GinumApps.enums.JournalEntryType.SYSTEM_GENERATED);
         }
         
-        entry.setCompany(transaction.getCompany());
-        entry.setEntryDate(transaction.getTransactionDate());
-        entry.setReferenceNo(transaction.getTransactionNumber());
-        entry.setJournalTitle("Money Transaction - " + transaction.getTransactionNumber());
-        entry.setDescription(transaction.getDescription());
-        entry.setAuthorId(transaction.getCreatedBy() != null ? transaction.getCreatedBy().getId() : null);
+        dto.setCompanyId(companyId);
+        dto.setEntryDate(transaction.getTransactionDate());
+        dto.setReferenceNo(transaction.getTransactionNumber());
+        dto.setJournalTitle("Money Transaction - " + transaction.getTransactionNumber());
+        dto.setDescription(transaction.getDescription());
+        dto.setAuthorId(transaction.getCreatedBy() != null ? transaction.getCreatedBy().getId() : null);
         
-        List<JournalEntryLine> lines = new ArrayList<>();
+        List<com.example.GinumApps.dto.JournalEntryLineDto> lines = new ArrayList<>();
         
         if (transaction.getType() == TransactionType.SPEND_MONEY) {
-            // Debit: Expense Account (Charge Account)
-            JournalEntryLine debitLine = new JournalEntryLine();
-            debitLine.setJournalEntry(entry);
-            debitLine.setAccount(transaction.getChargeAccount());
-            debitLine.setAmount(java.math.BigDecimal.valueOf(transaction.getAmount()));
-            debitLine.setDebit(true);
-            debitLine.setDescription(transaction.getDescription());
-            lines.add(debitLine);
+            // Debit: Expense/Charge Account
+            lines.add(new com.example.GinumApps.dto.JournalEntryLineDto(
+                transaction.getChargeAccount().getAccountCode(),
+                java.math.BigDecimal.valueOf(transaction.getAmount()),
+                true,
+                transaction.getDescription()
+            ));
             
-            // Credit: Bank Account (Asset)
-            JournalEntryLine creditLine = new JournalEntryLine();
-            creditLine.setJournalEntry(entry);
-            creditLine.setAccount(bankAccountLedger);
-            creditLine.setAmount(java.math.BigDecimal.valueOf(transaction.getAmount()));
-            creditLine.setDebit(false);
-            creditLine.setDescription(transaction.getDescription());
-            lines.add(creditLine);
+            // Credit: Bank Account
+            lines.add(new com.example.GinumApps.dto.JournalEntryLineDto(
+                transaction.getBankAccount().getAccountCode(),
+                java.math.BigDecimal.valueOf(transaction.getAmount()),
+                false,
+                transaction.getDescription()
+            ));
             
         } else if (transaction.getType() == TransactionType.RECEIVE_MONEY) {
-            // Debit: Bank Account (Asset)
-            JournalEntryLine debitLine = new JournalEntryLine();
-            debitLine.setJournalEntry(entry);
-            debitLine.setAccount(bankAccountLedger);
-            debitLine.setAmount(java.math.BigDecimal.valueOf(transaction.getAmount()));
-            debitLine.setDebit(true);
-            debitLine.setDescription(transaction.getDescription());
-            lines.add(debitLine);
+            // Debit: Bank Account
+            lines.add(new com.example.GinumApps.dto.JournalEntryLineDto(
+                transaction.getBankAccount().getAccountCode(),
+                java.math.BigDecimal.valueOf(transaction.getAmount()),
+                true,
+                transaction.getDescription()
+            ));
             
-            // Credit: Income Account (Charge Account)
-            JournalEntryLine creditLine = new JournalEntryLine();
-            creditLine.setJournalEntry(entry);
-            creditLine.setAccount(transaction.getChargeAccount());
-            creditLine.setAmount(java.math.BigDecimal.valueOf(transaction.getAmount()));
-            creditLine.setDebit(false);
-            creditLine.setDescription(transaction.getDescription());
-            lines.add(creditLine);
+            // Credit: Income/Charge Account
+            lines.add(new com.example.GinumApps.dto.JournalEntryLineDto(
+                transaction.getChargeAccount().getAccountCode(),
+                java.math.BigDecimal.valueOf(transaction.getAmount()),
+                false,
+                transaction.getDescription()
+            ));
         }
         
-        entry.setJournalEntryLines(lines);
-        return journalEntryRepository.save(entry);
+        dto.setLines(lines);
+        return journalEntryService.createJournalEntry(dto);
     }
     
     private String getPayeeName(com.example.GinumApps.enums.PayeeType payeeType, Integer payeeId) {

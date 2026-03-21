@@ -22,6 +22,9 @@ const MoneyTransaction = ({ type = "spend" }) => {
   const [paymentMethod, setPaymentMethod] = useState("BANK_TRANSFER");
   const [referenceNumber, setReferenceNumber] = useState("");
 
+  const purchaseOrderId = searchParams.get("purchaseOrderId");
+  const purchaseOrderNo = searchParams.get("description")?.split("PO: ")[1] || "";
+
   const [bankAccounts, setBankAccounts] = useState([]);
   const [chargeAccounts, setChargeAccounts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
@@ -165,7 +168,7 @@ const MoneyTransaction = ({ type = "spend" }) => {
       return;
     }
 
-    if (!chargeAccountId) {
+    if (!chargeAccountId && !purchaseOrderId) {
       Alert.error(`Please select ${type === "spend" ? "an expense" : "an income"} account`);
       return;
     }
@@ -188,22 +191,37 @@ const MoneyTransaction = ({ type = "spend" }) => {
     setIsSubmitting(true);
 
     try {
-      const payload = {
-        type: type === "spend" ? "SPEND_MONEY" : "RECEIVE_MONEY",
-        transactionDate: date,
-        bankAccountId: parseInt(selectedBankAccountId),
-        payeeType: payeeType,
-        payeeId: payeeType === "OTHER" ? null : parseInt(payeeId),
-        chargeAccountId: parseInt(chargeAccountId),
-        amount: parseFloat(amount),
-        description: description || `Money ${type === "spend" ? "spent" : "received"}`,
-        paymentMethod: paymentMethod,
-        referenceNumber: referenceNumber || null,
-        projectId: null
-      };
+      if (purchaseOrderId) {
+        // Special case: Paying a specific Purchase Order
+        const bankAccount = bankAccounts.find(b => b.id.toString() === selectedBankAccountId.toString());
+        const payload = {
+          amount: parseFloat(amount),
+          paymentAccountCode: bankAccount.accountCode,
+          paymentNote: description || `Payment for PO: ${purchaseOrderNo}`,
+          companyId: parseInt(companyId)
+        };
 
-      await api.post(`/api/companies/${companyId}/money-transactions`, payload);
-      Alert.success(`${type === "spend" ? "Spend Money" : "Receive Money"} transaction recorded successfully!`);
+        await api.post(`/api/${companyId}/purchase-orders/${purchaseOrderId}/pay`, payload);
+        Alert.success(`Payment for PO ${purchaseOrderNo} recorded successfully!`);
+      } else {
+        // Standard case: General Money Transaction
+        const payload = {
+          type: type === "spend" ? "SPEND_MONEY" : "RECEIVE_MONEY",
+          transactionDate: date,
+          bankAccountId: parseInt(selectedBankAccountId),
+          payeeType: payeeType,
+          payeeId: payeeType === "OTHER" ? null : parseInt(payeeId),
+          chargeAccountId: parseInt(chargeAccountId),
+          amount: parseFloat(amount),
+          description: description || `Money ${type === "spend" ? "spent" : "received"}`,
+          paymentMethod: paymentMethod,
+          referenceNumber: referenceNumber || null,
+          projectId: null
+        };
+
+        await api.post(`/api/companies/${companyId}/money-transactions`, payload);
+        Alert.success(`${type === "spend" ? "Spend Money" : "Receive Money"} transaction recorded successfully!`);
+      }
 
       // Reset form
       setPayeeId("");

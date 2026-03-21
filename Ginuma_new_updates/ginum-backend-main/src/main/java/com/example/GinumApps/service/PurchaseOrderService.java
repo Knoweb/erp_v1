@@ -152,7 +152,10 @@ public class PurchaseOrderService {
     }
 
     private void createAgingSnapshot(PurchaseOrder po) {
-        AgingPayableSnapshot snapshot = new AgingPayableSnapshot();
+        AgingPayableSnapshot snapshot = agingRepo
+            .findByCompany_CompanyIdAndPoNumber(po.getCompany().getCompanyId(), po.getPoNumber())
+            .orElse(new AgingPayableSnapshot());
+
         snapshot.setCompany(po.getCompany());
         snapshot.setSupplier(po.getSupplier());
         snapshot.setPoNumber(po.getPoNumber());
@@ -436,6 +439,9 @@ public class PurchaseOrderService {
 
         if (savedPO.getBalanceDue().compareTo(BigDecimal.ZERO) > 0) {
             createAgingSnapshot(savedPO);
+        } else {
+            agingRepo.findByCompany_CompanyIdAndPoNumber(request.getCompanyId(), po.getPoNumber())
+                .ifPresent(agingRepo::delete);
         }
 
         JournalEntryDto journal = new JournalEntryDto();
