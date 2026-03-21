@@ -56,14 +56,10 @@ public class SalesOrderController {
         return ResponseEntity.ok(salesOrderService.getAllSalesOrdersByCompany(companyId));
     }
 
-    @PostMapping("/company/{companyId}/{soId}/pay")
+    @PostMapping("/{soId}/pay")
     public ResponseEntity<?> paySalesOrder(
-            @PathVariable Integer companyId,
             @PathVariable Long soId,
             @RequestBody @Valid com.example.GinumApps.dto.SalesPaymentRequestDto request) {
-        if (!request.getCompanyId().equals(companyId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Company ID mismatch");
-        }
         salesOrderService.paySalesOrder(soId, request);
         return ResponseEntity.ok("Payment recorded successfully");
     }
