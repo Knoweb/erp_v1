@@ -153,12 +153,13 @@ export default function AgedPayables() {
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">61–90 Days</th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">91+ Days</th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Total Balance</th>
+              <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase">Action</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {paginatedData.length === 0 ? (
               <tr>
-                <td colSpan="9" className="px-6 py-8 text-center text-gray-500">
+                <td colSpan="10" className="px-6 py-8 text-center text-gray-500">
                   {payables.length === 0 ? "No aged payables found." : "No payables match your filters."}
                 </td>
               </tr>
@@ -175,6 +176,14 @@ export default function AgedPayables() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-600 font-medium">Rs. {row.bucket61to90?.toFixed(2) || '0.00'}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold">Rs. {row.bucket91plus?.toFixed(2) || '0.00'}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">Rs. {row.balanceDue?.toFixed(2) || '0.00'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                    <button
+                      onClick={() => handlePayBill(row)}
+                      className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors text-xs font-bold"
+                    >
+                      Pay
+                    </button>
+                  </td>
                 </tr>
               )
             })}
