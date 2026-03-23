@@ -7,13 +7,21 @@ import com.inventory.order.model.PurchaseOrderItem;
 import com.inventory.order.repository.PurchaseOrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -29,6 +37,10 @@ public class PurchaseOrderService {
     private static final Long OWNER_USER_ID = 1L;
 
     private final PurchaseOrderRepository purchaseOrderRepository;
+    private final RestTemplate restTemplate;
+
+    @Value("${inventory.service.url:http://localhost:8082}")
+    private String inventoryServiceUrl;
 
     // ── Create ────────────────────────────────────────────────────────────────
 
@@ -127,6 +139,7 @@ public class PurchaseOrderService {
 
     /**
      * Mark an APPROVED order as RECEIVED (goods delivered).
+     * Automatically increases stock in inventory-service (IN transaction).
      */
     public PurchaseOrder receiveOrder(Long id) {
         PurchaseOrder order = purchaseOrderRepository.findById(id)
@@ -136,9 +149,88 @@ public class PurchaseOrderService {
             throw new IllegalStateException(
                     "Only APPROVED orders can be received. Current status: " + order.getStatus());
         }
+
+        // ── SYNC: Increase stock in inventory-service for each item ───────────
+        for (PurchaseOrderItem item : order.getItems()) {
+            syncWithInventory(item, order, "IN", "Purchase order received — order #PO-" + String.format("%03d", id));
+        }
+
         order.setStatus(OrderStatus.RECEIVED);
-        log.info("Purchase order {} marked as RECEIVED", id);
+        log.info("Purchase order {} marked as RECEIVED and stock increased", id);
         return purchaseOrderRepository.save(order);
+    }
+
+    /**
+     * Return a RECEIVED order back to the supplier (goods damaged/incorrect).
+     * Automatically decreases stock in inventory-service (OUT transaction) with a reason.
+     */
+    public PurchaseOrder returnOrder(Long id, String reason) {
+        PurchaseOrder order = purchaseOrderRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Purchase order not found: " + id));
+
+        // Requirement check: Many systems only allow returns for RECEIVED orders.
+        if (order.getStatus() != OrderStatus.RECEIVED) {
+            throw new IllegalStateException("Only RECEIVED orders can be returned. Current status: " + order.getStatus());
+        }
+
+        // ── SYNC: Decrease stock in inventory-service for each item ───────────
+        for (PurchaseOrderItem item : order.getItems()) {
+            syncWithInventory(item, order, "OUT", "Purchase return — Reason: " + reason);
+        }
+
+        order.setStatus(OrderStatus.RETURNED);
+        order.setReturnReason(reason);
+        order.setReturnedAt(LocalDateTime.now());
+        
+        log.info("Purchase order {} returned. Reason: {}", id, reason);
+        return purchaseOrderRepository.save(order);
+    }
+
+    /**
+     * Private helper to call inventory-service REST API.
+     */
+    private void syncWithInventory(PurchaseOrderItem item, PurchaseOrder order, String type, String notes) {
+        Long productId = item.getProductId();
+        Long warehouseId = order.getWarehouseId();
+        int qty = item.getQuantity() != null ? item.getQuantity() : 0;
+
+        if (qty <= 0 || warehouseId == null) {
+            log.warn("Skipping inventory sync for PO item (productId={}, warehouseId={}, qty={})", 
+                    productId, warehouseId, qty);
+            return;
+        }
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("productId", productId);
+        payload.put("warehouseId", warehouseId);
+        payload.put("type", type);
+        payload.put("quantity", qty);
+        payload.put("referenceId", "PO-" + String.format("%03d", order.getId()));
+        payload.put("notes", notes);
+        payload.put("transactionDate", LocalDateTime.now().withNano(0).toString());
+        payload.put("orgId", order.getOrgId());
+        payload.put("movementStatus", "COMPLETED");
+
+        if (item.getUnitPrice() != null) {
+            payload.put("unitPrice", item.getUnitPrice());
+            payload.put("totalValue", item.getUnitPrice().multiply(BigDecimal.valueOf(qty)));
+        }
+
+        String txUrl = inventoryServiceUrl + "/api/inventory/transactions";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(txUrl, request, String.class);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new RuntimeException("Inventory-service returned " + response.getStatusCode() + " for productId=" + productId);
+            }
+            log.info("Inventory sync success: PO-id={}, type={}, productId={}, qty={}", order.getId(), type, productId, qty);
+        } catch (Exception e) {
+            log.error("Failed to sync inventory for PO product #{}: {}", productId, e.getMessage());
+            throw new RuntimeException("Inventory sync failed: " + e.getMessage(), e);
+        }
     }
 
     /**

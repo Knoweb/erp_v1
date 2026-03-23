@@ -83,6 +83,25 @@ public class OrderController {
         }
     }
 
+    /** PATCH /api/orders/purchase/{id}/return — RECEIVED → RETURNED */
+    @PatchMapping("/purchase/{id}/return")
+    public ResponseEntity<?> returnPurchaseOrder(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+        try {
+            String reason = body.getOrDefault("reason", "No reason provided");
+            return ResponseEntity.ok(purchaseOrderService.returnOrder(id, reason));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
     /** PATCH /api/orders/purchase/{id}/cancel — PENDING/APPROVED → CANCELLED */
     @PatchMapping("/purchase/{id}/cancel")
     public ResponseEntity<?> cancelPurchaseOrder(@PathVariable Long id) {

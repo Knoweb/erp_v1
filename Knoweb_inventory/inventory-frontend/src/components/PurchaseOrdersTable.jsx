@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
-import { Search, Eye, CheckCircle2, Package, XCircle, Building2 } from 'lucide-react';
+import { Search, Eye, CheckCircle2, Package, XCircle, Building2, Undo2 } from 'lucide-react';
 
 const STATUS_META = {
     PENDING: { label: 'Pending', icon: '🕐', cls: 'bg-amber-50 text-amber-700 border-amber-100' },
     APPROVED: { label: 'Approved', icon: '✅', cls: 'bg-blue-50 text-blue-700 border-blue-100' },
     RECEIVED: { label: 'Received', icon: '📦', cls: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
     CANCELLED: { label: 'Cancelled', icon: '❌', cls: 'bg-rose-50 text-rose-700 border-rose-100' },
+    RETURNED: { label: 'Returned', icon: '↩️', cls: 'bg-purple-50 text-purple-700 border-purple-100' },
 };
 
 const formatCurrency = (value) =>
@@ -37,6 +38,7 @@ function PurchaseOrdersTable({
     onApprove,
     onReceive,
     onCancel,
+    onReturn,
     loading = false,
 }) {
     const [search, setSearch] = useState('');
@@ -209,6 +211,19 @@ function PurchaseOrdersTable({
                                                             onClick={() => onReceive?.(order.id)}
                                                         >
                                                             <Package size={14} /> RECEIVE
+                                                        </button>
+                                                    )}
+                                                    
+                                                    {order.status === 'RECEIVED' && (
+                                                        <button
+                                                            className="p-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 shadow-lg shadow-purple-100 transition-all font-black text-[10px] flex items-center gap-1.5"
+                                                            onClick={() => {
+                                                                const reason = prompt("Reason for return?");
+                                                                if (reason) onReturn?.(order.id, reason);
+                                                            }}
+                                                            title="Return items to supplier"
+                                                        >
+                                                            <Undo2 size={14} /> RETURN
                                                         </button>
                                                     )}
 

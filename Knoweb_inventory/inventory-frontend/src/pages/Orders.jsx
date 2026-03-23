@@ -542,6 +542,14 @@ function Orders() {
     } catch (e) { setActionError(e.response?.data?.error || 'Failed to mark order as received.'); }
   };
 
+  const handleReturn = async (orderId, reason) => {
+    try {
+      await apiClient.patch(`/api/orders/purchase/${orderId}/return`, { reason });
+      showSuccess(`Order returned & stock adjusted.`);
+      fetchOrders();
+    } catch (e) { setActionError(e.response?.data?.error || 'Failed to return order.'); }
+  };
+
   const handleCancel = async (orderId) => {
     const isConfirmed = await confirm({
       title: 'Terminate Order',
@@ -616,6 +624,7 @@ function Orders() {
                       APPROVED: { bg: 'bg-blue-100', color: 'text-blue-700', label: '✔ Approved' },
                       RECEIVED: { bg: 'bg-emerald-100', color: 'text-emerald-700', label: '📦 Received' },
                       CANCELLED: { bg: 'bg-rose-100', color: 'text-rose-700', label: '✕ Cancelled' },
+                      RETURNED: { bg: 'bg-purple-100', color: 'text-purple-700', label: '↩ Returned' },
                     }[s] || { bg: 'bg-slate-100', color: 'text-slate-700', label: s };
                     return <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>;
                   })()}
@@ -749,6 +758,7 @@ function Orders() {
                 onApprove={handleApprove}
                 onReceive={handleReceive}
                 onCancel={handleCancel}
+                onReturn={handleReturn}
               />
             </div>
           ) : (

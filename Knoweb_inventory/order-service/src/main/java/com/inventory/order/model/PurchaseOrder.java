@@ -49,12 +49,18 @@ public class PurchaseOrder {
     @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL)
     private List<PurchaseOrderItem> items = new ArrayList<>();
 
+    @Column(name = "return_reason")
+    private String returnReason;
+
+    @Column(name = "returned_at")
+    private LocalDateTime returnedAt;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
 
     public enum OrderStatus {
-        PENDING, APPROVED, RECEIVED, CANCELLED
+        PENDING, APPROVED, RECEIVED, CANCELLED, RETURNED
     }
 }
