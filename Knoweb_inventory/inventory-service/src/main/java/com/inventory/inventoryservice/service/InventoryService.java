@@ -170,8 +170,32 @@ public class InventoryService {
                 stock.setAvailableQuantity(transaction.getQuantity());
                 break;
             case TRANSFER:
+                // 1. Subtract from source
                 stock.setQuantity(stock.getQuantity() - transaction.getQuantity());
                 stock.setAvailableQuantity(stock.getAvailableQuantity() - transaction.getQuantity());
+                stockRepository.save(stock); // Save source stock
+
+                // 2. Add to destination
+                if (transaction.getToWarehouseId() != null) {
+                    Stock targetStock = stockRepository.findByProductIdAndWarehouseId(
+                            transaction.getProductId(),
+                            transaction.getToWarehouseId()).orElseGet(() -> {
+                                Stock newStock = new Stock();
+                                newStock.setProductId(transaction.getProductId());
+                                newStock.setWarehouseId(transaction.getToWarehouseId());
+                                newStock.setBranchId(transaction.getToWarehouseId());
+                                newStock.setQuantity(0);
+                                newStock.setAvailableQuantity(0);
+                                newStock.setReservedQuantity(0);
+                                newStock.setOrgId(transaction.getOrgId());
+                                return newStock;
+                            });
+                    targetStock.setQuantity(targetStock.getQuantity() + transaction.getQuantity());
+                    targetStock.setAvailableQuantity(targetStock.getAvailableQuantity() + transaction.getQuantity());
+                    stockRepository.save(targetStock);
+                } else {
+                    log.error("Transfer failed: Destination warehouse ID is missing for Product {}!", transaction.getProductId());
+                }
                 break;
             case RETURN:
                 stock.setQuantity(stock.getQuantity() + transaction.getQuantity());

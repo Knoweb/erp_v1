@@ -45,7 +45,10 @@ public class InventoryTransaction {
     
     @Column(name = "to_address", length = 255)
     private String toAddress;
-    
+
+    @Column(name = "to_warehouse_id")
+    private Long toWarehouseId;
+
     @Column(name = "movement_status", length = 50)
     private String movementStatus;
     
