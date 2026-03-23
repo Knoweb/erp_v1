@@ -217,10 +217,7 @@ function PurchaseOrdersTable({
                                                     {order.status === 'RECEIVED' && (
                                                         <button
                                                             className="p-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 shadow-lg shadow-purple-100 transition-all font-black text-[10px] flex items-center gap-1.5"
-                                                            onClick={() => {
-                                                                const reason = prompt("Reason for return?");
-                                                                if (reason) onReturn?.(order.id, reason);
-                                                            }}
+                                                            onClick={() => onReturn?.(order.id)}
                                                             title="Return items to supplier"
                                                         >
                                                             <Undo2 size={14} /> RETURN
