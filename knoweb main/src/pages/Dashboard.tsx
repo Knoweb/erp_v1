@@ -45,7 +45,7 @@ const SYSTEM_INFO: Record<string, {
   frontendUrl: string;
 }> = {
   GINUMA: {
-    name: 'Ginuma ERP',
+    name: 'Ginum ERP',
     description: 'Complete business management solution with HR, Payroll, Accounting, and CRM capabilities.',
     color: 'from-blue-600 to-cyan-500',
     icon: Briefcase,
@@ -70,7 +70,7 @@ const SYSTEM_INFO: Record<string, {
   },
   ALL_IN_ONE: {
     name: 'All-in-One Suite',
-    description: 'Complete integrated platform with all systems: Ginuma ERP, Inventory, and PirisaHR.',
+    description: 'Complete integrated platform with all systems: Ginum ERP, Inventory, and PirisaHR.',
     color: 'from-orange-600 to-red-500',
     icon: Sparkles,
     features: ['Full ERP Access', 'Complete Inventory Management', 'Comprehensive HR Suite', 'Unified Dashboard'],
@@ -249,7 +249,7 @@ const PRICING_PACKAGES: Record<string, PricingTier[]> = {
       period: 'per month',
       description: 'All systems bundled for small teams',
       features: [
-        'Ginuma ERP - Starter',
+        'Ginum ERP - Starter',
         'Inventory - Basic',
         'PirisaHR - Essentials',
         'Unified dashboard',
@@ -264,7 +264,7 @@ const PRICING_PACKAGES: Record<string, PricingTier[]> = {
       period: 'per month',
       description: 'Full suite for growing organizations',
       features: [
-        'Ginuma ERP - Business',
+        'Ginum ERP - Business',
         'Inventory - Professional',
         'PirisaHR - Standard',
         'Advanced analytics',
@@ -385,7 +385,7 @@ const Dashboard = () => {
     // Build the login URL with base path for systems that require it
     let loginPath = '/login';
 
-    // Ginuma ERP uses /account as base public URL with SSO endpoint
+    // Ginum ERP uses /account as base public URL with SSO endpoint
     if (systemCode === 'GINUMA') {
       loginPath = '/account/sso-login';
     }
@@ -407,19 +407,19 @@ const Dashboard = () => {
     const finalReturnUrl = `${URLS.main}/login`;
 
     // Build the returnTo chain (working backwards):
-    // Ginuma (5176) will redirect to: finalReturnUrl
+    // Ginum (5176) will redirect to: finalReturnUrl
     const ginumaReturnTo = finalReturnUrl;
 
-    // Inventory (5174) will redirect to: Ginuma with returnTo=finalReturnUrl
+    // Inventory (5174) will redirect to: Ginum with returnTo=finalReturnUrl
     const inventoryReturnTo = `${ginumaLogoutUrl}?returnTo=${encodeURIComponent(ginumaReturnTo)}`;
-    
+
     // PirisaHR (Remote Droplet) will redirect to: Inventory with returnTo=Ginuma URL
     const pirisaReturnTo = `${inventoryLogoutUrl}?returnTo=${encodeURIComponent(inventoryReturnTo)}`;
 
     // Main Dashboard (5173) initiates logout starting with PirisaHR
     const chainStartUrl = `${pirisaLogoutUrl}?returnTo=${encodeURIComponent(pirisaReturnTo)}`;
 
-    // Validate that the chain includes the correct Ginuma logout path
+    // Validate that the chain includes the correct Ginum logout path
     if (!inventoryReturnTo.includes('/account/auth/logout')) {
       alert('SSO Logout chain error: Invalid logout URL configuration.');
       return;
