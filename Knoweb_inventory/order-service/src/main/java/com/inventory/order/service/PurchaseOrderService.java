@@ -1,6 +1,7 @@
 package com.inventory.order.service;
 
 import com.inventory.order.dto.PurchaseOrderRequestDto;
+import com.inventory.order.dto.PurchaseReturnRequestDto;
 import com.inventory.order.model.PurchaseOrder;
 import com.inventory.order.model.PurchaseOrder.OrderStatus;
 import com.inventory.order.model.PurchaseOrderItem;
@@ -162,27 +163,50 @@ public class PurchaseOrderService {
 
     /**
      * Return a RECEIVED order back to the supplier (goods damaged/incorrect).
+     * Supports partial returns for specific line items.
      * Automatically decreases stock in inventory-service (OUT transaction) with a reason.
      */
-    public PurchaseOrder returnOrder(Long id, String reason) {
+    public PurchaseOrder returnOrder(Long id, PurchaseReturnRequestDto request) {
         PurchaseOrder order = purchaseOrderRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Purchase order not found: " + id));
 
-        // Requirement check: Many systems only allow returns for RECEIVED orders.
         if (order.getStatus() != OrderStatus.RECEIVED) {
             throw new IllegalStateException("Only RECEIVED orders can be returned. Current status: " + order.getStatus());
         }
 
-        // ── SYNC: Decrease stock in inventory-service for each item ───────────
-        for (PurchaseOrderItem item : order.getItems()) {
-            syncWithInventory(item, order, "OUT", "Purchase return — Reason: " + reason);
+        String reason = request.getReason();
+        if (reason == null || reason.trim().isEmpty()) {
+            reason = "No reason provided";
+        }
+
+        // ── SYNC: Decrease stock for each item specified in the return request ─
+        if (request.getItems() != null) {
+            for (PurchaseReturnRequestDto.ReturnItem returnItem : request.getItems()) {
+                if (returnItem.getQuantity() != null && returnItem.getQuantity() > 0) {
+                    // Find the original item to get the productId
+                    PurchaseOrderItem originalItem = order.getItems().stream()
+                            .filter(it -> it.getId().equals(returnItem.getItemId()))
+                            .findFirst()
+                            .orElse(null);
+                    
+                    if (originalItem != null) {
+                        // Create a temporary item for sync purposes with the return quantity
+                        PurchaseOrderItem syncItem = new PurchaseOrderItem();
+                        syncItem.setProductId(originalItem.getProductId());
+                        syncItem.setQuantity(returnItem.getQuantity());
+                        syncItem.setUnitPrice(originalItem.getUnitPrice());
+                        
+                        syncWithInventory(syncItem, order, "OUT", "Purchase return — Reason: " + reason);
+                    }
+                }
+            }
         }
 
         order.setStatus(OrderStatus.RETURNED);
         order.setReturnReason(reason);
         order.setReturnedAt(LocalDateTime.now());
         
-        log.info("Purchase order {} returned. Reason: {}", id, reason);
+        log.info("Purchase order {} partially/fully returned. Reason: {}", id, reason);
         return purchaseOrderRepository.save(order);
     }
 

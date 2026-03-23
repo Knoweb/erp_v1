@@ -433,6 +433,126 @@ function CreateSalesOrderModal({ onClose, onCreated }) {
   );
 }
 
+// ── Return Purchase Order Modal ───────────────────────────────────────────────
+function ReturnOrderModal({ order, products, onClose, onReturned }) {
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [reason, setReason] = useState('');
+  
+  // Track quantities for each item being returned (initially full qty)
+  const [returnQtys, setReturnQtys] = useState(() => {
+    const qtys = {};
+    order.items?.forEach(it => {
+      qtys[it.id] = it.quantity || 0;
+    });
+    return qtys;
+  });
+
+  const getProductName = (id) => {
+    const p = products.find(p => String(p.id) === String(id));
+    return p ? p.name : `Product #${id}`;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!reason.trim()) { setError('Please provide a reason for the return.'); return; }
+    
+    // Check if at least one item has a return qty > 0
+    const totalReturnQty = Object.values(returnQtys).reduce((sum, q) => sum + Number(q), 0);
+    if (totalReturnQty <= 0) {
+      setError('Please specify at least one item quantity to return.');
+      return;
+    }
+
+    setSubmitting(true);
+    setError('');
+    
+    try {
+      // We send back the quantities map and the reason
+      const payload = {
+        reason: reason.trim(),
+        items: Object.entries(returnQtys).map(([itemId, qty]) => ({
+          itemId: Number(itemId),
+          quantity: Number(qty)
+        }))
+      };
+      
+      await apiClient.patch(`/api/orders/purchase/${order.id}/return`, payload);
+      onReturned('Return processed & inventory updated.');
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to process return.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[1000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="px-8 py-6 border-b border-purple-50 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">↩️ Return Purchase Order</h2>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Ref: #PO-{String(order.id).padStart(3, '0')}</p>
+          </div>
+          <button onClick={onClose} className="text-slate-300 hover:text-slate-500 transition-colors"><X size={24} /></button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+          {error && (
+            <div className="bg-rose-50 border border-rose-100 text-rose-600 px-4 py-3 rounded-xl flex items-center gap-2 text-sm font-bold">
+              <AlertCircle size={18} /> {error}
+            </div>
+          )}
+
+          <div className="space-y-4">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block px-1">Items to Return</label>
+            <div className="rounded-xl border border-slate-100 overflow-hidden divide-y divide-slate-50">
+              {order.items?.map((item) => (
+                <div key={item.id} className="p-4 flex items-center justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-black text-slate-700 truncate">{getProductName(item.productId)}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Original Qty: {item.quantity}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase">Return:</span>
+                    <input 
+                      type="number" 
+                      max={item.quantity} 
+                      min="0"
+                      className="w-20 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-black text-slate-800 outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-400"
+                      value={returnQtys[item.id] || 0}
+                      onChange={(e) => setReturnQtys(prev => ({...prev, [item.id]: e.target.value}))}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest">Reason for Return *</label>
+            <textarea 
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none focus:border-purple-400 min-h-[80px]" 
+              placeholder="e.g. Expired on arrival, Physical damage to packaging..." 
+              value={reason} 
+              onChange={e => setReason(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="flex gap-4 justify-end pt-4">
+            <button type="button" onClick={onClose} disabled={submitting} className="px-6 py-2.5 text-xs font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors">Cancel</button>
+            <button type="submit" disabled={submitting} className="px-10 py-2.5 bg-purple-600 text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl shadow-lg shadow-purple-100 hover:bg-purple-700 transition-all active:scale-95 disabled:grayscale">
+              {submitting ? 'Processing...' : 'Submit Return'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Orders Page ───────────────────────────────────────────────────────────
 function Orders() {
   const { confirm } = useNotification();
@@ -447,6 +567,7 @@ function Orders() {
   const [actionSuccess, setActionSuccess] = useState('');
   const [showCreatePO, setShowCreatePO] = useState(false);
   const [showCreateSO, setShowCreateSO] = useState(false);
+  const [showReturnPO, setShowReturnPO] = useState(null); // stores the order to return
   const [viewOrder, setViewOrder] = useState(null);
 
   const getProductName = (productId) => {
@@ -542,9 +663,16 @@ function Orders() {
     } catch (e) { setActionError(e.response?.data?.error || 'Failed to mark order as received.'); }
   };
 
-  const handleReturn = async (orderId, reason) => {
+  const handleReturnAction = (orderId, reason) => {
+    // This is called from the table directly by clicking the button
+    const order = purchaseOrders.find(o => o.id === orderId);
+    if (order) setShowReturnPO(order);
+  };
+
+  const handleReturn = async (orderId, payload) => {
+    // This is called from the ReturnOrderModal
     try {
-      await apiClient.patch(`/api/orders/purchase/${orderId}/return`, { reason });
+      await apiClient.patch(`/api/orders/purchase/${orderId}/return`, payload);
       showSuccess(`Order returned & stock adjusted.`);
       fetchOrders();
     } catch (e) { setActionError(e.response?.data?.error || 'Failed to return order.'); }
@@ -675,6 +803,7 @@ function Orders() {
 
       {showCreatePO && <CreatePurchaseOrderModal suppliers={suppliers} onClose={() => setShowCreatePO(false)} onCreated={(msg) => { showSuccess(msg); fetchOrders(); }} />}
       {showCreateSO && <CreateSalesOrderModal onClose={() => setShowCreateSO(false)} onCreated={(msg) => { showSuccess(msg); fetchOrders(); }} />}
+      {showReturnPO && <ReturnOrderModal order={showReturnPO} products={products} onClose={() => setShowReturnPO(null)} onReturned={(msg) => { showSuccess(msg); fetchOrders(); }} />}
 
       <header className="flex justify-between items-end border-b border-slate-100 pb-6">
         <div>
@@ -758,7 +887,7 @@ function Orders() {
                 onApprove={handleApprove}
                 onReceive={handleReceive}
                 onCancel={handleCancel}
-                onReturn={handleReturn}
+                onReturn={handleReturnAction}
               />
             </div>
           ) : (

@@ -1,6 +1,7 @@
 package com.inventory.order.controller;
 
 import com.inventory.order.dto.PurchaseOrderRequestDto;
+import com.inventory.order.dto.PurchaseReturnRequestDto;
 import com.inventory.order.model.PurchaseOrder;
 import com.inventory.order.model.SalesOrder;
 import com.inventory.order.repository.SalesOrderRepository;
@@ -87,10 +88,9 @@ public class OrderController {
     @PatchMapping("/purchase/{id}/return")
     public ResponseEntity<?> returnPurchaseOrder(
             @PathVariable Long id,
-            @RequestBody Map<String, String> body) {
+            @RequestBody PurchaseReturnRequestDto request) {
         try {
-            String reason = body.getOrDefault("reason", "No reason provided");
-            return ResponseEntity.ok(purchaseOrderService.returnOrder(id, reason));
+            return ResponseEntity.ok(purchaseOrderService.returnOrder(id, request));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         } catch (IllegalStateException e) {
