@@ -49,153 +49,162 @@ const CompanyProfile = () => {
     };
 
     return (
-        <div className="max-w-7xl mx-auto">
-            {/* Header Section */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 rounded-3xl p-8 mb-8 shadow-2xl border border-slate-700">
-                <div className="flex items-start gap-6">
-                    {/* Company Logo */}
-                    <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-800 flex items-center justify-center shadow-[0_8px_30px_rgb(79,70,229,0.4)] border border-indigo-500/20 overflow-hidden flex-shrink-0">
-                        {profileData.logoUrl ? (
-                            <img 
-                                src={`${API_BASE_URL}${profileData.logoUrl}`}
-                                alt="Company Logo" 
-                                className="w-full h-full object-cover"
-                            />
-                        ) : (
-                            <Building2 className="w-12 h-12 text-white" />
-                        )}
+        <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
+            {/* Premium Header Section */}
+            <div className="relative overflow-hidden bg-slate-950 rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-white/5 group">
+                {/* Decorative Elements */}
+                <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] group-hover:bg-indigo-600/30 transition-colors duration-700" />
+                <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-blue-600/10 rounded-full blur-[80px]" />
+                
+                <div className="relative flex flex-col md:flex-row items-center md:items-start gap-8">
+                    {/* Iconic Company Logo */}
+                    <div className="relative">
+                        <div className="absolute -inset-1 bg-gradient-to-tr from-indigo-500 to-blue-500 rounded-3xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
+                        <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-3xl bg-slate-900 flex items-center justify-center border border-white/10 shadow-2xl overflow-hidden">
+                            {profileData.logoUrl ? (
+                                <img 
+                                    src={`${API_BASE_URL}${profileData.logoUrl}`}
+                                    alt="Company Logo" 
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="flex flex-col items-center">
+                                    <Building2 className="w-16 h-16 text-indigo-400 mb-2" />
+                                    <span className="text-[10px] font-black text-indigo-500/50 tracking-tighter uppercase">EST. 2026</span>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
-                    {/* Company Info */}
-                    <div className="flex-1">
-                        <h1 className="text-4xl font-black text-white mb-2 tracking-tight">
-                            {profileData.name}
-                        </h1>
-                        <div className="flex items-center gap-3 mb-4">
-                            <span className="px-4 py-1.5 bg-indigo-500/20 text-indigo-300 rounded-full text-xs font-bold uppercase tracking-wider border border-indigo-500/30">
-                                {profileData.industryType || 'STANDARD'} System
-                            </span>
-                            {profileData.subscriptionTier && (
-                                <span className="px-4 py-1.5 bg-emerald-500/20 text-emerald-300 rounded-full text-xs font-bold uppercase tracking-wider border border-emerald-500/30">
-                                    {profileData.subscriptionTier} Plan
+                    {/* Elite Company Info */}
+                    <div className="flex-1 text-center md:text-left space-y-4">
+                        <div>
+                            <h1 className="text-4xl md:text-6xl font-black text-white mb-2 tracking-tight drop-shadow-sm">
+                                {profileData.name}
+                            </h1>
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-4">
+                                <span className="px-5 py-2 bg-indigo-500/10 backdrop-blur-md text-indigo-300 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] border border-indigo-500/20 shadow-lg">
+                                    {profileData.industryType || 'STANDARD'} SYSTEM
                                 </span>
-                            )}
-                            {(profileData.isActive !== false) && (
-                                <span className="px-4 py-1.5 bg-green-500/20 text-green-300 rounded-full text-xs font-bold uppercase tracking-wider border border-green-500/30 flex items-center gap-1.5">
-                                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                                    Active
-                                </span>
-                            )}
+                                {(profileData.isActive !== false) && (
+                                    <span className="px-5 py-2 bg-emerald-500/10 backdrop-blur-md text-emerald-300 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] border border-emerald-500/20 shadow-lg flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] animate-pulse" />
+                                        ACTIVE
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Details Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Contact Information */}
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200">
-                    <h2 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
-                        <Mail className="w-5 h-5 text-indigo-600" />
-                        Contact Information
-                    </h2>
-                    <div className="space-y-4">
-                        {profileData.email && (
-                            <div className="flex items-start gap-3">
-                                <Mail className="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0" />
-                                <div>
-                                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Email</p>
-                                    <p className="text-sm font-medium text-slate-900">{profileData.email}</p>
-                                </div>
+            {/* Information Architecture Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12">
+                {/* Refined Contact Card */}
+                <div className="group bg-white rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100/80 hover:border-indigo-500/20 transition-all duration-300">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-3 bg-indigo-50 rounded-2xl">
+                            <Mail className="w-6 h-6 text-indigo-600" />
+                        </div>
+                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Contact Channels</h2>
+                    </div>
+                    
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-5 p-4 rounded-2xl hover:bg-slate-50 transition-colors">
+                            <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                                <Mail className="w-5 h-5 text-slate-400" />
                             </div>
-                        )}
-                        {profileData.contactPhone && (
-                            <div className="flex items-start gap-3">
-                                <Phone className="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0" />
-                                <div>
-                                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Phone</p>
-                                    <p className="text-sm font-medium text-slate-900">{profileData.contactPhone}</p>
-                                </div>
+                            <div>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Corporate Email</p>
+                                <p className="text-base font-bold text-slate-900">{profileData.email || 'N/A'}</p>
                             </div>
-                        )}
-                        {profileData.registeredAddress && (
-                            <div className="flex items-start gap-3">
-                                <MapPin className="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0" />
-                                <div>
-                                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Address</p>
-                                    <p className="text-sm font-medium text-slate-900">{profileData.registeredAddress}</p>
-                                </div>
+                        </div>
+
+                        <div className="flex items-center gap-5 p-4 rounded-2xl hover:bg-slate-50 transition-colors">
+                            <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                                <Phone className="w-5 h-5 text-slate-400" />
                             </div>
-                        )}
+                            <div>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Support Phone</p>
+                                <p className="text-base font-bold text-slate-900">{profileData.contactPhone || 'N/A'}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-5 p-4 rounded-2xl hover:bg-slate-50 transition-colors">
+                            <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                                <MapPin className="w-5 h-5 text-slate-400" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Registered Address</p>
+                                <p className="text-base font-bold text-slate-900 leading-relaxed">{profileData.registeredAddress || 'No Address Provided'}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* Organization Details */}
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200">
-                    <h2 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
-                        <Building2 className="w-5 h-5 text-indigo-600" />
-                        Organization Details
-                    </h2>
-                    <div className="space-y-4">
-                        {profileData.industryType && (
-                            <div className="flex items-start gap-3">
-                                <Package className="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0" />
-                                <div>
-                                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Industry Type</p>
-                                    <p className="text-sm font-medium text-slate-900">{profileData.industryType}</p>
-                                </div>
-                            </div>
-                        )}
-                        {profileData.taxId && (
-                            <div className="flex items-start gap-3">
-                                <ShieldCheck className="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0" />
-                                <div>
-                                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Tax ID</p>
-                                    <p className="text-sm font-medium text-slate-900">{profileData.taxId}</p>
-                                </div>
-                            </div>
-                        )}
-                        {profileData.registrationNo && (
-                            <div className="flex items-start gap-3">
-                                <ShieldCheck className="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0" />
-                                <div>
-                                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Registration No</p>
-                                    <p className="text-sm font-medium text-slate-900">{profileData.registrationNo}</p>
-                                </div>
-                            </div>
-                        )}
-                        {profileData.createdAt && (
-                            <div className="flex items-start gap-3">
-                                <Calendar className="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0" />
-                                <div>
-                                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Member Since</p>
-                                    <p className="text-sm font-medium text-slate-900">
-                                        {new Date(profileData.createdAt).toLocaleDateString('en-US', { 
-                                            year: 'numeric', 
-                                            month: 'long', 
-                                            day: 'numeric' 
-                                        })}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
+                {/* Legacy & Legal Details */}
+                <div className="group bg-white rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100/80 hover:border-indigo-500/20 transition-all duration-300">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-3 bg-blue-50 rounded-2xl">
+                            <ShieldCheck className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Entity Details</h2>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Industry Type</p>
+                            <p className="text-lg font-black text-slate-800">{profileData.industryType || 'GENERAL'}</p>
+                        </div>
+
+                        <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Tax Identifier</p>
+                            <p className="text-lg font-black text-slate-800">{profileData.taxId || 'UNREGISTERED'}</p>
+                        </div>
+
+                        <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Business Reg No</p>
+                            <p className="text-lg font-black text-slate-800">{profileData.registrationNo || 'N/A'}</p>
+                        </div>
+
+                        <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Member Since</p>
+                            <p className="text-lg font-black text-slate-800">
+                                {profileData.createdAt ? new Date(profileData.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '2026'}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* User Information */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 mt-6">
-                <h2 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
-                    <Users className="w-5 h-5 text-indigo-600" />
-                    Current User
-                </h2>
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-600 font-black text-lg border border-indigo-500/20">
-                        {user?.username?.[0]?.toUpperCase() || 'U'}
+            {/* Session Analytics Card */}
+            <div className="bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl border border-white/5 overflow-hidden relative group">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 blur-[80px]" />
+                <div className="relative flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div className="flex items-center gap-6">
+                        <div className="relative">
+                            <div className="absolute -inset-1 bg-white/10 rounded-2xl blur opacity-25"></div>
+                            <div className="relative w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center text-white font-black text-2xl border border-white/10">
+                                {user?.username?.[0]?.toUpperCase() || 'U'}
+                            </div>
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold text-white tracking-tight">Active Session Profile</h3>
+                            <p className="text-slate-400 text-sm">{user?.email}</p>
+                        </div>
                     </div>
-                    <div>
-                        <p className="text-sm font-bold text-slate-900">{user?.username}</p>
-                        <p className="text-xs text-slate-500">{user?.email}</p>
+                    <div className="flex items-center gap-8">
+                        <div className="text-right hidden sm:block">
+                            <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Identified As</p>
+                            <p className="text-sm font-bold text-white">{user?.username || 'Authorized Official'}</p>
+                        </div>
+                        <div className="h-10 w-px bg-white/10 hidden sm:block" />
+                        <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/5">
+                            <Calendar className="w-4 h-4 text-slate-400" />
+                            <span className="text-xs font-bold text-slate-300">
+                                {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
