@@ -405,7 +405,8 @@ public class RegistrationOrchestratorService {
             pirisaRequest.put("cmp_password", request.getPassword());
             pirisaRequest.put("orgId", orgId); // Unified orgId
 
-          
+
+            
             // Make HTTP POST request
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
