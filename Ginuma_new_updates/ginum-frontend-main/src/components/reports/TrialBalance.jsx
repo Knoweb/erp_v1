@@ -74,8 +74,8 @@ function TrialBalance() {
         </div>
       </div>
 
-      {/* Date Selection */}
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">
+      {/* Date Selection - Hidden on Print */}
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 no-print filter-section">
         <div className="flex flex-col sm:flex-row gap-4 items-end">
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-1">As Of Date</label>

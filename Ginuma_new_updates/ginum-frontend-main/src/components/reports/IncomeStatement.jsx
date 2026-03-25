@@ -71,8 +71,8 @@ function IncomeStatement() {
           )}
         </div>
 
-        {/* Date Filter */}
-        <div className="bg-white p-4 rounded-lg shadow-sm print:hidden">
+        {/* Date Filter - Hidden on Print */}
+        <div className="bg-white p-4 rounded-lg shadow-sm print:hidden no-print filter-section">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">

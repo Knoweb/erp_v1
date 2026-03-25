@@ -89,8 +89,8 @@ function GeneralLedger() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">
+      {/* Filters - Hidden on Print */}
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 no-print filter-section">
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
           <FaFilter className="mr-2 text-blue-600" /> Filters
         </h3>

@@ -12,26 +12,32 @@ const MainLayout = () => {
 
   return (
     <div className="flex h-screen w-full">
-      {/* Sidebar */}
-      <Sidebar isVisible={isSidebarVisible} />
+      {/* Sidebar - Hidden on Print */}
+      <aside className={`no-print ${isSidebarVisible ? "block" : "hidden"}`}>
+        <Sidebar isVisible={isSidebarVisible} />
+      </aside>
 
       {/* Main Content */}
       <div
-        className={`flex flex-col flex-1 h-full transition-all duration-300 ${
+        className={`flex flex-col flex-1 h-full transition-all duration-300 main-content ${
           isSidebarVisible ? "lg:ml-72 ml-0" : "md:ml-1 ml-0"
         }`}
       >
-        {/* Header with Fixed Height */}
-        <Header
-          toggleSidebar={toggleSidebar}
-          isSidebarVisible={isSidebarVisible}
-        />
+        {/* Header with Fixed Height - Hidden on Print */}
+        <header className="no-print">
+          <Header
+            toggleSidebar={toggleSidebar}
+            isSidebarVisible={isSidebarVisible}
+          />
+        </header>
 
-        {/* Tab Header */}
-        <TabHeader pathname={location.pathname} />
+        {/* Tab Header - Hidden on Print */}
+        <div className="no-print tab-header">
+          <TabHeader pathname={location.pathname} />
+        </div>
 
-        {/* Main Content Area */}
-        <main className="flex-1 bg-gray-100 w-full overflow-auto mt-[4rem]">
+        {/* Main Content Area - Full width on Print */}
+        <main className="flex-1 bg-gray-100 w-full overflow-auto mt-[4rem] print:mt-0 print:bg-white">
           <Outlet />
         </main>
       </div>

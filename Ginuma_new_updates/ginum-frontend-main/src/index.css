@@ -30,3 +30,58 @@
   -webkit-appearance: none;
   margin: 0;
 }
+
+/* Print Styles Optimization */
+@media print {
+    /* Hide navigation and UI elements */
+    .no-print,
+    nav,
+    aside,
+    header,
+    footer,
+    .fixed,
+    .sticky,
+    .tab-header,
+    button,
+    .filter-section {
+        display: none !important;
+    }
+
+    /* Reset layout for print */
+    body, html {
+        background-color: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    main, 
+    .main-content,
+    .flex-1 {
+        margin-left: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        display: block !important;
+        position: static !important;
+        overflow: visible !important;
+    }
+
+    /* Ensure specific report containers take full width */
+    .max-w-7xl {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Hide background colors and shadows if needed for clarity */
+    .shadow-sm, .shadow, .shadow-lg {
+        box-shadow: none !important;
+    }
+
+    /* Keep tables legible */
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+}
