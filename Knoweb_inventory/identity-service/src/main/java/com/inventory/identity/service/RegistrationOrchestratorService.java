@@ -393,8 +393,6 @@ public class RegistrationOrchestratorService {
         log.info("Setting up PirisaHR System for org_id: {} on remote IP", orgId);
 
         try {
-    private static final String PIRISA_SETUP_ENDPOINT = "http://152.42.213.138:8080/company/add_company";
-...
             // Build request Map for Pirisa (matching CompanyRegistrationRequest)
             java.util.Map<String, Object> pirisaRequest = new java.util.HashMap<>();
             pirisaRequest.put("cmp_name", request.getCompanyName());
@@ -405,8 +403,6 @@ public class RegistrationOrchestratorService {
             pirisaRequest.put("cmp_password", request.getPassword());
             pirisaRequest.put("orgId", orgId); // Unified orgId
 
-
-            
             // Make HTTP POST request
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
