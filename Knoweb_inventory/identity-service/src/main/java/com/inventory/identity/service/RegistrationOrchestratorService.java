@@ -44,7 +44,7 @@ public class RegistrationOrchestratorService {
     // System endpoint configurations (using Docker internal service names)
     private static final String GINUMA_SETUP_ENDPOINT = "http://ginuma-service:8081/api/tenant/setup";
     private static final String INVENTORY_SETUP_ENDPOINT = "http://user-service:8086/api/users/org/setup";
-    private static final String PIRISA_SETUP_ENDPOINT = "http://152.42.213.138:8080/api/company/register";
+    private static final String PIRISA_SETUP_ENDPOINT = "http://152.42.213.138:8080/company/add_company";
 
     /**
      * Main orchestration method
@@ -393,14 +393,16 @@ public class RegistrationOrchestratorService {
         log.info("Setting up PirisaHR System for org_id: {} on remote IP", orgId);
 
         try {
+    private static final String PIRISA_SETUP_ENDPOINT = "http://152.42.213.138:8080/company/add_company";
+...
             // Build request Map for Pirisa (matching CompanyRegistrationRequest)
             java.util.Map<String, Object> pirisaRequest = new java.util.HashMap<>();
-            pirisaRequest.put("cmpName", request.getCompanyName());
+            pirisaRequest.put("cmp_name", request.getCompanyName());
             pirisaRequest.put("cmpEmail", request.getEmail());
-            pirisaRequest.put("cmpPhone", request.getContactPhone());
-            pirisaRequest.put("cmpAddress", request.getRegisteredAddress());
+            pirisaRequest.put("cmp_phone", request.getContactPhone());
+            pirisaRequest.put("cmp_address", request.getRegisteredAddress());
             pirisaRequest.put("username", request.getEmail()); // Use email as username for SSO link
-            pirisaRequest.put("password", request.getPassword());
+            pirisaRequest.put("cmp_password", request.getPassword());
             pirisaRequest.put("orgId", orgId); // Unified orgId
 
             // Make HTTP POST request
