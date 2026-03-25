@@ -131,25 +131,53 @@ public class StockLedgerService {
         List<InventoryTransaction> transactions = transactionRepository
                 .findByProductIdAndWarehouseIdOrderByTransactionDateAsc(productId, warehouseId);
 
-        BigDecimal totalCost = BigDecimal.ZERO;
-        int totalQuantity = 0;
+        BigDecimal currentTotalValue = BigDecimal.ZERO;
+        int currentQuantity = 0;
 
         for (InventoryTransaction txn : transactions) {
-            if (txn.getType().name().equals("IN") || txn.getType().name().equals("RETURN")) {
-                if (txn.getUnitPrice() != null) {
-                    totalCost = totalCost.add(
-                            txn.getUnitPrice().multiply(BigDecimal.valueOf(txn.getQuantity())));
-                    totalQuantity += txn.getQuantity();
-                }
+            int qty = txn.getQuantity();
+            BigDecimal unitPrice = txn.getUnitPrice() != null ? txn.getUnitPrice() : BigDecimal.ZERO;
+
+            switch (txn.getType()) {
+                case IN:
+                case RETURN:
+                    // Add new cost layer to existing pool
+                    currentTotalValue = currentTotalValue.add(unitPrice.multiply(BigDecimal.valueOf(qty)));
+                    currentQuantity += qty;
+                    break;
+                case OUT:
+                case TRANSFER:
+                    // When moving out, the value decreases proportionally to current average
+                    if (currentQuantity > 0) {
+                        BigDecimal avgAtMoment = currentTotalValue.divide(BigDecimal.valueOf(currentQuantity), 4, RoundingMode.HALF_UP);
+                        currentTotalValue = currentTotalValue.subtract(avgAtMoment.multiply(BigDecimal.valueOf(qty)));
+                        currentQuantity -= qty;
+                    }
+                    break;
+                case ADJUSTMENT:
+                    if (qty >= 0) {
+                        currentTotalValue = currentTotalValue.add(unitPrice.multiply(BigDecimal.valueOf(qty)));
+                    } else {
+                        if (currentQuantity > 0) {
+                            BigDecimal avgAtMoment = currentTotalValue.divide(BigDecimal.valueOf(currentQuantity), 4, RoundingMode.HALF_UP);
+                            currentTotalValue = currentTotalValue.subtract(avgAtMoment.multiply(BigDecimal.valueOf(Math.abs(qty))));
+                        }
+                    }
+                    currentQuantity += qty;
+                    break;
             }
+            
+            // Safety: Floor values at zero
+            if (currentQuantity < 0) currentQuantity = 0;
+            if (currentTotalValue.compareTo(BigDecimal.ZERO) < 0) currentTotalValue = BigDecimal.ZERO;
         }
 
-        if (totalQuantity == 0) {
+        if (currentQuantity <= 0) {
             return BigDecimal.ZERO;
         }
 
-        return totalCost.divide(
-                BigDecimal.valueOf(totalQuantity),
+        return currentTotalValue.divide(
+                BigDecimal.valueOf(currentQuantity),
                 4,
                 RoundingMode.HALF_UP);
     }
