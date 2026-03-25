@@ -49,18 +49,18 @@ const CompanyProfile = () => {
     };
 
     return (
-        <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
-            {/* Premium Header Section */}
-            <div className="relative overflow-hidden bg-slate-950 rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-white/5 group">
+        <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-700">
+            {/* Optimized Premium Header Section */}
+            <div className="relative overflow-hidden bg-slate-950 rounded-[2rem] p-6 md:p-8 shadow-2xl border border-white/5 group">
                 {/* Decorative Elements */}
-                <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] group-hover:bg-indigo-600/30 transition-colors duration-700" />
-                <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-blue-600/10 rounded-full blur-[80px]" />
+                <div className="absolute -top-24 -right-24 w-72 h-72 bg-indigo-600/15 rounded-full blur-[100px] group-hover:bg-indigo-600/25 transition-colors duration-700" />
+                <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-blue-600/5 rounded-full blur-[60px]" />
                 
-                <div className="relative flex flex-col md:flex-row items-center md:items-start gap-8">
-                    {/* Iconic Company Logo */}
+                <div className="relative flex flex-col md:flex-row items-center md:items-center gap-6 md:gap-10">
+                    {/* Iconic Company Logo (Smaller) */}
                     <div className="relative">
-                        <div className="absolute -inset-1 bg-gradient-to-tr from-indigo-500 to-blue-500 rounded-3xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
-                        <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-3xl bg-slate-900 flex items-center justify-center border border-white/10 shadow-2xl overflow-hidden">
+                        <div className="absolute -inset-1 bg-gradient-to-tr from-indigo-500 to-blue-500 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                        <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-[1.5rem] bg-slate-900 flex items-center justify-center border border-white/10 shadow-2xl overflow-hidden">
                             {profileData.logoUrl ? (
                                 <img 
                                     src={`${API_BASE_URL}${profileData.logoUrl}`}
@@ -69,26 +69,26 @@ const CompanyProfile = () => {
                                 />
                             ) : (
                                 <div className="flex flex-col items-center">
-                                    <Building2 className="w-16 h-16 text-indigo-400 mb-2" />
-                                    <span className="text-[10px] font-black text-indigo-500/50 tracking-tighter uppercase">EST. 2026</span>
+                                    <Building2 className="w-10 h-10 text-indigo-400 mb-1" />
+                                    <span className="text-[8px] font-black text-indigo-500/50 tracking-tighter uppercase">EST. 2026</span>
                                 </div>
                             )}
                         </div>
                     </div>
 
-                    {/* Elite Company Info */}
-                    <div className="flex-1 text-center md:text-left space-y-4">
+                    {/* Compact Elite Company Info */}
+                    <div className="flex-1 text-center md:text-left space-y-3">
                         <div>
-                            <h1 className="text-4xl md:text-6xl font-black text-white mb-2 tracking-tight drop-shadow-sm">
+                            <h1 className="text-3xl md:text-5xl font-black text-white mb-2 tracking-tight drop-shadow-sm">
                                 {profileData.name}
                             </h1>
-                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-4">
-                                <span className="px-5 py-2 bg-indigo-500/10 backdrop-blur-md text-indigo-300 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] border border-indigo-500/20 shadow-lg">
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 mt-3">
+                                <span className="px-4 py-1.5 bg-indigo-500/10 backdrop-blur-md text-indigo-300 rounded-xl text-[10px] font-black uppercase tracking-widest border border-indigo-500/20 shadow-lg">
                                     {profileData.industryType || 'STANDARD'} SYSTEM
                                 </span>
                                 {(profileData.isActive !== false) && (
-                                    <span className="px-5 py-2 bg-emerald-500/10 backdrop-blur-md text-emerald-300 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] border border-emerald-500/20 shadow-lg flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] animate-pulse" />
+                                    <span className="px-4 py-1.5 bg-emerald-500/10 backdrop-blur-md text-emerald-300 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-500/20 shadow-lg flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] animate-pulse" />
                                         ACTIVE
                                     </span>
                                 )}
