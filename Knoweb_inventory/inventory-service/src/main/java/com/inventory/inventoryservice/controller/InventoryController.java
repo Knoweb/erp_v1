@@ -79,6 +79,16 @@ public class InventoryController {
         return ResponseEntity.ok(inventoryService.getTransactionsByProduct(productId));
     }
 
+    @PostMapping("/stocks/rebuild/{productId}/warehouse/{warehouseId}")
+    public ResponseEntity<String> rebuildLedger(@PathVariable Long productId, @PathVariable Long warehouseId) {
+        try {
+            inventoryService.rebuildLedger(productId, warehouseId);
+            return ResponseEntity.ok("Ledger rebuilt successfully for productId=" + productId + " and warehouseId=" + warehouseId);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to rebuild ledger: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/stocks/low-stock/count")
     public ResponseEntity<Long> getLowStockCount(
             @RequestHeader(value = "X-Org-ID", required = false) Long orgId) {

@@ -351,4 +351,8 @@ public class InventoryService {
         }
         return count;
     }
+
+    public void rebuildLedger(Long productId, Long warehouseId) {
+        stockLedgerService.rebuildLedger(productId, warehouseId);
+    }
 }
