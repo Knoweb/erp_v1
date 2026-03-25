@@ -134,7 +134,7 @@ function PurchaseOrdersTable({
                                     };
                                     const isPending = order.status === 'PENDING';
                                     const isApproved = order.status === 'APPROVED';
-                                    const isDone = order.status === 'RECEIVED' || order.status === 'CANCELLED';
+                                    const isDone = order.status === 'RECEIVED' || order.status === 'CANCELLED' || order.status === 'RETURNED';
 
                                     return (
                                         <tr key={order.id ?? idx} className="hover:bg-slate-50/50 transition-colors group">

@@ -269,8 +269,8 @@ public class PurchaseOrderService {
         PurchaseOrder order = purchaseOrderRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Purchase order not found: " + id));
 
-        if (order.getStatus() == OrderStatus.RECEIVED) {
-            throw new IllegalStateException("Cannot cancel an already RECEIVED order.");
+        if (order.getStatus() == OrderStatus.RECEIVED || order.getStatus() == OrderStatus.RETURNED) {
+            throw new IllegalStateException("Cannot cancel an order that has already been RECEIVED or RETURNED.");
         }
         order.setStatus(OrderStatus.CANCELLED);
         log.info("Purchase order {} cancelled", id);
