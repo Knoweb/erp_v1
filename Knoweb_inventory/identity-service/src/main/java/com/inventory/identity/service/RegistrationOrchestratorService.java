@@ -402,9 +402,6 @@ public class RegistrationOrchestratorService {
             pirisaRequest.put("username", request.getEmail()); // Use email as username for SSO link
             pirisaRequest.put("password", request.getPassword());
             pirisaRequest.put("orgId", orgId); // Unified orgId
-            pirisaRequest.put("cmpRegNo", request.getRegistrationNo());
-            pirisaRequest.put("tinNo", request.getTinNo());
-            pirisaRequest.put("vatNo", request.getVatNo());
 
             // Make HTTP POST request
             HttpHeaders headers = new HttpHeaders();
