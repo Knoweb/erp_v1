@@ -44,7 +44,7 @@ public class RegistrationOrchestratorService {
     // System endpoint configurations (using Docker internal service names)
     private static final String GINUMA_SETUP_ENDPOINT = "http://ginuma-service:8081/api/tenant/setup";
     private static final String INVENTORY_SETUP_ENDPOINT = "http://user-service:8086/api/users/org/setup";
-    private static final String PIRISA_SETUP_ENDPOINT = "http://152.42.213.138:8080/company/add_company";
+    private static final String PIRISA_SETUP_ENDPOINT = "http://152.42.213.138/api/company/add_company";
 
     /**
      * Main orchestration method
