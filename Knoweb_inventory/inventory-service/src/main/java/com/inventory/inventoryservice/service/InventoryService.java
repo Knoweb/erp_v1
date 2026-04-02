@@ -141,20 +141,39 @@ public class InventoryService {
         // Save transaction first
         InventoryTransaction savedTransaction = transactionRepository.save(transaction);
 
-        // Update stock based on transaction type
-        Stock stock = stockRepository.findByProductIdAndWarehouseId(
-                transaction.getProductId(),
-                transaction.getWarehouseId()).orElseGet(() -> {
-                    Stock newStock = new Stock();
-                    newStock.setProductId(transaction.getProductId());
-                    newStock.setWarehouseId(transaction.getWarehouseId());
-                    newStock.setBranchId(transaction.getWarehouseId()); // Set from warehouse
-                    newStock.setQuantity(0);
-                    newStock.setAvailableQuantity(0);
-                    newStock.setReservedQuantity(0);
-                    newStock.setOrgId(transaction.getOrgId());
-                    return newStock;
-                });
+        // ✅ CRITICAL FIX #2: Use pessimistic locking for OUT and TRANSFER to prevent race conditions
+        // Use locked query for operations that modify stock
+        Stock stock = null;
+        if (transaction.getType() == InventoryTransaction.TransactionType.OUT || 
+            transaction.getType() == InventoryTransaction.TransactionType.TRANSFER) {
+            stock = stockRepository.findByProductIdAndWarehouseIdWithLock(
+                    transaction.getProductId(),
+                    transaction.getWarehouseId()).orElseGet(() -> {
+                        Stock newStock = new Stock();
+                        newStock.setProductId(transaction.getProductId());
+                        newStock.setWarehouseId(transaction.getWarehouseId());
+                        newStock.setBranchId(transaction.getWarehouseId());
+                        newStock.setQuantity(0);
+                        newStock.setAvailableQuantity(0);
+                        newStock.setReservedQuantity(0);
+                        newStock.setOrgId(transaction.getOrgId());
+                        return newStock;
+                    });
+        } else {
+            stock = stockRepository.findByProductIdAndWarehouseId(
+                    transaction.getProductId(),
+                    transaction.getWarehouseId()).orElseGet(() -> {
+                        Stock newStock = new Stock();
+                        newStock.setProductId(transaction.getProductId());
+                        newStock.setWarehouseId(transaction.getWarehouseId());
+                        newStock.setBranchId(transaction.getWarehouseId());
+                        newStock.setQuantity(0);
+                        newStock.setAvailableQuantity(0);
+                        newStock.setReservedQuantity(0);
+                        newStock.setOrgId(transaction.getOrgId());
+                        return newStock;
+                    });
+        }
 
         switch (transaction.getType()) {
             case IN:
@@ -162,6 +181,13 @@ public class InventoryService {
                 stock.setAvailableQuantity(stock.getAvailableQuantity() + transaction.getQuantity());
                 break;
             case OUT:
+                // ✅ CRITICAL FIX #1: Validate sufficient stock before deducting
+                if (stock.getAvailableQuantity() < transaction.getQuantity()) {
+                    throw new IllegalArgumentException(
+                        "Insufficient stock for product " + transaction.getProductId() + 
+                        ": Available " + stock.getAvailableQuantity() + 
+                        ", Requested " + transaction.getQuantity());
+                }
                 stock.setQuantity(stock.getQuantity() - transaction.getQuantity());
                 stock.setAvailableQuantity(stock.getAvailableQuantity() - transaction.getQuantity());
                 break;
@@ -170,6 +196,13 @@ public class InventoryService {
                 stock.setAvailableQuantity(transaction.getQuantity());
                 break;
             case TRANSFER:
+                // ✅ CRITICAL FIX #3: Validate sufficient stock before transferring
+                if (stock.getAvailableQuantity() < transaction.getQuantity()) {
+                    throw new IllegalArgumentException(
+                        "Insufficient stock for transfer of product " + transaction.getProductId() + 
+                        ": Available " + stock.getAvailableQuantity() + 
+                        ", Requested " + transaction.getQuantity());
+                }
                 // 1. Subtract from source
                 stock.setQuantity(stock.getQuantity() - transaction.getQuantity());
                 stock.setAvailableQuantity(stock.getAvailableQuantity() - transaction.getQuantity());

@@ -1,6 +1,7 @@
 package com.inventory.inventoryservice.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,13 +28,20 @@ public class Stock {
     private Long branchId;
 
     @Column(nullable = false)
+    @Min(value = 0, message = "Quantity cannot be negative")
     private Integer quantity = 0;
 
     @Column(name = "available_quantity")
+    @Min(value = 0, message = "Available quantity cannot be negative")
     private Integer availableQuantity = 0;
 
     @Column(name = "reserved_quantity")
+    @Min(value = 0, message = "Reserved quantity cannot be negative")
     private Integer reservedQuantity = 0;
+    
+    // ✅ CRITICAL FIX #5: Optimistic locking version for concurrency control
+    @Version
+    private Long version = 0L;
 
     @Column(name = "org_id")
     private Long orgId;
