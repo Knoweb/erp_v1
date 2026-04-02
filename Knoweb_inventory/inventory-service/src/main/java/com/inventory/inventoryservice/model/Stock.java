@@ -40,8 +40,10 @@ public class Stock {
     private Integer reservedQuantity = 0;
     
     // ✅ CRITICAL FIX #5: Optimistic locking version for concurrency control
+    // NOTE: Initialize to null - Hibernate manages version field initialization
     @Version
-    private Long version = 0L;
+    @Column(columnDefinition = "BIGINT DEFAULT 0")
+    private Long version;
 
     @Column(name = "org_id")
     private Long orgId;
