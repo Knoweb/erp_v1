@@ -268,17 +268,12 @@ function Inventory() {
                       <tr key={stock.id} className={`hover:bg-slate-50 transition-colors group ${isOut ? 'opacity-60 grayscale-[0.5]' : ''}`}>
                         <td className="px-6 py-4 text-[10px] font-black text-slate-300 uppercase tracking-tighter">{idx + 1}</td>
                         <td className="px-6 py-4">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-[10px] font-mono font-black rounded border border-indigo-100 shadow-sm tracking-widest group-hover:bg-indigo-100 transition-colors">ID-{stock.productId}</span>
-                            <span className="text-xs font-semibold text-slate-700">{stock.productName || 'N/A'}</span>
-                          </div>
+                          <span className="text-sm font-semibold text-slate-700">{stock.productName || 'N/A'}</span>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="flex items-center gap-1.5 text-xs font-bold text-slate-600 italic">
-                              <span className="opacity-40">🏢</span> WH-{stock.warehouseId}
-                            </span>
-                            <span className="text-xs font-semibold text-slate-700">{stock.warehouseName || 'N/A'}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="opacity-50">🏢</span>
+                            <span className="text-sm font-semibold text-slate-700">{stock.warehouseName || 'N/A'}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
@@ -327,15 +322,12 @@ function Inventory() {
                       <td className="px-6 py-4"><span className="text-[10px] font-black text-slate-400 bg-slate-50 px-2 py-1 rounded shadow-inner tracking-widest">#{tx.id}</span></td>
                       <td className="px-6 py-4"><TypeBadge type={tx.type} /></td>
                       <td className="px-6 py-4">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="px-2 py-1 bg-indigo-50/50 text-indigo-500 text-[10px] font-mono font-bold rounded uppercase tracking-widest">ID-{tx.productId}</span>
-                          <span className="text-xs font-semibold text-slate-700">{tx.productName || 'N/A'}</span>
-                        </div>
+                        <span className="text-sm font-semibold text-slate-700">{tx.productName || 'N/A'}</span>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-xs font-bold text-slate-600 italic">🏢 WH-{tx.warehouseId}</span>
-                          <span className="text-xs font-semibold text-slate-700">{tx.warehouseName || 'N/A'}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="opacity-50">🏢</span>
+                          <span className="text-sm font-semibold text-slate-700">{tx.warehouseName || 'N/A'}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
