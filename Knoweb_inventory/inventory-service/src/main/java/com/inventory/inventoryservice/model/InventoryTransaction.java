@@ -69,7 +69,17 @@ public class InventoryTransaction {
     
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-    
+
+    // ✅ NEW: Transient fields for API response (not persisted to DB)
+    @Transient
+    private String productName;
+
+    @Transient
+    private String warehouseName;
+
+    @Transient
+    private String toWarehouseName;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

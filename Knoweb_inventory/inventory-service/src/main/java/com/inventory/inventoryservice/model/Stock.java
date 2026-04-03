@@ -57,6 +57,13 @@ public class Stock {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    // ✅ NEW: Transient fields for API response (not persisted to DB)
+    @Transient
+    private String productName;
+
+    @Transient
+    private String warehouseName;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

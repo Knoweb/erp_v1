@@ -17,11 +17,13 @@ public class InventoryController {
     private final InventoryService inventoryService;
 
     @GetMapping("/stocks")
-    public ResponseEntity<List<com.inventory.inventoryservice.dto.StockResponseDto>> getAllStocks(
+    public ResponseEntity<List<Stock>> getAllStocks(
             @RequestHeader(value = "X-Org-ID", required = false) Long orgId) {
-        List<com.inventory.inventoryservice.dto.StockResponseDto> stocks = (orgId != null)
-                ? inventoryService.getStocksByOrgWithDetails(orgId)
-                : inventoryService.getAllStocksWithDetails();
+        List<Stock> stocks = (orgId != null)
+                ? inventoryService.getStocksByOrg(orgId)
+                : inventoryService.getAllStocks();
+        // ✅ NEW: Enrich stocks with product and warehouse names
+        stocks = inventoryService.enrichStocksWithNames(stocks);
         return ResponseEntity.ok(stocks);
     }
 
@@ -65,6 +67,8 @@ public class InventoryController {
         List<InventoryTransaction> txns = (orgId != null)
                 ? inventoryService.getTransactionsByOrg(orgId)
                 : inventoryService.getAllTransactions();
+        // ✅ NEW: Enrich transactions with product and warehouse names
+        txns = inventoryService.enrichTransactionsWithNames(txns);
         return ResponseEntity.ok(txns);
     }
 

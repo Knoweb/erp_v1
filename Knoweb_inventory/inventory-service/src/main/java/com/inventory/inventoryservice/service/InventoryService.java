@@ -388,4 +388,101 @@ public class InventoryService {
     public void rebuildLedger(Long productId, Long warehouseId) {
         stockLedgerService.rebuildLedger(productId, warehouseId);
     }
+
+    // ✅ NEW: Enrich stocks/transactions with product and warehouse names for UI display
+    
+    /**
+     * Enrich a single stock with product and warehouse names
+     */
+    public Stock enrichStockWithNames(Stock stock) {
+        if (stock == null) return null;
+        
+        try {
+            // Fetch product name
+            com.inventory.inventoryservice.dto.ProductDto product = restTemplate.getForObject(
+                    PRODUCT_SERVICE_URL + stock.getProductId(),
+                    com.inventory.inventoryservice.dto.ProductDto.class);
+            if (product != null && product.getName() != null) {
+                stock.setProductName(product.getName());
+            }
+        } catch (RestClientException e) {
+            stock.setProductName("Product " + stock.getProductId());
+        }
+        
+        try {
+            // Fetch warehouse name
+            com.inventory.inventoryservice.dto.WarehouseDto warehouse = restTemplate.getForObject(
+                    WAREHOUSE_SERVICE_URL + stock.getWarehouseId(),
+                    com.inventory.inventoryservice.dto.WarehouseDto.class);
+            if (warehouse != null && warehouse.getWarehouseName() != null) {
+                stock.setWarehouseName(warehouse.getWarehouseName());
+            }
+        } catch (RestClientException e) {
+            stock.setWarehouseName("Warehouse " + stock.getWarehouseId());
+        }
+        
+        return stock;
+    }
+
+    /**
+     * Enrich a list of stocks with product and warehouse names
+     */
+    public List<Stock> enrichStocksWithNames(List<Stock> stocks) {
+        return stocks.stream().map(this::enrichStockWithNames).collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * Enrich a single transaction with product and warehouse names
+     */
+    public InventoryTransaction enrichTransactionWithNames(InventoryTransaction tx) {
+        if (tx == null) return null;
+        
+        try {
+            // Fetch product name
+            com.inventory.inventoryservice.dto.ProductDto product = restTemplate.getForObject(
+                    PRODUCT_SERVICE_URL + tx.getProductId(),
+                    com.inventory.inventoryservice.dto.ProductDto.class);
+            if (product != null && product.getName() != null) {
+                tx.setProductName(product.getName());
+            }
+        } catch (RestClientException e) {
+            tx.setProductName("Product " + tx.getProductId());
+        }
+        
+        try {
+            // Fetch warehouse name
+            com.inventory.inventoryservice.dto.WarehouseDto warehouse = restTemplate.getForObject(
+                    WAREHOUSE_SERVICE_URL + tx.getWarehouseId(),
+                    com.inventory.inventoryservice.dto.WarehouseDto.class);
+            if (warehouse != null && warehouse.getWarehouseName() != null) {
+                tx.setWarehouseName(warehouse.getWarehouseName());
+            }
+        } catch (RestClientException e) {
+            tx.setWarehouseName("Warehouse " + tx.getWarehouseId());
+        }
+        
+        // Fetch destination warehouse name if TRANSFER
+        if (tx.getToWarehouseId() != null) {
+            try {
+                com.inventory.inventoryservice.dto.WarehouseDto toWarehouse = restTemplate.getForObject(
+                        WAREHOUSE_SERVICE_URL + tx.getToWarehouseId(),
+                        com.inventory.inventoryservice.dto.WarehouseDto.class);
+                if (toWarehouse != null && toWarehouse.getWarehouseName() != null) {
+                    tx.setToWarehouseName(toWarehouse.getWarehouseName());
+                }
+            } catch (RestClientException e) {
+                tx.setToWarehouseName("Warehouse " + tx.getToWarehouseId());
+            }
+        }
+        
+        return tx;
+    }
+
+    /**
+     * Enrich a list of transactions with product and warehouse names
+     */
+    public List<InventoryTransaction> enrichTransactionsWithNames(List<InventoryTransaction> transactions) {
+        return transactions.stream().map(this::enrichTransactionWithNames).collect(java.util.stream.Collectors.toList());
+    }
 }
+
