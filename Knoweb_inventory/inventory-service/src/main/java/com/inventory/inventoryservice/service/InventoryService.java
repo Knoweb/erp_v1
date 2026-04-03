@@ -404,8 +404,11 @@ public class InventoryService {
                     com.inventory.inventoryservice.dto.ProductDto.class);
             if (product != null && product.getName() != null) {
                 stock.setProductName(product.getName());
+            } else {
+                stock.setProductName("Product " + stock.getProductId());
             }
-        } catch (RestClientException e) {
+        } catch (Exception e) {
+            log.warn("Failed to fetch product name for product ID {}: {}", stock.getProductId(), e.getMessage());
             stock.setProductName("Product " + stock.getProductId());
         }
         
@@ -416,8 +419,12 @@ public class InventoryService {
                     com.inventory.inventoryservice.dto.WarehouseDto.class);
             if (warehouse != null && warehouse.getWarehouseName() != null) {
                 stock.setWarehouseName(warehouse.getWarehouseName());
+            } else {
+                log.warn("No warehouse found for warehouse ID: {} or warehouse name is null", stock.getWarehouseId());
+                stock.setWarehouseName("Warehouse " + stock.getWarehouseId());
             }
-        } catch (RestClientException e) {
+        } catch (Exception e) {
+            log.warn("Failed to fetch warehouse name for warehouse ID {}: {}", stock.getWarehouseId(), e.getMessage());
             stock.setWarehouseName("Warehouse " + stock.getWarehouseId());
         }
         
@@ -444,8 +451,11 @@ public class InventoryService {
                     com.inventory.inventoryservice.dto.ProductDto.class);
             if (product != null && product.getName() != null) {
                 tx.setProductName(product.getName());
+            } else {
+                tx.setProductName("Product " + tx.getProductId());
             }
-        } catch (RestClientException e) {
+        } catch (Exception e) {
+            log.warn("Failed to fetch product name for product ID {}: {}", tx.getProductId(), e.getMessage());
             tx.setProductName("Product " + tx.getProductId());
         }
         
@@ -456,8 +466,12 @@ public class InventoryService {
                     com.inventory.inventoryservice.dto.WarehouseDto.class);
             if (warehouse != null && warehouse.getWarehouseName() != null) {
                 tx.setWarehouseName(warehouse.getWarehouseName());
+            } else {
+                log.warn("No warehouse found for warehouse ID: {} or warehouse name is null", tx.getWarehouseId());
+                tx.setWarehouseName("Warehouse " + tx.getWarehouseId());
             }
-        } catch (RestClientException e) {
+        } catch (Exception e) {
+            log.warn("Failed to fetch warehouse name for warehouse ID {}: {}", tx.getWarehouseId(), e.getMessage());
             tx.setWarehouseName("Warehouse " + tx.getWarehouseId());
         }
         
@@ -469,8 +483,12 @@ public class InventoryService {
                         com.inventory.inventoryservice.dto.WarehouseDto.class);
                 if (toWarehouse != null && toWarehouse.getWarehouseName() != null) {
                     tx.setToWarehouseName(toWarehouse.getWarehouseName());
+                } else {
+                    log.warn("No destination warehouse found for warehouse ID: {} or name is null", tx.getToWarehouseId());
+                    tx.setToWarehouseName("Warehouse " + tx.getToWarehouseId());
                 }
-            } catch (RestClientException e) {
+            } catch (Exception e) {
+                log.warn("Failed to fetch destination warehouse name for warehouse ID {}: {}", tx.getToWarehouseId(), e.getMessage());
                 tx.setToWarehouseName("Warehouse " + tx.getToWarehouseId());
             }
         }
