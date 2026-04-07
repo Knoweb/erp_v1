@@ -10,6 +10,7 @@ import SuperAdminLogin from './pages/SuperAdminLogin';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Users from './pages/Users';
 import ScrollToTop from './components/ScrollToTop';
 import Payment from './pages/Payment';
 import LandingPage from './pages/LandingPage';
@@ -28,6 +29,7 @@ function App() {
           <Route path="/superadmin/login" element={<SuperAdminLogin />} />
           <Route path="/superadmin/dashboard" element={<SuperAdminDashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/users" element={<Users />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/landingpage" element={<LandingPage />} />
           <Route path="/pirisahr-landing" element={<PirisaLandingPage />} />

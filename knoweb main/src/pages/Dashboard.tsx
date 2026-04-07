@@ -612,6 +612,15 @@ const Dashboard = () => {
                 <span>{systemData?.status}</span>
               </div>
 
+              {/* Manage Users / Employees */}
+              <button
+                onClick={() => navigate('/users')}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-all flex items-center justify-center gap-2 shadow-sm"
+              >
+                <User className="w-5 h-5" />
+                Manage Employees
+              </button>
+
               {/* Logout Button */}
               <button
                 onClick={handleLogout}
