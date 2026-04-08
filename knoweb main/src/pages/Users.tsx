@@ -238,27 +238,27 @@ const Users = () => {
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">First Name *</label>
-                  <input type="text" name="firstName" required value={formData.firstName} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+                  <input type="text" name="firstName" required value={formData.firstName} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white text-slate-900 placeholder:text-slate-400" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Last Name</label>
-                  <input type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+                  <input type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white text-slate-900 placeholder:text-slate-400" />
                 </div>
               </div>
               
               <div className="mb-4">
                 <label className="block text-sm font-medium text-slate-700 mb-1">Email (Login ID) *</label>
-                <input type="email" name="email" required value={formData.email} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+                <input type="email" name="email" required value={formData.email} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white text-slate-900 placeholder:text-slate-400" />
               </div>
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-slate-700 mb-1">Temporary Password *</label>
-                <input type="password" name="password" required minLength={6} value={formData.password} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+                <input type="password" name="password" required minLength={6} value={formData.password} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white text-slate-900 placeholder:text-slate-400" />
               </div>
 
               <div className="mb-6">
                 <label className="block text-sm font-medium text-slate-700 mb-1">Global System Role *</label>
-                <select name="role" required value={formData.role} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                <select name="role" required value={formData.role} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white text-slate-900">
                   <optgroup label="General Roles">
                     <option value="ROLE_USER">Basic User</option>
                     <option value="ROLE_MANAGER">Department Manager</option>
