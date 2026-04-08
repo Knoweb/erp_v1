@@ -29,7 +29,7 @@ const Login = () => {
     try {
       // Call API Gateway (port 8080) instead of identity service directly
       // Gateway will route to identity-service internally
-      const response = await fetch(`${gatewayBaseUrl}/api/auth/login`, {
+      let response = await fetch(`${gatewayBaseUrl}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -39,6 +39,33 @@ const Login = () => {
           password: formData.password
         })
       });
+
+      // CROSS-SYSTEM SSO FALLBACK: If user is an Inventory/Manufacturing Role created in Middeniya, 
+      // they don't exist in the Main ERP DB! Let's dynamically check Middeniya's DB if Main fails.
+      if (!response.ok) {
+        const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const middeniyaBackendUrl = IS_LOCAL ? `${protocol}//${host}:8082` : 'http://178.128.221.122:8080';
+        
+        console.log('Login failed on Main ERP (User not found). Attemping cross-system SSO to Middeniya...');
+        
+        try {
+          const fallbackResponse = await fetch(`${middeniyaBackendUrl}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              username: formData.email,
+              password: formData.password
+            })
+          });
+
+          if (fallbackResponse.ok) {
+            console.log('✅ Succesfully authenticated via Middeniya Database!');
+            response = fallbackResponse; // If successful, swap the response so the UI proceeds!
+          }
+        } catch (fallbackError) {
+          console.error('⚠️ Middeniya fallback also failed or unreachable:', fallbackError);
+        }
+      }
 
       if (!response.ok) {
         if (response.status === 401) {
