@@ -131,8 +131,50 @@ const Login = () => {
       console.log('User Details:', userDetails);
       localStorage.setItem('userDetails', JSON.stringify(userDetails));
       
-      // Redirect to dashboard
-      console.log('🎉 Login successful, redirecting to dashboard...');
+      // Auto-routing based on Roles
+      const role = data.role || data.roles?.[0] || 'USER';
+      console.log('User Role:', role);
+
+      let targetUrl = '/dashboard'; // Default to main dashboard
+      
+      const IS_LOCAL = host === 'localhost' || host === '127.0.0.1';
+      // IP for Middeniya frontend (Inventory)
+      const inventoryDomain = IS_LOCAL ? `${protocol}//${host}:5174` : 'http://178.128.221.122:3002';
+      let needsSsoHandoff = false;
+
+      if (role === 'ROLE_INV_STOCK_KEEPER') {
+        targetUrl = '/stores';
+        needsSsoHandoff = true;
+      } else if (role === 'ROLE_INV_MOLDING') {
+        targetUrl = '/molding';
+        needsSsoHandoff = true;
+      } else if (role === 'ROLE_INV_QC') {
+        targetUrl = '/qc';
+        needsSsoHandoff = true;
+      } else if (role === 'ROLE_INV_ASSEMBLE') {
+        targetUrl = '/assemble';
+        needsSsoHandoff = true;
+      } else if (role === 'ROLE_INV_PRIMARY') {
+        targetUrl = '/primary';
+        needsSsoHandoff = true;
+      }
+      
+      if (needsSsoHandoff) {
+        console.log(`🎉 Login successful, SSO redirecting to ${targetUrl} in Middeniya Inventory...`);
+        // We use the SsoReceiver component route established in the inventory-frontend
+        const ssoUrl = new URL(`${inventoryDomain}/sso-login`);
+        ssoUrl.searchParams.append('token', token);
+        ssoUrl.searchParams.append('redirectTo', targetUrl);
+        if (data.refreshToken) ssoUrl.searchParams.append('refreshToken', data.refreshToken);
+        if (data.userId) ssoUrl.searchParams.append('userId', data.userId);
+        if (data.orgId) ssoUrl.searchParams.append('orgId', data.orgId);
+        
+        window.location.href = ssoUrl.toString();
+        return; // Prevent navigate below
+      }
+
+      // Default Admin and Manager roles redirect to Main Dashboard
+      console.log('🎉 Login successful, redirecting to Main Dashboard...');
       navigate('/dashboard');
       
     } catch (err) {
