@@ -64,7 +64,10 @@ const Users = () => {
   const fetchUsers = async (orgId: number, token: string) => {
     try {
       setLoading(true);
-      const response = await axios.get(`${GATEWAY_URL}/api/users/organization/${orgId}`, {
+      const MIDDENIYA_ORG_ID = 18;
+      const targetGateway = orgId === MIDDENIYA_ORG_ID ? 'http://178.128.221.122:8080' : GATEWAY_URL;
+
+      const response = await axios.get(`${targetGateway}/api/users/organization/${orgId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(response.data);
@@ -97,14 +100,31 @@ const Users = () => {
         role: formData.role
       };
 
-      await axios.post(`${GATEWAY_URL}/api/auth/register`, payload, {
+      // Determine where the API call should go based on Organization ID
+      const MIDDENIYA_ORG_ID = 18;
+      let targetGateway = GATEWAY_URL; // Default gateway
+
+      if (userDetails.orgId === MIDDENIYA_ORG_ID) {
+        // Reroute to Middeniya specific droplet API Gateway
+        targetGateway = 'http://178.128.221.122:8080';
+      }
+
+      await axios.post(`${targetGateway}/api/auth/register`, payload, {
         headers: { Authorization: `Bearer ${jwtToken}` }
       });
       
-      alert('Employee creation initiated! Note: the backend may require an explicit "add-employee" endpoint for roles to map correctly directly to your organization.');
+      alert('Employee creation initiated successfully.');
       
       setShowModal(false);
-      fetchUsers(userDetails.orgId, jwtToken);
+      
+      // Update from correct gateway
+      setLoading(true);
+      const response = await axios.get(`${targetGateway}/api/users/organization/${userDetails.orgId}`, {
+        headers: { Authorization: `Bearer ${jwtToken}` }
+      });
+      setUsers(response.data);
+      setLoading(false);
+
     } catch (err: any) {
       alert(`Error creating employee: ${err.response?.data?.message || err.message}`);
     }
