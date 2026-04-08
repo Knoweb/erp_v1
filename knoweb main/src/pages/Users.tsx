@@ -94,6 +94,7 @@ const Users = () => {
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
+        orgId: userDetails.orgId,
         industryType: userDetails.industryType || 'MANUFACTURING',
         companyName: userDetails.companyName || 'Company',
         // role is theoretically handled appropriately if backend endpoint is supported
