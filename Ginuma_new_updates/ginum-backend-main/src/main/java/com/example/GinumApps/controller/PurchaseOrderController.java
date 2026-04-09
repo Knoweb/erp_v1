@@ -50,6 +50,13 @@ public class PurchaseOrderController {
         return ResponseEntity.ok(purchaseOrderService.getAllPurchaseOrdersByCompany(companyId));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<PurchaseOrderResponseDto> getPurchaseOrderById(
+            @PathVariable Integer companyId,
+            @PathVariable Long id) {
+        return ResponseEntity.ok(purchaseOrderService.getPurchaseOrderById(id, companyId));
+    }
+
     // Exception handler for validation errors
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalArgumentException.class)

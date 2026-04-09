@@ -413,6 +413,15 @@ public class PurchaseOrderService {
         return pos.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
+    public PurchaseOrderResponseDto getPurchaseOrderById(Long id, Integer companyId) {
+        PurchaseOrder order = purchaseOrderRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Purchase Order not found with ID: " + id));
+        if (companyId != null && (order.getCompany() == null || !order.getCompany().getCompanyId().equals(companyId))) {
+            throw new AccessDeniedException("You don't have access to this order.");
+        }
+        return convertToDto(order);
+    }
+
     private PurchaseOrderItemResponseDto convertItemToDto(PurchaseOrderLineItem item) {
         PurchaseOrderItemResponseDto itemDto = new PurchaseOrderItemResponseDto();
         if (item.getItem() != null) {

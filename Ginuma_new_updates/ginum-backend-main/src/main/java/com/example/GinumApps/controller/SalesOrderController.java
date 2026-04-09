@@ -56,6 +56,13 @@ public class SalesOrderController {
         return ResponseEntity.ok(salesOrderService.getAllSalesOrdersByCompany(companyId));
     }
 
+    @GetMapping("/company/{companyId}/{id}")
+    public ResponseEntity<SalesOrderResponseDto> getSalesOrderById(
+            @PathVariable Integer companyId,
+            @PathVariable Long id) {
+        return ResponseEntity.ok(salesOrderService.getSalesOrderById(id, companyId));
+    }
+
     @PostMapping("/company/{companyId}/pay/{soId}")
     public ResponseEntity<?> paySalesOrder(
             @PathVariable Integer companyId,

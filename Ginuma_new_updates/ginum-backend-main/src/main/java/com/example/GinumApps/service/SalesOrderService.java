@@ -61,6 +61,15 @@ public class SalesOrderService {
                 .collect(Collectors.toList());
     }
 
+    public SalesOrderResponseDto getSalesOrderById(Long id, Integer companyId) {
+        SalesOrder order = salesOrderRepo.findById(id)
+                .orElseThrow(() -> new com.example.GinumApps.exception.ResourceNotFoundException("Sales Order not found with ID: " + id));
+        if (companyId != null && (order.getCompany() == null || !order.getCompany().getCompanyId().equals(companyId))) {
+            throw new org.springframework.security.access.AccessDeniedException("You don't have access to this order.");
+        }
+        return convertToDto(order);
+    }
+
     @Transactional
     public SalesOrderResponseDto createSalesOrder(SalesOrderRequestDto request, Integer companyId) {
         Company company = companyRepo.findById(companyId)
