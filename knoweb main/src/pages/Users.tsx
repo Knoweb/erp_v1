@@ -64,7 +64,7 @@ const Users = () => {
   const fetchUsers = async (orgId: number, token: string) => {
     try {
       setLoading(true);
-      const MIDDENIYA_ORG_ID = 18;
+      const MIDDENIYA_ORG_ID = 16;
       const targetGateway = orgId === MIDDENIYA_ORG_ID ? 'http://178.128.221.122:8080' : GATEWAY_URL;
 
       const response = await axios.get(`${targetGateway}/api/users/organization/${orgId}`, {
@@ -102,7 +102,7 @@ const Users = () => {
       };
 
       // Determine where the API call should go based on Organization ID
-      const MIDDENIYA_ORG_ID = 18;
+      const MIDDENIYA_ORG_ID = 16;
       let targetGateway = GATEWAY_URL; // Default gateway
 
       if (userDetails.orgId === MIDDENIYA_ORG_ID) {
