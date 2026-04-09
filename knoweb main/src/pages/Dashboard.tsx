@@ -37,10 +37,17 @@ const ALL_AVAILABLE_SYSTEMS = ['GINUMA', 'INVENTORY', 'PIRISAHR', 'ALL_IN_ONE'];
 
 // Middeniya droplet IP and dynamic URL calculation
 const MIDDENIYA_INVENTORY_URL = 'http://178.128.221.122:3002';
-const currentOrgId = Number(localStorage.getItem('orgId'));
 const getInventoryUrl = () => {
-  if (currentOrgId === 16) {
-    return MIDDENIYA_INVENTORY_URL;
+  try {
+    const userDetailsStr = localStorage.getItem('userDetails');
+    if (userDetailsStr) {
+      const userDetails = JSON.parse(userDetailsStr);
+      if (userDetails?.orgId === 16) {
+        return MIDDENIYA_INVENTORY_URL;
+      }
+    }
+  } catch (e) {
+    console.error('Error parsing userDetails for Inventory URL', e);
   }
   return URLS.inventory;
 };
@@ -361,6 +368,21 @@ const Dashboard = () => {
   }, [navigate]);
 
   const handleSystemLaunch = (systemCode: string, frontendUrl: string) => {
+    // Dynamically calculate Inventory URL upon click to ensure fresh localStorage data
+    if (systemCode === 'INVENTORY') {
+      try {
+        const userDetailsStr = localStorage.getItem('userDetails');
+        if (userDetailsStr) {
+          const userDetails = JSON.parse(userDetailsStr);
+          if (userDetails?.orgId === 16) {
+            frontendUrl = 'http://178.128.221.122:3002'; // Middeniya droplet IP
+          }
+        }
+      } catch (e) {
+        console.error('Error parsing userDetails for Inventory URL at launch', e);
+      }
+    }
+
     // Get JWT token from localStorage
     const jwtToken = localStorage.getItem('token');
 
