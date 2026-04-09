@@ -35,6 +35,16 @@ const URLS = {
 // All available systems in the platform
 const ALL_AVAILABLE_SYSTEMS = ['GINUMA', 'INVENTORY', 'PIRISAHR', 'ALL_IN_ONE'];
 
+// Middeniya droplet IP and dynamic URL calculation
+const MIDDENIYA_INVENTORY_URL = 'http://178.128.221.122:3002';
+const currentOrgId = Number(localStorage.getItem('orgId'));
+const getInventoryUrl = () => {
+  if (currentOrgId === 16) {
+    return MIDDENIYA_INVENTORY_URL;
+  }
+  return URLS.inventory;
+};
+
 // System metadata for display
 const SYSTEM_INFO: Record<string, {
   name: string;
@@ -58,7 +68,7 @@ const SYSTEM_INFO: Record<string, {
     color: 'from-green-600 to-emerald-500',
     icon: Package,
     features: ['Stock Management', 'Warehouse Operations', 'Order Processing', 'Supplier Management'],
-    frontendUrl: URLS.inventory
+    frontendUrl: getInventoryUrl()
   },
   PIRISAHR: {
     name: 'PirisaHR',
