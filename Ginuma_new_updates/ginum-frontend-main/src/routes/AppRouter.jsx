@@ -47,6 +47,8 @@ import CreatePurchase from "../components/supplier/CreatePurchase";
 import CreateSaleOrder from "../components/customer/CreateSale";
 import AllPurchases from "../components/supplier/AllPurchases";
 import AllSales from "../components/customer/AllSales";
+import ViewPurchase from "../components/supplier/ViewPurchase";
+import ViewSale from "../components/customer/ViewSale";
 import NewProjectForm from "../components/projects/NewProjectForm";
 import GeneralJournalTransaction from "../components/transactions/GeneralJournalTransaction";
 import AllTransactions from "../components/transactions/AllTransactions";
@@ -120,6 +122,7 @@ function AppRouter() {
             <Route path="new" element={<AddSupplierForm />} />
             <Route path="purchase/new" element={<CreatePurchase />} />
             <Route path="purchase/all" element={<AllPurchases />} />
+            <Route path="purchase/:id" element={<ViewPurchase />} />
             <Route path="aged-payables" element={<AgedPayables />} />
           </Route>
           <Route path="customer">
@@ -128,6 +131,7 @@ function AppRouter() {
             <Route path="new" element={<AddCustomerForm />} />
             <Route path="sales/new" element={<CreateSaleOrder />} />
             <Route path="sales/all" element={<AllSales />} />
+            <Route path="sales/:id" element={<ViewSale />} />
             <Route path="aged-receivables" element={<AgedReceivables />} />
           </Route>
           <Route path="account">
