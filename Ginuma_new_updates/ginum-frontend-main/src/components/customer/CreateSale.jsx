@@ -373,10 +373,10 @@ const CreateSaleOrder = () => {
           </label>
           <input
             type="text"
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-gray-100"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             placeholder="SO-00000001"
             value={soNumber}
-            readOnly
+            onChange={(e) => setSoNumber(e.target.value)}
           />
         </div>
       </div>

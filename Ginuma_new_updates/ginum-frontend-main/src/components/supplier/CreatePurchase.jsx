@@ -356,10 +356,10 @@ const CreatePurchase = () => {
           </label>
           <input
             type="text"
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-gray-100"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             placeholder="00000001"
             value={poNumber}
-            readOnly
+            onChange={(e) => setPoNumber(e.target.value)}
           />
         </div>
       </div>
@@ -372,10 +372,10 @@ const CreatePurchase = () => {
           </label>
           <input
             type="text"
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base bg-gray-100"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             placeholder="INV-00000001"
             value={supplierInvoiceNumber}
-            readOnly
+            onChange={(e) => setSupplierInvoiceNumber(e.target.value)}
           />
         </div>
         <div>
