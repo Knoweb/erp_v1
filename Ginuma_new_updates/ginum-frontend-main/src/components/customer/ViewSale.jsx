@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FiArrowLeft, FiPrinter } from 'react-icons/fi';
+import { FiArrowLeft, FiPrinter, FiAlertCircle } from 'react-icons/fi';
 import api from '../../utils/api';
 import Alert from '../../components/Alert/Alert';
 
@@ -18,7 +18,7 @@ const ViewSale = () => {
       try {
         if (!companyId) return;
         setLoading(true);
-        const data = await api.get(`/api/${companyId}/sales-orders/${id}`);
+        const data = await api.get(`/api/sales-orders/company/${companyId}/${id}`);
         setSale(data);
       } catch (err) {
         setError('Failed to fetch sales order details.');
@@ -35,11 +35,13 @@ const ViewSale = () => {
 
   if (error || !sale) {
     return (
-      <div className="p-6">
-        <Alert type="error" message={error || 'Sales Order not found'} />
+      <div className="p-8 text-center flex flex-col items-center justify-center min-h-[50vh]">
+        <FiAlertCircle className="text-red-500 mb-4" size={48} />
+        <h2 className="text-xl font-bold text-gray-800 mb-2">{error || 'Sales Order not found'}</h2>
+        <p className="text-gray-500 mb-6">The sales order you are looking for does not exist or an error occurred.</p>
         <button 
           onClick={() => navigate('/app/customer/sales/all')}
-          className="mt-4 text-blue-600 hover:text-blue-800 flex items-center gap-2"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors"
         >
           <FiArrowLeft /> Back to Sales
         </button>
