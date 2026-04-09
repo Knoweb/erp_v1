@@ -61,7 +61,7 @@ const ViewPurchase = () => {
           </button>
           <div>
             <h1 className="text-2xl font-bold border-b-4 border-blue-500 inline-block pb-1">
-              Purchase Order #{purchase.poNumber}
+              Purchase Order #{purchase.purchaseOrderNumber}
             </h1>
             <p className="text-sm text-gray-500 mt-1">View details for this purchase transaction</p>
           </div>
@@ -84,14 +84,13 @@ const ViewPurchase = () => {
             <div>
               <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Dates</h3>
               <p className="mt-1 text-gray-900"><span className="font-medium">Issue Date:</span> {purchase.issueDate || 'N/A'}</p>
-              <p className="mt-1 text-gray-900"><span className="font-medium">Due Date:</span> {purchase.dueDate || 'N/A'}</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div>
               <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Order References</h3>
-              <p className="mt-1 text-gray-900"><span className="font-medium">PO Number:</span> {purchase.poNumber || 'N/A'}</p>
+              <p className="mt-1 text-gray-900"><span className="font-medium">PO Number:</span> {purchase.purchaseOrderNumber || 'N/A'}</p>
               <p className="mt-1 text-gray-900"><span className="font-medium">Supplier Invoice:</span> {purchase.supplierInvoiceNumber || 'N/A'}</p>
               <p className="mt-1 text-gray-900"><span className="font-medium">Purchase Type:</span> {purchase.purchaseType || 'N/A'}</p>
             </div>
@@ -124,11 +123,11 @@ const ViewPurchase = () => {
                 {purchase.items && purchase.items.length > 0 ? (
                   purchase.items.map((item, index) => (
                     <tr key={index} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3 text-sm text-gray-900">{item.itemName || (item.item && item.item.name) || 'Unknown Item'}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900 text-right">{item.quantity}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900 text-right">{Number(item.unitPrice).toFixed(2)}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900">{item.itemName || 'Unknown Item'}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900 text-right">{item.quantity || 0}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900 text-right">{Number(item.unitPrice || 0).toFixed(2)}</td>
                       <td className="px-4 py-3 text-sm text-gray-900 text-right">{Number(item.discountPercent || 0).toFixed(2)}%</td>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900 text-right">{Number(item.total).toFixed(2)}</td>
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900 text-right">{Number(item.amount || 0).toFixed(2)}</td>
                     </tr>
                   ))
                 ) : (
@@ -158,8 +157,8 @@ const ViewPurchase = () => {
                 <span className="text-gray-600 font-medium text-xs uppercase tracking-wider block">Taxes Enforced:</span>
                 {purchase.taxBreakdown.map((tax, idx) => (
                   <div key={idx} className="flex justify-between text-sm">
-                    <span className="text-gray-500 italic">{tax.taxName} ({tax.taxRate}%)</span>
-                    <span className="text-gray-900">{Number(tax.taxAmount).toFixed(2)}</span>
+                    <span className="text-gray-500 italic">{tax.taxType} ({tax.percentage}%)</span>
+                    <span className="text-gray-900">{Number(tax.amount || 0).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
