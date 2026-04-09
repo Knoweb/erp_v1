@@ -50,8 +50,9 @@ public class PurchaseOrder {
     @DecimalMin("0.00")
     private BigDecimal freight = BigDecimal.ZERO;
 
-    @DecimalMin("0.00")
-    private BigDecimal taxPercent = BigDecimal.ZERO;
+    @ElementCollection
+    @CollectionTable(name = "purchase_order_taxes", joinColumns = @JoinColumn(name = "purchase_order_id"))
+    private List<TaxBreakdown> taxBreakdown = new ArrayList<>();
 
     @DecimalMin("0.00")
     private BigDecimal taxAmount = BigDecimal.ZERO;
@@ -97,10 +98,12 @@ public class PurchaseOrder {
 
         // Recalculate total and balance due (enforce consistency)
         BigDecimal subtotalPlusFreight = subtotal.add(freight != null ? freight : BigDecimal.ZERO);
-        this.taxAmount = subtotalPlusFreight.multiply(taxPercent != null ? taxPercent : BigDecimal.ZERO)
-                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        
+        this.taxAmount = (taxBreakdown != null) ? 
+            taxBreakdown.stream().map(t -> t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add) : BigDecimal.ZERO;
 
-        this.total = subtotalPlusFreight.add(taxAmount);
+        this.total = subtotalPlusFreight.add(this.taxAmount);
         this.balanceDue = total.subtract(amountPaid != null ? amountPaid : BigDecimal.ZERO);
         if (this.balanceDue.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalStateException("Overpayment detected");

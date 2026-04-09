@@ -133,13 +133,23 @@ public class PurchaseOrderService {
         po.setIssueDate(request.getIssueDate());
         po.setNotes(request.getNotes());
         po.setPaymentAccount(paymentAccount);
-        po.setTaxPercent(request.getTaxPercent());
         po.setAmountPaid(request.getAmountPaid() != null ? request.getAmountPaid() : BigDecimal.ZERO);
         po.setDueDate(request.getDueDate());
         po.setPurchaseType(request.getPurchaseType());
 
+        if (request.getTaxBreakdown() != null) {
+            List<com.example.GinumApps.model.TaxBreakdown> taxes = request.getTaxBreakdown().stream().map(dto -> {
+                com.example.GinumApps.model.TaxBreakdown t = new com.example.GinumApps.model.TaxBreakdown();
+                t.setTaxType(dto.getTaxType());
+                t.setPercentage(dto.getPercentage());
+                t.setAmount(dto.getAmount());
+                return t;
+            }).collect(java.util.stream.Collectors.toList());
+            po.setTaxBreakdown(taxes);
+        }
+
         processItems(request.getItems(), po, company);
-        calculateFinancials(po, request.getFreight(), request.getTaxAmount());
+        calculateFinancials(po, request.getFreight());
         validateCompanyAccounts(company, po);
 
         PurchaseOrder savedPO = purchaseOrderRepo.save(po);
@@ -203,9 +213,8 @@ public class PurchaseOrderService {
      * 
      * @param po        Purchase order entity
      * @param freight   Shipping/Handling costs
-     * @param taxAmount Applicable taxes
      */
-    private void calculateFinancials(PurchaseOrder po, BigDecimal freight, BigDecimal taxAmount) {
+    private void calculateFinancials(PurchaseOrder po, BigDecimal freight) {
         BigDecimal subtotal = po.getItems().stream()
                 .map(item -> {
                     BigDecimal base = item.getUnitPrice()
@@ -222,8 +231,14 @@ public class PurchaseOrderService {
         po.setFreight(freight != null ? freight : BigDecimal.ZERO);
         
         BigDecimal subtotalPlusFreight = subtotal.add(po.getFreight());
-        po.setTaxAmount(subtotalPlusFreight.multiply(po.getTaxPercent() != null ? po.getTaxPercent() : BigDecimal.ZERO)
-                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP));
+        
+        BigDecimal calculatedTaxAmount = BigDecimal.ZERO;
+        if (po.getTaxBreakdown() != null) {
+            calculatedTaxAmount = po.getTaxBreakdown().stream()
+                .map(t -> t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+        po.setTaxAmount(calculatedTaxAmount);
         
         po.setTotal(subtotalPlusFreight.add(po.getTaxAmount()));
         po.setBalanceDue(po.getTotal().subtract(po.getAmountPaid() != null ? po.getAmountPaid() : BigDecimal.ZERO));
@@ -367,7 +382,16 @@ public class PurchaseOrderService {
         dto.setNotes(po.getNotes());
         dto.setSubtotal(po.getSubtotal());
         dto.setFreight(po.getFreight());
-        dto.setTaxPercent(po.getTaxPercent());
+        if (po.getTaxBreakdown() != null) {
+            List<com.example.GinumApps.dto.TaxBreakdownDto> taxDtos = po.getTaxBreakdown().stream().map(t -> {
+                com.example.GinumApps.dto.TaxBreakdownDto tdto = new com.example.GinumApps.dto.TaxBreakdownDto();
+                tdto.setTaxType(t.getTaxType());
+                tdto.setPercentage(t.getPercentage());
+                tdto.setAmount(t.getAmount());
+                return tdto;
+            }).collect(java.util.stream.Collectors.toList());
+            dto.setTaxBreakdown(taxDtos);
+        }
         dto.setTaxAmount(po.getTaxAmount());
         dto.setTotal(po.getTotal());
         dto.setAmountPaid(po.getAmountPaid());

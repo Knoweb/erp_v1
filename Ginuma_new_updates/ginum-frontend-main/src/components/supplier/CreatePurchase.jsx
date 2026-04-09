@@ -45,8 +45,7 @@ const CreatePurchase = () => {
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [subtotal, setSubtotal] = useState(0);
   const [freight, setFreight] = useState(0);
-  const [tax, setTax] = useState(0);
-  const [taxPercent, setTaxPercent] = useState(0);
+  const [taxes, setTaxes] = useState([]);
   const [total, setTotal] = useState(0);
   const [amountPaid, setAmountPaid] = useState(0);
   const [balanceDue, setBalanceDue] = useState(0);
@@ -75,15 +74,42 @@ const CreatePurchase = () => {
     setSubtotal(newSubtotal);
 
     const subtotalPlusFreight = newSubtotal + (parseFloat(freight) || 0);
-    const newTax = subtotalPlusFreight * (parseFloat(taxPercent) / 100);
-    setTax(newTax);
+    
+    let totalTaxAmount = 0;
+    const updatedTaxes = taxes.map(t => {
+      const pct = parseFloat(t.percentage) || 0;
+      const amt = subtotalPlusFreight * (pct / 100);
+      totalTaxAmount += amt;
+      // We don't put it in state here to avoid infinite loop, just sum it up
+      return amt;
+    });
 
-    const newTotal = subtotalPlusFreight + newTax;
+    const newTotal = subtotalPlusFreight + totalTaxAmount;
     setTotal(newTotal);
 
     const newBalanceDue = Math.max(newTotal - (parseFloat(amountPaid) || 0), 0);
     setBalanceDue(newBalanceDue);
-  }, [rows, freight, amountPaid, taxPercent]);
+  }, [rows, freight, amountPaid, taxes]);
+
+  const handleAddTax = () => {
+    setTaxes([...taxes, { taxType: "VAT", percentage: 0, amount: 0 }]);
+  };
+
+  const handleRemoveTax = (index) => {
+    const newTaxes = taxes.filter((_, i) => i !== index);
+    setTaxes(newTaxes);
+  };
+
+  const handleTaxChange = (index, field, value) => {
+    const newTaxes = [...taxes];
+    newTaxes[index][field] = value;
+    // Calculate amount on the fly when percentage changes
+    if (field === 'percentage') {
+      const subtotalPlusFreight = subtotal + (parseFloat(freight) || 0);
+      newTaxes[index].amount = subtotalPlusFreight * (parseFloat(value) || 0) / 100;
+    }
+    setTaxes(newTaxes);
+  };
 
   const handleModalClick = (e, setModal) => {
     if (e.target === e.currentTarget) {
@@ -285,8 +311,11 @@ const CreatePurchase = () => {
       amountPaid: parseFloat(amountPaid) || 0,
       paymentAccountCode: paymentAccountCode || null,
       freight: parseFloat(freight) || 0,
-      taxPercent: parseFloat(taxPercent) || 0,
-      taxAmount: parseFloat(tax) || 0,
+        taxBreakdown: taxes.map(t => ({
+          taxType: t.taxType,
+          percentage: parseFloat(t.percentage) || 0,
+          amount: parseFloat(t.amount) || ((subtotal + parseFloat(freight || 0)) * (parseFloat(t.percentage || 0) / 100))
+        })),
       items: validRows.map((row) => ({
         itemId: isServiceMode ? null : parseInt(row.itemId),
         description: row.description,
@@ -654,21 +683,59 @@ const CreatePurchase = () => {
           />
         </div>
         <div className="w-full md:w-1/2 flex justify-between items-center">
-          <label className="text-gray-700 font-medium">Cost of Tax (%):</label>
-          <input
-            type="number"
-            className="w-1/2 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-            placeholder="0"
-            value={taxPercent}
-            onChange={(e) => setTaxPercent(e.target.value)}
-            min="0"
-            max="100"
-            step="0.01"
-          />
+          <label className="text-gray-700 font-medium whitespace-nowrap mr-2">Cost of Tax:</label>
+          <div className="flex flex-col w-full items-end gap-2">
+            {taxes.map((t, index) => (
+              <div key={index} className="flex gap-2 w-full justify-end items-center">
+                <select
+                  value={t.taxType}
+                  onChange={(e) => handleTaxChange(index, "taxType", e.target.value)}
+                  className="px-2 py-1 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm w-24"
+                >
+                  <option value="VAT">VAT</option>
+                  <option value="SSC">SSC</option>
+                  <option value="NBT">NBT</option>
+                  <option value="OTHER">Other</option>
+                </select>
+                <div className="flex relative">
+                  <input
+                    type="number"
+                    value={t.percentage}
+                    onChange={(e) => handleTaxChange(index, "percentage", e.target.value)}
+                    placeholder="0"
+                    min="0"
+                    step="0.01"
+                    className="w-16 px-2 py-1 border rounded-lg pr-6 focus:ring-2 focus:ring-blue-500 text-sm text-right"
+                  />
+                  <span className="absolute right-2 top-1.5 text-gray-500 text-sm">%</span>
+                </div>
+                <span className="text-gray-900 w-24 text-right">
+                  Rs. {((subtotal + parseFloat(freight || 0)) * (parseFloat(t.percentage || 0) / 100)).toFixed(2)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveTax(index)}
+                  className="text-red-500 hover:text-red-700"
+                  title="Remove Tax"
+                >
+                  <FaTimes />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={handleAddTax}
+              className="text-blue-500 hover:text-blue-700 text-sm font-medium flex items-center mt-1"
+            >
+              <MdAddCircleOutline className="mr-1" /> Add Tax
+            </button>
+          </div>
         </div>
         <div className="w-full md:w-1/2 flex justify-between items-center">
-          <span className="text-gray-700 font-medium">Tax:</span>
-          <span className="text-gray-900">Rs. {tax.toFixed(2)}</span>
+          <span className="text-gray-700 font-medium">Total Tax:</span>
+          <span className="text-gray-900">
+            Rs. {taxes.reduce((sum, t) => sum + ((subtotal + parseFloat(freight || 0)) * (parseFloat(t.percentage || 0) / 100)), 0).toFixed(2)}
+          </span>
         </div>
         <div className="w-full md:w-1/2 flex justify-between items-center">
           <span className="text-gray-700 font-medium">Total:</span>

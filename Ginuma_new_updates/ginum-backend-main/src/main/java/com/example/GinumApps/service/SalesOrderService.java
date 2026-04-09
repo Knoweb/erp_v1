@@ -89,8 +89,17 @@ public class SalesOrderService {
         order.setAmountPaid(request.getAmountPaid());
         order.setSalesType(request.getSalesType());
         order.setFreight(request.getFreight());
-        order.setTaxPercent(request.getTaxPercent());
-        order.setTaxAmount(request.getTaxAmount().setScale(2, RoundingMode.HALF_UP));
+
+        if (request.getTaxBreakdown() != null) {
+            List<com.example.GinumApps.model.TaxBreakdown> taxes = request.getTaxBreakdown().stream().map(dto -> {
+                com.example.GinumApps.model.TaxBreakdown t = new com.example.GinumApps.model.TaxBreakdown();
+                t.setTaxType(dto.getTaxType());
+                t.setPercentage(dto.getPercentage());
+                t.setAmount(dto.getAmount());
+                return t;
+            }).collect(java.util.stream.Collectors.toList());
+            order.setTaxBreakdown(taxes);
+        }
 
         System.err.println("DEBUG: Starting processItems for " + order.getSoNumber());
         processItems(request.getItems(), order, company);
@@ -168,11 +177,16 @@ public class SalesOrderService {
         order.setFreight(freight);
 
         BigDecimal subtotalPlusFreight = subtotal.add(freight);
-        BigDecimal taxAmount = subtotalPlusFreight.multiply(order.getTaxPercent() != null ? order.getTaxPercent() : BigDecimal.ZERO)
-                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-        order.setTaxAmount(taxAmount);
         
-        order.setTotal(subtotalPlusFreight.add(taxAmount).setScale(2, RoundingMode.HALF_UP));
+        BigDecimal calculatedTaxAmount = BigDecimal.ZERO;
+        if (order.getTaxBreakdown() != null) {
+            calculatedTaxAmount = order.getTaxBreakdown().stream()
+                .map(t -> t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+        order.setTaxAmount(calculatedTaxAmount);
+        
+        order.setTotal(subtotalPlusFreight.add(order.getTaxAmount()).setScale(2, RoundingMode.HALF_UP));
         order.setBalanceDue(order.getTotal().subtract(order.getAmountPaid() != null ? order.getAmountPaid().setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO));
     }
 
@@ -388,7 +402,16 @@ public class SalesOrderService {
         dto.setIssueDate(order.getIssueDate());
         dto.setNotes(order.getNotes());
         dto.setSubtotal(order.getSubtotal());
-        dto.setTaxPercent(order.getTaxPercent());
+        if (order.getTaxBreakdown() != null) {
+            List<com.example.GinumApps.dto.TaxBreakdownDto> taxDtos = order.getTaxBreakdown().stream().map(t -> {
+                com.example.GinumApps.dto.TaxBreakdownDto tdto = new com.example.GinumApps.dto.TaxBreakdownDto();
+                tdto.setTaxType(t.getTaxType());
+                tdto.setPercentage(t.getPercentage());
+                tdto.setAmount(t.getAmount());
+                return tdto;
+            }).collect(java.util.stream.Collectors.toList());
+            dto.setTaxBreakdown(taxDtos);
+        }
         dto.setTaxAmount(order.getTaxAmount());
         dto.setFreight(order.getFreight());
         dto.setTotal(order.getTotal());

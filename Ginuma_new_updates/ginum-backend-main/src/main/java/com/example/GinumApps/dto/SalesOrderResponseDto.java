@@ -19,7 +19,7 @@ public class SalesOrderResponseDto {
     private String notes;
     private BigDecimal subtotal;
     private BigDecimal freight;
-    private BigDecimal taxPercent;
+    private List<TaxBreakdownDto> taxBreakdown;
     private BigDecimal taxAmount;
     private BigDecimal total;
     private BigDecimal amountPaid;

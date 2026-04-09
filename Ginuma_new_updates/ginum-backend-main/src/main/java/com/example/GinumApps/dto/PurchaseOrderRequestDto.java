@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -40,11 +41,7 @@ public class PurchaseOrderRequestDto {
     @DecimalMin(value = "0.00", message = "Freight cannot be negative")
     private BigDecimal freight = BigDecimal.ZERO;
 
-    @DecimalMin(value = "0.00", message = "Tax percentage cannot be negative")
-    private BigDecimal taxPercent = BigDecimal.ZERO;
-
-    @DecimalMin(value = "0.00", message = "Tax cannot be negative")
-    private BigDecimal taxAmount = BigDecimal.ZERO;
+    private List<TaxBreakdownDto> taxBreakdown = new ArrayList<>();
 
     @DecimalMin(value = "0.00", message = "Amount paid cannot be negative")
     private BigDecimal amountPaid = BigDecimal.ZERO;

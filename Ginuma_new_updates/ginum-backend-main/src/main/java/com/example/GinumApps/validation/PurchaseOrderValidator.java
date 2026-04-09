@@ -48,7 +48,14 @@ public class PurchaseOrderValidator implements Validator {
         }
 
         BigDecimal freight = request.getFreight() != null ? request.getFreight() : BigDecimal.ZERO;
-        BigDecimal tax = request.getTaxAmount() != null ? request.getTaxAmount() : BigDecimal.ZERO;
+        
+        BigDecimal tax = BigDecimal.ZERO;
+        if (request.getTaxBreakdown() != null) {
+            tax = request.getTaxBreakdown().stream()
+                .map(t -> t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+        
         BigDecimal paid = request.getAmountPaid() != null ? request.getAmountPaid() : BigDecimal.ZERO;
 
         BigDecimal total = subtotal.add(freight).add(tax);

@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -31,11 +32,7 @@ public class SalesOrderRequestDto {
     @DecimalMin("0.00")
     private BigDecimal freight = BigDecimal.ZERO;
 
-    @DecimalMin("0.00")
-    private BigDecimal taxPercent = BigDecimal.ZERO;
-
-    @DecimalMin("0.00")
-    private BigDecimal taxAmount = BigDecimal.ZERO;
+    private List<TaxBreakdownDto> taxBreakdown = new ArrayList<>();
 
     @DecimalMin("0.00")
     private BigDecimal amountPaid = BigDecimal.ZERO;
