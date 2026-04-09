@@ -15,6 +15,7 @@ public class PurchaseOrderResponseDto {
     private String supplierName;
     private String supplierInvoiceNumber;
     private LocalDate issueDate;
+    private LocalDate dueDate;
     private String notes;
     private BigDecimal subtotal;
     private BigDecimal freight;

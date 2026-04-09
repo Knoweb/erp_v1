@@ -374,11 +374,12 @@ public class PurchaseOrderService {
 
         // Map basic fields
         dto.setId(po.getId());
-        // dto.setPurchaseOrderNumber(po.getPurchaseOrderNumber());
-        dto.setSupplierId(po.getSupplier().getId());
-        dto.setSupplierName(po.getSupplier().getSupplierName());
+        dto.setPurchaseOrderNumber(po.getPoNumber());
+        dto.setSupplierId(po.getSupplier() != null ? po.getSupplier().getId() : null);
+        dto.setSupplierName(po.getSupplier() != null ? po.getSupplier().getSupplierName() : null);
         dto.setSupplierInvoiceNumber(po.getSupplierInvoiceNumber());
         dto.setIssueDate(po.getIssueDate());
+        dto.setDueDate(po.getDueDate());
         dto.setNotes(po.getNotes());
         dto.setSubtotal(po.getSubtotal());
         dto.setFreight(po.getFreight());

@@ -405,10 +405,11 @@ public class SalesOrderService {
     private SalesOrderResponseDto convertToDto(SalesOrder order) {
         SalesOrderResponseDto dto = new SalesOrderResponseDto();
         dto.setId(order.getId());
-        dto.setCustomerId(order.getCustomer().getId());
-        dto.setCustomerName(order.getCustomer().getName());
+        dto.setCustomerId(order.getCustomer() != null ? order.getCustomer().getId() : null);
+        dto.setCustomerName(order.getCustomer() != null ? order.getCustomer().getName() : null);
         dto.setSoNumber(order.getSoNumber());
         dto.setIssueDate(order.getIssueDate());
+        dto.setDueDate(order.getDueDate());
         dto.setNotes(order.getNotes());
         dto.setSubtotal(order.getSubtotal());
         if (order.getTaxBreakdown() != null) {

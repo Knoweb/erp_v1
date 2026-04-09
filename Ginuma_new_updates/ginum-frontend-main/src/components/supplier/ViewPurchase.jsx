@@ -84,6 +84,7 @@ const ViewPurchase = () => {
             <div>
               <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Dates</h3>
               <p className="mt-1 text-gray-900"><span className="font-medium">Issue Date:</span> {purchase.issueDate || 'N/A'}</p>
+              <p className="mt-1 text-gray-900"><span className="font-medium">Due Date:</span> {purchase.dueDate || 'N/A'}</p>
             </div>
           </div>
 
