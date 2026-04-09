@@ -97,7 +97,7 @@ const AllPurchases = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredPurchases.map((po) => (
-                  <tr key={po.id} className="hover:bg-gray-50">
+                  <tr key={po.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => navigate(`/app/supplier/purchase/${po.id}`)}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 text-gray-400">

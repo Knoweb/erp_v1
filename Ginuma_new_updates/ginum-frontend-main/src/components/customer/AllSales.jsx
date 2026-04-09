@@ -100,7 +100,7 @@ const AllSales = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredSales.map((so) => (
-                  <tr key={so.id} className="hover:bg-gray-50">
+                  <tr key={so.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => navigate(`/app/customer/sales/${so.id}`)}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{so.soNumber}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{so.customerName}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{so.issueDate}</td>
@@ -112,7 +112,7 @@ const AllSales = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button className="text-blue-600 hover:text-blue-900" title="View">
+                      <button className="text-blue-600 hover:text-blue-900" title="View" onClick={(e) => { e.stopPropagation(); navigate(`/app/customer/sales/${so.id}`); }}>
                         <FiEye size={18} />
                       </button>
                     </td>
