@@ -368,6 +368,8 @@ const Dashboard = () => {
   }, [navigate]);
 
   const handleSystemLaunch = (systemCode: string, frontendUrl: string) => {
+    let isMiddeniya = false;
+
     // Dynamically calculate Inventory URL upon click to ensure fresh localStorage data
     if (systemCode === 'INVENTORY') {
       try {
@@ -376,6 +378,7 @@ const Dashboard = () => {
           const userDetails = JSON.parse(userDetailsStr);
           if (userDetails?.orgId === 16) {
             frontendUrl = 'http://178.128.221.122:3002'; // Middeniya droplet IP
+            isMiddeniya = true;
           }
         }
       } catch (e) {
@@ -420,6 +423,13 @@ const Dashboard = () => {
     // Ginum ERP uses /account as base public URL with SSO endpoint
     if (systemCode === 'GINUMA') {
       loginPath = '/account/sso-login';
+    }
+
+    if (isMiddeniya) {
+      // Direct Middeniya Inventory WITHOUT SSO Token
+      // This forces the user to log in on Middeniya droplet independently, generating a valid local DB token
+      window.open(`${frontendUrl}/login`, '_blank');
+      return;
     }
 
     // Open the login page with SSO token for seamless authentication
