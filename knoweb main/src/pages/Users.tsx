@@ -134,7 +134,13 @@ const Users = () => {
   const handleDeleteUser = async (id: number) => {
     if (!window.confirm("Are you sure you want to completely remove this user's access?")) return;
     try {
-      await axios.delete(`${GATEWAY_URL}/api/users/${id}`, {
+      const MIDDENIYA_ORG_ID = 16;
+      let targetGateway = GATEWAY_URL;
+      if (userDetails?.orgId === MIDDENIYA_ORG_ID) {
+        targetGateway = 'http://178.128.221.122:8080';
+      }
+      
+      await axios.delete(`${targetGateway}/api/users/${id}`, {
         headers: { Authorization: `Bearer ${jwtToken}` }
       });
       setUsers(users.filter(u => u.id !== id));
