@@ -299,6 +299,7 @@ const Users = () => {
                     <option value="ROLE_INV_MOLDING">Molding Staff</option>
                     <option value="ROLE_INV_QC">Quality Control Inspector</option>
                     <option value="ROLE_INV_ASSEMBLE">Assembly Line Staff</option>
+                    <option value="ROLE_INV_PRIMARY">Primary Finishing Staff</option>
                   </optgroup>
                 </select>
                 <p className="text-xs text-slate-500 mt-1">This role applies across ERP, HR, and Inventory systems.</p>
