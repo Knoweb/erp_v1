@@ -8,7 +8,11 @@ import {
   Search,
   Shield,
   MapPin,
-  Trash2
+  Trash2,
+  RefreshCw,
+  CheckCircle2,
+  AlertCircle,
+  X
 } from 'lucide-react';
 
 const HOST = window.location.hostname;
@@ -41,6 +45,15 @@ const Users = () => {
     password: '',
     role: 'USER',
   });
+  
+  // Feedback states
+  const [submitting, setSubmitting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<User | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   
   const [userDetails, setUserDetails] = useState<any>(null);
   const [jwtToken, setJwtToken] = useState<string | null>(null);
@@ -88,6 +101,7 @@ const Users = () => {
     if (!userDetails || !jwtToken) return;
 
     try {
+      setSubmitting(true);
       // Temporary stub mapping to registration until backend pure-employee endpoint is complete
       const payload = {
         email: formData.email,
@@ -114,40 +128,65 @@ const Users = () => {
         headers: { Authorization: `Bearer ${jwtToken}` }
       });
       
-      alert('Employee creation initiated successfully.');
-      
+      setSuccessMessage('Employee profile has been successfully integrated into the system protocols.');
+      setShowSuccessModal(true);
       setShowModal(false);
       
+      // Reset form
+      setFormData({
+        email: '',
+        firstName: '',
+        lastName: '',
+        password: '',
+        role: 'USER',
+      });
+      
       // Update from correct gateway
-      setLoading(true);
       const response = await axios.get(`${targetGateway}/api/users/organization/${userDetails.orgId}`, {
         headers: { Authorization: `Bearer ${jwtToken}` }
       });
       setUsers(response.data);
-      setLoading(false);
 
     } catch (err: any) {
-      alert(`Error creating employee: ${err.response?.data?.message || err.message}`);
+      setErrorMessage(err.response?.data?.message || err.message || 'Access synchronization failed.');
+      setShowErrorModal(true);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleDeleteUser = async (id: number) => {
-    if (!window.confirm("Are you sure you want to completely remove this user's access?")) return;
+  const confirmDelete = (user: User) => {
+    setItemToDelete(user);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!itemToDelete || !jwtToken) return;
+    
     try {
+      setSubmitting(true);
       const MIDDENIYA_ORG_ID = 16;
       let targetGateway = GATEWAY_URL;
       if (userDetails?.orgId === MIDDENIYA_ORG_ID) {
         targetGateway = 'http://178.128.221.122:8080';
       }
       
-      await axios.delete(`${targetGateway}/api/users/${id}`, {
+      await axios.delete(`${targetGateway}/api/users/${itemToDelete.id}`, {
         headers: { Authorization: `Bearer ${jwtToken}` }
       });
-      setUsers(users.filter(u => u.id !== id));
+      setUsers(users.filter(u => u.id !== itemToDelete.id));
+      setShowDeleteModal(false);
+      setItemToDelete(null);
+      
+      setSuccessMessage('Access credentials for the selected employee have been permanently revoked.');
+      setShowSuccessModal(true);
     } catch (err: any) {
-      alert(`Error deleting user: ${err.response?.data?.message || err.message}`);
+      setErrorMessage(err.response?.data?.message || err.message || 'Failed to revoke system access.');
+      setShowErrorModal(true);
+    } finally {
+      setSubmitting(false);
     }
-  }
+  };
 
   const filteredUsers = users.filter(u => 
     (u.firstName + ' ' + u.lastName).toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -240,7 +279,7 @@ const Users = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button onClick={() => handleDeleteUser(user.id)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors" title="Revoke Access">
+                        <button onClick={() => confirmDelete(user)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors" title="Revoke Access">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </td>
@@ -258,7 +297,9 @@ const Users = () => {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col">
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
               <h2 className="text-xl font-bold text-slate-800">Add New Employee</h2>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
+              <button disabled={submitting} onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-100 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
             </div>
             
             <form onSubmit={handleCreateUser} className="p-6 overflow-y-auto max-h-[70vh]">
@@ -312,12 +353,107 @@ const Users = () => {
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
-                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 text-slate-700 hover:bg-slate-100 font-medium rounded-lg transition-colors">Cancel</button>
-                <button type="submit" className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors cursor-pointer">
-                   Save Employee
+                <button type="button" disabled={submitting} onClick={() => setShowModal(false)} className="px-4 py-2 text-slate-700 hover:bg-slate-100 font-medium rounded-lg transition-colors">Cancel</button>
+                <button type="submit" disabled={submitting} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-all flex items-center gap-2 disabled:opacity-70">
+                  {submitting ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      Syncing...
+                    </>
+                  ) : (
+                    'Save Employee'
+                  )}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-[32px] shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="pt-10 pb-4 flex flex-col items-center">
+              <div className="w-24 h-24 rounded-full bg-rose-50 flex items-center justify-center mb-8">
+                <Trash2 className="w-10 h-10 text-rose-500" />
+              </div>
+              
+              <h3 className="text-3xl font-black text-slate-900 mb-3 tracking-tight">Revoke Access</h3>
+              <p className="text-center px-10 text-slate-500 font-bold leading-relaxed mb-10">
+                Are you sure you want to completely remove <span className="text-slate-900">{itemToDelete?.firstName}</span> from the system? This action cannot be undone.
+              </p>
+              
+              <div className="w-full px-8 flex gap-4 mb-8">
+                <button 
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={submitting}
+                  className="flex-1 py-4 bg-slate-50 text-slate-600 font-black uppercase tracking-widest rounded-2xl hover:bg-slate-100 transition-all active:scale-95 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteUser}
+                  disabled={submitting}
+                  className="flex-1 py-4 bg-rose-500 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-rose-100 hover:bg-rose-600 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:grayscale"
+                >
+                  {submitting ? (
+                    <RefreshCw className="animate-spin" size={18} />
+                  ) : (
+                    <>
+                      <Trash2 size={18} />
+                      Revoke
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-[32px] shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300 text-center">
+            <div className="pt-10 pb-10 flex flex-col items-center">
+              <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-6">
+                <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 mb-2">Protocol Successful</h3>
+              <p className="px-10 text-slate-500 font-medium mb-8">
+                {successMessage}
+              </p>
+              <button 
+                onClick={() => setShowSuccessModal(false)}
+                className="px-10 py-3 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-indigo-100"
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Modal */}
+      {showErrorModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-[32px] shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300 text-center">
+            <div className="pt-10 pb-10 flex flex-col items-center">
+              <div className="w-20 h-20 rounded-full bg-rose-50 flex items-center justify-center mb-6">
+                <AlertCircle className="w-10 h-10 text-rose-500" />
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 mb-2">Sync Error</h3>
+              <p className="px-10 text-slate-500 font-medium mb-8">
+                {errorMessage}
+              </p>
+              <button 
+                onClick={() => setShowErrorModal(false)}
+                className="px-10 py-3 bg-slate-800 text-white font-bold rounded-2xl hover:bg-slate-900 transition-all active:scale-95 shadow-lg shadow-slate-100"
+              >
+                Understood
+              </button>
+            </div>
           </div>
         </div>
       )}
