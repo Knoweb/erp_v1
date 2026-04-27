@@ -32,7 +32,10 @@ const SuperAdminDashboard = () => {
     }
 
     const parsedUser = JSON.parse(userData);
-    if (parsedUser.role !== 'superadmin') {
+    const role = parsedUser.role || parsedUser.roles?.[0];
+    
+    if (role !== 'superadmin' && role !== 'ROLE_SUPER_ADMIN') {
+      console.warn('Access denied: User does not have superadmin role. Found:', role);
       navigate('/');
       return;
     }
