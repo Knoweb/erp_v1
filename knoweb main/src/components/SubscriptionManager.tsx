@@ -366,20 +366,6 @@ const SubscriptionManager = () => {
     return packages[packageType] || packageType;
   };
 
-  const getStatusBadge = (status: string) => {
-    const badges: Record<string, { bg: string; text: string; label: string }> = {
-      trial: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Trial' },
-      active: { bg: 'bg-green-100', text: 'text-green-800', label: 'Active' },
-      expired: { bg: 'bg-red-100', text: 'text-red-800', label: 'Expired' },
-    };
-    const badge = badges[status] || badges.trial;
-    return (
-      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${badge.bg} ${badge.text}`}>
-        {badge.label}
-      </span>
-    );
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
