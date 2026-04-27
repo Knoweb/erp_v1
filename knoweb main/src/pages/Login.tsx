@@ -92,55 +92,63 @@ const Login = () => {
       
       // 🔒 COMPANY BLOCK CHECK - Verify company is not blocked before granting access
       const orgId = data.orgId;
+      const roles = data.roles || (data.role ? [data.role] : []);
+      const isSuperAdmin = roles.includes('ROLE_SUPER_ADMIN') || roles.includes('SUPER_ADMIN');
       
-      if (!orgId) {
-        console.error('⚠️ No orgId found in response');
+      // If NOT super admin and orgId is missing, throw error
+      if (!orgId && !isSuperAdmin) {
+        console.error('⚠️ No orgId found in response and user is not a Super Admin');
         throw new Error('Organization ID not found. Please contact support.');
       }
       
-      try {
-        console.log(`🔍 Checking block status for orgId: ${orgId}`);
-        
-        const blockCheckResponse = await fetch(
-          `${subscriptionBaseUrl}/api/internal/subscriptions/access/${orgId}`,
-          {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
+      // Skip block check for Super Admin or if orgId is missing
+      if (orgId) {
+        try {
+          console.log(`🔍 Checking block status for orgId: ${orgId}`);
+          
+          const blockCheckResponse = await fetch(
+            `${subscriptionBaseUrl}/api/internal/subscriptions/access/${orgId}`,
+            {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
             }
+          );
+  
+          if (blockCheckResponse.ok) {
+            const accessData = await blockCheckResponse.json();
+            console.log('Block check response:', accessData);
+            
+            // Check if company is blocked
+            if (accessData.isBlocked) {
+              console.error('🚫 Company is BLOCKED');
+              alert('⛔ Your company account has been blocked by the Administrator.\n\nPlease contact support for assistance.');
+              throw new Error('Company account is blocked.');
+            }
+            
+            console.log('✅ Company is ACTIVE - access granted');
+          } else if (blockCheckResponse.status === 404) {
+            // Company not found in subscription service - allow for backwards compatibility
+            console.warn('⚠️ Company not found in subscription service, allowing access (fail-open)');
+          } else {
+            // Other error - log but allow access (fail-open approach)
+            console.error('⚠️ Failed to check company block status:', blockCheckResponse.status);
+            console.warn('Allowing login to proceed (fail-open)');
           }
-        );
-
-        if (blockCheckResponse.ok) {
-          const accessData = await blockCheckResponse.json();
-          console.log('Block check response:', accessData);
-          
-          // Check if company is blocked
-          if (accessData.isBlocked) {
-            console.error('🚫 Company is BLOCKED');
-            alert('⛔ Your company account has been blocked by the Administrator.\n\nPlease contact support for assistance.');
-            throw new Error('Company account is blocked.');
+        } catch (blockCheckError) {
+          // If the error is our custom "Company account is blocked" error, re-throw it
+          if (blockCheckError instanceof Error && blockCheckError.message === 'Company account is blocked.') {
+            throw blockCheckError;
           }
           
-          console.log('✅ Company is ACTIVE - access granted');
-        } else if (blockCheckResponse.status === 404) {
-          // Company not found in subscription service - allow for backwards compatibility
-          console.warn('⚠️ Company not found in subscription service, allowing access (fail-open)');
-        } else {
-          // Other error - log but allow access (fail-open approach)
-          console.error('⚠️ Failed to check company block status:', blockCheckResponse.status);
-          console.warn('Allowing login to proceed (fail-open)');
+          // Network error or subscription service down - log but allow access
+          console.error('⚠️ Error checking company block status:', blockCheckError);
+          console.warn('Subscription service may be unavailable, allowing login to proceed (fail-open)');
         }
-      } catch (blockCheckError) {
-        // If the error is our custom "Company account is blocked" error, re-throw it
-        if (blockCheckError instanceof Error && blockCheckError.message === 'Company account is blocked.') {
-          throw blockCheckError;
-        }
-        
-        // Network error or subscription service down - log but allow access
-        console.error('⚠️ Error checking company block status:', blockCheckError);
-        console.warn('Subscription service may be unavailable, allowing login to proceed (fail-open)');
+      } else {
+        console.log('👑 Super Admin login - skipping organization block check');
       }
       
       // Store JWT token first (most critical)
@@ -201,8 +209,15 @@ const Login = () => {
       }
 
       // Default Admin and Manager roles redirect to Main Dashboard
-      console.log('🎉 Login successful, redirecting to Main Dashboard...');
-      navigate('/dashboard');
+      console.log('🎉 Login successful, checking final destination...');
+      
+      if (role === 'ROLE_SUPER_ADMIN' || role === 'SUPER_ADMIN') {
+        console.log('👑 Redirecting to Super Admin Dashboard...');
+        navigate('/superadmin/dashboard');
+      } else {
+        console.log('📊 Redirecting to Main Dashboard...');
+        navigate('/dashboard');
+      }
       
     } catch (err) {
       console.error('❌ Login error:', err);
