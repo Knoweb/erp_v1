@@ -49,8 +49,13 @@ const SubscriptionManager = () => {
 
   const fetchPendingReceipts = async () => {
     try {
+      const host = window.location.hostname;
+      const protocol = window.location.protocol;
+      // Use subscription-service port 8091 for subscription-related calls
+      const API_BASE_URL = import.meta.env.VITE_SUBSCRIPTION_BASE_URL || `${protocol}//${host}:8091`;
+      
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/superadmin/subscriptions/payments/pending', {
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/subscriptions/payments/pending`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -63,7 +68,6 @@ const SubscriptionManager = () => {
       }
 
       const data = await response.json();
-      // Backend returns List<PaymentRecord> directly, not wrapped in {success: true, receipts: []}
       if (Array.isArray(data)) {
         setPendingReceipts(data);
       }
@@ -77,8 +81,12 @@ const SubscriptionManager = () => {
 
   const fetchCompanies = async () => {
     try {
+      const host = window.location.hostname;
+      const protocol = window.location.protocol;
+      const API_BASE_URL = import.meta.env.VITE_SUBSCRIPTION_BASE_URL || `${protocol}//${host}:8091`;
+
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/superadmin/subscriptions/companies', {
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/subscriptions/companies`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -90,7 +98,6 @@ const SubscriptionManager = () => {
       }
 
       const data = await response.json();
-      // Backend returns List<CompanyTenant> directly
       if (Array.isArray(data)) {
         setCompanies(data);
       }
