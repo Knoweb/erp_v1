@@ -50,32 +50,22 @@ const SubscriptionManager = () => {
   const fetchPendingReceipts = async () => {
     try {
       const token = localStorage.getItem('token');
-      console.log('Fetching pending receipts with token:', token ? 'Token exists' : 'No token');
-
-      const response = await fetch('/api/superadmin/payments/pending', {
+      const response = await fetch('/api/superadmin/subscriptions/payments/pending', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
 
-      console.log('Pending receipts response status:', response.status);
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.warn('Pending receipts endpoint not available:', errorText);
         setLoading(false);
         return;
       }
 
       const data = await response.json();
-      console.log('Pending receipts data:', data);
-
-      if (data.success) {
-        console.log('Found', data.receipts.length, 'pending receipts');
-        setPendingReceipts(data.receipts);
-      } else {
-        console.warn('Response not successful:', data);
+      // Backend returns List<PaymentRecord> directly, not wrapped in {success: true, receipts: []}
+      if (Array.isArray(data)) {
+        setPendingReceipts(data);
       }
     } catch (error) {
       console.error('Error fetching receipts:', error);
@@ -88,7 +78,7 @@ const SubscriptionManager = () => {
   const fetchCompanies = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/superadmin/companies', {
+      const response = await fetch('/api/superadmin/subscriptions/companies', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -96,13 +86,13 @@ const SubscriptionManager = () => {
       });
 
       if (!response.ok) {
-        console.warn('Companies endpoint not available');
         return;
       }
 
       const data = await response.json();
-      if (data.success) {
-        setCompanies(data.companies);
+      // Backend returns List<CompanyTenant> directly
+      if (Array.isArray(data)) {
+        setCompanies(data);
       }
     } catch (error) {
       console.warn('Error fetching companies, using empty list:', error);
