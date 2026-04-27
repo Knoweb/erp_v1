@@ -114,6 +114,19 @@ public class SubscriptionService {
     }
 
     /**
+     * Delete a company by orgId
+     */
+    public void deleteCompany(Long orgId) {
+        log.info("Deleting company with orgId={}", orgId);
+        CompanyTenant companyTenant = companyTenantRepository.findByOrgId(orgId)
+                .orElseThrow(() -> new CompanyNotFoundException(orgId));
+        
+        // This will cascade delete subscriptions and payments due to JPA/Database constraints
+        companyTenantRepository.delete(companyTenant);
+        log.info("Company with orgId={} and all associated data deleted successfully", orgId);
+    }
+
+    /**
      * Upgrade subscription by adding a new system to subscribed_systems JSON array
      * @param orgId Organization ID
      * @param newSystem System to add (e.g., "GINUMA", "INVENTORY", "PIRISAHR")

@@ -541,86 +541,134 @@ const SubscriptionManager = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {companies.map((company) => (
+                {companies.map((company: any) => (
                   <div
-                    key={company.companyId}
-                    className="border border-gray-200 rounded-lg p-6"
+                    key={company.orgId}
+                    className={`border rounded-lg p-6 transition-all ${
+                      company.status === 'BLOCKED' ? 'bg-red-50 border-red-200' : 'hover:border-blue-300'
+                    }`}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-4">
                           <h3 className="text-lg font-semibold text-gray-900">{company.companyName}</h3>
-                          {getStatusBadge(company.subscriptionStatus)}
+                          {company.status === 'BLOCKED' ? (
+                            <span className="px-3 py-1 bg-red-600 text-white rounded-full text-xs font-bold animate-pulse">
+                              BLOCKED
+                            </span>
+                          ) : (
+                            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+                              ACTIVE
+                            </span>
+                          )}
+                          <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                            Org ID: {company.orgId}
+                          </span>
                         </div>
-                        <p className="text-sm text-gray-500 mb-4">{company.email}</p>
+                        
+                        <p className="text-sm text-gray-500 mb-4 flex items-center">
+                          <Mail className="w-4 h-4 mr-2" />
+                          {company.contactEmail}
+                        </p>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                           <div>
-                            <p className="text-xs text-gray-500">Trial Start</p>
+                            <p className="text-xs text-gray-500">Registered On</p>
                             <p className="text-sm font-medium text-gray-900">
-                              {new Date(company.trialStartDate).toLocaleDateString()}
+                              {company.createdAt ? new Date(company.createdAt).toLocaleDateString() : 'N/A'}
                             </p>
                           </div>
                           <div>
-                            <p className="text-xs text-gray-500">Trial End</p>
-                            <p className="text-sm font-medium text-gray-900">
-                              {new Date(company.trialEndDate).toLocaleDateString()}
-                            </p>
-                          </div>
-                          {company.subscriptionEndDate && (
-                            <div>
-                              <p className="text-xs text-gray-500">Subscription End</p>
-                              <p className="text-sm font-medium text-gray-900">
-                                {new Date(company.subscriptionEndDate).toLocaleDateString()}
-                              </p>
-                            </div>
-                          )}
-                          <div>
-                            <p className="text-xs text-gray-500">Days Remaining</p>
-                            <p className="text-sm font-medium text-gray-900">
-                              {Math.ceil(
-                                (new Date(company.subscriptionEndDate || company.trialEndDate).getTime() -
-                                  Date.now()) /
-                                (1000 * 60 * 60 * 24)
-                              )}
+                            <p className="text-xs text-gray-500">Industry</p>
+                            <p className="text-sm font-medium text-gray-900 uppercase">
+                              {company.industryType || 'GENERAL'}
                             </p>
                           </div>
                         </div>
 
                         <div className="flex items-center space-x-4 mb-4">
-                          <p className="text-sm font-medium text-gray-600">Active Systems:</p>
-                          {company.ginum && (
-                            <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium">
-                              Ginum
-                            </span>
-                          )}
-                          {company.pirisahr && (
-                            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                              PirisaHR
-                            </span>
-                          )}
-                          {company.inventory && (
-                            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                              Inventory
-                            </span>
+                          <p className="text-sm font-medium text-gray-600">Subscribed Systems:</p>
+                          {Array.isArray(company.subscribedSystems) && company.subscribedSystems.length > 0 ? (
+                            company.subscribedSystems.map((sys: string) => (
+                              <span key={sys} className="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-100 rounded-full text-xs font-bold uppercase">
+                                {sys}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-xs text-gray-400 italic">No specific systems listed</span>
                           )}
                         </div>
                       </div>
 
                       <div className="flex flex-col space-y-2 ml-4">
+                        {company.status === 'BLOCKED' ? (
+                          <button
+                            onClick={async () => {
+                              if (confirm(`Unblock ${company.companyName}?`)) {
+                                const host = window.location.hostname;
+                                const protocol = window.location.protocol;
+                                const API_BASE_URL = import.meta.env.VITE_SUBSCRIPTION_BASE_URL || `${protocol}//${host}:8091`;
+                                await fetch(`${API_BASE_URL}/api/superadmin/subscriptions/companies/${company.orgId}/unblock`, {
+                                  method: 'PUT',
+                                  headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                                });
+                                fetchCompanies();
+                              }
+                            }}
+                            className="inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                          >
+                            <Check className="w-4 h-4 mr-2" />
+                            Unblock
+                          </button>
+                        ) : (
+                          <button
+                            onClick={async () => {
+                              if (confirm(`Block ${company.companyName}? This will prevent all users from this organization from logging in.`)) {
+                                const host = window.location.hostname;
+                                const protocol = window.location.protocol;
+                                const API_BASE_URL = import.meta.env.VITE_SUBSCRIPTION_BASE_URL || `${protocol}//${host}:8091`;
+                                await fetch(`${API_BASE_URL}/api/superadmin/subscriptions/companies/${company.orgId}/block`, {
+                                  method: 'PUT',
+                                  headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                                });
+                                fetchCompanies();
+                              }
+                            }}
+                            className="inline-flex items-center justify-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+                          >
+                            <X className="w-4 h-4 mr-2" />
+                            Block
+                          </button>
+                        )}
+                        
+                        <button
+                          onClick={async () => {
+                            if (confirm(`🚨 PERMANENT DELETE: Are you sure you want to delete ${company.companyName}? This will remove all subscriptions and payment history. This cannot be undone.`)) {
+                              const host = window.location.hostname;
+                              const protocol = window.location.protocol;
+                              const API_BASE_URL = import.meta.env.VITE_SUBSCRIPTION_BASE_URL || `${protocol}//${host}:8091`;
+                              await fetch(`${API_BASE_URL}/api/superadmin/subscriptions/companies/${company.orgId}`, {
+                                method: 'DELETE',
+                                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                              });
+                              fetchCompanies();
+                            }
+                          }}
+                          className="inline-flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                        >
+                          <Download className="w-4 h-4 mr-2 rotate-180" />
+                          Delete
+                        </button>
+
                         <button
                           onClick={() => {
-                            const months = prompt('Enter number of months to extend:');
-                            if (months) handleExtendSubscription(company.companyId, parseInt(months));
+                            const months = prompt('Enter number of months to extend subscription:');
+                            if (months) handleExtendSubscription(company.orgId, parseInt(months));
                           }}
                           className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                         >
                           <Clock className="w-4 h-4 mr-2" />
                           Extend
-                        </button>
-                        <button className="inline-flex items-center justify-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
-                          <Mail className="w-4 h-4 mr-2" />
-                          Email
                         </button>
                       </div>
                     </div>

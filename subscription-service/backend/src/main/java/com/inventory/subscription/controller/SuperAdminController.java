@@ -60,6 +60,17 @@ public class SuperAdminController {
     }
 
     /**
+     * DELETE /api/superadmin/subscriptions/companies/{orgId}
+     * Deletes a company and all its data
+     */
+    @DeleteMapping("/companies/{orgId}")
+    public ResponseEntity<Void> deleteCompany(@PathVariable Long orgId) {
+        log.info("Super admin: Deleting company with orgId={}", orgId);
+        subscriptionService.deleteCompany(orgId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
      * GET /api/superadmin/subscriptions/payments/pending
      * Returns a list of all PaymentRecords where approvalStatus is PENDING
      */
