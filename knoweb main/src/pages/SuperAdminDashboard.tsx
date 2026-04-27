@@ -24,9 +24,10 @@ const SuperAdminDashboard = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
+    const userData = localStorage.getItem('userDetails') || localStorage.getItem('user');
 
     if (!token || !userData) {
+      console.warn('No token or user data found in localStorage');
       navigate('/login');
       return;
     }

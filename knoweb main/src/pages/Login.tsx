@@ -213,7 +213,7 @@ const Login = () => {
       
       if (role === 'ROLE_SUPER_ADMIN' || role === 'SUPER_ADMIN') {
         console.log('👑 Redirecting to Super Admin Dashboard...');
-        navigate('/superadmin/dashboard');
+        window.location.href = '/superadmin/dashboard';
       } else {
         console.log('📊 Redirecting to Main Dashboard...');
         navigate('/dashboard');
