@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Check, X, Download, Eye, Mail, Building2, CreditCard } from 'lucide-react';
+import { Check, X, Download, Eye, Mail, Building2, CreditCard, AlertTriangle, Info, Loader2 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 
 interface PaymentReceipt {
@@ -41,6 +41,10 @@ const SubscriptionManager = () => {
   const [activeTab, setActiveTab] = useState<'pending' | 'companies'>('pending');
   const [viewingReceipt, setViewingReceipt] = useState<PaymentReceipt | null>(null);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [actionCompany, setActionCompany] = useState<any | null>(null);
+  const [actionType, setActionType] = useState<'block' | 'unblock' | 'delete' | null>(null);
+  const [isActionModalOpen, setIsActionModalOpen] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     fetchPendingReceipts();
@@ -326,6 +330,57 @@ const SubscriptionManager = () => {
     doc.save(`Payment_Receipt_${receipt.transactionId}.pdf`);
   };
 
+  const openActionModal = (company: any, type: 'block' | 'unblock' | 'delete') => {
+    setActionCompany(company);
+    setActionType(type);
+    setIsActionModalOpen(true);
+  };
+
+  const handleCompanyAction = async () => {
+    if (!actionCompany || !actionType) return;
+    setActionLoading(true);
+    
+    try {
+      const host = window.location.hostname;
+      const protocol = window.location.protocol;
+      const API_BASE_URL = import.meta.env.VITE_SUBSCRIPTION_BASE_URL || `${protocol}//${host}:8091`;
+      const token = localStorage.getItem('token');
+      
+      let url = '';
+      let method = '';
+      
+      if (actionType === 'block') {
+        url = `${API_BASE_URL}/api/superadmin/subscriptions/companies/${actionCompany.orgId}/block`;
+        method = 'PUT';
+      } else if (actionType === 'unblock') {
+        url = `${API_BASE_URL}/api/superadmin/subscriptions/companies/${actionCompany.orgId}/unblock`;
+        method = 'PUT';
+      } else if (actionType === 'delete') {
+        url = `${API_BASE_URL}/api/superadmin/subscriptions/companies/${actionCompany.orgId}`;
+        method = 'DELETE';
+      }
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        setIsActionModalOpen(false);
+        setActionCompany(null);
+        setActionType(null);
+        fetchCompanies();
+      } else {
+        alert('Action failed. Please try again.');
+      }
+    } catch (error) {
+      console.error(`Error performing ${actionType}:`, error);
+      alert('An error occurred while performing the action.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
 
 
   const getPackageName = (packageType: string) => {
@@ -561,18 +616,7 @@ const SubscriptionManager = () => {
                       <div className="flex flex-col space-y-2 ml-4">
                         {company.status === 'BLOCKED' ? (
                           <button
-                            onClick={async () => {
-                              if (confirm(`Unblock ${company.companyName}?`)) {
-                                const host = window.location.hostname;
-                                const protocol = window.location.protocol;
-                                const API_BASE_URL = import.meta.env.VITE_SUBSCRIPTION_BASE_URL || `${protocol}//${host}:8091`;
-                                await fetch(`${API_BASE_URL}/api/superadmin/subscriptions/companies/${company.orgId}/unblock`, {
-                                  method: 'PUT',
-                                  headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                                });
-                                fetchCompanies();
-                              }
-                            }}
+                            onClick={() => openActionModal(company, 'unblock')}
                             className="inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
                           >
                             <Check className="w-4 h-4 mr-2" />
@@ -580,18 +624,7 @@ const SubscriptionManager = () => {
                           </button>
                         ) : (
                           <button
-                            onClick={async () => {
-                              if (confirm(`Block ${company.companyName}? This will prevent all users from this organization from logging in.`)) {
-                                const host = window.location.hostname;
-                                const protocol = window.location.protocol;
-                                const API_BASE_URL = import.meta.env.VITE_SUBSCRIPTION_BASE_URL || `${protocol}//${host}:8091`;
-                                await fetch(`${API_BASE_URL}/api/superadmin/subscriptions/companies/${company.orgId}/block`, {
-                                  method: 'PUT',
-                                  headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                                });
-                                fetchCompanies();
-                              }
-                            }}
+                            onClick={() => openActionModal(company, 'block')}
                             className="inline-flex items-center justify-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
                           >
                             <X className="w-4 h-4 mr-2" />
@@ -600,18 +633,7 @@ const SubscriptionManager = () => {
                         )}
                         
                         <button
-                          onClick={async () => {
-                            if (confirm(`🚨 PERMANENT DELETE: Are you sure you want to delete ${company.companyName}? This will remove all subscriptions and payment history. This cannot be undone.`)) {
-                              const host = window.location.hostname;
-                              const protocol = window.location.protocol;
-                              const API_BASE_URL = import.meta.env.VITE_SUBSCRIPTION_BASE_URL || `${protocol}//${host}:8091`;
-                              await fetch(`${API_BASE_URL}/api/superadmin/subscriptions/companies/${company.orgId}`, {
-                                method: 'DELETE',
-                                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                              });
-                              fetchCompanies();
-                            }
-                          }}
+                          onClick={() => openActionModal(company, 'delete')}
                           className="inline-flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
                         >
                           <Download className="w-4 h-4 mr-2 rotate-180" />
@@ -784,6 +806,79 @@ const SubscriptionManager = () => {
                 className="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Action Confirmation Modal */}
+      {isActionModalOpen && actionCompany && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
+            <div className="flex flex-col items-center text-center">
+              {actionType === 'delete' ? (
+                <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4">
+                  <AlertTriangle size={32} />
+                </div>
+              ) : actionType === 'block' ? (
+                <div className="w-16 h-16 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center mb-4">
+                  <AlertTriangle size={32} />
+                </div>
+              ) : (
+                <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
+                  <Info size={32} />
+                </div>
+              )}
+              
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                {actionType === 'delete' && 'Delete Company'}
+                {actionType === 'block' && 'Block Company'}
+                {actionType === 'unblock' && 'Unblock Company'}
+              </h3>
+              
+              <p className="text-gray-500 mb-6">
+                {actionType === 'delete' && (
+                  <>Are you sure you want to permanently delete <strong>{actionCompany.companyName}</strong>? This will remove all subscriptions and payment history. This action cannot be undone.</>
+                )}
+                {actionType === 'block' && (
+                  <>Are you sure you want to block <strong>{actionCompany.companyName}</strong>? This will prevent all users from this organization from logging in.</>
+                )}
+                {actionType === 'unblock' && (
+                  <>Are you sure you want to unblock <strong>{actionCompany.companyName}</strong>? This will restore their access to the systems.</>
+                )}
+              </p>
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setIsActionModalOpen(false);
+                  setActionCompany(null);
+                  setActionType(null);
+                }}
+                disabled={actionLoading}
+                className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-semibold disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCompanyAction}
+                disabled={actionLoading}
+                className={`flex-1 px-4 py-3 text-white rounded-xl transition-colors font-semibold flex items-center justify-center ${
+                  actionType === 'delete' ? 'bg-red-600 hover:bg-red-700' : 
+                  actionType === 'block' ? 'bg-orange-500 hover:bg-orange-600' : 
+                  'bg-green-600 hover:bg-green-700'
+                } disabled:opacity-50`}
+              >
+                {actionLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    {actionType === 'delete' && 'Yes, Delete'}
+                    {actionType === 'block' && 'Yes, Block'}
+                    {actionType === 'unblock' && 'Yes, Unblock'}
+                  </>
+                )}
               </button>
             </div>
           </div>
