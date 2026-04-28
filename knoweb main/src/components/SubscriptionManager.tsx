@@ -645,17 +645,6 @@ const SubscriptionManager = () => {
                           <Download className="w-4 h-4 mr-2 rotate-180" />
                           Delete
                         </button>
-
-                        <button
-                          onClick={() => {
-                            const months = prompt('Enter number of months to extend subscription:');
-                            if (months) handleExtendSubscription(company.orgId, parseInt(months));
-                          }}
-                          className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                        >
-                          <Clock className="w-4 h-4 mr-2" />
-                          Extend
-                        </button>
                       </div>
                     </div>
                   </div>
