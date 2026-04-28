@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Check, X, Download, Eye, Mail, Building2, CreditCard, Clock } from 'lucide-react';
+import { Check, X, Download, Eye, Mail, Building2, CreditCard } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 
 interface PaymentReceipt {
@@ -326,35 +326,7 @@ const SubscriptionManager = () => {
     doc.save(`Payment_Receipt_${receipt.transactionId}.pdf`);
   };
 
-  const handleExtendSubscription = async (companyId: string, months: number) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/superadmin/subscription/extend', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ companyId, months }),
-      });
 
-      if (!response.ok) {
-        alert('Backend API not yet implemented. Please check the backend server.');
-        return;
-      }
-
-      const data = await response.json();
-      if (data.success) {
-        alert('Subscription extended successfully!');
-        fetchCompanies();
-      } else {
-        alert('Failed to extend subscription: ' + data.message);
-      }
-    } catch (error) {
-      console.error('Error extending subscription:', error);
-      alert('Error: Backend API is not available yet');
-    }
-  };
 
   const getPackageName = (packageType: string) => {
     const packages: Record<string, string> = {
