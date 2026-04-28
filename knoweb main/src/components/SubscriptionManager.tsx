@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Check, X, Download, Eye, Mail, Building2, CreditCard, AlertTriangle, Info, Loader2 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 
+
 interface PaymentReceipt {
   id: string;
   companyId: string;
@@ -57,7 +58,7 @@ const SubscriptionManager = () => {
       const protocol = window.location.protocol;
       // Use subscription-service port 8091 for subscription-related calls
       const API_BASE_URL = import.meta.env.VITE_SUBSCRIPTION_BASE_URL || `${protocol}//${host}:8091`;
-      
+
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/api/superadmin/subscriptions/payments/pending`, {
         headers: {
@@ -339,16 +340,16 @@ const SubscriptionManager = () => {
   const handleCompanyAction = async () => {
     if (!actionCompany || !actionType) return;
     setActionLoading(true);
-    
+
     try {
       const host = window.location.hostname;
       const protocol = window.location.protocol;
       const API_BASE_URL = import.meta.env.VITE_SUBSCRIPTION_BASE_URL || `${protocol}//${host}:8091`;
       const token = localStorage.getItem('token');
-      
+
       let url = '';
       let method = '';
-      
+
       if (actionType === 'block') {
         url = `${API_BASE_URL}/api/superadmin/subscriptions/companies/${actionCompany.orgId}/block`;
         method = 'PUT';
@@ -557,9 +558,8 @@ const SubscriptionManager = () => {
                 {companies.map((company: any) => (
                   <div
                     key={company.orgId}
-                    className={`border rounded-lg p-6 transition-all ${
-                      company.status === 'BLOCKED' ? 'bg-red-50 border-red-200' : 'hover:border-blue-300'
-                    }`}
+                    className={`border rounded-lg p-6 transition-all ${company.status === 'BLOCKED' ? 'bg-red-50 border-red-200' : 'hover:border-blue-300'
+                      }`}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -578,7 +578,7 @@ const SubscriptionManager = () => {
                             Org ID: {company.orgId}
                           </span>
                         </div>
-                        
+
                         <p className="text-sm text-gray-500 mb-4 flex items-center">
                           <Mail className="w-4 h-4 mr-2" />
                           {company.contactEmail}
@@ -631,7 +631,7 @@ const SubscriptionManager = () => {
                             Block
                           </button>
                         )}
-                        
+
                         <button
                           onClick={() => openActionModal(company, 'delete')}
                           className="inline-flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
@@ -829,13 +829,13 @@ const SubscriptionManager = () => {
                   <Info size={32} />
                 </div>
               )}
-              
+
               <h3 className="text-xl font-bold text-gray-900 mb-2">
                 {actionType === 'delete' && 'Delete Company'}
                 {actionType === 'block' && 'Block Company'}
                 {actionType === 'unblock' && 'Unblock Company'}
               </h3>
-              
+
               <p className="text-gray-500 mb-6">
                 {actionType === 'delete' && (
                   <>Are you sure you want to permanently delete <strong>{actionCompany.companyName}</strong>? This will remove all subscriptions and payment history. This action cannot be undone.</>
@@ -848,7 +848,7 @@ const SubscriptionManager = () => {
                 )}
               </p>
             </div>
-            
+
             <div className="flex space-x-3">
               <button
                 onClick={() => {
@@ -864,11 +864,10 @@ const SubscriptionManager = () => {
               <button
                 onClick={handleCompanyAction}
                 disabled={actionLoading}
-                className={`flex-1 px-4 py-3 text-white rounded-xl transition-colors font-semibold flex items-center justify-center ${
-                  actionType === 'delete' ? 'bg-red-600 hover:bg-red-700' : 
-                  actionType === 'block' ? 'bg-orange-500 hover:bg-orange-600' : 
-                  'bg-green-600 hover:bg-green-700'
-                } disabled:opacity-50`}
+                className={`flex-1 px-4 py-3 text-white rounded-xl transition-colors font-semibold flex items-center justify-center ${actionType === 'delete' ? 'bg-red-600 hover:bg-red-700' :
+                    actionType === 'block' ? 'bg-orange-500 hover:bg-orange-600' :
+                      'bg-green-600 hover:bg-green-700'
+                  } disabled:opacity-50`}
               >
                 {actionLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
