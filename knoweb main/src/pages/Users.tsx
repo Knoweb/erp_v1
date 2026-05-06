@@ -327,20 +327,20 @@ const Users = () => {
               <div className="mb-6">
                 <label className="block text-sm font-medium text-slate-700 mb-1">Global System Role *</label>
                 <select name="role" required value={formData.role} onChange={handleInputChange} className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white text-slate-900">
-                  <optgroup label="General Roles">
+                  {/* <optgroup label="General Roles">
                     <option value="ROLE_USER">Basic User</option>
                     <option value="ROLE_MANAGER">Department Manager</option>
                     <option value="ROLE_ORG_ADMIN">Organization Admin</option>
-                  </optgroup>
-                  <optgroup label="Ginum ERP Roles">
+                  </optgroup> */}
+                  {/* <optgroup label="Ginum ERP Roles">
                     <option value="ROLE_ACCOUNTANT">Financial Accountant</option>
                     <option value="ROLE_AUDITOR">Auditor</option>
-                  </optgroup>
-                  <optgroup label="Inventory/Supply Roles">
+                  </optgroup> */}
+                  {/* <optgroup label="Inventory/Supply Roles">
                     <option value="ROLE_PROCUREMENT">Procurement Staff</option>
                     <option value="ROLE_SALES_STAFF">Sales & Orders Staff</option>
                     <option value="ROLE_WAREHOUSE_STAFF">General Warehouse Staff</option>
-                  </optgroup>
+                  </optgroup> */}
                   <optgroup label="Manufacturing (Middeniya)">
                     <option value="ROLE_INV_STOCK_KEEPER">Stock Keeper</option>
                     <option value="ROLE_INV_MOLDING">Molding Staff</option>
