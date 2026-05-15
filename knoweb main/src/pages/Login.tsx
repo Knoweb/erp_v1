@@ -359,7 +359,7 @@ const Login = () => {
           </form>
 
           {/* Register Link */}
-          <div className="mt-8 text-center">
+          {/*<div className="mt-8 text-center">
             <p className="text-gray-600">
               Don't have an account?{' '}
               <Link
@@ -369,7 +369,7 @@ const Login = () => {
                 Sign up now
               </Link>
             </p>
-          </div>
+          </div>*/}
         </div>
       </div>
     </div>
