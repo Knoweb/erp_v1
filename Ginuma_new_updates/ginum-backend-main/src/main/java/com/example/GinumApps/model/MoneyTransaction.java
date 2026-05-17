@@ -67,9 +67,8 @@ public class MoneyTransaction {
     @Column(length = 100)
     private String referenceNumber;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id")
-    private Project project;
+    @Column(name = "external_project_id")
+    private Long externalProjectId;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "journal_entry_id")

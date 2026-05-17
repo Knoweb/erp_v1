@@ -8,19 +8,11 @@ import SsoReceiver from "../components/Auth/SsoReceiver";
 import GlobalLogout from "../pages/GlobalLogout";
 import AddAccountForm from "../components/account/AddAccountForm";
 import AllAccounts from "../components/account/AllAccounts";
-import LandingPage from "../pages/LandingPage";
 import NotFound from "../pages/NotFound/NotFound";
 import PrivateRoute from "./PrivateRoute";
-import PublicRoute from "./PublicRoute";
 import MainLayout from "../layout/MainLayout";
 import DashboardPage from "../pages/Dashboard/DashboardPage";
-import AllEmployeesPage from "../components/Employee/AllEmployeePage";
-import AddEmployeeForm from "../components/Employee/AddEmployeeForm";
 import AddUserForm from "../components/users/AddUserForm";
-import DepartmentsList from "../components/department/DepartmentsList";
-import AddDepartmentForm from "../components/department/AddDepartmentForm";
-import AddDesignationForm from "../components/department/AddDesignationForm";
-import DesignationsList from "../components/department/DesignationsList";
 import CompanyRequests from "../components/super-admin/CompanyRequests";
 import ResetPasswordForm from "../components/super-admin/ResetPasswordForm";
 import AllCompanies from "../components/super-admin/AllCompanies";
@@ -40,8 +32,6 @@ import TrialBalance from "../components/reports/TrialBalance";
 import DailySales from "../components/reports/DailySales";
 import BalanceSheet from "../components/reports/BalacenSheet";
 import Revenue from "../components/reports/Revenue";
-import CreateQuotation from "../components/quotations/CreateQuotation";
-import AllQuotations from "../components/quotations/AllQuotations";
 import MoneyTransaction from "../components/bank/MoneyTransaction";
 import CreatePurchase from "../components/supplier/CreatePurchase";
 import CreateSaleOrder from "../components/customer/CreateSale";
@@ -49,21 +39,12 @@ import AllPurchases from "../components/supplier/AllPurchases";
 import AllSales from "../components/customer/AllSales";
 import ViewPurchase from "../components/supplier/ViewPurchase";
 import ViewSale from "../components/customer/ViewSale";
-import NewProjectForm from "../components/projects/NewProjectForm";
 import GeneralJournalTransaction from "../components/transactions/GeneralJournalTransaction";
 import AllTransactions from "../components/transactions/AllTransactions";
-import AllProjects from "../components/projects/AllProject";
-import BankAccount from "../components/bank/BankAccount";
 import BankReconsilation from "../components/bank/BankReconsilation";
 import AgedPayables from "../components/supplier/AgedPayables";
 import AgedReceivables from "../components/customer/AgedReceivables";
-// import InventoryDashboard from "../components/Inventory/InventoryDashboard";
-import AllPayrolls from "../components/payroll/AllPayrolls";
-import CreatePayroll from "../components/payroll/CreatePayroll";
-import EmployeeSalaries from "../components/payroll/EmployeeSalaries";
 import EditRequests from "../components/requests/EditRequests";
-import CreateItem from "../components/item/CreateItem";
-import AllItems from "../components/item/AllItems";
 
 function AppRouter() {
   // 🚨 DEBUGGING: Log the BASE_URL being used
@@ -111,11 +92,6 @@ function AppRouter() {
           <Route path="profile" element={<CompanyProfile />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="employee">
-            <Route index element={<Navigate to="all" replace />} />
-            <Route path="all" element={<AllEmployeesPage />} />
-            <Route path="new" element={<AddEmployeeForm />} />
-          </Route>
           <Route path="supplier">
             <Route index element={<Navigate to="all" replace />} />
             <Route path="all" element={<SuppliersList />} />
@@ -151,19 +127,6 @@ function AppRouter() {
               element={<MoneyTransaction type="receive" />}
             />
           </Route>
-          <Route path="department">
-            <Route index element={<Navigate to="all" replace />} />
-            <Route path="all" element={<DepartmentsList />} />
-            <Route path="new" element={<AddDepartmentForm />} />
-            <Route path="designations" element={<DesignationsList />} />
-            <Route path="designation" element={<AddDesignationForm />} />
-          </Route>
-          <Route path="payroll">
-            <Route index element={<Navigate to="all" replace />} />
-            <Route path="all" element={<AllPayrolls />} />
-            <Route path="new" element={<CreatePayroll />} />
-            <Route path="salaries" element={<EmployeeSalaries />} />
-          </Route>
           <Route path="reports">
             <Route index element={<Navigate to="balance-sheet" replace />} />
             <Route path="revenue-report" element={<Revenue />} />
@@ -174,33 +137,15 @@ function AppRouter() {
             <Route path="cashflow" element={<Cashflow />} />
             <Route path="general-ledger" element={<GeneralLedger />} />
           </Route>
-          <Route path="quotations">
-            <Route index element={<Navigate to="new" replace />} />
-            <Route path="new" element={<CreateQuotation />} />
-            <Route path="all" element={<AllQuotations />} />
-          </Route>
           <Route path="users">
             <Route index element={<Navigate to="all" replace />} />
             <Route path="all" element={<AllUsers />} />
             <Route path="new" element={<AddUserForm />} />
           </Route>
-          <Route path="projects">
-            <Route index element={<Navigate to="all" replace />} />
-            <Route path="all" element={<AllProjects />} />
-            <Route path="new" element={<NewProjectForm />} />
-          </Route>
           <Route path="transactions">
             <Route index element={<Navigate to="all" replace />} />
             <Route path="all" element={<AllTransactions />} />
             <Route path="new" element={<GeneralJournalTransaction />} />
-          </Route>
-          <Route path="inventory">
-            <Route index element={<Navigate to="items/all" replace />} />
-            <Route path="items">
-               <Route path="all" element={<AllItems />} />
-               <Route path="new" element={<CreateItem />} />
-               <Route path="edit/:id" element={<CreateItem />} />
-            </Route>
           </Route>
           <Route path="edit-requests" element={<EditRequests />} />
         </Route>

@@ -26,8 +26,6 @@ public class SalesOrderService {
     private final CustomerRepository customerRepo;
     private final SalesOrderRepository salesOrderRepo;
     private final AccountRepository accountRepo;
-    private final ItemRepository itemRepo;
-    private final ProjectRepository projectRepo;
     private final JournalEntryService journalService;
     private final AgingReceivableSnapshotRepository agingReceivableSnapshotRepo;
 
@@ -137,32 +135,20 @@ public class SalesOrderService {
 
     private void processItems(List<SalesOrderItemRequestDto> items, SalesOrder order, Company company) {
         items.forEach(itemRequest -> {
-            Item item = null;
-            if (itemRequest.getItemId() != null) {
-                item = itemRepo.findById(itemRequest.getItemId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Item not found: " + itemRequest.getItemId()));
-            }
             Account account = accountRepo.findByAccountCodeAndCompany_CompanyId(
                     itemRequest.getAccountCode(), company.getCompanyId())
                     .orElseThrow(
                             () -> new ResourceNotFoundException("Account not found: " + itemRequest.getAccountCode()));
 
-            Project project = null;
-            if (itemRequest.getProjectId() != null) {
-                project = projectRepo.findById(itemRequest.getProjectId())
-                        .orElseThrow(() -> new ResourceNotFoundException(
-                                "Project not found: " + itemRequest.getProjectId()));
-            }
-
             SalesOrderLineItem line = new SalesOrderLineItem();
             line.setSalesOrder(order);
-            line.setItem(item);
+            line.setExternalItemId(itemRequest.getExternalItemId());
             line.setDescription(itemRequest.getDescription());
             line.setQuantity(itemRequest.getQuantity());
             line.setUnitPrice(itemRequest.getUnitPrice());
             line.setDiscountPercent(itemRequest.getDiscountPercent());
             line.setAccount(account);
-            line.setProject(project);
+            line.setExternalProjectId(itemRequest.getExternalProjectId());
             line.setItemType(itemRequest.getItemType());
             order.getItems().add(line);
         });
@@ -434,17 +420,14 @@ public class SalesOrderService {
 
     private SalesOrderItemResponseDto convertLineToDto(SalesOrderLineItem item) {
         SalesOrderItemResponseDto dto = new SalesOrderItemResponseDto();
-        if (item.getItem() != null) {
-            dto.setItemId(item.getItem().getItemId());
-            dto.setItemName(item.getItem().getName());
-        }
+        dto.setExternalItemId(item.getExternalItemId());
         dto.setDescription(item.getDescription());
         dto.setQuantity(item.getQuantity());
         dto.setUnitPrice(item.getUnitPrice());
         dto.setDiscountPercent(item.getDiscountPercent());
         dto.setAmount(item.getAmount());
         dto.setAccountCode(item.getAccount().getAccountCode());
-        dto.setProjectId(item.getProject() != null ? item.getProject().getId() : null);
+        dto.setExternalProjectId(item.getExternalProjectId());
         dto.setItemType(item.getItemType());
         return dto;
     }

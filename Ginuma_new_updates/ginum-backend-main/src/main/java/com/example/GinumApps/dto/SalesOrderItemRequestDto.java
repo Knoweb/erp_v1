@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 @Data
 public class SalesOrderItemRequestDto {
-    private Long itemId;
+    private Long externalItemId;
 
     @NotBlank
     private String description;
@@ -26,7 +26,7 @@ public class SalesOrderItemRequestDto {
     @DecimalMax("100.00")
     private BigDecimal discountPercent = BigDecimal.ZERO;
 
-    private Long projectId;
+    private Long externalProjectId;
 
     private LineItemType itemType; // GOODS or SERVICE
 }

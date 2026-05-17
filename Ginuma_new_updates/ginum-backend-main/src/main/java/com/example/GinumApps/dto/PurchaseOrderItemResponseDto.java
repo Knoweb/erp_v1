@@ -6,14 +6,13 @@ import java.math.BigDecimal;
 
 @Data
 public class PurchaseOrderItemResponseDto {
-    private Long itemId;
-    private String itemName;
+    private Long externalItemId;
     private String description;
     private int quantity;
     private BigDecimal unitPrice;
     private BigDecimal discountPercent;
     private BigDecimal amount;
     private String accountCode;
-    private Long projectId;
+    private Long externalProjectId;
     private LineItemType itemType;
 }

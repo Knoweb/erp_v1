@@ -1,17 +1,11 @@
 import {
   FaTachometerAlt,
   FaUsers,
-  FaDollarSign,
-  FaBuilding,
   FaTruck,
   FaUserTie,
-  FaShoppingCart,
-  FaClipboardList,
-  FaWarehouse,
   FaExchangeAlt,
   FaFileAlt,
   FaBook,
-  FaQuoteRight,
   FaUniversity,
 } from "react-icons/fa";
 import { RiContractLeftFill } from "react-icons/ri";
@@ -29,65 +23,12 @@ export const navItems = [
   },
 
   {
-    sectionTitle: "HUMAN RESOURCES",
-  },
-  {
-    id: "employee",
-    path: "/app/employee",
-    label: "Employees",
-    icon: FaUsers,
-    subItems: [
-      { id: "all-employees", path: "/app/employee/all", label: "All Employees" },
-      { id: "new-employee", path: "/app/employee/new", label: "New Employee" },
-    ],
-  },
-  {
-    id: "department",
-    path: "/app/department",
-    label: "Department",
-    icon: FaBuilding,
-    subItems: [
-      {
-        id: "all-department",
-        path: "/app/department/all",
-        label: "All Departments",
-      },
-      {
-        id: "new-department",
-        path: "/app/department/new",
-        label: "New Department",
-      },
-      {
-        id: "all-designation",
-        path: "/app/department/designations",
-        label: "All Designations",
-      },
-      {
-        id: "new-designation",
-        path: "/app/department/designation",
-        label: "New Designation",
-      },
-    ],
-  },
-  {
-    id: "payroll",
-    path: "/app/payroll",
-    label: "Payroll",
-    icon: FaDollarSign,
-    subItems: [
-      { id: "all-payroll", path: "/app/payroll/all", label: "All Payroll" },
-      { id: "new-payroll", path: "/app/payroll/new", label: "New Payroll" },
-      { id: "employee-salaries", path: "/app/payroll/salaries", label: "Employee Salaries" },
-    ],
-  },
-
-  {
     sectionTitle: "BUSINESS & OPERATIONS",
   },
   {
     id: "supplier",
     path: "/app/supplier",
-    label: "Supplier",
+    label: "Accounts Payable (Suppliers)",
     icon: FaTruck,
     subItems: [
       { id: "all-supplier", path: "/app/supplier/all", label: "All Suppliers" },
@@ -112,7 +53,7 @@ export const navItems = [
   {
     id: "customer",
     path: "/app/customer",
-    label: "Customer",
+    label: "Accounts Receivable (Customers)",
     icon: FaUserTie,
     subItems: [
       { id: "all-customer", path: "/app/customer/all", label: "Customers" },
@@ -127,48 +68,8 @@ export const navItems = [
     ],
   },
   {
-    id: "projects",
-    path: "/app/projects",
-    label: "projects",
-    icon: FaClipboardList,
-    subItems: [
-      { id: "all-projects", path: "/app/projects/all", label: "All Projects" },
-      { id: "new-project", path: "/app/projects/new", label: "Create Project" },
-    ],
-  },
-  {
-    id: "inventory",
-    path: "/app/inventory",
-    label: "Item Master",
-    icon: FaWarehouse,
-    subItems: [
-      { id: "all-items", path: "/app/inventory/items/all", label: "All Items" },
-      { id: "new-item", path: "/app/inventory/items/new", label: "New Item" },
-    ],
-  },
-
-  {
     sectionTitle: "FINANCE & ACCOUNTING",
   },
-  // {
-  //   id: "sales",
-  //   path: "/sales",
-  //   label: "Sales",
-  //   icon: FaShoppingCart,
-  //   subItems: [
-
-  //   ],
-  // },
-  // {
-  //   id: "purchases",
-  //   path: "/purchases",
-  //   label: "Purchases",
-  //   icon: FaClipboardList,
-  //   subItems: [
-  //     { id: "all-purchases", path: "/purchases/all", label: "All Purchases" },
-  //     { id: "new-purchases", path: "/purchases/new", label: "Create Purchase" },
-  //   ],
-  // },
   {
     id: "transactions",
     path: "/app/transactions",
@@ -261,21 +162,6 @@ export const navItems = [
       },
     ],
   },
-  {
-    id: "quotations",
-    path: "/app/quotations",
-    label: "Quotations",
-    icon: FaQuoteRight,
-    subItems: [
-      {
-        id: "new-quotation",
-        path: "/app/quotations/new",
-        label: "Create Quotation",
-      },
-      { id: "all-quotation", path: "/app/quotations/all", label: "All Quotations" },
-    ],
-  },
-
   {
     sectionTitle: "USER MANAGEMENT",
   },

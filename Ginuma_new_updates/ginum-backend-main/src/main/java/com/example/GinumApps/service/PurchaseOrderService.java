@@ -28,7 +28,6 @@ public class PurchaseOrderService {
     private final SupplierRepository supplierRepo;
     private final AccountRepository accountRepo;
     private final JournalEntryService journalEntryService;
-    private final ItemRepository itemRepository;
     private final AgingPayableSnapshotRepository agingRepo;
     private final PurchaseOrderRepository poRepo;
 
@@ -189,14 +188,10 @@ public class PurchaseOrderService {
                     itemRequest.getAccountCode(), company.getCompanyId()).orElseThrow(
                             () -> new EntityNotFoundException(
                                     "Account not found: " + itemRequest.getAccountCode()));
-            Item item = null;
-            if (itemRequest.getItemId() != null) {
-                item = itemRepository.findById(itemRequest.getItemId())
-                        .orElseThrow(() -> new EntityNotFoundException("Item not found: " + itemRequest.getItemId()));
-            }
 
             PurchaseOrderLineItem lineItem = new PurchaseOrderLineItem();
-            lineItem.setItem(item);
+            lineItem.setExternalItemId(itemRequest.getExternalItemId());
+            lineItem.setExternalProjectId(itemRequest.getExternalProjectId());
             lineItem.setDescription(itemRequest.getDescription());
             lineItem.setQuantity(itemRequest.getQuantity());
             lineItem.setUnitPrice(itemRequest.getUnitPrice());
@@ -425,10 +420,7 @@ public class PurchaseOrderService {
 
     private PurchaseOrderItemResponseDto convertItemToDto(PurchaseOrderLineItem item) {
         PurchaseOrderItemResponseDto itemDto = new PurchaseOrderItemResponseDto();
-        if (item.getItem() != null) {
-            itemDto.setItemId(item.getItem().getItemId());
-            itemDto.setItemName(item.getItem().getDescription());
-        }
+        itemDto.setExternalItemId(item.getExternalItemId());
         itemDto.setDescription(item.getDescription());
         itemDto.setQuantity(item.getQuantity());
         itemDto.setUnitPrice(item.getUnitPrice());
@@ -438,7 +430,7 @@ public class PurchaseOrderService {
                 .multiply(BigDecimal.ONE.subtract(
                         item.getDiscountPercent().divide(BigDecimal.valueOf(100)))));
         itemDto.setAccountCode(item.getAccount().getAccountCode());
-        itemDto.setProjectId(item.getProject() != null ? item.getProject().getId() : null);
+        itemDto.setExternalProjectId(item.getExternalProjectId());
         itemDto.setItemType(item.getItemType());
 
         return itemDto;

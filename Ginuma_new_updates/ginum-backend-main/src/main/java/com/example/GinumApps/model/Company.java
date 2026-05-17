@@ -5,7 +5,6 @@ import com.example.GinumApps.enums.CompanyCategory;
 import com.example.GinumApps.repository.AccountRepository;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -98,9 +97,6 @@ public class Company {
     private Date subscriptionExpiryDate;
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
-    private List<Employee> employees = new ArrayList<>();
-
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
     private List<AppUser> users = new ArrayList<>();
 
     @ManyToOne
@@ -134,10 +130,6 @@ public class Company {
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Account> accounts;
-
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<Item> items;
 
     // public Account getFreightAccount() {
     // if(freightAccount == null) {

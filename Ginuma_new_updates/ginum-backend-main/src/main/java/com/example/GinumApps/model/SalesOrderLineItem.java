@@ -25,10 +25,8 @@ public class SalesOrderLineItem {
     @ToString.Exclude
     private SalesOrder salesOrder;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id", nullable = true)
-    @ToString.Exclude
-    private Item item;
+    @Column(name = "external_item_id")
+    private Long externalItemId;
 
     private String description;
 
@@ -44,9 +42,8 @@ public class SalesOrderLineItem {
     @DecimalMax("100.00")
     private BigDecimal discountPercent = BigDecimal.ZERO;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id")
-    private Project project;
+    @Column(name = "external_project_id")
+    private Long externalProjectId;
 
     @ManyToOne
     @JoinColumn(name = "account_code")

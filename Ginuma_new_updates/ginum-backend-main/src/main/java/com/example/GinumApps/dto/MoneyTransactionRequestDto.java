@@ -40,5 +40,5 @@ public class MoneyTransactionRequestDto {
     
     private String referenceNumber;
     
-    private Integer projectId;
+    private Long externalProjectId;
 }

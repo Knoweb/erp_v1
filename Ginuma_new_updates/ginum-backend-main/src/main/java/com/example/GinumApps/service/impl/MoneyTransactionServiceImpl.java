@@ -27,8 +27,6 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
     private final AccountRepository accountRepository;
     private final SupplierRepository supplierRepository;
     private final CustomerRepository customerRepository;
-    private final EmployeeRepository employeeRepository;
-    private final ProjectRepository projectRepository;
     private final AppUserRepository appUserRepository;
     private final JournalEntryRepository journalEntryRepository;
     private final JournalEntryService journalEntryService;
@@ -85,11 +83,9 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
         transaction.setReferenceNumber(request.getReferenceNumber());
         transaction.setCreatedBy(user);
         
-        // Handle project if provided
-        if (request.getProjectId() != null) {
-            Project project = projectRepository.findById(Long.valueOf(request.getProjectId()))
-                .orElseThrow(() -> new RuntimeException("Project not found"));
-            transaction.setProject(project);
+        // Handle external project reference if provided
+        if (request.getExternalProjectId() != null) {
+            transaction.setExternalProjectId(request.getExternalProjectId());
         }
         
         // Save the transaction first
@@ -179,10 +175,6 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
                 return customerRepository.findById(Long.valueOf(payeeId))
                     .map(Customer::getName)
                     .orElse("Unknown Customer");
-            case EMPLOYEE:
-                return employeeRepository.findById(payeeId)
-                    .map(employee -> employee.getFirstName() + " " + employee.getLastName())
-                    .orElse("Unknown Employee");
             default:
                 return "Unknown";
         }
@@ -285,11 +277,9 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
         dto.setPaymentMethod(transaction.getPaymentMethod());
         dto.setReferenceNumber(transaction.getReferenceNumber());
         
-        // Project info
-        if (transaction.getProject() != null) {
-            dto.setProjectId(transaction.getProject().getId().intValue());
-            dto.setProjectName(transaction.getProject().getName());
-        }
+        // External project info
+        dto.setExternalProjectId(transaction.getExternalProjectId());
+        dto.setExternalProjectName(null);
         
         // Journal Entry info
         if (transaction.getJournalEntry() != null) {

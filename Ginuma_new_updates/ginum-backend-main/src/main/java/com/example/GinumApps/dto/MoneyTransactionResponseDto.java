@@ -33,8 +33,8 @@ public class MoneyTransactionResponseDto {
     private PaymentMethod paymentMethod;
     private String referenceNumber;
     
-    private Integer projectId;
-    private String projectName;
+    private Long externalProjectId;
+    private String externalProjectName;
     
     private Integer journalEntryId;
     private String journalEntryReference;
