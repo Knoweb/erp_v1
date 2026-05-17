@@ -83,11 +83,8 @@ const SuppliersList = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -99,25 +96,24 @@ const SuppliersList = () => {
                           <FiUser size={20} />
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{supplier.supplierName}</div>
-                          <div className="text-sm text-gray-500">{supplier.address}</div>
+                          <div className="text-sm font-medium text-gray-900">{supplier.supplierName || '-'}</div>
+                          {supplier.address ? (
+                            <div className="text-sm text-gray-500">{supplier.address}</div>
+                          ) : null}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 flex items-center gap-2"><FiPhone className="text-gray-400" /> {supplier.mobileNo || '-'}</div>
-                      <div className="text-sm text-gray-500 flex items-center gap-2 mt-1"><FiMail className="text-gray-400" /> {supplier.email || '-'}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
-                        {supplier.supplierType}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {supplier.itemCategory}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="text-sm text-gray-500">{supplier.email || '-'}</div>
+                      <div className="space-y-1">
+                        <div className="text-sm text-gray-900 flex items-center gap-2">
+                          <FiPhone className="text-gray-400" />
+                          <span>{supplier.mobileNo || '-'}</span>
+                        </div>
+                        <div className="text-sm text-gray-500 flex items-center gap-2">
+                          <FiMail className="text-gray-400" />
+                          <span>{supplier.email || '-'}</span>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 ))}
