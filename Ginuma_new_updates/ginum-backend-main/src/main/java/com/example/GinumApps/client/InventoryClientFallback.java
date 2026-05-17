@@ -22,7 +22,7 @@ public class InventoryClientFallback implements InventoryClient {
     }
 
     @Override
-    public List<InventoryPoResponseDto> getApprovedPurchaseOrdersBySupplierId(Long supplierId, String status) {
+    public List<InventoryPoResponseDto> getPurchaseOrders() {
         return Collections.emptyList();
     }
 }

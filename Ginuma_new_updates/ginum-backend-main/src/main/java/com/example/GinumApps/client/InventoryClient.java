@@ -19,9 +19,7 @@ public interface InventoryClient {
     @GetMapping("/api/inventory/suppliers")
     List<SupplierResponseDto> getSuppliers(@RequestParam(value = "companyId", required = false) Integer companyId);
 
-    @GetMapping("/api/inventory/purchase-orders/supplier/{supplierId}")
-    List<InventoryPoResponseDto> getApprovedPurchaseOrdersBySupplierId(
-            @PathVariable("supplierId") Long supplierId,
-            @RequestParam(value = "status", required = false, defaultValue = "APPROVED") String status);
+    @GetMapping("/api/orders/purchase")
+    List<InventoryPoResponseDto> getPurchaseOrders();
 
 }
