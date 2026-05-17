@@ -39,8 +39,8 @@ export const navItems = [
       },
       {
         id: "new-purchase",
-        path: "/app/supplier/purchase/new",
-        label: "Create Purchase",
+        path: "/app/supplier-bill/new",
+        label: "Enter Supplier Bill",
       },
       {
         id: "aged-payables",

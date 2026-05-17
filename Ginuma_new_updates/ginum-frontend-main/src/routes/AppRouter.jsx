@@ -98,6 +98,12 @@ function AppRouter() {
             <Route path="purchase/:id" element={<ViewPurchase />} />
             <Route path="aged-payables" element={<AgedPayables />} />
           </Route>
+          <Route path="supplier-bill">
+            <Route index element={<Navigate to="new" replace />} />
+            <Route path="new" element={<CreatePurchase />} />
+            <Route path="all" element={<AllPurchases />} />
+            <Route path=":id" element={<ViewPurchase />} />
+          </Route>
           <Route path="customer">
             <Route index element={<Navigate to="all" replace />} />
             <Route path="all" element={<CustomersList />} />

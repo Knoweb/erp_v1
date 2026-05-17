@@ -28,7 +28,7 @@ const CreatePurchase = () => {
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showItemModal, setShowItemModal] = useState(false);
-  const [poNumber, setPoNumber] = useState("");
+  const [referencePoNumber, setReferencePoNumber] = useState("");
   const [supplierInvoiceNumber, setSupplierInvoiceNumber] = useState("");
   const [modalTransition, setModalTransition] = useState("opacity-0 invisible");
   const [suppliers, setSuppliers] = useState([]);
@@ -215,7 +215,7 @@ const CreatePurchase = () => {
         ]);
 
         if (poRes && poRes.poNumber) {
-          setPoNumber(poRes.poNumber);
+          setReferencePoNumber(poRes.poNumber);
         }
         if (invRes && invRes.invoiceNumber) {
           setSupplierInvoiceNumber(invRes.invoiceNumber);
@@ -304,7 +304,7 @@ const CreatePurchase = () => {
 
     const payload = {
       supplierId: parseInt(selectedSupplier),
-      poNumber: poNumber,
+      poNumber: referencePoNumber,
       supplierInvoiceNumber: supplierInvoiceNumber,
       issueDate: issueDate,
       dueDate: dueDate || null,
@@ -335,12 +335,12 @@ const CreatePurchase = () => {
       const response = await api.post(`/api/${companyId}/purchase-orders`, payload);
       // api.js returns response.data directly, so we check if the request was successful (response defined)
       if (response) {
-        Alert.success("Purchase order created successfully!");
-        navigate("/app/supplier/purchase/all");
+        Alert.success("Supplier bill posted successfully!");
+        navigate("/app/supplier-bill/all");
       }
     } catch (error) {
-      console.error("Error creating purchase order:", error);
-      const errorMsg = error.response?.data?.message || "Failed to create purchase order";
+      console.error("Error posting supplier bill:", error);
+      const errorMsg = error.response?.data?.message || "Failed to post supplier bill";
       Alert.error(errorMsg);
     } finally {
       setIsSubmitting(false);
@@ -350,10 +350,10 @@ const CreatePurchase = () => {
   return (
     <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg p-4 sm:p-6 my-4 sm:mt-6">
       <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
-        Create Purchase Order
+        Enter Supplier Bill
       </h2>
 
-      {/* Supplier and Purchase Order Number */}
+      {/* Supplier and Reference PO Number */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div>
           <label className="block text-gray-700 font-medium">
@@ -383,14 +383,14 @@ const CreatePurchase = () => {
         </div>
         <div>
           <label className="block text-gray-700 font-medium">
-            Purchase Order Number <span className="text-red-500">*</span>
+            Reference PO Number <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             placeholder="00000001"
-            value={poNumber}
-            onChange={(e) => setPoNumber(e.target.value)}
+            value={referencePoNumber}
+            onChange={(e) => setReferencePoNumber(e.target.value)}
           />
         </div>
       </div>
@@ -791,7 +791,7 @@ const CreatePurchase = () => {
         )}
       </div>
 
-      {/* Save and Cancel Buttons */}
+      {/* Post and Cancel Buttons */}
       <div className="flex justify-end space-x-2">
         {/* <button className="bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 text-sm sm:text-base">
           Cancel
@@ -801,7 +801,7 @@ const CreatePurchase = () => {
           onClick={handleSubmit}
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Saving..." : "Save"}
+          {isSubmitting ? "Posting..." : "Post Bill"}
         </button>
       </div>
       {showAccountModal && (
