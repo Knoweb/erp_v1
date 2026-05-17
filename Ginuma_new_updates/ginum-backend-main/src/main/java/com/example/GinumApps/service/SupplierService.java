@@ -1,10 +1,10 @@
 package com.example.GinumApps.service;
 
-import com.example.GinumApps.client.InventorySupplierClient;
+import com.example.GinumApps.client.InventoryClient;
 import com.example.GinumApps.dto.SupplierSummaryDto;
+import com.example.GinumApps.dto.external.SupplierResponseDto;
 import com.example.GinumApps.enums.SupplierType;
 import com.example.GinumApps.enums.TaxType;
-import com.example.GinumApps.dto.external.SupplierResponseDto;
 import com.example.GinumApps.exception.ResourceNotFoundException;
 import com.example.GinumApps.repository.CompanyRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SupplierService {
 
-    private final InventorySupplierClient inventorySupplierClient;
+    private final InventoryClient inventoryClient;
     private final CompanyRepository companyRepository;
 
     // Fetch suppliers from inventory-service via Feign client and map to local summary DTO.
@@ -25,7 +25,7 @@ public class SupplierService {
         companyRepository.findById(companyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + companyId));
 
-        List<SupplierResponseDto> externalSuppliers = inventorySupplierClient.getSuppliers(companyId);
+        List<SupplierResponseDto> externalSuppliers = inventoryClient.getSuppliers(companyId);
 
         return externalSuppliers.stream()
                 .map(this::convertExternalToSummary)
