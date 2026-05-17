@@ -1,6 +1,7 @@
 package com.example.GinumApps.client;
 
 import com.example.GinumApps.dto.external.ItemResponseDto;
+import com.example.GinumApps.dto.external.InventoryPoResponseDto;
 import com.example.GinumApps.dto.external.SupplierResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,5 +18,10 @@ public interface InventoryClient {
 
     @GetMapping("/api/inventory/suppliers")
     List<SupplierResponseDto> getSuppliers(@RequestParam(value = "companyId", required = false) Integer companyId);
+
+    @GetMapping("/api/inventory/purchase-orders/supplier/{supplierId}")
+    List<InventoryPoResponseDto> getApprovedPurchaseOrdersBySupplierId(
+            @PathVariable("supplierId") Long supplierId,
+            @RequestParam(value = "status", required = false, defaultValue = "APPROVED") String status);
 
 }
