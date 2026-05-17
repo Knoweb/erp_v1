@@ -7,6 +7,7 @@ import PayerPayee from "../PayerPayee/PayerPayee";
 import AddAccountForm from "../account/AddAccountForm";
 import { AccountContext, filterAccountsByContext } from "../../utils/accountFilters";
 import { useLocation } from "react-router-dom";
+import { fetchCompanySuppliers } from "../../utils/supplierApi";
 
 const MoneyTransaction = ({ type = "spend" }) => {
   const location = useLocation();
@@ -115,8 +116,9 @@ const MoneyTransaction = ({ type = "spend" }) => {
 
   const fetchSuppliers = async () => {
     try {
-      const response = await api.get(`/api/ginuma/suppliers/companies/${companyId}`);
-      setSuppliers(response.data || response || []);
+      const token = localStorage.getItem("auth_token");
+      const data = await fetchCompanySuppliers(companyId, token);
+      setSuppliers(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching suppliers:", error);
     }
@@ -528,8 +530,8 @@ const MoneyTransaction = ({ type = "spend" }) => {
                     <td className="p-3 text-sm">{txn.transactionNumber}</td>
                     <td className="p-3 text-sm">{new Date(txn.transactionDate).toLocaleDateString()}</td>
                     <td className="p-3 text-sm">{txn.payeeName || "N/A"}</td>
-                    <td className="p-3 text-sm text-xs">{txn.bankAccountName}</td>
-                    <td className="p-3 text-sm text-xs">{txn.chargeAccountName}</td>
+                    <td className="p-3 text-sm">{txn.bankAccountName}</td>
+                    <td className="p-3 text-sm">{txn.chargeAccountName}</td>
                     <td className="p-3 text-sm">{txn.paymentMethod?.replace("_", " ")}</td>
                     <td className="p-3 text-sm text-right font-medium">Rs. {txn.amount.toFixed(2)}</td>
                     <td className="p-3 text-center">

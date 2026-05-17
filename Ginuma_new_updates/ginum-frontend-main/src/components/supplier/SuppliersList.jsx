@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiSearch, FiUser, FiPhone, FiMail } from 'react-icons/fi';
-import { apiUrl } from '../../utils/api';
+import { fetchCompanySuppliers } from '../../utils/supplierApi';
 import Alert from '../../components/Alert/Alert';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,17 +19,8 @@ const SuppliersList = () => {
         throw new Error("Missing company ID or auth token");
       }
       setLoading(true);
-      const response = await fetch(`${apiUrl}/api/ginuma/suppliers/companies/${companyId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setSuppliers(Array.isArray(data) ? data : []);
-      } else {
-        Alert.error("Failed to load suppliers");
-      }
+      const data = await fetchCompanySuppliers(companyId, token);
+      setSuppliers(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error(e);
       Alert.error("Error loading suppliers");

@@ -8,6 +8,7 @@ import CreateItem from "../item/CreateItem";
 import api from "../../utils/api";
 import Alert from "../../components/Alert/Alert";
 import { AccountContext, filterAccountsByContext } from "../../utils/accountFilters";
+import { fetchCompanySuppliers } from "../../utils/supplierApi";
 
 const CreatePurchase = () => {
   const [isServiceMode, setIsServiceMode] = useState(false);
@@ -169,7 +170,8 @@ const CreatePurchase = () => {
         const companyId = localStorage.getItem("companyId");
         if (!companyId) return;
 
-        const data = await api.get(`/api/ginuma/suppliers/companies/${companyId}`);
+        const token = localStorage.getItem("auth_token");
+        const data = await fetchCompanySuppliers(companyId, token);
         setSuppliers(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching suppliers:", error);
