@@ -2,11 +2,14 @@ package com.example.GinumApps.service;
 
 import com.example.GinumApps.client.InventoryClient;
 import com.example.GinumApps.dto.SupplierSummaryDto;
+import com.example.GinumApps.dto.external.MiddeniyaSupplierDto;
 import com.example.GinumApps.dto.external.SupplierResponseDto;
 import com.example.GinumApps.enums.SupplierType;
 import com.example.GinumApps.enums.TaxType;
 import com.example.GinumApps.exception.ResourceNotFoundException;
 import com.example.GinumApps.repository.CompanyRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +18,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -38,6 +42,8 @@ public class SupplierService {
 
     @Value("${inventory.url.knoweb:http://localhost:8082}")
     private String knowebInventoryUrl;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     // Tenant-aware supplier fetching: Company ID 16 (Middeniya) routes to Middeniya droplet,
     // other companies route to Knoweb/Ginuma droplet
@@ -82,13 +88,25 @@ public class SupplierService {
                     url,
                     HttpMethod.GET,
                     requestEntity,
-                    new ParameterizedTypeReference<List<SupplierResponseDto>>() {}
+                    String.class
             );
 
-            return response.getBody() != null ? response.getBody() : List.of();
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                // Parse Middeniya format (with nested contactInfo) and convert to standard format
+                List<MiddeniyaSupplierDto> middeniyaSuppliers = objectMapper.readValue(
+                        response.getBody(),
+                        new TypeReference<List<MiddeniyaSupplierDto>>() {}
+                );
+
+                return middeniyaSuppliers.stream()
+                        .map(MiddeniyaSupplierDto::toSupplierResponseDto)
+                        .collect(Collectors.toList());
+            }
+
+            return List.of();
         } catch (Exception e) {
             log.error("Error fetching suppliers from tenant URL {} for company {}: {}",
-                    baseUrl, companyId, e.getMessage());
+                    baseUrl, companyId, e.getMessage(), e);
             return List.of();
         }
     }
