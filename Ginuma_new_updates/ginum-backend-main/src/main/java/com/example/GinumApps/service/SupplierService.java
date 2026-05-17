@@ -11,10 +11,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.client.RestTemplate;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,11 +68,20 @@ public class SupplierService {
             // Middeniya droplet endpoint: /suppliers (without /api/inventory prefix)
             String url = baseUrl + "/suppliers?companyId=" + companyId;
             log.debug("Fetching suppliers from tenant URL: {}", url);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+            String authorization = resolveAuthorizationHeader();
+            if (authorization != null && !authorization.isBlank()) {
+                headers.set(HttpHeaders.AUTHORIZATION, authorization);
+            }
+
+            HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
             
             var response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
-                    null,
+                    requestEntity,
                     new ParameterizedTypeReference<List<SupplierResponseDto>>() {}
             );
 
@@ -76,6 +91,15 @@ public class SupplierService {
                     baseUrl, companyId, e.getMessage());
             return List.of();
         }
+    }
+
+    private String resolveAuthorizationHeader() {
+        var requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes instanceof ServletRequestAttributes servletRequestAttributes) {
+            HttpServletRequest request = servletRequestAttributes.getRequest();
+            return request.getHeader(HttpHeaders.AUTHORIZATION);
+        }
+        return null;
     }
 
     private SupplierSummaryDto convertExternalToSummary(SupplierResponseDto s) {
