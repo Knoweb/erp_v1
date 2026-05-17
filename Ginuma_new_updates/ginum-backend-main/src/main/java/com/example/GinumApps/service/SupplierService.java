@@ -8,6 +8,7 @@ import com.example.GinumApps.enums.SupplierType;
 import com.example.GinumApps.enums.TaxType;
 import com.example.GinumApps.exception.ResourceNotFoundException;
 import com.example.GinumApps.repository.CompanyRepository;
+import com.example.GinumApps.util.JwtUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class SupplierService {
     private final InventoryClient inventoryClient;
     private final CompanyRepository companyRepository;
     private final RestTemplate restTemplate;
+    private final JwtUtil jwtUtil;
 
     @Value("${inventory.url.middeniya:http://localhost:8082}")
     private String middeniyaInventoryUrl;
@@ -82,9 +84,12 @@ public class SupplierService {
                 headers.set(HttpHeaders.AUTHORIZATION, authorization);
             }
 
-            copyHeaderIfPresent(headers, "x-industry-type");
-            copyHeaderIfPresent(headers, "x-org-id");
-            copyHeaderIfPresent(headers, "x-tenant-id");
+            copyJwtClaimIfPresent(headers, authorization, "x-industry-type", "industryType");
+            copyJwtClaimIfPresent(headers, authorization, "x-org-id", "orgId");
+            copyJwtClaimIfPresent(headers, authorization, "x-tenant-id", "tenantId");
+
+            // Always send the tenant organization id expected by the inventory service.
+            headers.set("x-org-id", String.valueOf(companyId));
 
             HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
             
@@ -122,8 +127,40 @@ public class SupplierService {
         }
     }
 
+    private void copyJwtClaimIfPresent(HttpHeaders targetHeaders, String authorizationHeader, String headerName, String claimName) {
+        String value = resolveJwtClaim(authorizationHeader, claimName);
+        if (value != null && !value.isBlank()) {
+            targetHeaders.set(headerName, value);
+        }
+    }
+
     private String resolveAuthorizationHeader() {
         return resolveRequestHeader(HttpHeaders.AUTHORIZATION);
+    }
+
+    private String resolveJwtClaim(String authorizationHeader, String claimName) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return null;
+        }
+
+        String token = authorizationHeader.substring(7);
+        try {
+            if ("orgId".equals(claimName)) {
+                Long orgId = jwtUtil.extractClaim(token, claims -> {
+                    Object value = claims.get("orgId");
+                    return value != null ? Long.valueOf(String.valueOf(value)) : null;
+                });
+                return orgId != null ? String.valueOf(orgId) : null;
+            }
+
+            return jwtUtil.extractClaim(token, claims -> {
+                Object value = claims.get(claimName);
+                return value != null ? String.valueOf(value) : null;
+            });
+        } catch (Exception e) {
+            log.debug("Unable to resolve JWT claim {} from authorization header: {}", claimName, e.getMessage());
+            return null;
+        }
     }
 
     private String resolveRequestHeader(String headerName) {
