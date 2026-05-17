@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiSearch, FiPlus, FiEdit, FiTrash2, FiUser, FiPhone, FiMail, FiEye, FiX, FiSave } from 'react-icons/fi';
+import { FiSearch, FiUser, FiPhone, FiMail, FiEye, FiX } from 'react-icons/fi';
 import { apiUrl } from '../../utils/api';
 import Alert from '../../components/Alert/Alert';
 import { useNavigate } from 'react-router-dom';
@@ -15,23 +15,6 @@ const CustomersList = () => {
 
   // Modal states
   const [viewCustomer, setViewCustomer] = useState(null);
-  const [editCustomer, setEditCustomer] = useState(null);
-  const [deleteCustomer, setDeleteCustomer] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  // Edit form fields
-  const [editName, setEditName] = useState('');
-  const [editEmail, setEditEmail] = useState('');
-  const [editPhone, setEditPhone] = useState('');
-  const [editBillingAddress, setEditBillingAddress] = useState('');
-  const [editDeliveryAddress, setEditDeliveryAddress] = useState('');
-  const [editNicNo, setEditNicNo] = useState('');
-  const [editTinNo, setEditTinNo] = useState('');
-  const [editVat, setEditVat] = useState('');
-  const [editSwiftNo, setEditSwiftNo] = useState('');
-  const [editDiscount, setEditDiscount] = useState('');
-  const [editCustomerType, setEditCustomerType] = useState('');
 
   const fetchCustomers = async () => {
     try {
@@ -56,82 +39,7 @@ const CustomersList = () => {
 
   useEffect(() => { fetchCustomers(); }, []);
 
-  // ===== OPEN EDIT MODAL =====
-  const openEdit = (customer) => {
-    setEditCustomer(customer);
-    setEditName(customer.name || '');
-    setEditEmail(customer.email || '');
-    setEditPhone(customer.phoneNo || '');
-    setEditBillingAddress(customer.billingAddress || '');
-    setEditDeliveryAddress(customer.deliveryAddress || '');
-    setEditNicNo(customer.nicNo || '');
-    setEditTinNo(customer.tinNo || '');
-    setEditVat(customer.vat || '');
-    setEditSwiftNo(customer.swiftNo || '');
-    setEditDiscount(customer.discountPercentage != null ? String(customer.discountPercentage) : '');
-    setEditCustomerType(customer.customerType || '');
-  };
-
-  // ===== SAVE EDIT =====
-  const handleSaveEdit = async () => {
-    if (!editName.trim()) { Alert.error("Customer name is required."); return; }
-    try {
-      setIsSaving(true);
-      const response = await fetch(`${apiUrl}/api/customers/${editCustomer.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          name: editName.trim(),
-          email: editEmail.trim(),
-          phoneNo: editPhone.trim(),
-          billingAddress: editBillingAddress.trim(),
-          deliveryAddress: editDeliveryAddress.trim(),
-          nicNo: editNicNo.trim(),
-          tinNo: editTinNo.trim(),
-          vat: editVat.trim(),
-          swiftNo: editSwiftNo.trim(),
-          discountPercentage: editDiscount ? parseFloat(editDiscount) : null,
-          customerType: editCustomerType || null,
-        })
-      });
-      if (response.ok) {
-        Alert.success("Customer updated successfully!");
-        setEditCustomer(null);
-        fetchCustomers();
-      } else {
-        const err = await response.json();
-        Alert.error(err.message || "Failed to update customer.");
-      }
-    } catch (e) {
-      console.error(e);
-      Alert.error("Error updating customer.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // ===== CONFIRM DELETE =====
-  const handleDelete = async () => {
-    try {
-      setIsDeleting(true);
-      const response = await fetch(`${apiUrl}/api/customers/${deleteCustomer.id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (response.ok) {
-        Alert.success("Customer deleted successfully!");
-        setDeleteCustomer(null);
-        fetchCustomers();
-      } else {
-        Alert.error("Failed to delete customer.");
-      }
-    } catch (e) {
-      console.error(e);
-      Alert.error("Error deleting customer.");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
+  // Editing and deletion are disabled in the Finance service; master data is read-only.
 
   const filteredCustomers = customers.filter(c =>
     (c.name && c.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -166,12 +74,7 @@ const CustomersList = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors"
-            onClick={() => navigate('/app/customer/new')}
-          >
-            <FiPlus /> Add Customer
-          </button>
+          {/* Creation disabled: master data creation handled by separate microservice */}
         </div>
       </div>
 
@@ -180,12 +83,7 @@ const CustomersList = () => {
           <p className="text-gray-600 text-lg">
             {customers.length === 0 ? "No customers found." : "No matching customers found."}
           </p>
-          <button
-            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg inline-flex items-center gap-2 transition-colors"
-            onClick={() => navigate('/app/customer/new')}
-          >
-            <FiPlus /> Add New Customer
-          </button>
+          {/* Creation disabled: master data creation handled by separate microservice */}
         </div>
       ) : (
         <div className="bg-white shadow rounded-lg overflow-hidden border border-gray-100">
@@ -222,31 +120,14 @@ const CustomersList = () => {
                         {customer.customerType || 'N/A'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex justify-center items-center gap-2">
-                        {/* VIEW */}
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="flex justify-center items-center">
                         <button
                           onClick={() => setViewCustomer(customer)}
                           className="flex items-center gap-1 px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded transition"
                           title="View"
                         >
                           <FiEye size={12} /> View
-                        </button>
-                        {/* EDIT */}
-                        <button
-                          onClick={() => openEdit(customer)}
-                          className="flex items-center gap-1 px-2 py-1 bg-yellow-400 hover:bg-yellow-500 text-white text-xs rounded transition"
-                          title="Edit"
-                        >
-                          <FiEdit size={12} /> Edit
-                        </button>
-                        {/* DELETE */}
-                        <button
-                          onClick={() => setDeleteCustomer(customer)}
-                          className="flex items-center gap-1 px-2 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded transition"
-                          title="Delete"
-                        >
-                          <FiTrash2 size={12} /> Delete
                         </button>
                       </div>
                     </td>

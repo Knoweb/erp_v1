@@ -3,7 +3,7 @@ import { FaPlusCircle, FaTimes } from "react-icons/fa";
 
 import api from "../../utils/api";
 import Alert from "../Alert/Alert";
-import AddCustomerForm from "../customer/AddCustomer";
+// Customer creation handled by master-data microservice (UI create removed)
 
 const NewProjectForm = () => {
   const [showCustomerModal, setShowCustomerModal] = useState(false);
@@ -308,15 +308,17 @@ const NewProjectForm = () => {
             if (e.target === e.currentTarget) setShowCustomerModal(false);
           }}
         >
-          <div className="w-11/12 sm:w-3/4 md:w-1/2 lg:w-2/5 xl:w-1/3 p-2 rounded-lg max-h-[90vh] overflow-y-auto relative">
-            <button
-              className="absolute top-2 right-2 text-gray-600 text-xl z-10"
-              onClick={() => setShowCustomerModal(false)}
-            >
-              <FaTimes />
-            </button>
-            <AddCustomerForm onSuccess={handleCustomerAdded} />
-          </div>
+            <div className="w-11/12 sm:w-3/4 md:w-1/2 lg:w-2/5 xl:w-1/3 p-4 rounded-lg max-h-[90vh] overflow-y-auto relative bg-white">
+              <button
+                className="absolute top-2 right-2 text-gray-600 text-xl z-10"
+                onClick={() => setShowCustomerModal(false)}
+              >
+                <FaTimes />
+              </button>
+              <div className="p-4 text-sm text-gray-700">
+                Customer creation is managed by the Master Data Service. Please add customers there; then select them here.
+              </div>
+            </div>
         </div>
       )}
     </div>

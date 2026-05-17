@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { FaUser, FaBuilding, FaUserTie } from "react-icons/fa";
-import AddCustomerForm from "../customer/AddCustomer";
-import AddSupplierForm from "../supplier/AddSupplierForm";
+// Inline creation forms removed for supplier/customer — master data is external
 import AddEmployeeForm from "../Employee/AddEmployeeForm";
 
 const PayerPayee = ({ onClose, onSave }) => {
@@ -58,14 +57,14 @@ const PayerPayee = ({ onClose, onSave }) => {
   };
 
   const renderCustomerForm = () => (
-    <div className="">
-      <AddCustomerForm />
+    <div className="p-2 text-sm text-gray-700">
+      Customer creation is handled by the Master Data Service. Use that service to add customers.
     </div>
   );
 
   const renderSupplierForm = () => (
-    <div className="">
-      <AddSupplierForm />
+    <div className="p-2 text-sm text-gray-700">
+      Supplier creation is handled by the Master Data Service. Use that service to add suppliers.
     </div>
   );
 

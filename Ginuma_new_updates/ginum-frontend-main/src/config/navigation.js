@@ -32,7 +32,6 @@ export const navItems = [
     icon: FaTruck,
     subItems: [
       { id: "all-supplier", path: "/app/supplier/all", label: "All Suppliers" },
-      { id: "new-supplier", path: "/app/supplier/new", label: "New Supplier" },
       {
         id: "all-purchases",
         path: "/app/supplier/purchase/all",
@@ -57,7 +56,6 @@ export const navItems = [
     icon: FaUserTie,
     subItems: [
       { id: "all-customer", path: "/app/customer/all", label: "Customers" },
-      { id: "new-customer", path: "/app/customer/new", label: "Create Customer" },
       { id: "all-sales", path: "/app/customer/sales/all", label: "Sales" },
       { id: "new-sale", path: "/app/customer/sales/new", label: "Create Sale" },
       {

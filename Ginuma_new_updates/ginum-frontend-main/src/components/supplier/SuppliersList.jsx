@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiSearch, FiPlus, FiEdit, FiTrash2, FiUser, FiPhone, FiMail } from 'react-icons/fi';
+import { FiSearch, FiUser, FiPhone, FiMail } from 'react-icons/fi';
 import { apiUrl } from '../../utils/api';
 import Alert from '../../components/Alert/Alert';
 import { useNavigate } from 'react-router-dom';
@@ -42,32 +42,6 @@ const SuppliersList = () => {
     fetchSuppliers();
   }, []);
 
-  const handleDelete = async (supplierId) => {
-    const result = await Alert.confirm(
-      "Are you sure you want to delete this supplier? This action cannot be undone.",
-      "Yes, Delete",
-      "Cancel"
-    );
-    if (result.isConfirmed) {
-      try {
-        const response = await fetch(`${apiUrl}/api/ginuma/suppliers/companies/${companyId}/${supplierId}`, {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        if (response.ok) {
-          Alert.success("Supplier deleted successfully");
-          fetchSuppliers();
-        } else {
-          Alert.error("Failed to delete supplier");
-        }
-      } catch (e) {
-        console.error(e);
-        Alert.error("Error deleting supplier");
-      }
-    }
-  };
 
   const filteredSuppliers = suppliers.filter(s =>
     (s.supplierName && s.supplierName.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -101,12 +75,7 @@ const SuppliersList = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors"
-            onClick={() => navigate('/app/supplier/new')}
-          >
-            <FiPlus /> Add Supplier
-          </button>
+          {/* Creation disabled: master data creation handled by separate microservice */}
         </div>
       </div>
 
@@ -115,12 +84,7 @@ const SuppliersList = () => {
           <p className="text-gray-600 text-lg">
             {suppliers.length === 0 ? "No suppliers found." : "No matching suppliers found."}
           </p>
-          <button
-            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg inline-flex items-center gap-2 transition-colors"
-            onClick={() => navigate('/app/supplier/new')}
-          >
-            <FiPlus /> Add New Supplier
-          </button>
+          {/* Creation disabled: master data creation handled by separate microservice */}
         </div>
       ) : (
         <div className="bg-white shadow rounded-lg overflow-hidden border border-gray-100">
@@ -161,17 +125,8 @@ const SuppliersList = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {supplier.itemCategory}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2">
-                        <button
-                          onClick={() => handleDelete(supplier.id)}
-                          className="text-red-600 hover:bg-red-50 p-2 rounded-full transition-colors"
-                          title="Delete"
-                          disabled={!supplier.id}
-                        >
-                          <FiTrash2 size={18} />
-                        </button>
-                      </div>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <div className="text-sm text-gray-500">{supplier.email || '-'}</div>
                     </td>
                   </tr>
                 ))}

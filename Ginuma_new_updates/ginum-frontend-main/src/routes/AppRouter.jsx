@@ -16,9 +16,7 @@ import AddUserForm from "../components/users/AddUserForm";
 import CompanyRequests from "../components/super-admin/CompanyRequests";
 import ResetPasswordForm from "../components/super-admin/ResetPasswordForm";
 import AllCompanies from "../components/super-admin/AllCompanies";
-import AddSupplierForm from "../components/supplier/AddSupplierForm";
 import SuppliersList from "../components/supplier/SuppliersList";
-import AddCustomerForm from "../components/customer/AddCustomer";
 import CustomersList from "../components/customer/CustomersList";
 import AllUsers from "../components/users/AllUsers";
 import CompanyProfile from "../pages/CompanyProfile/CompanyProfile";
@@ -95,7 +93,6 @@ function AppRouter() {
           <Route path="supplier">
             <Route index element={<Navigate to="all" replace />} />
             <Route path="all" element={<SuppliersList />} />
-            <Route path="new" element={<AddSupplierForm />} />
             <Route path="purchase/new" element={<CreatePurchase />} />
             <Route path="purchase/all" element={<AllPurchases />} />
             <Route path="purchase/:id" element={<ViewPurchase />} />
@@ -104,7 +101,6 @@ function AppRouter() {
           <Route path="customer">
             <Route index element={<Navigate to="all" replace />} />
             <Route path="all" element={<CustomersList />} />
-            <Route path="new" element={<AddCustomerForm />} />
             <Route path="sales/new" element={<CreateSaleOrder />} />
             <Route path="sales/all" element={<AllSales />} />
             <Route path="sales/:id" element={<ViewSale />} />
