@@ -29,11 +29,17 @@ const CreatePurchase = () => {
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showItemModal, setShowItemModal] = useState(false);
   const [referencePoNumber, setReferencePoNumber] = useState("");
+  const [selectedReferencePo, setSelectedReferencePo] = useState("");
+  const [manualReferencePoNumber, setManualReferencePoNumber] = useState("");
   const [supplierInvoiceNumber, setSupplierInvoiceNumber] = useState("");
   const [modalTransition, setModalTransition] = useState("opacity-0 invisible");
   const [suppliers, setSuppliers] = useState([]);
   const [isLoadingSuppliers, setIsLoadingSuppliers] = useState(true);
   const [suppliersError, setSuppliersError] = useState(null);
+  const [availablePos, setAvailablePos] = useState([]);
+  const [isFetchingPos, setIsFetchingPos] = useState(false);
+  const [posError, setPosError] = useState(null);
+  const [selectedPoProjectedTotal, setSelectedPoProjectedTotal] = useState(null);
 
   const [accounts, setAccounts] = useState([]);
   const [accountsError, setAccountsError] = useState(null);
@@ -67,11 +73,46 @@ const CreatePurchase = () => {
     }
   }, [showAccountModal, showProjectModal, showItemModal]);
 
+  useEffect(() => {
+    const fetchApprovedPos = async () => {
+      const supplierId = selectedSupplier;
+
+      setAvailablePos([]);
+      setSelectedReferencePo("");
+      setReferencePoNumber(manualReferencePoNumber);
+      setSelectedPoProjectedTotal(null);
+      setPosError(null);
+
+      if (!supplierId) {
+        return;
+      }
+
+      try {
+        setIsFetchingPos(true);
+        const data = await api.get(`/api/finance/external/inventory-pos/${supplierId}`);
+        const posList = Array.isArray(data) ? data : [];
+        setAvailablePos(posList);
+      } catch (error) {
+        console.error("Error fetching approved purchase orders:", error);
+        setPosError(error.response?.data?.message || error.message || "Failed to load approved purchase orders");
+      } finally {
+        setIsFetchingPos(false);
+      }
+    };
+
+    fetchApprovedPos();
+  }, [selectedSupplier]);
+
   // Calculate totals when relevant values change
   useEffect(() => {
-    const newSubtotal = rows.reduce((sum, row) => {
+    const manualSubtotal = rows.reduce((sum, row) => {
       return sum + (parseFloat(row.amount) || 0);
     }, 0);
+
+    const newSubtotal = selectedPoProjectedTotal !== null
+      ? Number(selectedPoProjectedTotal) || 0
+      : manualSubtotal;
+
     setSubtotal(newSubtotal);
 
     const subtotalPlusFreight = newSubtotal + (parseFloat(freight) || 0);
@@ -90,7 +131,7 @@ const CreatePurchase = () => {
 
     const newBalanceDue = Math.max(newTotal - (parseFloat(amountPaid) || 0), 0);
     setBalanceDue(newBalanceDue);
-  }, [rows, freight, amountPaid, taxes]);
+  }, [rows, freight, amountPaid, taxes, selectedPoProjectedTotal]);
 
   const handleAddTax = () => {
     setTaxes([...taxes, { taxType: "VAT", percentage: 0, amount: 0 }]);
@@ -110,6 +151,29 @@ const CreatePurchase = () => {
       newTaxes[index].amount = subtotalPlusFreight * (parseFloat(value) || 0) / 100;
     }
     setTaxes(newTaxes);
+  };
+
+  const handleReferencePoChange = (value) => {
+    setSelectedReferencePo(value);
+
+    if (!value) {
+      setSelectedPoProjectedTotal(null);
+      setReferencePoNumber(manualReferencePoNumber);
+      return;
+    }
+
+    const selectedPo = availablePos.find((po) => po.poNumber === value);
+    if (selectedPo) {
+      const projectedTotal = Number(selectedPo.projectedTotal) || 0;
+      setReferencePoNumber(selectedPo.poNumber);
+      setSelectedPoProjectedTotal(projectedTotal);
+      setManualReferencePoNumber("");
+    }
+  };
+
+  const handleManualReferencePoChange = (value) => {
+    setManualReferencePoNumber(value);
+    setReferencePoNumber(value);
   };
 
   const handleModalClick = (e, setModal) => {
@@ -385,13 +449,44 @@ const CreatePurchase = () => {
           <label className="block text-gray-700 font-medium">
             Reference PO Number <span className="text-red-500">*</span>
           </label>
-          <input
-            type="text"
+          <select
+            value={selectedReferencePo}
+            onChange={(e) => handleReferencePoChange(e.target.value)}
             className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-            placeholder="00000001"
-            value={referencePoNumber}
-            onChange={(e) => setReferencePoNumber(e.target.value)}
-          />
+            disabled={isFetchingPos || !selectedSupplier}
+          >
+            <option value="">No PO / Manual Entry</option>
+            {isFetchingPos ? (
+              <option value="">Loading approved POs...</option>
+            ) : posError ? (
+              <option value="">Error loading purchase orders</option>
+            ) : availablePos.length === 0 ? (
+              <option value="">No approved POs available</option>
+            ) : (
+              availablePos.map((po) => {
+                const projectedTotal = Number(po.projectedTotal) || 0;
+                return (
+                  <option key={po.poNumber} value={po.poNumber}>
+                    {`${po.poNumber} (Rs. ${projectedTotal.toLocaleString("en-LK")})`}
+                  </option>
+                );
+              })
+            )}
+          </select>
+          {selectedReferencePo ? null : (
+            <div className="mt-3">
+              <label className="block text-gray-700 font-medium text-sm mb-1">
+                Manual Reference PO Number
+              </label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                placeholder="Enter reference PO number"
+                value={manualReferencePoNumber}
+                onChange={(e) => handleManualReferencePoChange(e.target.value)}
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -668,6 +763,12 @@ const CreatePurchase = () => {
 
       {/* Financial Details */}
       <div className="flex flex-col items-end gap-4 mb-6">
+        {selectedPoProjectedTotal !== null && (
+          <div className="w-full md:w-1/2 flex justify-between items-center rounded-lg bg-blue-50 px-4 py-3 border border-blue-100">
+            <span className="text-blue-800 font-medium">Selected PO Amount:</span>
+            <span className="text-blue-900 font-semibold">Rs. {Number(selectedPoProjectedTotal).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          </div>
+        )}
         <div className="w-full md:w-1/2 flex justify-between items-center">
           <span className="text-gray-700 font-medium">Subtotal:</span>
           <span className="text-gray-900">Rs. {subtotal.toFixed(2)}</span>
