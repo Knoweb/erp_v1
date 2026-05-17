@@ -9,7 +9,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableFeignClients
+@EnableFeignClients(basePackages = "com.example.GinumApps.client")
 @EnableScheduling
 @EnableDiscoveryClient
 public class GinumAppsApplication extends SpringBootServletInitializer {

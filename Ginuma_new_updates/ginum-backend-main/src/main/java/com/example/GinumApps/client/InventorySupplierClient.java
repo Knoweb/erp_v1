@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "inventory-service", fallback = InventorySupplierClientFallback.class)
+@FeignClient(name = "inventory-service", contextId = "ginumInventorySupplierClient", fallback = InventorySupplierClientFallback.class)
 public interface InventorySupplierClient {
 
     @GetMapping("/api/inventory/suppliers")
