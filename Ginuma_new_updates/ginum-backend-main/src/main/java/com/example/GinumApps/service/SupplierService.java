@@ -71,8 +71,8 @@ public class SupplierService {
     // Fetch suppliers from a specific tenant URL using RestTemplate
     private List<SupplierResponseDto> fetchFromTenantUrl(String baseUrl, Integer companyId) {
         try {
-            // Middeniya droplet endpoint: /suppliers (without /api/inventory prefix)
-            String url = baseUrl + "/suppliers?companyId=" + companyId;
+            // Middeniya droplet endpoint: /inventory-api/api/suppliers/organization/{companyId}
+            String url = baseUrl + "/inventory-api/api/suppliers/organization/" + companyId;
             log.debug("Fetching suppliers from tenant URL: {}", url);
 
             HttpHeaders headers = new HttpHeaders();
@@ -81,6 +81,10 @@ public class SupplierService {
             if (authorization != null && !authorization.isBlank()) {
                 headers.set(HttpHeaders.AUTHORIZATION, authorization);
             }
+
+            copyHeaderIfPresent(headers, "x-industry-type");
+            copyHeaderIfPresent(headers, "x-org-id");
+            copyHeaderIfPresent(headers, "x-tenant-id");
 
             HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
             
@@ -111,11 +115,22 @@ public class SupplierService {
         }
     }
 
+    private void copyHeaderIfPresent(HttpHeaders targetHeaders, String headerName) {
+        String value = resolveRequestHeader(headerName);
+        if (value != null && !value.isBlank()) {
+            targetHeaders.set(headerName, value);
+        }
+    }
+
     private String resolveAuthorizationHeader() {
+        return resolveRequestHeader(HttpHeaders.AUTHORIZATION);
+    }
+
+    private String resolveRequestHeader(String headerName) {
         var requestAttributes = RequestContextHolder.getRequestAttributes();
         if (requestAttributes instanceof ServletRequestAttributes servletRequestAttributes) {
             HttpServletRequest request = servletRequestAttributes.getRequest();
-            return request.getHeader(HttpHeaders.AUTHORIZATION);
+            return request.getHeader(headerName);
         }
         return null;
     }
