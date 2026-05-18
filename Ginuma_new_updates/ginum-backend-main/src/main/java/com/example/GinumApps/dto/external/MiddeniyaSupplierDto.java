@@ -1,5 +1,6 @@
 package com.example.GinumApps.dto.external;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 /**
@@ -7,6 +8,7 @@ import lombok.Data;
  * Handles the nested contactInfo structure returned by Middeniya droplet.
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MiddeniyaSupplierDto {
     private Long id;
     private String name;
@@ -16,6 +18,7 @@ public class MiddeniyaSupplierDto {
     private String updatedAt;
 
     @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ContactInfo {
         private String email;
         private String phone;

@@ -43,9 +43,12 @@ public class ExternalInventoryIntegrationService {
                     filtered.size(), supplierId);
             return filtered;
             
+        } catch (feign.FeignException e) {
+            log.error("Feign error fetching purchase orders (status={}): {}", e.status(), e.getMessage());
+            return new ArrayList<>();
         } catch (Exception e) {
             log.error("Error fetching approved purchase orders for supplierId: {}", supplierId, e);
-            throw new RuntimeException("Failed to fetch purchase orders: " + e.getMessage(), e);
+            return new ArrayList<>();
         }
     }
 }
