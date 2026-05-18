@@ -159,6 +159,19 @@ const CreatePurchase = () => {
     if (!value) {
       setSelectedPoProjectedTotal(null);
       setReferencePoNumber(manualReferencePoNumber);
+      // Clear items table and reset to default empty row
+      setRows([
+        {
+          itemId: "",
+          description: "",
+          account: "",
+          quantity: "",
+          unitPrice: "",
+          discount: "",
+          amount: "",
+          project: "",
+        },
+      ]);
       return;
     }
 
@@ -168,6 +181,46 @@ const CreatePurchase = () => {
       setReferencePoNumber(selectedPo.poNumber);
       setSelectedPoProjectedTotal(projectedTotal);
       setManualReferencePoNumber("");
+
+      // Auto-populate items from the selected PO
+      if (selectedPo.items && Array.isArray(selectedPo.items) && selectedPo.items.length > 0) {
+        const poItems = selectedPo.items.map((poItem) => {
+          // Try to find matching item from our items list to get account info
+          const matchedItem = items.find(
+            (item) =>
+              (item.id || item.itemId).toString() === (poItem.productId || poItem.itemId).toString()
+          );
+
+          return {
+            itemId: poItem.productId || poItem.itemId || "",
+            description: poItem.description || matchedItem?.description || matchedItem?.name || "",
+            account: matchedItem?.expenseAccount?.id?.toString() || "", // Auto-fill account if item found
+            quantity: poItem.quantity || "",
+            unitPrice: poItem.unitPrice || poItem.price || "",
+            discount: poItem.discount || "0",
+            amount: (
+              (poItem.quantity || 0) *
+              (poItem.unitPrice || poItem.price || 0) *
+              (1 - (poItem.discount || 0) / 100)
+            ).toFixed(2),
+            project: "",
+          };
+        });
+
+        // Add empty row at the end for adding more items if needed
+        poItems.push({
+          itemId: "",
+          description: "",
+          account: "",
+          quantity: "",
+          unitPrice: "",
+          discount: "",
+          amount: "",
+          project: "",
+        });
+
+        setRows(poItems);
+      }
     }
   };
 
