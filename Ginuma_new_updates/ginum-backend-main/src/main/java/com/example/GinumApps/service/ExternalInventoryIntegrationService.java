@@ -44,7 +44,13 @@ public class ExternalInventoryIntegrationService {
             return filtered;
             
         } catch (feign.FeignException e) {
-            log.error("Feign error fetching purchase orders (status={}): {}", e.status(), e.getMessage());
+            String body = null;
+            try {
+                body = e.contentUTF8();
+            } catch (Exception ex) {
+                // ignore
+            }
+            log.error("Feign error fetching purchase orders (status={}) message={} body={}", e.status(), e.getMessage(), body);
             return new ArrayList<>();
         } catch (Exception e) {
             log.error("Error fetching approved purchase orders for supplierId: {}", supplierId, e);
