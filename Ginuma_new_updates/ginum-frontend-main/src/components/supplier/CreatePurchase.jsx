@@ -211,7 +211,17 @@ const CreatePurchase = () => {
 
   const handleManualReferencePoChange = (value) => {
     setManualReferencePoNumber(value);
-    setReferencePoNumber(value);
+    if (value.trim()) {
+      setReferencePoNumber(value);
+      return;
+    }
+
+    if (selectedReferencePo) {
+      setReferencePoNumber(selectedReferencePo);
+      return;
+    }
+
+    setReferencePoNumber("");
   };
 
   const getPoDisplayNumber = (po) => {
@@ -545,20 +555,18 @@ const CreatePurchase = () => {
               })
             )}
           </select>
-          {selectedReferencePo ? null : (
-            <div className="mt-3">
-              <label className="block text-gray-700 font-medium text-sm mb-1">
-                Manual Reference PO Number
-              </label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                placeholder="Enter reference PO number"
-                value={manualReferencePoNumber}
-                onChange={(e) => handleManualReferencePoChange(e.target.value)}
-              />
-            </div>
-          )}
+          <div className="mt-3">
+            <label className="block text-gray-700 font-medium text-sm mb-1">
+              Manual Purchase Order Number (Optional)
+            </label>
+            <input
+              type="text"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+              placeholder="Enter manual PO number"
+              value={manualReferencePoNumber}
+              onChange={(e) => handleManualReferencePoChange(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
