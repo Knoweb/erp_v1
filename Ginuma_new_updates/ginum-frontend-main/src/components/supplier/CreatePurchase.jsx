@@ -528,7 +528,7 @@ const CreatePurchase = () => {
         </div>
         <div>
           <label className="block text-gray-700 font-medium">
-            Approved Purchase Order
+            PO
           </label>
           <select
             value={selectedReferencePo}
@@ -557,7 +557,7 @@ const CreatePurchase = () => {
           </select>
           <div className="mt-3">
             <label className="block text-gray-700 font-medium text-sm mb-1">
-              Manual Purchase Order Number (Optional)
+              Manual PO Number (Optional)
             </label>
             <input
               type="text"
