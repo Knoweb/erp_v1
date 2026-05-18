@@ -12,18 +12,17 @@ import { fetchCompanySuppliers } from "../../utils/supplierApi";
 
 const CreatePurchase = () => {
   const [isServiceMode, setIsServiceMode] = useState(false);
-  const [rows, setRows] = useState([
-    {
-      itemId: "",
-      description: "",
-      account: "",
-      quantity: "",
-      unitPrice: "",
-      discount: "",
-      amount: "",
-      project: "",
-    },
-  ]);
+  const createEmptyRow = () => ({
+    itemId: "",
+    description: "",
+    account: "",
+    quantity: "",
+    unitPrice: "",
+    discount: "",
+    amount: "",
+    project: "",
+  });
+  const [rows, setRows] = useState([createEmptyRow()]);
   const [selectedSupplier, setSelectedSupplier] = useState("");
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
@@ -40,6 +39,7 @@ const CreatePurchase = () => {
   const [isFetchingPos, setIsFetchingPos] = useState(false);
   const [posError, setPosError] = useState(null);
   const [selectedPoProjectedTotal, setSelectedPoProjectedTotal] = useState(null);
+  const [selectedPoItems, setSelectedPoItems] = useState([]);
 
   const [accounts, setAccounts] = useState([]);
   const [accountsError, setAccountsError] = useState(null);
@@ -81,6 +81,8 @@ const CreatePurchase = () => {
       setSelectedReferencePo("");
       setReferencePoNumber(manualReferencePoNumber);
       setSelectedPoProjectedTotal(null);
+      setSelectedPoItems([]);
+      setRows([createEmptyRow()]);
       setPosError(null);
 
       if (!supplierId) {
@@ -158,75 +160,93 @@ const CreatePurchase = () => {
 
     if (!value) {
       setSelectedPoProjectedTotal(null);
+      setSelectedPoItems([]);
       setReferencePoNumber(manualReferencePoNumber);
-      // Clear items table and reset to default empty row
-      setRows([
-        {
-          itemId: "",
-          description: "",
-          account: "",
-          quantity: "",
-          unitPrice: "",
-          discount: "",
-          amount: "",
-          project: "",
-        },
-      ]);
+      setRows([createEmptyRow()]);
       return;
     }
 
-    const selectedPo = availablePos.find((po) => po.poNumber === value);
+    const selectedPo = availablePos.find((po) => {
+      const displayNumber = getPoDisplayNumber(po);
+      return po.poNumber === value || displayNumber === value || po.id?.toString() === value.toString();
+    });
     if (selectedPo) {
       const projectedTotal = Number(selectedPo.projectedTotal) || 0;
-      setReferencePoNumber(selectedPo.poNumber);
+      setReferencePoNumber(getPoDisplayNumber(selectedPo));
       setSelectedPoProjectedTotal(projectedTotal);
       setManualReferencePoNumber("");
 
-      // Auto-populate items from the selected PO
-      if (selectedPo.items && Array.isArray(selectedPo.items) && selectedPo.items.length > 0) {
-        const poItems = selectedPo.items.map((poItem) => {
-          // Try to find matching item from our items list to get account info
-          const matchedItem = items.find(
-            (item) =>
-              (item.id || item.itemId).toString() === (poItem.productId || poItem.itemId).toString()
-          );
-
-          return {
-            itemId: poItem.productId || poItem.itemId || "",
-            description: poItem.description || matchedItem?.description || matchedItem?.name || "",
-            account: matchedItem?.expenseAccount?.id?.toString() || "", // Auto-fill account if item found
-            quantity: poItem.quantity || "",
-            unitPrice: poItem.unitPrice || poItem.price || "",
-            discount: poItem.discount || "0",
-            amount: (
-              (poItem.quantity || 0) *
-              (poItem.unitPrice || poItem.price || 0) *
-              (1 - (poItem.discount || 0) / 100)
-            ).toFixed(2),
-            project: "",
-          };
-        });
-
-        // Add empty row at the end for adding more items if needed
-        poItems.push({
-          itemId: "",
-          description: "",
-          account: "",
-          quantity: "",
-          unitPrice: "",
-          discount: "",
-          amount: "",
-          project: "",
-        });
-
-        setRows(poItems);
+      const poItems = Array.isArray(selectedPo.items) ? selectedPo.items : [];
+      if (poItems.length === 0) {
+        setSelectedPoItems([]);
+        setRows([createEmptyRow()]);
+        return;
       }
+
+      const normalizedPoItems = poItems.map((poItem) => {
+        const itemKey = poItem.productId || poItem.itemId || "";
+        const matchedItem = items.find(
+          (item) => (item.id || item.itemId).toString() === itemKey.toString()
+        );
+        const quantity = Number(poItem.quantity) || 0;
+        const unitPrice = Number(poItem.unitPrice || poItem.price) || 0;
+        const discount = Number(poItem.discount) || 0;
+
+        return {
+          itemId: itemKey,
+          description: poItem.description || matchedItem?.description || matchedItem?.name || "",
+          account: matchedItem?.expenseAccount?.id?.toString() || "",
+          quantity: quantity ? quantity.toString() : "",
+          unitPrice: unitPrice ? unitPrice.toString() : "",
+          discount: discount ? discount.toString() : "0",
+          amount: (quantity * unitPrice * (1 - discount / 100)).toFixed(2),
+          project: "",
+        };
+      });
+
+      setSelectedPoItems(normalizedPoItems);
+      setRows([...normalizedPoItems, createEmptyRow()]);
     }
   };
 
   const handleManualReferencePoChange = (value) => {
     setManualReferencePoNumber(value);
     setReferencePoNumber(value);
+  };
+
+  const getPoDisplayNumber = (po) => {
+    if (po?.poNumber) {
+      return po.poNumber;
+    }
+
+    if (po?.id) {
+      return `PO-${String(po.id).padStart(3, "0")}`;
+    }
+
+    return "PO-UNKNOWN";
+  };
+
+  const resolveItemDetails = (itemId) => {
+    const poItem = selectedPoItems.find((item) => item.itemId.toString() === itemId.toString());
+    if (poItem) {
+      return poItem;
+    }
+
+    const masterItem = items.find((item) => (item.id || item.itemId).toString() === itemId.toString());
+    if (!masterItem) {
+      return null;
+    }
+
+    return {
+      itemId,
+      description: masterItem.description || masterItem.name || "",
+      account: masterItem.expenseAccount?.id?.toString() || "",
+      quantity: "",
+      unitPrice: masterItem.purchasePrice || "",
+      discount: "0",
+      amount: "",
+      project: "",
+    };
   };
 
   const handleModalClick = (e, setModal) => {
@@ -355,20 +375,18 @@ const CreatePurchase = () => {
 
     // Auto-fill details when an item is selected
     if (field === "itemId" && value) {
-      const selectedItem = items.find((item) => (item.id || item.itemId).toString() === value.toString());
+      const selectedItem = resolveItemDetails(value);
       if (selectedItem) {
-        updatedRows[index].description = selectedItem.description || selectedItem.name || "";
-        updatedRows[index].unitPrice = selectedItem.purchasePrice || "";
-        if (selectedItem.expenseAccount && selectedItem.expenseAccount.id) {
-          updatedRows[index].account = selectedItem.expenseAccount.id.toString();
-        } else {
-          updatedRows[index].account = "";
-        }
+        updatedRows[index].description = selectedItem.description || "";
+        updatedRows[index].quantity = selectedItem.quantity || updatedRows[index].quantity || "";
+        updatedRows[index].unitPrice = selectedItem.unitPrice || updatedRows[index].unitPrice || "";
+        updatedRows[index].account = selectedItem.account || "";
       }
     } else if (field === "itemId" && !value) {
       updatedRows[index].description = "";
       updatedRows[index].unitPrice = "";
       updatedRows[index].account = "";
+      updatedRows[index].quantity = "";
     }
 
     if (
@@ -383,7 +401,7 @@ const CreatePurchase = () => {
       updatedRows[index].amount = (quantity * discountedAmount).toFixed(2);
     }
 
-    if (index === rows.length - 1 && value.trim() !== "" && field !== "project") {
+    if (index === rows.length - 1 && value.toString().trim() !== "" && field !== "project") {
       updatedRows.push({
         itemId: "",
         description: "",
@@ -500,7 +518,7 @@ const CreatePurchase = () => {
         </div>
         <div>
           <label className="block text-gray-700 font-medium">
-            Reference PO Number <span className="text-red-500">*</span>
+            Approved Purchase Order
           </label>
           <select
             value={selectedReferencePo}
@@ -517,10 +535,11 @@ const CreatePurchase = () => {
               <option value="">No approved POs available</option>
             ) : (
               availablePos.map((po) => {
+                const displayPoNumber = getPoDisplayNumber(po);
                 const projectedTotal = Number(po.projectedTotal) || 0;
                 return (
-                  <option key={po.poNumber} value={po.poNumber}>
-                    {`${po.poNumber} (Rs. ${projectedTotal.toLocaleString("en-LK")})`}
+                  <option key={displayPoNumber} value={displayPoNumber}>
+                    {`${displayPoNumber} (Rs. ${projectedTotal.toLocaleString("en-LK")})`}
                   </option>
                 );
               })
@@ -665,13 +684,17 @@ const CreatePurchase = () => {
                       disabled={isLoadingItems}
                     >
                       <option value="">Select Item</option>
-                      {!isLoadingItems && items
-                        .filter(item => item.expenseAccount != null)
-                        .map((item) => (
-                        <option key={item.id || item.itemId} value={item.id || item.itemId}>
-                          {item.name}
-                        </option>
-                      ))}
+                      {!isLoadingItems && (selectedPoItems.length > 0 ? selectedPoItems : items)
+                        .filter((item) => item)
+                        .map((item) => {
+                          const itemValue = item.itemId || item.id;
+                          const itemLabel = item.description || item.name || `Item ${itemValue}`;
+                          return (
+                            <option key={itemValue} value={itemValue}>
+                              {itemLabel}
+                            </option>
+                          );
+                        })}
                     </select>
                   </td>
                 )}
