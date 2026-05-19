@@ -8,6 +8,7 @@ import api from "../../utils/api";
 import Alert from "../../components/Alert/Alert";
 import { useNavigate } from "react-router-dom";
 import { AccountContext, filterAccountsByContext } from "../../utils/accountFilters";
+import { fetchCompanyCustomers } from "../../utils/customerApi";
 
 const CreateSaleOrder = () => {
   const [isServiceMode, setIsServiceMode] = useState(false);
@@ -163,13 +164,8 @@ const CreateSaleOrder = () => {
         if (!companyId || !token) return;
 
         setIsLoadingCustomers(true);
-        const response = await fetch(`${api.defaults.baseURL}/api/customers/companies/${companyId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setCustomers(Array.isArray(data) ? data : []);
-        }
+        const data = await fetchCompanyCustomers(companyId, token);
+        setCustomers(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching customers:", error);
       } finally {
@@ -388,7 +384,7 @@ const CreateSaleOrder = () => {
             ) : (
               customers.map((customer) => (
                 <option key={customer.id} value={customer.id}>
-                  {customer.name}
+                  {customer.name || customer.customerName || `Customer #${customer.id}`}
                 </option>
               ))
             )}
