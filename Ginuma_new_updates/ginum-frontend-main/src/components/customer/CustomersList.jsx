@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { FiSearch, FiUser, FiPhone, FiEye } from 'react-icons/fi';
+import { FiSearch, FiUser, FiPhone, FiMail, FiEye, FiX, FiShield, FiMapPin, FiUsers } from 'react-icons/fi';
 import { fetchCompanyCustomers } from '../../utils/customerApi';
 import Alert from '../../components/Alert/Alert';
-import { useNavigate } from 'react-router-dom';
 
 const CustomersList = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const navigate = useNavigate();
 
   const companyId = localStorage.getItem("companyId");
   const token = localStorage.getItem("auth_token");
@@ -32,8 +30,6 @@ const CustomersList = () => {
 
   useEffect(() => { fetchCustomers(); }, []);
 
-  // Editing and deletion are disabled in the Finance service; master data is read-only.
-
   const filteredCustomers = customers.filter(c =>
     (c.name && c.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (c.email && c.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -50,105 +46,218 @@ const CustomersList = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <h1 className="text-3xl font-bold text-gray-800 mb-0">Customers</h1>
-        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-          <div className="relative flex-grow md:w-80">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FiSearch className="text-gray-400" />
+    <div className="container mx-auto px-4 py-8 space-y-6">
+      <div className="rounded-2xl border border-slate-200 bg-gradient-to-r from-white via-slate-50 to-cyan-50 p-6 shadow-sm">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full bg-cyan-100 px-3 py-1 text-xs font-semibold text-cyan-700">
+              <FiShield /> Master data synced
             </div>
-            <input
-              type="text"
-              placeholder="Search customers..."
-              className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            <h1 className="mt-3 text-3xl font-bold text-slate-900">Customers</h1>
+            <p className="mt-2 text-sm text-slate-600">
+              Browse the shared customer directory, check contact details, and open a record when you need more context.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="rounded-2xl border border-white/70 bg-white/80 px-4 py-3 shadow-sm backdrop-blur-sm">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-100 text-cyan-700">
+                  <FiUsers />
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Total customers</p>
+                  <p className="text-lg font-semibold text-slate-900">{customers.length}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative w-full sm:w-80">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <FiSearch className="text-slate-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search customers, phone, or email"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-10 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {filteredCustomers.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-600 text-lg">
-            {customers.length === 0 ? "No customers found." : "No matching customers found."}
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center shadow-sm">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-cyan-100 text-cyan-700">
+            <FiUser size={24} />
+          </div>
+          <p className="text-lg font-semibold text-slate-900">
+            {customers.length === 0 ? "No customers available" : "No matching customers"}
+          </p>
+          <p className="mt-2 text-sm text-slate-500">
+            {customers.length === 0
+              ? "Customer records will appear here once they are added in the master data service."
+              : "Try a different search term or clear the search box to see the full list."}
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {filteredCustomers.map((customer) => (
-            <div key={customer.id} className="bg-white rounded-lg shadow-sm border border-gray-100 px-4 py-4 flex items-center justify-between hover:shadow-md transition">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 text-lg font-semibold">
-                  {customer.name ? customer.name.charAt(0).toUpperCase() : '?'}
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-gray-900">{customer.name}</div>
-                  <div className="text-sm text-gray-500">{customer.billingAddress || customer.deliveryAddress || '-'}</div>
-                </div>
-              </div>
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Customer</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Contact</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Profile</th>
+                  <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {filteredCustomers.map((customer) => {
+                  const displayName = customer.name || customer.customerName || 'Unnamed customer';
+                  const contactAddress = customer.billingAddress || customer.address || customer.deliveryAddress || '-';
+                  const customerType = customer.customerType || 'Customer';
+                  const phone = customer.phoneNo || customer.phoneNumber || '-';
+                  const email = customer.email || '-';
 
-              <div className="flex-1 px-6 hidden sm:flex items-center gap-6">
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <FiPhone className="text-gray-400" />
-                  <span>{customer.phoneNo || '-'}</span>
-                </div>
-                <div className="text-sm text-gray-500 truncate max-w-xs">{customer.email || '-'}</div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div>
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                    {customer.customerType || 'N/A'}
-                  </span>
-                </div>
-                <button
-                  onClick={() => setViewCustomer(customer)}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium rounded transition"
-                >
-                  <FiEye size={14} />
-                  <span>View</span>
-                </button>
-              </div>
-            </div>
-          ))}
+                  return (
+                    <tr key={customer.id} className="transition hover:bg-slate-50/80">
+                      <td className="px-6 py-5 align-top">
+                        <div className="flex items-center gap-4">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700">
+                            <FiUser size={20} />
+                          </div>
+                          <div>
+                            <div className="text-sm font-semibold text-slate-900">{displayName}</div>
+                            <div className="mt-1 flex items-center gap-2 text-sm text-slate-500">
+                              <FiMapPin className="text-slate-400" />
+                              <span>{contactAddress}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5 align-top">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 text-sm text-slate-700">
+                            <FiPhone className="text-slate-400" />
+                            <span>{phone}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-slate-500">
+                            <FiMail className="text-slate-400" />
+                            <span>{email}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5 align-top">
+                        <div className="flex flex-wrap gap-2">
+                          <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                            {customerType}
+                          </span>
+                          {customer.vat || customer.vatNumber ? (
+                            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                              VAT {customer.vat || customer.vatNumber}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
+                              No tax info
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-5 align-top text-center">
+                        <button
+                          onClick={() => setViewCustomer(customer)}
+                          className="inline-flex items-center gap-2 rounded-xl bg-cyan-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-cyan-700"
+                          title="View customer details"
+                        >
+                          <FiEye size={12} /> View
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {/* ===== VIEW MODAL ===== */}
       {viewCustomer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 relative max-h-[90vh] overflow-y-auto">
-            <button onClick={() => setViewCustomer(null)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl leading-none">×</button>
-            <div className="flex items-center gap-3 mb-5 border-b pb-3">
-              <div className="h-12 w-12 flex items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                <FiUser size={24} />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-800">{viewCustomer.name}</h3>
-                <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full font-semibold">{viewCustomer.customerType || 'N/A'}</span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 backdrop-blur-sm">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white shadow-2xl">
+            <div className="bg-gradient-to-r from-cyan-600 to-blue-600 px-6 py-5 text-white">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20">
+                    <FiUser size={26} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-[0.2em] text-cyan-100">Customer profile</p>
+                    <h3 className="mt-1 text-2xl font-bold">{viewCustomer.name || viewCustomer.customerName || 'Unnamed customer'}</h3>
+                    <p className="mt-1 text-sm text-cyan-100">Detailed view of the selected customer record.</p>
+                  </div>
+                </div>
+                <button onClick={() => setViewCustomer(null)} className="rounded-full bg-white/15 p-2 text-white transition hover:bg-white/25" aria-label="Close">
+                  <FiX size={20} />
+                </button>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div><p className="text-gray-400 text-xs mb-1">Email</p><p className="font-medium">{viewCustomer.email || '—'}</p></div>
-              <div><p className="text-gray-400 text-xs mb-1">Phone</p><p className="font-medium">{viewCustomer.phoneNo || '—'}</p></div>
-              <div><p className="text-gray-400 text-xs mb-1">Billing Address</p><p>{viewCustomer.billingAddress || '—'}</p></div>
-              <div><p className="text-gray-400 text-xs mb-1">Delivery Address</p><p>{viewCustomer.deliveryAddress || '—'}</p></div>
-              <div><p className="text-gray-400 text-xs mb-1">NIC No</p><p>{viewCustomer.nicNo || '—'}</p></div>
-              <div><p className="text-gray-400 text-xs mb-1">TIN No</p><p>{viewCustomer.tinNo || '—'}</p></div>
-              <div><p className="text-gray-400 text-xs mb-1">VAT No</p><p>{viewCustomer.vat || '—'}</p></div>
-              <div><p className="text-gray-400 text-xs mb-1">Swift No</p><p>{viewCustomer.swiftNo || '—'}</p></div>
-              <div><p className="text-gray-400 text-xs mb-1">Discount %</p><p>{viewCustomer.discountPercentage != null ? `${viewCustomer.discountPercentage}%` : '—'}</p></div>
-              <div><p className="text-gray-400 text-xs mb-1">Tax Type</p><p>{viewCustomer.tax || '—'}</p></div>
-            </div>
-            <div className="mt-6 flex justify-end">
-              <button onClick={() => setViewCustomer(null)} className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm">Close</button>
+
+            <div className="p-6">
+              <div className="mb-5 flex flex-wrap gap-2">
+                <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  {viewCustomer.customerType || 'Customer'}
+                </span>
+                <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                  <FiShield className="mr-1" /> Master data read-only
+                </span>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2 text-sm">
+                <div className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Email</p>
+                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.email || '—'}</p>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Phone</p>
+                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.phoneNo || viewCustomer.phoneNumber || '—'}</p>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-4 sm:col-span-2">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Address</p>
+                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.billingAddress || viewCustomer.address || viewCustomer.deliveryAddress || '—'}</p>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">VAT No</p>
+                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.vat || viewCustomer.vatNumber || '—'}</p>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Tax Type</p>
+                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.tax || '—'}</p>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">NIC No</p>
+                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.nicNo || '—'}</p>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">TIN No</p>
+                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.tinNo || '—'}</p>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Discount %</p>
+                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.discountPercentage != null ? `${viewCustomer.discountPercentage}%` : '—'}</p>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end">
+                <button onClick={() => setViewCustomer(null)} className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-300">Close</button>
+              </div>
             </div>
           </div>
         </div>
       )}
-      {/* Edit and Delete actions removed — master data is read-only in this service */}
     </div>
   );
 };
