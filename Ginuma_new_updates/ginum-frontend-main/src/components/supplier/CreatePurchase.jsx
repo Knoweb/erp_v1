@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineCancel, MdAddCircleOutline } from "react-icons/md";
 import { FaTimes } from "react-icons/fa";
 import AddAccountForm from "../account/AddAccountForm";
-import NewProjectForm from "../projects/NewProjectForm";
 import CreateItem from "../item/CreateItem";
 import api from "../../utils/api";
 import Alert from "../../components/Alert/Alert";
@@ -25,7 +24,6 @@ const CreatePurchase = () => {
   const [rows, setRows] = useState([createEmptyRow()]);
   const [selectedSupplier, setSelectedSupplier] = useState("");
   const [showAccountModal, setShowAccountModal] = useState(false);
-  const [showProjectModal, setShowProjectModal] = useState(false);
   const [showItemModal, setShowItemModal] = useState(false);
   const [referencePoNumber, setReferencePoNumber] = useState("");
   const [selectedReferencePo, setSelectedReferencePo] = useState("");
@@ -48,8 +46,6 @@ const CreatePurchase = () => {
   const [items, setItems] = useState([]);
   const [isLoadingItems, setIsLoadingItems] = useState(true);
 
-  const [projects, setProjects] = useState([]);
-  const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [subtotal, setSubtotal] = useState(0);
   const [freight, setFreight] = useState(0);
   const [taxes, setTaxes] = useState([]);
@@ -64,14 +60,14 @@ const CreatePurchase = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (showAccountModal || showProjectModal || showItemModal) {
+    if (showAccountModal || showItemModal) {
       // Fade in when modal is opened
       setModalTransition("opacity-100 visible");
     } else {
       // Fade out when modal is closed
       setModalTransition("opacity-0 invisible");
     }
-  }, [showAccountModal, showProjectModal, showItemModal]);
+  }, [showAccountModal, showItemModal]);
 
   useEffect(() => {
     const fetchApprovedPos = async () => {
@@ -103,7 +99,7 @@ const CreatePurchase = () => {
     };
 
     fetchApprovedPos();
-  }, [selectedSupplier]);
+  }, [selectedSupplier, manualReferencePoNumber]);
 
   // Calculate totals when relevant values change
   useEffect(() => {
@@ -120,12 +116,10 @@ const CreatePurchase = () => {
     const subtotalPlusFreight = newSubtotal + (parseFloat(freight) || 0);
     
     let totalTaxAmount = 0;
-    const updatedTaxes = taxes.map(t => {
+    taxes.forEach(t => {
       const pct = parseFloat(t.percentage) || 0;
       const amt = subtotalPlusFreight * (pct / 100);
       totalTaxAmount += amt;
-      // We don't put it in state here to avoid infinite loop, just sum it up
-      return amt;
     });
 
     const newTotal = subtotalPlusFreight + totalTaxAmount;
@@ -329,25 +323,19 @@ const CreatePurchase = () => {
       }
     };
 
-    const fetchItemsAndProjects = async () => {
+    const fetchItems = async () => {
       try {
         setIsLoadingItems(true);
-        setIsLoadingProjects(true);
         const companyId = localStorage.getItem("companyId");
         if (!companyId) return;
 
-        const [itemsRes, projectsRes] = await Promise.all([
-          api.get(`/api/companies/${companyId}/items`).catch(() => []),
-          api.get(`/api/companies/${companyId}/projects`).catch(() => [])
-        ]);
+        const itemsRes = await api.get(`/api/companies/${companyId}/items`).catch(() => []);
 
         setItems(Array.isArray(itemsRes) ? itemsRes : []);
-        setProjects(Array.isArray(projectsRes) ? projectsRes : []);
       } catch (error) {
         console.error("Error fetching items or projects:", error);
       } finally {
         setIsLoadingItems(false);
-        setIsLoadingProjects(false);
       }
     };
 
@@ -374,7 +362,7 @@ const CreatePurchase = () => {
 
     fetchAccounts();
     fetchSuppliers();
-    fetchItemsAndProjects();
+    fetchItems();
     fetchPoAndInvoiceNumber();
   }, []);
 
@@ -424,6 +412,11 @@ const CreatePurchase = () => {
     }
 
     setRows(updatedRows);
+  };
+
+  const removeRow = (index) => {
+    const updatedRows = rows.filter((_, rowIndex) => rowIndex !== index);
+    setRows(updatedRows.length > 0 ? updatedRows : [createEmptyRow()]);
   };
 
   const handleSubmit = async () => {
@@ -631,13 +624,6 @@ const CreatePurchase = () => {
               {!isServiceMode && (
                 <th className="p-2">
                   Item ID <span className="text-red-500">*</span>
-                  <button
-                    onClick={() => setShowItemModal(true)}
-                    className="ml-1 text-blue-600 hover:text-blue-700"
-                    title="Add New Item"
-                  >
-                    <MdAddCircleOutline className="h-5 w-5" />
-                  </button>
                 </th>
               )}
               <th className="p-2">
@@ -665,15 +651,6 @@ const CreatePurchase = () => {
               )}
               <th className="p-2">
                 Amount (Rs.) <span className="text-red-500">*</span>
-              </th>
-              <th className="p-2">
-                Project
-                <button
-                  onClick={() => setShowProjectModal(true)}
-                  className="ml-1 text-blue-600 hover:text-blue-700"
-                >
-                  <MdAddCircleOutline className="h-5 w-5" />
-                </button>
               </th>
               <th className="p-2"></th>
             </tr>
@@ -799,23 +776,6 @@ const CreatePurchase = () => {
                     min="0"
                     step="0.01"
                   />
-                </td>
-                <td className="p-2">
-                  <select
-                    value={row.project}
-                    onChange={(e) =>
-                      handleRowChange(index, "project", e.target.value)
-                    }
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                    disabled={isLoadingProjects}
-                  >
-                    <option value="">Select project</option>
-                    {!isLoadingProjects && projects.map((project) => (
-                      <option key={project.id} value={project.id}>
-                        {project.name}
-                      </option>
-                    ))}
-                  </select>
                 </td>
                 <td className="p-2">
                   {index !== rows.length - 1 && (
@@ -1006,22 +966,7 @@ const CreatePurchase = () => {
         </div>
       )}
 
-      {showProjectModal && (
-        <div
-          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-500 ${modalTransition}`}
-          onClick={(e) => handleModalClick(e, setShowProjectModal)} // Close modal when clicking outside
-        >
-          <div className="w-11/12 sm:w-3/4 md:w-1/2 lg:w-2/5 xl:w-1/3  p-2 rounded-lg max-h-[90vh] overflow-y-auto relative">
-            <button
-              className="absolute top-2 right-2 text-black-600 text-xl"
-              onClick={() => setShowProjectModal(false)}
-            >
-              <FaTimes />
-            </button>
-            <NewProjectForm />
-          </div>
-        </div>
-      )}
+      
       {showItemModal && (
         <div
           className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-500 ${modalTransition}`}

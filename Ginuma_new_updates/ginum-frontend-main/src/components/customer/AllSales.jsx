@@ -49,7 +49,7 @@ const AllSales = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4 md:mb-0">Sales Orders</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4 md:mb-0">Sales Bills</h1>
         <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
           <div className="relative flex-grow">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -67,7 +67,7 @@ const AllSales = () => {
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors"
             onClick={() => navigate('/app/customer/sales/new')}
           >
-            <FiPlus /> Create Sale
+            <FiPlus /> Enter Sales Bill
           </button>
         </div>
       </div>
@@ -81,7 +81,7 @@ const AllSales = () => {
             className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg inline-flex items-center gap-2 transition-colors"
             onClick={() => navigate('/app/customer/sales/new')}
           >
-            <FiPlus /> Create New Sale
+            <FiPlus /> Enter Sales Bill
           </button>
         </div>
       ) : (

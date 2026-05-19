@@ -57,7 +57,7 @@ export const navItems = [
     subItems: [
       { id: "all-customer", path: "/app/customer/all", label: "Customers" },
       { id: "all-sales", path: "/app/customer/sales/all", label: "Sales" },
-      { id: "new-sale", path: "/app/customer/sales/new", label: "Create Sale" },
+      { id: "new-sale", path: "/app/customer/sales/new", label: "Enter Sales Bill" },
       {
         id: "aged-receivables",
         path: "/app/customer/aged-receivables",

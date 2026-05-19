@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { MdOutlineCancel, MdAddCircleOutline } from "react-icons/md";
 import { FaTimes } from "react-icons/fa";
 import AddAccountForm from "../account/AddAccountForm";
-import NewProjectForm from "../projects/NewProjectForm";
 import CreateItem from "../item/CreateItem";
 import api from "../../utils/api";
 import Alert from "../../components/Alert/Alert";
@@ -10,29 +9,82 @@ import { useNavigate } from "react-router-dom";
 import { AccountContext, filterAccountsByContext } from "../../utils/accountFilters";
 import { fetchCompanyCustomers } from "../../utils/customerApi";
 
+const buildCustomerItemOptions = (customerRecord, items) => {
+  const mappedItems = customerRecord?.contactInfo?.mappings || [];
+
+  if (!mappedItems.length) {
+    return items
+      .filter((item) => item.incomeAccount != null)
+      .map((item) => ({
+        id: item.id || item.itemId,
+        label: item.name || item.description || item.productName || `Item #${item.id || item.itemId}`,
+        description: item.description || item.name || item.productName || "",
+        accountId: item.incomeAccount?.id ? item.incomeAccount.id.toString() : "",
+        quantity: 1,
+        unitPrice: item.salesPrice ?? item.unitPrice ?? "",
+      }));
+  }
+
+  return mappedItems
+    .map((mapping) => {
+      const matchedItem = items.find(
+        (item) => String(item.id || item.itemId) === String(mapping.productId)
+      );
+
+      const itemId = matchedItem?.id || matchedItem?.itemId || mapping.productId;
+      if (!itemId) {
+        return null;
+      }
+
+      return {
+        id: itemId,
+        label:
+          matchedItem?.name ||
+          matchedItem?.description ||
+          mapping.productName ||
+          mapping.description ||
+          `Item #${itemId}`,
+        description:
+          matchedItem?.description ||
+          mapping.description ||
+          matchedItem?.name ||
+          mapping.productName ||
+          "",
+        accountId: matchedItem?.incomeAccount?.id ? matchedItem.incomeAccount.id.toString() : "",
+        quantity: mapping.defaultQuantity ?? mapping.quantity ?? 1,
+        unitPrice:
+          mapping.defaultPrice ??
+          mapping.unitPrice ??
+          matchedItem?.salesPrice ??
+          matchedItem?.unitPrice ??
+          "",
+      };
+    })
+    .filter(Boolean);
+};
+
 const CreateSaleOrder = () => {
+  const createEmptyRow = () => ({
+    itemId: "",
+    description: "",
+    account: "",
+    quantity: "",
+    unitPrice: "",
+    discount: "",
+    amount: "",
+  });
+
   const [isServiceMode, setIsServiceMode] = useState(false);
-  const [rows, setRows] = useState([
-    {
-      itemId: "",
-      description: "",
-      account: "",
-      quantity: "",
-      unitPrice: "",
-      discount: "",
-      amount: "",
-    },
-  ]);
+  const [rows, setRows] = useState([createEmptyRow()]);
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [customers, setCustomers] = useState([]);
   const [items, setItems] = useState([]);
-  const [projects, setProjects] = useState([]);
+  const [customerItems, setCustomerItems] = useState([]);
   const [soNumber, setSoNumber] = useState("");
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
   const [isLoadingItemsProjects, setIsLoadingItemsProjects] = useState(true);
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [showItemModal, setShowItemModal] = useState(false);
-  const [showProjectModal, setShowProjectModal] = useState(false);
   const [modalTransition, setModalTransition] = useState("opacity-0 invisible");
   const [accounts, setAccounts] = useState([]);
   const [accountsError, setAccountsError] = useState(null);
@@ -60,11 +112,10 @@ const CreateSaleOrder = () => {
     const subtotalPlusFreight = newSubtotal + (parseFloat(freight) || 0);
 
     let totalTaxAmount = 0;
-    const updatedTaxes = taxes.map(t => {
+    taxes.forEach((t) => {
       const pct = parseFloat(t.percentage) || 0;
       const amt = subtotalPlusFreight * (pct / 100);
       totalTaxAmount += amt;
-      return amt;
     });
 
     const newTotal = subtotalPlusFreight + totalTaxAmount;
@@ -94,18 +145,28 @@ const CreateSaleOrder = () => {
   };
 
   useEffect(() => {
-    if (showAccountModal || showProjectModal || showItemModal) {
+    if (showAccountModal || showItemModal) {
       setModalTransition("opacity-100 visible");
     } else {
       setModalTransition("opacity-0 invisible");
     }
-  }, [showAccountModal, showProjectModal, showItemModal]);
+  }, [showAccountModal, showItemModal]);
 
   const handleModalClick = (e, setModal) => {
     if (e.target === e.currentTarget) {
       setModal(false);
     }
   };
+
+  useEffect(() => {
+    if (!selectedCustomer) {
+      setCustomerItems([]);
+      return;
+    }
+
+    const customerRecord = customers.find((customer) => String(customer.id) === String(selectedCustomer));
+    setCustomerItems(buildCustomerItemOptions(customerRecord));
+  }, [selectedCustomer, customers, items]);
 
   // Fetch accounts from API
   useEffect(() => {
@@ -155,7 +216,7 @@ const CreateSaleOrder = () => {
     fetchAccounts();
   }, []);
 
-  // Fetch customers, items, projects, soNumber
+  // Fetch customers, items, soNumber
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
@@ -173,16 +234,13 @@ const CreateSaleOrder = () => {
       }
     };
 
-    const fetchItemsAndProjects = async () => {
+    const fetchItems = async () => {
       try {
         const companyId = localStorage.getItem("companyId");
         if (!companyId) return;
 
         setIsLoadingItemsProjects(true);
-        const [itemsRes, projectsRes] = await Promise.all([
-          api.get(`/api/companies/${companyId}/items`),
-          api.get(`/api/companies/${companyId}/projects`)
-        ]);
+        const itemsRes = await api.get(`/api/companies/${companyId}/items`);
 
         let itemsData = itemsRes.data;
         if (Array.isArray(itemsRes)) itemsData = itemsRes;
@@ -190,13 +248,6 @@ const CreateSaleOrder = () => {
         else if (itemsRes?.data?.data && Array.isArray(itemsRes.data.data)) itemsData = itemsRes.data.data;
 
         setItems(Array.isArray(itemsData) ? itemsData : []);
-
-        let projectsData = projectsRes.data;
-        if (Array.isArray(projectsRes)) projectsData = projectsRes;
-        else if (Array.isArray(projectsRes.data)) projectsData = projectsRes.data;
-        else if (projectsRes?.data?.data && Array.isArray(projectsRes.data.data)) projectsData = projectsRes.data.data;
-
-        setProjects(Array.isArray(projectsData) ? projectsData : []);
       } catch (error) {
         console.error("Error fetching items and projects:", error);
       } finally {
@@ -221,7 +272,7 @@ const CreateSaleOrder = () => {
     };
 
     fetchCustomers();
-    fetchItemsAndProjects();
+    fetchItems();
     fetchSoNumber();
   }, []);
 
@@ -231,20 +282,18 @@ const CreateSaleOrder = () => {
 
     // Auto-fill details when an item is selected
     if (field === "itemId" && value) {
-      const selectedItem = items.find((item) => (item.id || item.itemId).toString() === value.toString());
+      const selectedItem = customerItems.find((item) => String(item.id) === String(value)) ||
+        items.find((item) => String(item.id || item.itemId) === String(value));
+
       if (selectedItem) {
-        updatedRows[index].description = selectedItem.description || selectedItem.name || "";
-        // For sale, unitPrice is salesPrice
-        updatedRows[index].unitPrice = selectedItem.salesPrice || "";
-        // For sale, account is incomeAccount.id
-        if (selectedItem.incomeAccount && selectedItem.incomeAccount.id) {
-          updatedRows[index].account = selectedItem.incomeAccount.id.toString();
-        } else {
-          updatedRows[index].account = "";
-        }
+        updatedRows[index].description = selectedItem.description || selectedItem.label || "";
+        updatedRows[index].quantity = selectedItem.quantity ?? 1;
+        updatedRows[index].unitPrice = selectedItem.unitPrice ?? "";
+        updatedRows[index].account = selectedItem.accountId || "";
       }
     } else if (field === "itemId" && !value) {
       updatedRows[index].description = "";
+      updatedRows[index].quantity = "";
       updatedRows[index].unitPrice = "";
       updatedRows[index].account = "";
     }
@@ -262,15 +311,7 @@ const CreateSaleOrder = () => {
     }
 
     if (index === rows.length - 1 && value.trim() !== "" && field !== "project") {
-      updatedRows.push({
-        itemId: "",
-        description: "",
-        account: "",
-        quantity: "",
-        unitPrice: "",
-        discount: "",
-        amount: "",
-      });
+      updatedRows.push(createEmptyRow());
     }
 
     setRows(updatedRows);
@@ -279,6 +320,19 @@ const CreateSaleOrder = () => {
   const removeRow = (index) => {
     const updatedRows = rows.filter((_, i) => i !== index);
     setRows(updatedRows);
+  };
+
+  const handleCustomerChange = (customerId) => {
+    setSelectedCustomer(customerId);
+    setRows([createEmptyRow()]);
+
+    if (!customerId) {
+      setCustomerItems([]);
+      return;
+    }
+
+    const customerRecord = customers.find((customer) => String(customer.id) === String(customerId));
+    setCustomerItems(buildCustomerItemOptions(customerRecord));
   };
 
   const handleSubmit = async () => {
@@ -341,12 +395,12 @@ const CreateSaleOrder = () => {
       const response = await api.post(`/api/sales-orders/company/${companyId}`, payload);
       // api.js returns response.data directly, so we check if the request was successful (response defined)
       if (response) {
-        Alert.success("Sales order created successfully!");
+        Alert.success("Sales bill created successfully!");
         navigate("/app/customer/sales/all"); 
       }
     } catch (error) {
       console.error("Error creating sales order:", error);
-      let errorMsg = "Failed to create sales order.";
+      let errorMsg = "Failed to create sales bill.";
       if (error.response?.data) {
         errorMsg = typeof error.response.data === 'string' 
           ? error.response.data 
@@ -361,7 +415,7 @@ const CreateSaleOrder = () => {
   return (
     <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg p-4 sm:p-6 my-4 sm:mt-6">
       <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
-        Create Sale Order
+        Enter Sales Bill
       </h2>
 
       {/* Customer and Sale Order Details */}
@@ -372,7 +426,7 @@ const CreateSaleOrder = () => {
           </label>
           <select
             value={selectedCustomer}
-            onChange={(e) => setSelectedCustomer(e.target.value)}
+            onChange={(e) => handleCustomerChange(e.target.value)}
             className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             disabled={isLoadingCustomers}
           >
@@ -453,13 +507,6 @@ const CreateSaleOrder = () => {
               {!isServiceMode && (
                 <th className="p-2">
                   Item ID <span className="text-red-500">*</span>
-                  <button 
-                    onClick={() => setShowItemModal(true)}
-                    className="ml-1 text-blue-600 hover:text-blue-700"
-                    title="Add New Item"
-                  >
-                    <MdAddCircleOutline className="h-5 w-5" />
-                  </button>
                 </th>
               )}
               <th className="p-2">
@@ -488,15 +535,6 @@ const CreateSaleOrder = () => {
               <th className="p-2">
                 Amount (Rs.) <span className="text-red-500">*</span>
               </th>
-              <th className="p-2">
-                Project
-                <button
-                  onClick={() => setShowProjectModal(true)}
-                  className="ml-1 text-blue-600 hover:text-blue-700"
-                >
-                  <MdAddCircleOutline className="h-5 w-5" />
-                </button>
-              </th>
               <th className="p-2"></th>
             </tr>
           </thead>
@@ -511,17 +549,15 @@ const CreateSaleOrder = () => {
                         handleRowChange(index, "itemId", e.target.value)
                       }
                       className=" px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                      disabled={isLoadingItemsProjects}
+                      disabled={isLoadingItemsProjects || !selectedCustomer}
                     >
-                      <option value="">Select Item</option>
+                      <option value="">{selectedCustomer ? "Select Item" : "Select customer first"}</option>
                       {isLoadingItemsProjects ? (
                         <option value="">Loading items...</option>
                       ) : (
-                        items
-                          .filter((item) => item.incomeAccount != null)
-                          .map((item) => (
-                          <option key={item.id || item.itemId} value={item.id || item.itemId}>
-                            {item.name}
+                        customerItems.map((item) => (
+                          <option key={item.id} value={item.id}>
+                            {item.label}
                           </option>
                         ))
                       )}
@@ -621,27 +657,6 @@ const CreateSaleOrder = () => {
                     min="0"
                     step="0.01"
                   />
-                </td>
-                <td className="p-2">
-                  <select
-                    value={row.project}
-                    onChange={(e) =>
-                      handleRowChange(index, "project", e.target.value)
-                    }
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                    disabled={isLoadingItemsProjects}
-                  >
-                    <option value="">Select project</option>
-                    {isLoadingItemsProjects ? (
-                      <option value="">Loading projects...</option>
-                    ) : (
-                      projects.map((project) => (
-                        <option key={project.id} value={project.id}>
-                          {project.name}
-                        </option>
-                      ))
-                    )}
-                  </select>
                 </td>
                 <td className="p-2">
                   {index !== rows.length - 1 && (
@@ -825,23 +840,6 @@ const CreateSaleOrder = () => {
               <FaTimes />
             </button>
             <AddAccountForm />
-          </div>
-        </div>
-      )}
-
-      {showProjectModal && (
-        <div
-          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-500 ${modalTransition}`}
-          onClick={(e) => handleModalClick(e, setShowProjectModal)} // Close modal when clicking outside
-        >
-          <div className="w-11/12 sm:w-3/4 md:w-1/2 lg:w-2/5 xl:w-1/3  p-2 rounded-lg max-h-[90vh] overflow-y-auto relative">
-            <button
-              className="absolute top-2 right-2 text-black-600 text-xl"
-              onClick={() => setShowProjectModal(false)}
-            >
-              <FaTimes />
-            </button>
-            <NewProjectForm />
           </div>
         </div>
       )}

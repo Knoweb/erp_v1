@@ -24,6 +24,7 @@ export const normalizeCustomer = (customer) => {
     vat: customer.vat || customer.vatNumber || "",
     swiftNo: customer.swiftNo || "",
     discountPercentage: customer.discountPercentage ?? null,
+    contactInfo,
   };
 };
 
