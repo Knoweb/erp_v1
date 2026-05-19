@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { AccountContext, filterAccountsByContext } from "../../utils/accountFilters";
 import { fetchCompanyCustomers } from "../../utils/customerApi";
 
-const buildCustomerItemOptions = (customerRecord, items) => {
+const buildCustomerItemOptions = (customerRecord, items = []) => {
   const mappedItems = customerRecord?.contactInfo?.mappings || [];
 
   if (!mappedItems.length) {
@@ -165,7 +165,7 @@ const CreateSaleOrder = () => {
     }
 
     const customerRecord = customers.find((customer) => String(customer.id) === String(selectedCustomer));
-    setCustomerItems(buildCustomerItemOptions(customerRecord));
+    setCustomerItems(buildCustomerItemOptions(customerRecord, items));
   }, [selectedCustomer, customers, items]);
 
   // Fetch accounts from API
@@ -332,7 +332,7 @@ const CreateSaleOrder = () => {
     }
 
     const customerRecord = customers.find((customer) => String(customer.id) === String(customerId));
-    setCustomerItems(buildCustomerItemOptions(customerRecord));
+    setCustomerItems(buildCustomerItemOptions(customerRecord, items));
   };
 
   const handleSubmit = async () => {
