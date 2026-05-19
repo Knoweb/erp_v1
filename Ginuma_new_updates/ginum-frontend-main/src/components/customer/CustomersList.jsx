@@ -234,10 +234,6 @@ const CustomersList = () => {
                   <p className="mt-2 font-semibold text-slate-900">{viewCustomer.vat || viewCustomer.vatNumber || '—'}</p>
                 </div>
                 <div className="rounded-2xl bg-slate-50 p-4">
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Tax Type</p>
-                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.tax || '—'}</p>
-                </div>
-                <div className="rounded-2xl bg-slate-50 p-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">NIC No</p>
                   <p className="mt-2 font-semibold text-slate-900">{viewCustomer.nicNo || '—'}</p>
                 </div>
