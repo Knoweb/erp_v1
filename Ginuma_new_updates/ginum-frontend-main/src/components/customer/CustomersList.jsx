@@ -51,11 +51,10 @@ const CustomersList = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4 md:mb-0">Customers</h1>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <h1 className="text-3xl font-bold text-gray-800 mb-0">Customers</h1>
         <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-          <div className="relative flex-grow">
+          <div className="relative flex-grow md:w-80">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <FiSearch className="text-gray-400" />
             </div>
@@ -67,7 +66,6 @@ const CustomersList = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          {/* Creation disabled: master data creation handled by separate microservice */}
         </div>
       </div>
 
@@ -76,7 +74,6 @@ const CustomersList = () => {
           <p className="text-gray-600 text-lg">
             {customers.length === 0 ? "No customers found." : "No matching customers found."}
           </p>
-          {/* Creation disabled: master data creation handled by separate microservice */}
         </div>
       ) : (
         <div className="bg-white shadow rounded-lg overflow-hidden border border-gray-100">
@@ -92,7 +89,7 @@ const CustomersList = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredCustomers.map((customer) => (
-                  <tr key={customer.id} className="hover:bg-gray-50">
+                  <tr key={customer.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-blue-100 text-blue-600">
@@ -100,13 +97,21 @@ const CustomersList = () => {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">{customer.name}</div>
-                          <div className="text-sm text-gray-500">{customer.billingAddress}</div>
+                          <div className="text-sm text-gray-500">{customer.billingAddress || customer.deliveryAddress || '-'}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 flex items-center gap-2"><FiPhone className="text-gray-400" /> {customer.phoneNo || '-'}</div>
-                      <div className="text-sm text-gray-500 flex items-center gap-2 mt-1"><FiMail className="text-gray-400" /> {customer.email || '-'}</div>
+                      <div className="space-y-1">
+                        <div className="text-sm text-gray-900 flex items-center gap-2">
+                          <FiPhone className="text-gray-400" />
+                          <span>{customer.phoneNo || '-'}</span>
+                        </div>
+                        <div className="text-sm text-gray-500 flex items-center gap-2">
+                          <FiMail className="text-gray-400" />
+                          <span>{customer.email || '-'}</span>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
@@ -114,15 +119,13 @@ const CustomersList = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="flex justify-center items-center">
-                        <button
-                          onClick={() => setViewCustomer(customer)}
-                          className="flex items-center gap-1 px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded transition"
-                          title="View"
-                        >
-                          <FiEye size={12} /> View
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => setViewCustomer(customer)}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium rounded transition"
+                        title="View"
+                      >
+                        <FiEye size={12} /> View
+                      </button>
                     </td>
                   </tr>
                 ))}
