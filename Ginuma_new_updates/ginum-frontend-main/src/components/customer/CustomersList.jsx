@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiSearch, FiUser, FiPhone, FiMail, FiEye, FiX } from 'react-icons/fi';
+import { FiSearch, FiUser, FiPhone, FiEye } from 'react-icons/fi';
 import { fetchCompanyCustomers } from '../../utils/customerApi';
 import Alert from '../../components/Alert/Alert';
 import { useNavigate } from 'react-router-dom';
@@ -76,62 +76,43 @@ const CustomersList = () => {
           </p>
         </div>
       ) : (
-        <div className="bg-white shadow rounded-lg overflow-hidden border border-gray-100">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredCustomers.map((customer) => (
-                  <tr key={customer.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                          <FiUser size={20} />
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{customer.name}</div>
-                          <div className="text-sm text-gray-500">{customer.billingAddress || customer.deliveryAddress || '-'}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="space-y-1">
-                        <div className="text-sm text-gray-900 flex items-center gap-2">
-                          <FiPhone className="text-gray-400" />
-                          <span>{customer.phoneNo || '-'}</span>
-                        </div>
-                        <div className="text-sm text-gray-500 flex items-center gap-2">
-                          <FiMail className="text-gray-400" />
-                          <span>{customer.email || '-'}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        {customer.customerType || 'N/A'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <button
-                        onClick={() => setViewCustomer(customer)}
-                        className="flex items-center gap-1 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium rounded transition"
-                        title="View"
-                      >
-                        <FiEye size={12} /> View
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="space-y-4">
+          {filteredCustomers.map((customer) => (
+            <div key={customer.id} className="bg-white rounded-lg shadow-sm border border-gray-100 px-4 py-4 flex items-center justify-between hover:shadow-md transition">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 text-lg font-semibold">
+                  {customer.name ? customer.name.charAt(0).toUpperCase() : '?'}
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-900">{customer.name}</div>
+                  <div className="text-sm text-gray-500">{customer.billingAddress || customer.deliveryAddress || '-'}</div>
+                </div>
+              </div>
+
+              <div className="flex-1 px-6 hidden sm:flex items-center gap-6">
+                <div className="flex items-center gap-2 text-sm text-gray-700">
+                  <FiPhone className="text-gray-400" />
+                  <span>{customer.phoneNo || '-'}</span>
+                </div>
+                <div className="text-sm text-gray-500 truncate max-w-xs">{customer.email || '-'}</div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div>
+                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                    {customer.customerType || 'N/A'}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setViewCustomer(customer)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium rounded transition"
+                >
+                  <FiEye size={14} />
+                  <span>View</span>
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -139,7 +120,7 @@ const CustomersList = () => {
       {viewCustomer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 relative max-h-[90vh] overflow-y-auto">
-            <button onClick={() => setViewCustomer(null)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"><FiX size={20} /></button>
+            <button onClick={() => setViewCustomer(null)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl leading-none">×</button>
             <div className="flex items-center gap-3 mb-5 border-b pb-3">
               <div className="h-12 w-12 flex items-center justify-center rounded-full bg-blue-100 text-blue-600">
                 <FiUser size={24} />
