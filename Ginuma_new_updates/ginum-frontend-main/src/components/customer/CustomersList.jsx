@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiSearch, FiUser, FiPhone, FiMail, FiEye, FiX } from 'react-icons/fi';
-import { apiUrl } from '../../utils/api';
+import { fetchCompanyCustomers } from '../../utils/customerApi';
 import Alert from '../../components/Alert/Alert';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,15 +20,8 @@ const CustomersList = () => {
     try {
       if (!companyId || !token) throw new Error("Missing credentials");
       setLoading(true);
-      const response = await fetch(`${apiUrl}/api/customers/companies/${companyId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setCustomers(Array.isArray(data) ? data : []);
-      } else {
-        Alert.error("Failed to load customers");
-      }
+      const data = await fetchCompanyCustomers(companyId, token);
+      setCustomers(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error(e);
       Alert.error("Error loading customers");
