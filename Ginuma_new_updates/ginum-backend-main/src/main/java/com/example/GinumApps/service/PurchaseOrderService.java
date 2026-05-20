@@ -275,9 +275,43 @@ public class PurchaseOrderService {
         if (company.getAccountsPayableAccount() != null) return company.getAccountsPayableAccount();
         // Fallback 1: Try code 2100
         Optional<Account> byCode = accountRepo.findByAccountCodeAndCompany_CompanyId(Company.PAYABLE_ACCOUNT_CODE, company.getCompanyId());
-        if (byCode.isPresent()) return byCode.get();
+        if (byCode.isPresent()) {
+            company.setAccountsPayableAccount(byCode.get());
+            return byCode.get();
+        }
         // Fallback 2: Try any account of type LIABILITY_ACCOUNTS_PAYABLE
-        return accountRepo.findFirstByAccountTypeAndCompany_CompanyId(AccountType.LIABILITY_ACCOUNTS_PAYABLE, company.getCompanyId()).orElse(null);
+        Optional<Account> byType = accountRepo.findFirstByAccountTypeAndCompany_CompanyId(AccountType.LIABILITY_ACCOUNTS_PAYABLE, company.getCompanyId());
+        if (byType.isPresent()) {
+            company.setAccountsPayableAccount(byType.get());
+            return byType.get();
+        }
+
+        // Fallback 3: Legacy companies may have a single liability account created with a non-reserved code.
+        List<Account> liabilityAccounts = accountRepo.findByCompany_CompanyId(company.getCompanyId()).stream()
+                .filter(account -> account.getAccountType() != null
+                        && "Liability".equals(account.getAccountType().getMainCategory()))
+                .collect(java.util.stream.Collectors.toList());
+
+        if (liabilityAccounts.size() == 1) {
+            Account legacyPayable = liabilityAccounts.get(0);
+            company.setAccountsPayableAccount(legacyPayable);
+            companyRepository.save(company);
+            return legacyPayable;
+        }
+
+        // Final fallback: provision the reserved payable account for legacy companies.
+        Account payable = new Account();
+        payable.setAccountName("Accounts Payable");
+        payable.setAccountType(AccountType.LIABILITY_ACCOUNTS_PAYABLE);
+        payable.setAccountCode(Company.PAYABLE_ACCOUNT_CODE);
+        payable.setCurrentBalance(BigDecimal.ZERO);
+        payable.setOpeningBalance(BigDecimal.ZERO);
+        payable.setCompany(company);
+
+        Account savedPayable = accountRepo.save(payable);
+        company.setAccountsPayableAccount(savedPayable);
+        companyRepository.save(company);
+        return savedPayable;
     }
 
     private Account getTaxAccount(Company company) {
