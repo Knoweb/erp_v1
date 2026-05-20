@@ -125,6 +125,11 @@ const CreatePurchase = () => {
                 itemId: itemKey,
                 description: poItem.description || matchedItem?.description || matchedItem?.name || "",
                 account: matchedItem?.expenseAccount?.id?.toString() || "",
+                accountCode:
+                  matchedItem?.expenseAccount?.accountCode ||
+                  matchedItem?.expenseAccount?.code ||
+                  matchedItem?.expenseAccount?.name ||
+                  "",
                 quantity: quantity ? quantity.toString() : "",
                 unitPrice: unitPrice ? unitPrice.toString() : "",
                 discount: discount ? discount.toString() : "0",
@@ -368,6 +373,7 @@ const CreatePurchase = () => {
         updatedRows[index].quantity = selectedItem.quantity || updatedRows[index].quantity || "";
         updatedRows[index].unitPrice = selectedItem.unitPrice || updatedRows[index].unitPrice || "";
         updatedRows[index].account = selectedItem.account || "";
+        updatedRows[index].accountCode = selectedItem.accountCode || updatedRows[index].accountCode || "";
         updatedRows[index].discount = selectedItem.discount || updatedRows[index].discount || "0";
       }
     } else if (field === "poItemSelectionKey" && !value) {
@@ -375,6 +381,7 @@ const CreatePurchase = () => {
       updatedRows[index].description = "";
       updatedRows[index].unitPrice = "";
       updatedRows[index].account = "";
+      updatedRows[index].accountCode = "";
       updatedRows[index].quantity = "";
       updatedRows[index].discount = "";
     }
@@ -397,6 +404,7 @@ const CreatePurchase = () => {
         itemId: "",
         description: "",
         account: "",
+        accountCode: "",
         quantity: "",
         unitPrice: "",
         discount: "",
@@ -452,7 +460,10 @@ const CreatePurchase = () => {
       items: validRows.map((row) => ({
         itemId: isServiceMode ? null : parseInt(row.itemId),
         description: row.description,
-        accountCode: accounts.find(a => a.id.toString() === row.account.toString())?.accountCode || "",
+        accountCode:
+          row.accountCode ||
+          accounts.find((a) => a.id.toString() === row.account.toString())?.accountCode ||
+          "",
         quantity: isServiceMode ? 1 : parseInt(row.quantity),
         unitPrice: isServiceMode ? parseFloat(row.amount) : parseFloat(row.unitPrice),
         discount: isServiceMode ? 0 : parseFloat(row.discount) || 0,
