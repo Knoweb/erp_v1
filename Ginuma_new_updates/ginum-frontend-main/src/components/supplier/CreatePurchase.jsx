@@ -196,9 +196,14 @@ const CreatePurchase = () => {
     });
 
     const newTotal = subtotalPlusFreight + totalTaxAmount;
-    setTotal(newTotal);
+    // Round to 2 decimals to keep frontend math consistent with backend BigDecimal calculations
+    const roundedTotal = Number(newTotal.toFixed(2));
+    setTotal(roundedTotal);
 
-    const newBalanceDue = Math.max(newTotal - (parseFloat(amountPaid) || 0), 0);
+    const paid = parseFloat(amountPaid) || 0;
+    const rawBalance = roundedTotal - paid;
+    const roundedBalance = Number((rawBalance).toFixed(2));
+    const newBalanceDue = Math.max(roundedBalance, 0);
     setBalanceDue(newBalanceDue);
   }, [rows, freight, amountPaid, taxes]);
 
@@ -461,7 +466,9 @@ const CreatePurchase = () => {
     }
 
     const paidAmount = parseFloat(amountPaid) || 0;
-    if (paidAmount > total) {
+    // Use rounded comparison to avoid false positives from floating point math
+    const roundedTotalForValidation = Number(Number(total).toFixed(2));
+    if (paidAmount > roundedTotalForValidation) {
       Alert.error("Amount paid cannot exceed the total bill amount");
       return;
     }

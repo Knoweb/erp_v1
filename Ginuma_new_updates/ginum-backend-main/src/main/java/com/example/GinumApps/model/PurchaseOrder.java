@@ -105,8 +105,14 @@ public class PurchaseOrder {
 
         this.total = subtotalPlusFreight.add(this.taxAmount);
         this.balanceDue = total.subtract(amountPaid != null ? amountPaid : BigDecimal.ZERO);
+        // Allow small negative balance due to rounding differences between frontend and backend
         if (this.balanceDue.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalStateException("Overpayment detected");
+            java.math.BigDecimal epsilon = new java.math.BigDecimal("0.01");
+            if (this.balanceDue.abs().compareTo(epsilon) <= 0) {
+                this.balanceDue = BigDecimal.ZERO;
+            } else {
+                throw new IllegalStateException("Overpayment detected");
+            }
         }
     }
 }
