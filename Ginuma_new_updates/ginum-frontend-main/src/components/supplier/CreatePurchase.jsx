@@ -245,6 +245,15 @@ const CreatePurchase = () => {
     return null;
   };
 
+  const resolveAccountCode = (row) => {
+    if (row?.accountCode) {
+      return row.accountCode;
+    }
+
+    const matchedAccount = accounts.find((account) => account.id.toString() === row?.account?.toString());
+    return matchedAccount?.accountCode || "";
+  };
+
   const handleModalClick = (e, setModal) => {
     if (e.target === e.currentTarget) {
       setModal(false);
@@ -364,6 +373,10 @@ const CreatePurchase = () => {
     const updatedRows = [...rows];
     updatedRows[index][field] = value;
 
+    if (field === "account" && value) {
+      updatedRows[index].accountCode = resolveAccountCode({ account: value, accountCode: "" });
+    }
+
     // Auto-fill details when an item is selected
     if (field === "poItemSelectionKey" && value) {
       const selectedItem = resolveItemDetails(value);
@@ -436,6 +449,12 @@ const CreatePurchase = () => {
         (!isServiceMode ? row.quantity && row.unitPrice : row.amount)
     );
 
+    const rowsMissingAccountCode = validRows.filter((row) => !resolveAccountCode(row));
+    if (rowsMissingAccountCode.length > 0) {
+      Alert.error("Please select a valid account for every line item");
+      return;
+    }
+
     if (validRows.length === 0) {
       Alert.error("Please add at least one valid row");
       return;
@@ -460,10 +479,7 @@ const CreatePurchase = () => {
       items: validRows.map((row) => ({
         itemId: isServiceMode ? null : parseInt(row.itemId),
         description: row.description,
-        accountCode:
-          row.accountCode ||
-          accounts.find((a) => a.id.toString() === row.account.toString())?.accountCode ||
-          "",
+        accountCode: resolveAccountCode(row),
         quantity: isServiceMode ? 1 : parseInt(row.quantity),
         unitPrice: isServiceMode ? parseFloat(row.amount) : parseFloat(row.unitPrice),
         discount: isServiceMode ? 0 : parseFloat(row.discount) || 0,
