@@ -483,7 +483,7 @@ const CreatePurchase = () => {
           amount: parseFloat(t.amount) || ((subtotal + parseFloat(freight || 0)) * (parseFloat(t.percentage || 0) / 100))
         })),
       items: validRows.map((row) => ({
-        itemId: isServiceMode ? null : parseInt(row.itemId),
+        externalItemId: isServiceMode ? null : parseInt(row.itemId),
         accountId: row.account ? parseInt(row.account) : null,
         description: row.description,
         accountCode: resolveAccountCode(row),
