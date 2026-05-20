@@ -27,6 +27,7 @@ const CreatePurchase = () => {
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [showItemModal, setShowItemModal] = useState(false);
   const [supplierInvoiceNumber, setSupplierInvoiceNumber] = useState("");
+  const [manualPoNumber, setManualPoNumber] = useState("");
   const [modalTransition, setModalTransition] = useState("opacity-0 invisible");
   const [suppliers, setSuppliers] = useState([]);
   const [isLoadingSuppliers, setIsLoadingSuppliers] = useState(true);
@@ -107,7 +108,7 @@ const CreatePurchase = () => {
                 amount: (quantity * unitPrice * (1 - discount / 100)).toFixed(2),
                 parentPoNumber: poDisplayNumber,
                 sourcePoId: po.id,
-                itemName: matchedItem?.name || poItem.description || `Item ${itemKey}`,
+                itemName: matchedItem?.name || matchedItem?.description || poItem.description || `Item ${itemKey}`,
               };
             })
             .filter(Boolean);
@@ -377,7 +378,7 @@ const CreatePurchase = () => {
 
     const payload = {
       supplierId: parseInt(selectedSupplier),
-      poNumber: null,
+      poNumber: manualPoNumber || null,
       supplierInvoiceNumber: supplierInvoiceNumber,
       issueDate: issueDate,
       dueDate: dueDate || null,
@@ -427,7 +428,7 @@ const CreatePurchase = () => {
       </h2>
 
       {/* Supplier */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div>
           <label className="block text-gray-700 font-medium">
             Supplier <span className="text-red-500">*</span>
@@ -468,6 +469,16 @@ const CreatePurchase = () => {
             placeholder="INV-00000001"
             value={supplierInvoiceNumber}
             onChange={(e) => setSupplierInvoiceNumber(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium">Purchase Order Number</label>
+          <input
+            type="text"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+            placeholder="PO-0001"
+            value={manualPoNumber}
+            onChange={(e) => setManualPoNumber(e.target.value)}
           />
         </div>
         <div>
