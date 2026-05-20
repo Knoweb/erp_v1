@@ -528,6 +528,7 @@ public class PurchaseOrderService {
     private PurchaseOrderItemResponseDto convertItemToDto(PurchaseOrderLineItem item) {
         PurchaseOrderItemResponseDto itemDto = new PurchaseOrderItemResponseDto();
         itemDto.setExternalItemId(item.getExternalItemId());
+        itemDto.setProductName(resolveProductName(item));
         itemDto.setItemName(resolveItemName(item));
         itemDto.setDescription(item.getDescription());
         itemDto.setQuantity(item.getQuantity());
@@ -544,31 +545,37 @@ public class PurchaseOrderService {
         return itemDto;
     }
 
-    private String resolveItemName(PurchaseOrderLineItem item) {
-        if (item.getExternalItemId() != null) {
-            try {
-                Object product = externalInventoryIntegrationService.fetchProductById(item.getExternalItemId().toString());
-                if (product instanceof ItemResponseDto itemResponseDto && itemResponseDto.getName() != null && !itemResponseDto.getName().isBlank()) {
-                    return itemResponseDto.getName();
-                }
-
-                if (product instanceof java.util.Map<?, ?> map) {
-                    Object name = map.get("name");
-                    if (name == null) {
-                        name = map.get("productName");
-                    }
-                    if (name == null) {
-                        name = map.get("itemName");
-                    }
-                    if (name != null && !name.toString().isBlank()) {
-                        return name.toString();
-                    }
-                }
-            } catch (Exception ignored) {
-                // Fall through to stored description when the external lookup is unavailable.
-            }
+    private String resolveProductName(PurchaseOrderLineItem item) {
+        if (item.getExternalItemId() == null) {
+            return null;
         }
 
+        try {
+            Object product = externalInventoryIntegrationService.fetchProductById(item.getExternalItemId().toString());
+            if (product instanceof ItemResponseDto itemResponseDto && itemResponseDto.getName() != null && !itemResponseDto.getName().isBlank()) {
+                return itemResponseDto.getName();
+            }
+
+            if (product instanceof java.util.Map<?, ?> map) {
+                Object name = map.get("name");
+                if (name == null) {
+                    name = map.get("productName");
+                }
+                if (name == null) {
+                    name = map.get("itemName");
+                }
+                if (name != null && !name.toString().isBlank()) {
+                    return name.toString();
+                }
+            }
+        } catch (Exception ignored) {
+            // fall through
+        }
+
+        return null;
+    }
+
+    private String resolveItemName(PurchaseOrderLineItem item) {
         return item.getDescription();
     }
 
