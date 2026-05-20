@@ -526,6 +526,7 @@ public class PurchaseOrderService {
     private PurchaseOrderItemResponseDto convertItemToDto(PurchaseOrderLineItem item) {
         PurchaseOrderItemResponseDto itemDto = new PurchaseOrderItemResponseDto();
         itemDto.setExternalItemId(item.getExternalItemId());
+        itemDto.setItemName(item.getDescription());
         itemDto.setDescription(item.getDescription());
         itemDto.setQuantity(item.getQuantity());
         itemDto.setUnitPrice(item.getUnitPrice());

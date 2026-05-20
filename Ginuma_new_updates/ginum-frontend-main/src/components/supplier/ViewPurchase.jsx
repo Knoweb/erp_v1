@@ -124,7 +124,9 @@ const ViewPurchase = () => {
                 {purchase.items && purchase.items.length > 0 ? (
                   purchase.items.map((item, index) => (
                     <tr key={index} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3 text-sm text-gray-900">{item.itemName || 'Unknown Item'}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900">
+                        {item.itemName || item.description || `Item #${item.externalItemId || index + 1}`}
+                      </td>
                       <td className="px-4 py-3 text-sm text-gray-900 text-right">{item.quantity || 0}</td>
                       <td className="px-4 py-3 text-sm text-gray-900 text-right">{Number(item.unitPrice || 0).toFixed(2)}</td>
                       <td className="px-4 py-3 text-sm text-gray-900 text-right">{Number(item.discountPercent || 0).toFixed(2)}%</td>
