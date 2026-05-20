@@ -499,7 +499,11 @@ const CreatePurchase = () => {
       }
     } catch (error) {
       console.error("Error posting supplier bill:", error);
-      const errorMsg = error.response?.data?.message || "Failed to post supplier bill";
+      const backendData = error.response?.data;
+      const errorMsg =
+        (typeof backendData === "string" && backendData.trim()) ||
+        backendData?.message ||
+        "Failed to post supplier bill";
       Alert.error(errorMsg);
     } finally {
       setIsSubmitting(false);

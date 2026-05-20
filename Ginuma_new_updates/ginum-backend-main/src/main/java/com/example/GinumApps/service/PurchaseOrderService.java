@@ -2,6 +2,8 @@ package com.example.GinumApps.service;
 
 import com.example.GinumApps.dto.*;
 import com.example.GinumApps.enums.JournalEntryType;
+import com.example.GinumApps.enums.SupplierType;
+import com.example.GinumApps.enums.TaxType;
 import com.example.GinumApps.exception.ResourceNotFoundException;
 import com.example.GinumApps.model.*;
 import com.example.GinumApps.enums.*;
@@ -30,6 +32,7 @@ public class PurchaseOrderService {
     private final JournalEntryService journalEntryService;
     private final AgingPayableSnapshotRepository agingRepo;
     private final PurchaseOrderRepository poRepo;
+    private final SupplierService supplierService;
 
     public String getNextPoNumber(Integer companyId) {
         // COUNT-based generation: total POs for this company + 1
@@ -93,11 +96,7 @@ public class PurchaseOrderService {
                 .orElseThrow(() -> new RuntimeException("Company not found"));
 
         // Validate supplier existence and company association
-        Supplier supplier = supplierRepo.findById(request.getSupplierId())
-                .orElseThrow(() -> new ResourceNotFoundException("Supplier not found"));
-        if (!supplier.getCompany().getCompanyId().equals(companyId)) {
-            throw new AccessDeniedException("Supplier does not belong to your company");
-        }
+        Supplier supplier = resolveSupplierForCompany(request.getSupplierId(), companyId, company);
 
         // Check for duplicate supplier invoice number
         if (request.getSupplierInvoiceNumber() != null && !request.getSupplierInvoiceNumber().trim().isEmpty()) {
@@ -303,6 +302,60 @@ public class PurchaseOrderService {
         if (byName.isPresent()) return byName.get();
         // Fallback 3: Try any Expense account
         return accountRepo.findFirstByAccountTypeAndCompany_CompanyId(AccountType.EXPENSE, company.getCompanyId()).orElse(null);
+    }
+
+    private Supplier resolveSupplierForCompany(Long requestSupplierId, Integer companyId, Company company) {
+        Optional<Supplier> localSupplier = supplierRepo.findById(requestSupplierId);
+
+        if (localSupplier.isPresent()) {
+            Supplier supplier = localSupplier.get();
+            if (supplier.getCompany().getCompanyId().equals(companyId)) {
+                return supplier;
+            }
+
+            // For Middeniya tenant, supplier IDs can be external inventory IDs.
+            // If IDs collide with another company's local supplier, try tenant sync fallback.
+            if (!companyId.equals(16)) {
+                throw new AccessDeniedException("Supplier does not belong to your company");
+            }
+        }
+
+        if (!companyId.equals(16)) {
+            throw new ResourceNotFoundException("Supplier not found");
+        }
+
+        List<SupplierSummaryDto> externalSuppliers = supplierService.getSuppliersByCompanyId(companyId);
+        SupplierSummaryDto externalSupplier = externalSuppliers.stream()
+                .filter(s -> s.getId() != null && s.getId().equals(requestSupplierId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Supplier not found"));
+
+        String resolvedSupplierName = (externalSupplier.getSupplierName() != null
+            && !externalSupplier.getSupplierName().isBlank())
+            ? externalSupplier.getSupplierName()
+            : "External Supplier " + requestSupplierId;
+
+        Optional<Supplier> existingByName = supplierRepo
+            .findByCompany_CompanyIdAndSupplierNameIgnoreCase(companyId, resolvedSupplierName);
+        if (existingByName.isPresent()) {
+            return existingByName.get();
+        }
+
+        Supplier supplier = new Supplier();
+        supplier.setSupplierName(resolvedSupplierName);
+        supplier.setEmail(externalSupplier.getEmail());
+        supplier.setMobileNo(externalSupplier.getMobileNo());
+        supplier.setAddress(externalSupplier.getAddress() != null && !externalSupplier.getAddress().isBlank()
+                ? externalSupplier.getAddress()
+                : "N/A");
+        supplier.setSupplierType(externalSupplier.getSupplierType() != null
+                ? externalSupplier.getSupplierType()
+                : SupplierType.SUPPLIER);
+        supplier.setTax(externalSupplier.getTax() != null ? externalSupplier.getTax() : TaxType.EXCLUSIVE);
+        supplier.setCompany(company);
+        supplier.setCurrency(company.getCurrency());
+
+        return supplierRepo.save(supplier);
     }
 
     /**
