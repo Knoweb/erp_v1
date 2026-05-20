@@ -108,7 +108,7 @@ const CreatePurchase = () => {
                 amount: (quantity * unitPrice * (1 - discount / 100)).toFixed(2),
                 parentPoNumber: poDisplayNumber,
                 sourcePoId: po.id,
-                itemName: matchedItem?.name || matchedItem?.description || poItem.description || `Item ${itemKey}`,
+                itemName: poItem.description || matchedItem?.name || matchedItem?.description || `Item ${itemKey}`,
               };
             })
             .filter(Boolean);
