@@ -36,6 +36,8 @@ const CreatePurchase = () => {
   
   const [selectedPoProjectedTotal, setSelectedPoProjectedTotal] = useState(null);
   const [selectedPoItems, setSelectedPoItems] = useState([]);
+  const [supplierPosList, setSupplierPosList] = useState([]);
+  const [selectedPoId, setSelectedPoId] = useState("");
 
   const [accounts, setAccounts] = useState([]);
   const [accountsError, setAccountsError] = useState(null);
@@ -82,45 +84,12 @@ const CreatePurchase = () => {
       try {
         const data = await api.get(`/api/finance/external/inventory-pos/${supplierId}`);
         const posList = Array.isArray(data) ? data : [];
-        // store first PO id (if any) so we know which PO was selected implicitly
-        if (posList.length > 0) {
-          const selectedPo = posList[0];
-          const projectedTotal = Number(selectedPo.projectedTotal) || 0;
-          const poDisplay = getPoDisplayNumber(selectedPo);
-          if (!referencePoManualEdited) {
-            setReferencePoNumber(poDisplay);
-          }
-          setSelectedPoProjectedTotal(projectedTotal);
-
-          const poItems = Array.isArray(selectedPo.items) ? selectedPo.items : [];
-          if (poItems.length === 0) {
-            setSelectedPoItems([]);
-            setRows([createEmptyRow()]);
-          } else {
-            const normalizedPoItems = poItems.map((poItem) => {
-              const itemKey = poItem.productId || poItem.itemId || "";
-              const matchedItem = items.find(
-                (item) => (item.id || item.itemId).toString() === itemKey.toString()
-              );
-              const quantity = Number(poItem.quantity) || 0;
-              const unitPrice = Number(poItem.unitPrice || poItem.price) || 0;
-              const discount = Number(poItem.discount) || 0;
-
-              return {
-                itemId: itemKey,
-                description: poItem.description || matchedItem?.description || matchedItem?.name || "",
-                account: matchedItem?.expenseAccount?.id?.toString() || "",
-                quantity: quantity ? quantity.toString() : "",
-                unitPrice: unitPrice ? unitPrice.toString() : "",
-                discount: discount ? discount.toString() : "0",
-                amount: (quantity * unitPrice * (1 - discount / 100)).toFixed(2),
-                project: "",
-              };
-            });
-
-            setSelectedPoItems(normalizedPoItems);
-            setRows([...normalizedPoItems, createEmptyRow()]);
-          }
+        // store the fetched pos for the supplier; do not auto-select — let admin choose
+        setSupplierPosList(posList);
+        if (posList.length === 0) {
+          setSelectedPoItems([]);
+          setRows([createEmptyRow()]);
+          setSelectedPoProjectedTotal(null);
         }
       } catch (error) {
         console.error("Error fetching approved purchase orders:", error);
@@ -230,6 +199,55 @@ const CreatePurchase = () => {
     if (e.target === e.currentTarget) {
       setModal(false);
     }
+  };
+
+  const handlePoSelect = (poId) => {
+    if (!poId) {
+      setSelectedPoId("");
+      setSelectedPoItems([]);
+      setRows([createEmptyRow()]);
+      setSelectedPoProjectedTotal(null);
+      return;
+    }
+
+    const selectedPo = supplierPosList.find((p) => String(p.id) === String(poId));
+    if (!selectedPo) return;
+
+    setSelectedPoId(poId);
+    setReferencePoNumber(getPoDisplayNumber(selectedPo));
+    const projectedTotal = Number(selectedPo.projectedTotal) || 0;
+    setSelectedPoProjectedTotal(projectedTotal);
+
+    const poItems = Array.isArray(selectedPo.items) ? selectedPo.items : [];
+    if (poItems.length === 0) {
+      setSelectedPoItems([]);
+      setRows([createEmptyRow()]);
+      return;
+    }
+
+    const normalizedPoItems = poItems.map((poItem) => {
+      const itemKey = poItem.productId || poItem.itemId || "";
+      const matchedItem = items.find(
+        (item) => (item.id || item.itemId).toString() === itemKey.toString()
+      );
+      const quantity = Number(poItem.quantity) || 0;
+      const unitPrice = Number(poItem.unitPrice || poItem.price) || 0;
+      const discount = Number(poItem.discount) || 0;
+
+      return {
+        itemId: itemKey,
+        description: poItem.description || matchedItem?.description || matchedItem?.name || "",
+        account: matchedItem?.expenseAccount?.id?.toString() || "",
+        quantity: quantity ? quantity.toString() : "",
+        unitPrice: unitPrice ? unitPrice.toString() : "",
+        discount: discount ? discount.toString() : "0",
+        amount: (quantity * unitPrice * (1 - discount / 100)).toFixed(2),
+        project: "",
+      };
+    });
+
+    setSelectedPoItems(normalizedPoItems);
+    setRows([...normalizedPoItems, createEmptyRow()]);
   };
 
   // Fetch accounts from API
@@ -496,6 +514,21 @@ const CreatePurchase = () => {
           <label className="block text-gray-700 font-medium">
             Reference PO Number (Optional)
           </label>
+          {supplierPosList && supplierPosList.length > 0 && (
+            <select
+              value={selectedPoId}
+              onChange={(e) => handlePoSelect(e.target.value)}
+              className="w-full mb-2 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+            >
+              <option value="">Select PO (Optional)</option>
+              {supplierPosList.map((po) => (
+                <option key={po.id} value={po.id}>
+                  {getPoDisplayNumber(po)}
+                </option>
+              ))}
+            </select>
+          )}
+
           <input
             type="text"
             className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
@@ -504,7 +537,6 @@ const CreatePurchase = () => {
             onChange={(e) => {
               const val = e.target.value;
               setReferencePoNumber(val);
-              // If user clears the field, allow auto-fill again
               if (val === "") {
                 setReferencePoManualEdited(false);
               } else {
