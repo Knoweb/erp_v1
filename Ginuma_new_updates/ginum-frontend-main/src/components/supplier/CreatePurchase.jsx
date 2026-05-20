@@ -12,6 +12,7 @@ import { fetchCompanySuppliers } from "../../utils/supplierApi";
 const CreatePurchase = () => {
   const [isServiceMode, setIsServiceMode] = useState(false);
   const createEmptyRow = () => ({
+    poItemSelectionKey: "",
     itemId: "",
     description: "",
     account: "",
@@ -77,40 +78,39 @@ const CreatePurchase = () => {
       try {
         const data = await api.get(`/api/finance/external/inventory-pos/${supplierId}`);
         const posList = Array.isArray(data) ? data : [];
-        const flattenedItems = [];
-        const seenItemKeys = new Set();
-
-        posList.forEach((po) => {
+        const flattenedItems = posList.flatMap((po) => {
           const poDisplayNumber = getPoDisplayNumber(po);
           const poItems = Array.isArray(po.items) ? po.items : [];
 
-          poItems.forEach((poItem) => {
-            const itemKey = (poItem.productId || poItem.itemId || "").toString();
-            if (!itemKey || seenItemKeys.has(itemKey)) {
-              return;
-            }
+          return poItems
+            .map((poItem, index) => {
+              const itemKey = (poItem.productId || poItem.itemId || "").toString();
+              if (!itemKey) {
+                return null;
+              }
 
-            seenItemKeys.add(itemKey);
+              const matchedItem = items.find(
+                (item) => (item.id || item.itemId).toString() === itemKey
+              );
+              const quantity = Number(poItem.quantity) || 0;
+              const unitPrice = Number(poItem.unitPrice || poItem.price) || 0;
+              const discount = Number(poItem.discount) || 0;
 
-            const matchedItem = items.find(
-              (item) => (item.id || item.itemId).toString() === itemKey
-            );
-            const quantity = Number(poItem.quantity) || 0;
-            const unitPrice = Number(poItem.unitPrice || poItem.price) || 0;
-            const discount = Number(poItem.discount) || 0;
-
-            flattenedItems.push({
-              itemId: itemKey,
-              description: poItem.description || matchedItem?.description || matchedItem?.name || "",
-              account: matchedItem?.expenseAccount?.id?.toString() || "",
-              quantity: quantity ? quantity.toString() : "",
-              unitPrice: unitPrice ? unitPrice.toString() : "",
-              discount: discount ? discount.toString() : "0",
-              amount: (quantity * unitPrice * (1 - discount / 100)).toFixed(2),
-              poNumber: poDisplayNumber,
-              sourcePoId: po.id,
-            });
-          });
+              return {
+                selectionKey: `${po.id || poDisplayNumber}-${itemKey}-${index}`,
+                itemId: itemKey,
+                description: poItem.description || matchedItem?.description || matchedItem?.name || "",
+                account: matchedItem?.expenseAccount?.id?.toString() || "",
+                quantity: quantity ? quantity.toString() : "",
+                unitPrice: unitPrice ? unitPrice.toString() : "",
+                discount: discount ? discount.toString() : "0",
+                amount: (quantity * unitPrice * (1 - discount / 100)).toFixed(2),
+                parentPoNumber: poDisplayNumber,
+                sourcePoId: po.id,
+                itemName: matchedItem?.name || poItem.description || `Item ${itemKey}`,
+              };
+            })
+            .filter(Boolean);
         });
 
         setSupplierPoItems(flattenedItems);
@@ -181,27 +181,13 @@ const CreatePurchase = () => {
     return "PO-UNKNOWN";
   };
 
-  const resolveItemDetails = (itemId) => {
-    const poItem = supplierPoItems.find((item) => item.itemId.toString() === itemId.toString());
+  const resolveItemDetails = (selectionKey) => {
+    const poItem = supplierPoItems.find((item) => item.selectionKey === selectionKey);
     if (poItem) {
       return poItem;
     }
 
-    const masterItem = items.find((item) => (item.id || item.itemId).toString() === itemId.toString());
-    if (!masterItem) {
-      return null;
-    }
-
-    return {
-      itemId,
-      description: masterItem.description || masterItem.name || "",
-      account: masterItem.expenseAccount?.id?.toString() || "",
-      quantity: "",
-      unitPrice: masterItem.purchasePrice || "",
-      discount: "0",
-      amount: "",
-      project: "",
-    };
+    return null;
   };
 
   const handleModalClick = (e, setModal) => {
@@ -316,24 +302,28 @@ const CreatePurchase = () => {
     updatedRows[index][field] = value;
 
     // Auto-fill details when an item is selected
-    if (field === "itemId" && value) {
+    if (field === "poItemSelectionKey" && value) {
       const selectedItem = resolveItemDetails(value);
       if (selectedItem) {
+        updatedRows[index].itemId = selectedItem.itemId || "";
         updatedRows[index].description = selectedItem.description || "";
         updatedRows[index].quantity = selectedItem.quantity || updatedRows[index].quantity || "";
         updatedRows[index].unitPrice = selectedItem.unitPrice || updatedRows[index].unitPrice || "";
         updatedRows[index].account = selectedItem.account || "";
+        updatedRows[index].discount = selectedItem.discount || updatedRows[index].discount || "0";
       }
-    } else if (field === "itemId" && !value) {
+    } else if (field === "poItemSelectionKey" && !value) {
+      updatedRows[index].itemId = "";
       updatedRows[index].description = "";
       updatedRows[index].unitPrice = "";
       updatedRows[index].account = "";
       updatedRows[index].quantity = "";
+      updatedRows[index].discount = "";
     }
 
     if (
       !isServiceMode &&
-      (field === "quantity" || field === "unitPrice" || field === "discount" || field === "itemId")
+      (field === "quantity" || field === "unitPrice" || field === "discount" || field === "poItemSelectionKey")
     ) {
       const quantity = parseFloat(updatedRows[index].quantity) || 0;
       const unitPrice = parseFloat(updatedRows[index].unitPrice) || 0;
@@ -345,6 +335,7 @@ const CreatePurchase = () => {
 
     if (index === rows.length - 1 && value.toString().trim() !== "" && field !== "project") {
       updatedRows.push({
+        poItemSelectionKey: "",
         itemId: "",
         description: "",
         account: "",
@@ -563,23 +554,23 @@ const CreatePurchase = () => {
                 {!isServiceMode && (
                   <td className="p-2">
                     <select
-                      value={row.itemId}
+                      value={row.poItemSelectionKey || ""}
                       onChange={(e) =>
-                        handleRowChange(index, "itemId", e.target.value)
+                        handleRowChange(index, "poItemSelectionKey", e.target.value)
                       }
                       className=" px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                      disabled={isLoadingItems}
+                      disabled={isLoadingItems || !selectedSupplier}
                     >
                       <option value="">Select Item</option>
                       {!isLoadingItems && supplierPoItems
                         .filter((item) => item)
                         .map((item) => {
-                          const itemValue = item.itemId || item.id;
-                          const itemLabel = item.description || item.name || `Item ${itemValue}`;
+                          const itemValue = item.selectionKey;
+                          const itemLabel = item.itemName || item.description || `Item ${item.itemId}`;
                           return (
-                            <option key={`${itemValue}-${item.poNumber || "po"}`} value={itemValue}>
+                            <option key={itemValue} value={itemValue}>
                               {itemLabel}
-                              {item.poNumber ? ` (${item.poNumber})` : ""}
+                              {item.parentPoNumber ? ` (${item.parentPoNumber})` : ""}
                             </option>
                           );
                         })}
