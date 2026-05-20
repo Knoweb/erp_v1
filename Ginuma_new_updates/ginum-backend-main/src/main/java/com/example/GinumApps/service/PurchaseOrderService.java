@@ -4,6 +4,7 @@ import com.example.GinumApps.dto.*;
 import com.example.GinumApps.enums.JournalEntryType;
 import com.example.GinumApps.enums.SupplierType;
 import com.example.GinumApps.enums.TaxType;
+import com.example.GinumApps.dto.external.ItemResponseDto;
 import com.example.GinumApps.exception.ResourceNotFoundException;
 import com.example.GinumApps.model.*;
 import com.example.GinumApps.enums.*;
@@ -33,6 +34,7 @@ public class PurchaseOrderService {
     private final AgingPayableSnapshotRepository agingRepo;
     private final PurchaseOrderRepository poRepo;
     private final SupplierService supplierService;
+    private final ExternalInventoryIntegrationService externalInventoryIntegrationService;
 
     public String getNextPoNumber(Integer companyId) {
         // COUNT-based generation: total POs for this company + 1
@@ -526,7 +528,7 @@ public class PurchaseOrderService {
     private PurchaseOrderItemResponseDto convertItemToDto(PurchaseOrderLineItem item) {
         PurchaseOrderItemResponseDto itemDto = new PurchaseOrderItemResponseDto();
         itemDto.setExternalItemId(item.getExternalItemId());
-        itemDto.setItemName(item.getDescription());
+        itemDto.setItemName(resolveItemName(item));
         itemDto.setDescription(item.getDescription());
         itemDto.setQuantity(item.getQuantity());
         itemDto.setUnitPrice(item.getUnitPrice());
@@ -540,6 +542,34 @@ public class PurchaseOrderService {
         itemDto.setItemType(item.getItemType());
 
         return itemDto;
+    }
+
+    private String resolveItemName(PurchaseOrderLineItem item) {
+        if (item.getExternalItemId() != null) {
+            try {
+                Object product = externalInventoryIntegrationService.fetchProductById(item.getExternalItemId().toString());
+                if (product instanceof ItemResponseDto itemResponseDto && itemResponseDto.getName() != null && !itemResponseDto.getName().isBlank()) {
+                    return itemResponseDto.getName();
+                }
+
+                if (product instanceof java.util.Map<?, ?> map) {
+                    Object name = map.get("name");
+                    if (name == null) {
+                        name = map.get("productName");
+                    }
+                    if (name == null) {
+                        name = map.get("itemName");
+                    }
+                    if (name != null && !name.toString().isBlank()) {
+                        return name.toString();
+                    }
+                }
+            } catch (Exception ignored) {
+                // Fall through to stored description when the external lookup is unavailable.
+            }
+        }
+
+        return item.getDescription();
     }
 
     @Transactional
