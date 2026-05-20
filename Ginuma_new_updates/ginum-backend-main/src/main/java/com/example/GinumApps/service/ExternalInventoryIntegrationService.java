@@ -154,4 +154,49 @@ public class ExternalInventoryIntegrationService {
             headers.set(headerName, value);
         }
     }
+
+    public Object fetchProductById(String id) {
+        try {
+            if (isMiddeniyaTenant()) {
+                String url = middeniyaInventoryUrl + "/inventory-api/api/products/" + id;
+                log.info("Fetching Middeniya product from: {}", url);
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+                String authorization = resolveRequestHeader("Authorization");
+                if (authorization != null && !authorization.isBlank()) {
+                    headers.set(HttpHeaders.AUTHORIZATION, authorization);
+                }
+
+                String orgId = SecurityContextUtil.getCurrentOrganizationId();
+                if (orgId != null && !orgId.isBlank()) {
+                    headers.set("X-Org-ID", orgId);
+                }
+
+                copyRequestHeaderIfPresent(headers, "X-Tenant-ID");
+                copyRequestHeaderIfPresent(headers, "X-Industry-Type");
+
+                ResponseEntity<String> response = restTemplate.exchange(
+                        url,
+                        HttpMethod.GET,
+                        new HttpEntity<>(headers),
+                        String.class
+                );
+
+                if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null || response.getBody().isBlank()) {
+                    log.warn("Middeniya product fetch returned status {} with empty body", response.getStatusCode());
+                    return null;
+                }
+
+                return objectMapper.readValue(response.getBody(), Object.class);
+            }
+
+            // Default: use inventory client
+            return inventoryClient.getItemById(id);
+        } catch (Exception e) {
+            log.error("Error fetching external product by id {}: {}", id, e.getMessage(), e);
+            return null;
+        }
+    }
 }

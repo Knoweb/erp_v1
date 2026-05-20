@@ -138,6 +138,32 @@ const CreatePurchase = () => {
         });
 
         setSupplierPoItems(flattenedItems);
+
+        // For any items that couldn't be matched to master items, try fetching product details
+        // from the backend proxy (which will route to Middeniya when applicable).
+        const unmatched = flattenedItems.filter((it) => it && (it.itemName || "").startsWith("Item ID:"));
+        if (unmatched.length > 0) {
+          try {
+            await Promise.all(
+              unmatched.map(async (it) => {
+                try {
+                  const res = await api.get(`/api/finance/external/items/${it.itemId}`);
+                  const payload = Array.isArray(res) ? res[0] : res?.data || res;
+                  const name = payload?.name || payload?.productName || payload?.description || payload?.title || null;
+                  if (name) {
+                    setSupplierPoItems((prev) =>
+                      prev.map((p) => (p.selectionKey === it.selectionKey ? { ...p, itemName: name } : p))
+                    );
+                  }
+                } catch {
+                  // ignore individual fetch errors
+                }
+              })
+            );
+          } catch {
+            // ignore
+          }
+        }
       } catch (error) {
         console.error("Error fetching approved purchase orders:", error);
         setSupplierPoItems([]);
