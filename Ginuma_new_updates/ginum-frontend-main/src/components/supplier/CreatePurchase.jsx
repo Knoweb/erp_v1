@@ -26,16 +26,14 @@ const CreatePurchase = () => {
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [showItemModal, setShowItemModal] = useState(false);
   const [referencePoNumber, setReferencePoNumber] = useState("");
-  const [selectedReferencePo, setSelectedReferencePo] = useState("");
-  const [manualReferencePoNumber, setManualReferencePoNumber] = useState("");
+  const [referencePoManualEdited, setReferencePoManualEdited] = useState(false);
+  
   const [supplierInvoiceNumber, setSupplierInvoiceNumber] = useState("");
   const [modalTransition, setModalTransition] = useState("opacity-0 invisible");
   const [suppliers, setSuppliers] = useState([]);
   const [isLoadingSuppliers, setIsLoadingSuppliers] = useState(true);
   const [suppliersError, setSuppliersError] = useState(null);
-  const [availablePos, setAvailablePos] = useState([]);
-  const [isFetchingPos, setIsFetchingPos] = useState(false);
-  const [posError, setPosError] = useState(null);
+  
   const [selectedPoProjectedTotal, setSelectedPoProjectedTotal] = useState(null);
   const [selectedPoItems, setSelectedPoItems] = useState([]);
 
@@ -73,46 +71,66 @@ const CreatePurchase = () => {
     const fetchApprovedPos = async () => {
       const supplierId = selectedSupplier;
 
-      setAvailablePos([]);
-      setSelectedReferencePo("");
       setSelectedPoProjectedTotal(null);
       setSelectedPoItems([]);
       setRows([createEmptyRow()]);
-      setPosError(null);
 
       if (!supplierId) {
         return;
       }
 
       try {
-        setIsFetchingPos(true);
         const data = await api.get(`/api/finance/external/inventory-pos/${supplierId}`);
         const posList = Array.isArray(data) ? data : [];
-        setAvailablePos(posList);
+        // store first PO id (if any) so we know which PO was selected implicitly
+        if (posList.length > 0) {
+          const selectedPo = posList[0];
+          const projectedTotal = Number(selectedPo.projectedTotal) || 0;
+          const poDisplay = getPoDisplayNumber(selectedPo);
+          if (!referencePoManualEdited) {
+            setReferencePoNumber(poDisplay);
+          }
+          setSelectedPoProjectedTotal(projectedTotal);
+
+          const poItems = Array.isArray(selectedPo.items) ? selectedPo.items : [];
+          if (poItems.length === 0) {
+            setSelectedPoItems([]);
+            setRows([createEmptyRow()]);
+          } else {
+            const normalizedPoItems = poItems.map((poItem) => {
+              const itemKey = poItem.productId || poItem.itemId || "";
+              const matchedItem = items.find(
+                (item) => (item.id || item.itemId).toString() === itemKey.toString()
+              );
+              const quantity = Number(poItem.quantity) || 0;
+              const unitPrice = Number(poItem.unitPrice || poItem.price) || 0;
+              const discount = Number(poItem.discount) || 0;
+
+              return {
+                itemId: itemKey,
+                description: poItem.description || matchedItem?.description || matchedItem?.name || "",
+                account: matchedItem?.expenseAccount?.id?.toString() || "",
+                quantity: quantity ? quantity.toString() : "",
+                unitPrice: unitPrice ? unitPrice.toString() : "",
+                discount: discount ? discount.toString() : "0",
+                amount: (quantity * unitPrice * (1 - discount / 100)).toFixed(2),
+                project: "",
+              };
+            });
+
+            setSelectedPoItems(normalizedPoItems);
+            setRows([...normalizedPoItems, createEmptyRow()]);
+          }
+        }
       } catch (error) {
         console.error("Error fetching approved purchase orders:", error);
-        setPosError(error.response?.data?.message || error.message || "Failed to load approved purchase orders");
-      } finally {
-        setIsFetchingPos(false);
       }
     };
 
     fetchApprovedPos();
-  }, [selectedSupplier]);
+  }, [selectedSupplier, items, referencePoManualEdited]);
 
-  useEffect(() => {
-    if (manualReferencePoNumber.trim()) {
-      setReferencePoNumber(manualReferencePoNumber);
-      return;
-    }
-
-    if (selectedReferencePo) {
-      setReferencePoNumber(selectedReferencePo);
-      return;
-    }
-
-    setReferencePoNumber("");
-  }, [manualReferencePoNumber, selectedReferencePo]);
+  
 
   // Calculate totals when relevant values change
   useEffect(() => {
@@ -171,74 +189,7 @@ const CreatePurchase = () => {
     setTaxes(newTaxes);
   };
 
-  const handleReferencePoChange = (value) => {
-    setSelectedReferencePo(value);
-
-    if (!value) {
-      setSelectedPoProjectedTotal(null);
-      setSelectedPoItems([]);
-      setReferencePoNumber(manualReferencePoNumber);
-      setRows([createEmptyRow()]);
-      return;
-    }
-
-    const selectedPo = availablePos.find((po) => {
-      const displayNumber = getPoDisplayNumber(po);
-      return po.poNumber === value || displayNumber === value || po.id?.toString() === value.toString();
-    });
-    if (selectedPo) {
-      const projectedTotal = Number(selectedPo.projectedTotal) || 0;
-      setReferencePoNumber(getPoDisplayNumber(selectedPo));
-      setSelectedPoProjectedTotal(projectedTotal);
-      setManualReferencePoNumber("");
-
-      const poItems = Array.isArray(selectedPo.items) ? selectedPo.items : [];
-      if (poItems.length === 0) {
-        setSelectedPoItems([]);
-        setRows([createEmptyRow()]);
-        return;
-      }
-
-      const normalizedPoItems = poItems.map((poItem) => {
-        const itemKey = poItem.productId || poItem.itemId || "";
-        const matchedItem = items.find(
-          (item) => (item.id || item.itemId).toString() === itemKey.toString()
-        );
-        const quantity = Number(poItem.quantity) || 0;
-        const unitPrice = Number(poItem.unitPrice || poItem.price) || 0;
-        const discount = Number(poItem.discount) || 0;
-
-        return {
-          itemId: itemKey,
-          description: poItem.description || matchedItem?.description || matchedItem?.name || "",
-          account: matchedItem?.expenseAccount?.id?.toString() || "",
-          quantity: quantity ? quantity.toString() : "",
-          unitPrice: unitPrice ? unitPrice.toString() : "",
-          discount: discount ? discount.toString() : "0",
-          amount: (quantity * unitPrice * (1 - discount / 100)).toFixed(2),
-          project: "",
-        };
-      });
-
-      setSelectedPoItems(normalizedPoItems);
-      setRows([...normalizedPoItems, createEmptyRow()]);
-    }
-  };
-
-  const handleManualReferencePoChange = (value) => {
-    setManualReferencePoNumber(value);
-    if (value.trim()) {
-      setReferencePoNumber(value);
-      return;
-    }
-
-    if (selectedReferencePo) {
-      setReferencePoNumber(selectedReferencePo);
-      return;
-    }
-
-    setReferencePoNumber("");
-  };
+  
 
   const getPoDisplayNumber = (po) => {
     if (po?.poNumber) {
@@ -543,45 +494,24 @@ const CreatePurchase = () => {
         </div>
         <div>
           <label className="block text-gray-700 font-medium">
-            PO
+            Reference PO Number (Optional)
           </label>
-          <select
-            value={selectedReferencePo}
-            onChange={(e) => handleReferencePoChange(e.target.value)}
+          <input
+            type="text"
             className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-            disabled={isFetchingPos || !selectedSupplier}
-          >
-            <option value="">No PO / Manual Entry</option>
-            {isFetchingPos ? (
-              <option value="">Loading approved POs...</option>
-            ) : posError ? (
-              <option value="">Error loading purchase orders</option>
-            ) : availablePos.length === 0 ? (
-              <option value="">No approved POs available</option>
-            ) : (
-              availablePos.map((po) => {
-                const displayPoNumber = getPoDisplayNumber(po);
-                const projectedTotal = Number(po.projectedTotal) || 0;
-                return (
-                  <option key={displayPoNumber} value={displayPoNumber}>
-                    {`${displayPoNumber} (Rs. ${projectedTotal.toLocaleString("en-LK")})`}
-                  </option>
-                );
-              })
-            )}
-          </select>
-          <div className="mt-3">
-            <label className="block text-gray-700 font-medium text-sm mb-1">
-              Manual PO Number (Optional)
-            </label>
-            <input
-              type="text"
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-              placeholder="Enter manual PO number"
-              value={manualReferencePoNumber}
-              onChange={(e) => handleManualReferencePoChange(e.target.value)}
-            />
-          </div>
+            placeholder="PO-0001 or manual reference"
+            value={referencePoNumber}
+            onChange={(e) => {
+              const val = e.target.value;
+              setReferencePoNumber(val);
+              // If user clears the field, allow auto-fill again
+              if (val === "") {
+                setReferencePoManualEdited(false);
+              } else {
+                setReferencePoManualEdited(true);
+              }
+            }}
+          />
         </div>
       </div>
 
