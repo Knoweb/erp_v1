@@ -49,5 +49,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ex.getMessage());
     }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<String> handleIllegalState(IllegalStateException ex) {
+        if (ex.getMessage() != null && ex.getMessage().toLowerCase().contains("overpayment")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Amount paid cannot exceed the total bill amount");
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }
 

@@ -460,6 +460,12 @@ const CreatePurchase = () => {
       return;
     }
 
+    const paidAmount = parseFloat(amountPaid) || 0;
+    if (paidAmount > total) {
+      Alert.error("Amount paid cannot exceed the total bill amount");
+      return;
+    }
+
     const payload = {
       supplierId: parseInt(selectedSupplier),
       poNumber: manualPoNumber || null,
@@ -468,7 +474,7 @@ const CreatePurchase = () => {
       dueDate: dueDate || null,
       notes: notes,
       purchaseType: isServiceMode ? "SERVICE" : "ITEM",
-      amountPaid: parseFloat(amountPaid) || 0,
+      amountPaid: paidAmount,
       paymentAccountCode: paymentAccountCode || null,
       freight: parseFloat(freight) || 0,
         taxBreakdown: taxes.map(t => ({
@@ -885,6 +891,7 @@ const CreatePurchase = () => {
             value={amountPaid}
             onChange={(e) => setAmountPaid(e.target.value)}
             min="0"
+            max={total > 0 ? total : undefined}
             step="0.01"
           />
         </div>
