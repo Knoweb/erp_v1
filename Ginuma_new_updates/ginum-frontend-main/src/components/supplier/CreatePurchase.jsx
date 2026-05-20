@@ -42,6 +42,31 @@ const CreatePurchase = () => {
   const [items, setItems] = useState([]);
   const [isLoadingItems, setIsLoadingItems] = useState(true);
 
+  // Helper: find master item by many possible identifier fields
+  const findMatchedItemByKey = (itemsArray, key) => {
+    if (!key || !Array.isArray(itemsArray)) return undefined;
+    return itemsArray.find((item) => {
+      const candidates = [
+        item.id,
+        item.itemId,
+        item.productId,
+        item.product_id,
+        item.sku,
+        item.code,
+        item.externalId,
+        item.external_id,
+      ]
+        .filter(Boolean)
+        .map((v) => String(v));
+
+      if (candidates.includes(key)) return true;
+
+      if (!Number.isNaN(Number(key)) && candidates.some((c) => !Number.isNaN(Number(c)) && Number(c) === Number(key))) return true;
+
+      return false;
+    });
+  };
+
   const [subtotal, setSubtotal] = useState(0);
   const [freight, setFreight] = useState(0);
   const [taxes, setTaxes] = useState([]);
@@ -90,9 +115,7 @@ const CreatePurchase = () => {
                 return null;
               }
 
-              const matchedItem = items.find(
-                (item) => (item.id || item.itemId).toString() === itemKey
-              );
+              const matchedItem = findMatchedItemByKey(items, itemKey);
               const quantity = Number(poItem.quantity) || 0;
               const unitPrice = Number(poItem.unitPrice || poItem.price) || 0;
               const discount = Number(poItem.discount) || 0;
@@ -108,7 +131,7 @@ const CreatePurchase = () => {
                 amount: (quantity * unitPrice * (1 - discount / 100)).toFixed(2),
                 parentPoNumber: poDisplayNumber,
                 sourcePoId: po.id,
-                itemName: matchedItem?.name || matchedItem?.description || `Item ID: ${itemKey}`,
+                itemName: matchedItem?.name || matchedItem?.description || poItem.description || `Item ID: ${itemKey}`,
               };
             })
             .filter(Boolean);
@@ -269,7 +292,15 @@ const CreatePurchase = () => {
 
         const itemsRes = await api.get(`/api/companies/${companyId}/items`).catch(() => []);
 
-        setItems(Array.isArray(itemsRes) ? itemsRes : []);
+        // Normalize response shapes: API might return array directly or { data: [...] }
+        let itemsData = itemsRes;
+        if (!Array.isArray(itemsData)) {
+          if (Array.isArray(itemsRes?.data)) itemsData = itemsRes.data;
+          else if (Array.isArray(itemsRes?.data?.data)) itemsData = itemsRes.data.data;
+          else itemsData = [];
+        }
+
+        setItems(itemsData);
       } catch (error) {
         console.error("Error fetching items or projects:", error);
       } finally {
