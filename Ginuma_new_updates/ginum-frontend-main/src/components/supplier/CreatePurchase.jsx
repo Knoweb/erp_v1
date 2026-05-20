@@ -103,13 +103,22 @@ const CreatePurchase = () => {
 
   // Calculate totals when relevant values change
   useEffect(() => {
-    const manualSubtotal = rows.reduce((sum, row) => {
-      return sum + (parseFloat(row.amount) || 0);
-    }, 0);
+    const manualSubtotal = rows.reduce((sum, row) => sum + (parseFloat(row.amount) || 0), 0);
 
-    const newSubtotal = selectedPoProjectedTotal !== null
-      ? Number(selectedPoProjectedTotal) || 0
-      : manualSubtotal;
+    // If a PO is selected, use the PO projected total only when the rows exactly match
+    // the PO (i.e., user hasn't edited quantities/prices/discounts). As soon as the
+    // user changes a row (discount/qty/price), prefer the computed manual subtotal so
+    // discounts immediately affect the displayed totals.
+    let newSubtotal;
+    if (selectedPoProjectedTotal !== null) {
+      const projected = Number(selectedPoProjectedTotal) || 0;
+      // If manualSubtotal equals projected (within small epsilon), keep projected
+      // otherwise prefer manualSubtotal (user made edits)
+      const epsilon = 0.01;
+      newSubtotal = Math.abs(manualSubtotal - projected) < epsilon ? projected : manualSubtotal;
+    } else {
+      newSubtotal = manualSubtotal;
+    }
 
     setSubtotal(newSubtotal);
 

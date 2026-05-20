@@ -134,6 +134,7 @@ const CreateSaleOrder = () => {
     setTaxes(newTaxes);
   };
 
+        
   const handleTaxChange = (index, field, value) => {
     const newTaxes = [...taxes];
     newTaxes[index][field] = value;
@@ -165,7 +166,11 @@ const CreateSaleOrder = () => {
     }
 
     const customerRecord = customers.find((customer) => String(customer.id) === String(selectedCustomer));
-    setCustomerItems(buildCustomerItemOptions(customerRecord, items));
+    const options = buildCustomerItemOptions(customerRecord, items);
+    console.debug("[CreateSale] selectedCustomer:", selectedCustomer, "customerRecord:", customerRecord);
+    console.debug("[CreateSale] customer contactInfo mappings:", customerRecord?.contactInfo?.mappings);
+    console.debug("[CreateSale] computed customerItems:", options.length);
+    setCustomerItems(options);
   }, [selectedCustomer, customers, items]);
 
   // Fetch accounts from API
@@ -216,6 +221,7 @@ const CreateSaleOrder = () => {
     fetchAccounts();
   }, []);
 
+        
   // Fetch customers, items, soNumber
   useEffect(() => {
     const fetchCustomers = async () => {
