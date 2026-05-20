@@ -75,7 +75,6 @@ const CreatePurchase = () => {
 
       setAvailablePos([]);
       setSelectedReferencePo("");
-      setReferencePoNumber(manualReferencePoNumber);
       setSelectedPoProjectedTotal(null);
       setSelectedPoItems([]);
       setRows([createEmptyRow()]);
@@ -99,7 +98,21 @@ const CreatePurchase = () => {
     };
 
     fetchApprovedPos();
-  }, [selectedSupplier, manualReferencePoNumber]);
+  }, [selectedSupplier]);
+
+  useEffect(() => {
+    if (manualReferencePoNumber.trim()) {
+      setReferencePoNumber(manualReferencePoNumber);
+      return;
+    }
+
+    if (selectedReferencePo) {
+      setReferencePoNumber(selectedReferencePo);
+      return;
+    }
+
+    setReferencePoNumber("");
+  }, [manualReferencePoNumber, selectedReferencePo]);
 
   // Calculate totals when relevant values change
   useEffect(() => {
