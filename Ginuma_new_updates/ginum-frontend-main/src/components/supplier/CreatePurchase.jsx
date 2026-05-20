@@ -25,19 +25,13 @@ const CreatePurchase = () => {
   const [selectedSupplier, setSelectedSupplier] = useState("");
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [showItemModal, setShowItemModal] = useState(false);
-  const [referencePoNumber, setReferencePoNumber] = useState("");
-  const [referencePoManualEdited, setReferencePoManualEdited] = useState(false);
-  
   const [supplierInvoiceNumber, setSupplierInvoiceNumber] = useState("");
   const [modalTransition, setModalTransition] = useState("opacity-0 invisible");
   const [suppliers, setSuppliers] = useState([]);
   const [isLoadingSuppliers, setIsLoadingSuppliers] = useState(true);
   const [suppliersError, setSuppliersError] = useState(null);
-  
-  const [selectedPoProjectedTotal, setSelectedPoProjectedTotal] = useState(null);
-  const [selectedPoItems, setSelectedPoItems] = useState([]);
-  const [supplierPosList, setSupplierPosList] = useState([]);
-  const [selectedPoId, setSelectedPoId] = useState("");
+
+  const [supplierPoItems, setSupplierPoItems] = useState([]);
 
   const [accounts, setAccounts] = useState([]);
   const [accountsError, setAccountsError] = useState(null);
@@ -73,8 +67,7 @@ const CreatePurchase = () => {
     const fetchApprovedPos = async () => {
       const supplierId = selectedSupplier;
 
-      setSelectedPoProjectedTotal(null);
-      setSelectedPoItems([]);
+      setSupplierPoItems([]);
       setRows([createEmptyRow()]);
 
       if (!supplierId) {
@@ -84,20 +77,51 @@ const CreatePurchase = () => {
       try {
         const data = await api.get(`/api/finance/external/inventory-pos/${supplierId}`);
         const posList = Array.isArray(data) ? data : [];
-        // store the fetched pos for the supplier; do not auto-select — let admin choose
-        setSupplierPosList(posList);
-        if (posList.length === 0) {
-          setSelectedPoItems([]);
-          setRows([createEmptyRow()]);
-          setSelectedPoProjectedTotal(null);
-        }
+        const flattenedItems = [];
+        const seenItemKeys = new Set();
+
+        posList.forEach((po) => {
+          const poDisplayNumber = getPoDisplayNumber(po);
+          const poItems = Array.isArray(po.items) ? po.items : [];
+
+          poItems.forEach((poItem) => {
+            const itemKey = (poItem.productId || poItem.itemId || "").toString();
+            if (!itemKey || seenItemKeys.has(itemKey)) {
+              return;
+            }
+
+            seenItemKeys.add(itemKey);
+
+            const matchedItem = items.find(
+              (item) => (item.id || item.itemId).toString() === itemKey
+            );
+            const quantity = Number(poItem.quantity) || 0;
+            const unitPrice = Number(poItem.unitPrice || poItem.price) || 0;
+            const discount = Number(poItem.discount) || 0;
+
+            flattenedItems.push({
+              itemId: itemKey,
+              description: poItem.description || matchedItem?.description || matchedItem?.name || "",
+              account: matchedItem?.expenseAccount?.id?.toString() || "",
+              quantity: quantity ? quantity.toString() : "",
+              unitPrice: unitPrice ? unitPrice.toString() : "",
+              discount: discount ? discount.toString() : "0",
+              amount: (quantity * unitPrice * (1 - discount / 100)).toFixed(2),
+              poNumber: poDisplayNumber,
+              sourcePoId: po.id,
+            });
+          });
+        });
+
+        setSupplierPoItems(flattenedItems);
       } catch (error) {
         console.error("Error fetching approved purchase orders:", error);
+        setSupplierPoItems([]);
       }
     };
 
     fetchApprovedPos();
-  }, [selectedSupplier, items, referencePoManualEdited]);
+  }, [selectedSupplier, items]);
 
   
 
@@ -105,24 +129,9 @@ const CreatePurchase = () => {
   useEffect(() => {
     const manualSubtotal = rows.reduce((sum, row) => sum + (parseFloat(row.amount) || 0), 0);
 
-    // If a PO is selected, use the PO projected total only when the rows exactly match
-    // the PO (i.e., user hasn't edited quantities/prices/discounts). As soon as the
-    // user changes a row (discount/qty/price), prefer the computed manual subtotal so
-    // discounts immediately affect the displayed totals.
-    let newSubtotal;
-    if (selectedPoProjectedTotal !== null) {
-      const projected = Number(selectedPoProjectedTotal) || 0;
-      // If manualSubtotal equals projected (within small epsilon), keep projected
-      // otherwise prefer manualSubtotal (user made edits)
-      const epsilon = 0.01;
-      newSubtotal = Math.abs(manualSubtotal - projected) < epsilon ? projected : manualSubtotal;
-    } else {
-      newSubtotal = manualSubtotal;
-    }
+    setSubtotal(manualSubtotal);
 
-    setSubtotal(newSubtotal);
-
-    const subtotalPlusFreight = newSubtotal + (parseFloat(freight) || 0);
+    const subtotalPlusFreight = manualSubtotal + (parseFloat(freight) || 0);
     
     let totalTaxAmount = 0;
     taxes.forEach(t => {
@@ -136,7 +145,7 @@ const CreatePurchase = () => {
 
     const newBalanceDue = Math.max(newTotal - (parseFloat(amountPaid) || 0), 0);
     setBalanceDue(newBalanceDue);
-  }, [rows, freight, amountPaid, taxes, selectedPoProjectedTotal]);
+  }, [rows, freight, amountPaid, taxes]);
 
   const handleAddTax = () => {
     setTaxes([...taxes, { taxType: "VAT", percentage: 0, amount: 0 }]);
@@ -173,7 +182,7 @@ const CreatePurchase = () => {
   };
 
   const resolveItemDetails = (itemId) => {
-    const poItem = selectedPoItems.find((item) => item.itemId.toString() === itemId.toString());
+    const poItem = supplierPoItems.find((item) => item.itemId.toString() === itemId.toString());
     if (poItem) {
       return poItem;
     }
@@ -199,55 +208,6 @@ const CreatePurchase = () => {
     if (e.target === e.currentTarget) {
       setModal(false);
     }
-  };
-
-  const handlePoSelect = (poId) => {
-    if (!poId) {
-      setSelectedPoId("");
-      setSelectedPoItems([]);
-      setRows([createEmptyRow()]);
-      setSelectedPoProjectedTotal(null);
-      return;
-    }
-
-    const selectedPo = supplierPosList.find((p) => String(p.id) === String(poId));
-    if (!selectedPo) return;
-
-    setSelectedPoId(poId);
-    setReferencePoNumber(getPoDisplayNumber(selectedPo));
-    const projectedTotal = Number(selectedPo.projectedTotal) || 0;
-    setSelectedPoProjectedTotal(projectedTotal);
-
-    const poItems = Array.isArray(selectedPo.items) ? selectedPo.items : [];
-    if (poItems.length === 0) {
-      setSelectedPoItems([]);
-      setRows([createEmptyRow()]);
-      return;
-    }
-
-    const normalizedPoItems = poItems.map((poItem) => {
-      const itemKey = poItem.productId || poItem.itemId || "";
-      const matchedItem = items.find(
-        (item) => (item.id || item.itemId).toString() === itemKey.toString()
-      );
-      const quantity = Number(poItem.quantity) || 0;
-      const unitPrice = Number(poItem.unitPrice || poItem.price) || 0;
-      const discount = Number(poItem.discount) || 0;
-
-      return {
-        itemId: itemKey,
-        description: poItem.description || matchedItem?.description || matchedItem?.name || "",
-        account: matchedItem?.expenseAccount?.id?.toString() || "",
-        quantity: quantity ? quantity.toString() : "",
-        unitPrice: unitPrice ? unitPrice.toString() : "",
-        discount: discount ? discount.toString() : "0",
-        amount: (quantity * unitPrice * (1 - discount / 100)).toFixed(2),
-        project: "",
-      };
-    });
-
-    setSelectedPoItems(normalizedPoItems);
-    setRows([...normalizedPoItems, createEmptyRow()]);
   };
 
   // Fetch accounts from API
@@ -335,14 +295,7 @@ const CreatePurchase = () => {
         const companyId = localStorage.getItem("companyId");
         if (!companyId) return;
 
-        const [poRes, invRes] = await Promise.all([
-          api.get(`/api/${companyId}/purchase-orders/next-po-number`),
-          api.get(`/api/${companyId}/purchase-orders/next-invoice-number`)
-        ]);
-
-        if (poRes && poRes.poNumber) {
-          setReferencePoNumber(poRes.poNumber);
-        }
+        const invRes = await api.get(`/api/${companyId}/purchase-orders/next-invoice-number`);
         if (invRes && invRes.invoiceNumber) {
           setSupplierInvoiceNumber(invRes.invoiceNumber);
         }
@@ -433,7 +386,7 @@ const CreatePurchase = () => {
 
     const payload = {
       supplierId: parseInt(selectedSupplier),
-      poNumber: referencePoNumber,
+      poNumber: null,
       supplierInvoiceNumber: supplierInvoiceNumber,
       issueDate: issueDate,
       dueDate: dueDate || null,
@@ -482,7 +435,7 @@ const CreatePurchase = () => {
         Enter Supplier Bill
       </h2>
 
-      {/* Supplier and Reference PO Number */}
+      {/* Supplier */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div>
           <label className="block text-gray-700 font-medium">
@@ -509,41 +462,6 @@ const CreatePurchase = () => {
               ))
             )}
           </select>
-        </div>
-        <div>
-          <label className="block text-gray-700 font-medium">
-            Reference PO Number (Optional)
-          </label>
-          {supplierPosList && supplierPosList.length > 0 && (
-            <select
-              value={selectedPoId}
-              onChange={(e) => handlePoSelect(e.target.value)}
-              className="w-full mb-2 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-            >
-              <option value="">Select PO (Optional)</option>
-              {supplierPosList.map((po) => (
-                <option key={po.id} value={po.id}>
-                  {getPoDisplayNumber(po)}
-                </option>
-              ))}
-            </select>
-          )}
-
-          <input
-            type="text"
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-            placeholder="PO-0001 or manual reference"
-            value={referencePoNumber}
-            onChange={(e) => {
-              const val = e.target.value;
-              setReferencePoNumber(val);
-              if (val === "") {
-                setReferencePoManualEdited(false);
-              } else {
-                setReferencePoManualEdited(true);
-              }
-            }}
-          />
         </div>
       </div>
 
@@ -653,14 +571,15 @@ const CreatePurchase = () => {
                       disabled={isLoadingItems}
                     >
                       <option value="">Select Item</option>
-                      {!isLoadingItems && (selectedPoItems.length > 0 ? selectedPoItems : items)
+                      {!isLoadingItems && supplierPoItems
                         .filter((item) => item)
                         .map((item) => {
                           const itemValue = item.itemId || item.id;
                           const itemLabel = item.description || item.name || `Item ${itemValue}`;
                           return (
-                            <option key={itemValue} value={itemValue}>
+                            <option key={`${itemValue}-${item.poNumber || "po"}`} value={itemValue}>
                               {itemLabel}
+                              {item.poNumber ? ` (${item.poNumber})` : ""}
                             </option>
                           );
                         })}
@@ -791,12 +710,6 @@ const CreatePurchase = () => {
 
       {/* Financial Details */}
       <div className="flex flex-col items-end gap-4 mb-6">
-        {selectedPoProjectedTotal !== null && (
-          <div className="w-full md:w-1/2 flex justify-between items-center rounded-lg bg-blue-50 px-4 py-3 border border-blue-100">
-            <span className="text-blue-800 font-medium">Selected PO Amount:</span>
-            <span className="text-blue-900 font-semibold">Rs. {Number(selectedPoProjectedTotal).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-          </div>
-        )}
         <div className="w-full md:w-1/2 flex justify-between items-center">
           <span className="text-gray-700 font-medium">Subtotal:</span>
           <span className="text-gray-900">Rs. {subtotal.toFixed(2)}</span>
