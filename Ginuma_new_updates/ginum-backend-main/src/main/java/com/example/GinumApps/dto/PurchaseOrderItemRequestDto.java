@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 public class PurchaseOrderItemRequestDto {
 
     private Long externalItemId;
+    private Long accountId;
 
 //    @NotBlank(message = "Description is required")
     private String description;

@@ -478,6 +478,7 @@ const CreatePurchase = () => {
         })),
       items: validRows.map((row) => ({
         itemId: isServiceMode ? null : parseInt(row.itemId),
+        accountId: row.account ? parseInt(row.account) : null,
         description: row.description,
         accountCode: resolveAccountCode(row),
         quantity: isServiceMode ? 1 : parseInt(row.quantity),

@@ -184,10 +184,28 @@ public class PurchaseOrderService {
      */
     private void processItems(List<PurchaseOrderItemRequestDto> items, PurchaseOrder po, Company company) {
         items.forEach(itemRequest -> {
-            Account account = accountRepo.findByAccountCodeAndCompany_CompanyId(
-                    itemRequest.getAccountCode(), company.getCompanyId()).orElseThrow(
-                            () -> new EntityNotFoundException(
-                                    "Account not found: " + itemRequest.getAccountCode()));
+            Account account = null;
+
+            if (itemRequest.getAccountId() != null) {
+                account = accountRepo.findById(itemRequest.getAccountId())
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                "Account not found: " + itemRequest.getAccountId()));
+
+                if (!account.getCompany().getCompanyId().equals(company.getCompanyId())) {
+                    throw new AccessDeniedException("Account does not belong to your company");
+                }
+            }
+
+            if (account == null && itemRequest.getAccountCode() != null && !itemRequest.getAccountCode().isBlank()) {
+                account = accountRepo.findByAccountCodeAndCompany_CompanyId(
+                        itemRequest.getAccountCode(), company.getCompanyId()).orElseThrow(
+                                () -> new EntityNotFoundException(
+                                        "Account not found: " + itemRequest.getAccountCode()));
+            }
+
+            if (account == null) {
+                throw new EntityNotFoundException("Account not found for purchase order item");
+            }
 
             PurchaseOrderLineItem lineItem = new PurchaseOrderLineItem();
             lineItem.setExternalItemId(itemRequest.getExternalItemId());
