@@ -162,6 +162,10 @@ public class PurchaseOrderService {
     }
 
     private void createAgingSnapshot(PurchaseOrder po) {
+        if (po.getDueDate() == null) {
+            return;
+        }
+
         AgingPayableSnapshot snapshot = agingRepo
             .findByCompany_CompanyIdAndPoNumber(po.getCompany().getCompanyId(), po.getPoNumber())
             .orElse(new AgingPayableSnapshot());

@@ -44,6 +44,14 @@ public class AgingPayableSnapshot {
     private BigDecimal bucket91plus = BigDecimal.ZERO;
 
     public void computeBuckets(LocalDate today) {
+        if (dueDate == null || today == null) {
+            bucket0to30 = BigDecimal.ZERO;
+            bucket31to60 = BigDecimal.ZERO;
+            bucket61to90 = BigDecimal.ZERO;
+            bucket91plus = BigDecimal.ZERO;
+            return;
+        }
+
         long days = java.time.temporal.ChronoUnit.DAYS.between(dueDate, today);
 
         if (days <= 30) bucket0to30 = balanceDue;
