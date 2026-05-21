@@ -64,14 +64,18 @@ public class JournalEntryService {
         BigDecimal totalCredit = BigDecimal.ZERO;
 
         for (JournalEntryLineDto line : dto.getLines()) {
-            System.out.println("Account code: " + line.getAccountCode() + " | Amount: " + line.getAmount() + " | Is Debit: " + line.isDebit());
+            BigDecimal amount = line.getAmount() != null ? line.getAmount().setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO;
+            System.out.println("Account code: " + line.getAccountCode() + " | Amount: " + amount + " | Is Debit: " + line.isDebit());
 
             if (line.isDebit()) {
-                totalDebit = totalDebit.add(line.getAmount());
+                totalDebit = totalDebit.add(amount);
             } else {
-                totalCredit = totalCredit.add(line.getAmount());
+                totalCredit = totalCredit.add(amount);
             }
         }
+
+        totalDebit = totalDebit.setScale(2, RoundingMode.HALF_UP);
+        totalCredit = totalCredit.setScale(2, RoundingMode.HALF_UP);
 
         System.out.println("Final Debit: " + totalDebit + " | Final Credit: " + totalCredit);
 

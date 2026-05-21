@@ -426,7 +426,8 @@ public class PurchaseOrderService {
                     .multiply(BigDecimal.valueOf(item.getQuantity()))
                     .multiply(BigDecimal.ONE.subtract(
                             item.getDiscountPercent()
-                                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)));
+                        .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP)))
+                .setScale(2, RoundingMode.HALF_UP);
 
             entryDto.getLines().add(new JournalEntryLineDto(
                     item.getAccount().getAccountCode(),
@@ -440,7 +441,7 @@ public class PurchaseOrderService {
             Account freightAcc = getFreightAccount(po.getCompany());
             entryDto.getLines().add(new JournalEntryLineDto(
                     freightAcc.getAccountCode(), // From smart lookup
-                    po.getFreight(),
+                    po.getFreight().setScale(2, RoundingMode.HALF_UP),
                     true, // Debit
                     "Freight Charges"));
         }
@@ -450,7 +451,7 @@ public class PurchaseOrderService {
             Account taxAcc = getTaxAccount(po.getCompany());
             entryDto.getLines().add(new JournalEntryLineDto(
                     taxAcc.getAccountCode(), // From smart lookup
-                    po.getTaxAmount(),
+                    po.getTaxAmount().setScale(2, RoundingMode.HALF_UP),
                     true, // Debit
                     "Sales Tax on Purchase"));
         }
@@ -459,7 +460,7 @@ public class PurchaseOrderService {
         if (po.getAmountPaid().compareTo(BigDecimal.ZERO) > 0) {
             entryDto.getLines().add(new JournalEntryLineDto(
                     po.getPaymentAccount().getAccountCode(),
-                    po.getAmountPaid(),
+                    po.getAmountPaid().setScale(2, RoundingMode.HALF_UP),
                     false, // Credit Asset
                     "Payment for Purchase"));
         }
@@ -469,7 +470,7 @@ public class PurchaseOrderService {
             Account payableAcc = getAccountsPayableAccount(po.getCompany());
             entryDto.getLines().add(new JournalEntryLineDto(
                     payableAcc.getAccountCode(), // From smart lookup
-                    po.getBalanceDue(),
+                    po.getBalanceDue().setScale(2, RoundingMode.HALF_UP),
                     false, // Credit Liability
                     "Accounts Payable to " + po.getSupplier().getSupplierName()));
         }
