@@ -202,8 +202,8 @@ const CreatePurchase = () => {
 
     const paid = parseFloat(amountPaid) || 0;
     const rawBalance = roundedTotal - paid;
-    const roundedBalance = Number((rawBalance).toFixed(2));
-    const newBalanceDue = Math.max(roundedBalance, 0);
+    const roundedBalance = Number(rawBalance.toFixed(2));
+    const newBalanceDue = Math.abs(roundedBalance) <= 0.01 ? 0 : Math.max(roundedBalance, 0);
     setBalanceDue(newBalanceDue);
   }, [rows, freight, amountPaid, taxes]);
 
@@ -468,7 +468,8 @@ const CreatePurchase = () => {
     const paidAmount = parseFloat(amountPaid) || 0;
     // Use rounded comparison to avoid false positives from floating point math
     const roundedTotalForValidation = Number(Number(total).toFixed(2));
-    if (paidAmount > roundedTotalForValidation) {
+    const roundedPaidAmount = Number(paidAmount.toFixed(2));
+    if (roundedPaidAmount > roundedTotalForValidation) {
       Alert.error("Amount paid cannot exceed the total bill amount");
       return;
     }
@@ -481,7 +482,7 @@ const CreatePurchase = () => {
       dueDate: dueDate || null,
       notes: notes,
       purchaseType: isServiceMode ? "SERVICE" : "ITEM",
-      amountPaid: paidAmount,
+      amountPaid: Math.abs(roundedTotalForValidation - roundedPaidAmount) <= 0.01 ? roundedTotalForValidation : roundedPaidAmount,
       paymentAccountCode: paymentAccountCode || null,
       freight: parseFloat(freight) || 0,
         taxBreakdown: taxes.map(t => ({

@@ -258,8 +258,10 @@ public class PurchaseOrderService {
         }
         po.setTaxAmount(calculatedTaxAmount);
         
-        po.setTotal(subtotalPlusFreight.add(po.getTaxAmount()));
-        po.setBalanceDue(po.getTotal().subtract(po.getAmountPaid() != null ? po.getAmountPaid() : BigDecimal.ZERO));
+        po.setTotal(subtotalPlusFreight.add(po.getTaxAmount()).setScale(2, RoundingMode.HALF_UP));
+        BigDecimal balanceDue = po.getTotal().subtract(po.getAmountPaid() != null ? po.getAmountPaid() : BigDecimal.ZERO)
+            .setScale(2, RoundingMode.HALF_UP);
+        po.setBalanceDue(balanceDue.abs().compareTo(new BigDecimal("0.01")) <= 0 ? BigDecimal.ZERO : balanceDue);
     }
 
     private void validateCompanyAccounts(Company company, PurchaseOrder po) {

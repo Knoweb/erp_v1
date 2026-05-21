@@ -13,6 +13,11 @@ const ViewPurchase = () => {
 
   const companyId = localStorage.getItem("companyId");
 
+  const normalizeMoney = (value) => {
+    const numericValue = Number(value || 0);
+    return Math.abs(numericValue) <= 0.01 ? 0 : numericValue;
+  };
+
   useEffect(() => {
     const fetchPurchase = async () => {
       try {
@@ -183,7 +188,7 @@ const ViewPurchase = () => {
             </div>
             <div className="flex justify-between text-sm border-t border-gray-200 pt-2">
               <span className="text-red-600 font-medium">Balance Due</span>
-              <span className="text-red-700 font-semibold">{Number(purchase.balanceDue || 0).toFixed(2)}</span>
+              <span className="text-red-700 font-semibold">{normalizeMoney(purchase.balanceDue).toFixed(2)}</span>
             </div>
           </div>
         </div>

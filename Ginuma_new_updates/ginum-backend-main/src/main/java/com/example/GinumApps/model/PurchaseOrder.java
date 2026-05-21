@@ -103,16 +103,14 @@ public class PurchaseOrder {
             taxBreakdown.stream().map(t -> t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO)
                         .reduce(BigDecimal.ZERO, BigDecimal::add) : BigDecimal.ZERO;
 
-        this.total = subtotalPlusFreight.add(this.taxAmount);
-        this.balanceDue = total.subtract(amountPaid != null ? amountPaid : BigDecimal.ZERO);
-        // Allow small negative balance due to rounding differences between frontend and backend
-        if (this.balanceDue.compareTo(BigDecimal.ZERO) < 0) {
-            java.math.BigDecimal epsilon = new java.math.BigDecimal("0.01");
-            if (this.balanceDue.abs().compareTo(epsilon) <= 0) {
-                this.balanceDue = BigDecimal.ZERO;
-            } else {
-                throw new IllegalStateException("Overpayment detected");
-            }
+        this.total = subtotalPlusFreight.add(this.taxAmount).setScale(2, RoundingMode.HALF_UP);
+        this.balanceDue = total.subtract(amountPaid != null ? amountPaid : BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP);
+
+        // Treat a one-cent remainder as settled so we do not show a false balance due.
+        if (this.balanceDue.abs().compareTo(new BigDecimal("0.01")) <= 0) {
+            this.balanceDue = BigDecimal.ZERO;
+        } else if (this.balanceDue.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalStateException("Overpayment detected");
         }
     }
 }
