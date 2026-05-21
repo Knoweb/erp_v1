@@ -9,29 +9,36 @@ import { useNavigate } from "react-router-dom";
 import { AccountContext, filterAccountsByContext } from "../../utils/accountFilters";
 import { fetchCompanyCustomers } from "../../utils/customerApi";
 
-const buildCustomerItemOptions = (customerRecord, items = []) => {
+const normalizeList = (value) => {
+  if (Array.isArray(value)) return value;
+  if (Array.isArray(value?.content)) return value.content;
+  if (Array.isArray(value?.data)) return value.data;
+  if (Array.isArray(value?.items)) return value.items;
+  return [];
+};
+
+const buildCustomerItemOptions = (customerRecord, products = []) => {
   const mappedItems = customerRecord?.contactInfo?.mappings || [];
+  const mapProduct = (product) => ({
+    id: product.id || product.itemId || product.productId,
+    label: product.name || product.productName || product.sku || product.description || `Item #${product.id || product.itemId || product.productId}`,
+    description: product.description || product.name || product.productName || product.sku || "",
+    accountId: product.incomeAccount?.id ? product.incomeAccount.id.toString() : "",
+    quantity: 1,
+    unitPrice: product.price ?? product.salesPrice ?? product.unitPrice ?? "",
+  });
 
   if (!mappedItems.length) {
-    return items
-      .filter((item) => item.incomeAccount != null)
-      .map((item) => ({
-        id: item.id || item.itemId,
-        label: item.name || item.description || item.productName || `Item #${item.id || item.itemId}`,
-        description: item.description || item.name || item.productName || "",
-        accountId: item.incomeAccount?.id ? item.incomeAccount.id.toString() : "",
-        quantity: 1,
-        unitPrice: item.salesPrice ?? item.unitPrice ?? "",
-      }));
+    return products.map(mapProduct);
   }
 
   return mappedItems
     .map((mapping) => {
-      const matchedItem = items.find(
-        (item) => String(item.id || item.itemId) === String(mapping.productId)
+      const matchedProduct = products.find(
+        (item) => String(item.id || item.itemId || item.productId) === String(mapping.productId)
       );
 
-      const itemId = matchedItem?.id || matchedItem?.itemId || mapping.productId;
+      const itemId = matchedProduct?.id || matchedProduct?.itemId || matchedProduct?.productId || mapping.productId;
       if (!itemId) {
         return null;
       }
@@ -39,24 +46,26 @@ const buildCustomerItemOptions = (customerRecord, items = []) => {
       return {
         id: itemId,
         label:
-          matchedItem?.name ||
-          matchedItem?.description ||
+          matchedProduct?.name ||
+          matchedProduct?.productName ||
+          matchedProduct?.sku ||
           mapping.productName ||
           mapping.description ||
           `Item #${itemId}`,
         description:
-          matchedItem?.description ||
+          matchedProduct?.description ||
+          matchedProduct?.name ||
           mapping.description ||
-          matchedItem?.name ||
           mapping.productName ||
           "",
-        accountId: matchedItem?.incomeAccount?.id ? matchedItem.incomeAccount.id.toString() : "",
+        accountId: matchedProduct?.incomeAccount?.id ? matchedProduct.incomeAccount.id.toString() : "",
         quantity: mapping.defaultQuantity ?? mapping.quantity ?? 1,
         unitPrice:
           mapping.defaultPrice ??
           mapping.unitPrice ??
-          matchedItem?.salesPrice ??
-          matchedItem?.unitPrice ??
+          matchedProduct?.price ??
+          matchedProduct?.salesPrice ??
+          matchedProduct?.unitPrice ??
           "",
       };
     })
@@ -248,14 +257,11 @@ const CreateSaleOrder = () => {
         if (!companyId) return;
 
         setIsLoadingItemsProjects(true);
-        const itemsRes = await api.get(`/api/companies/${companyId}/items`);
+        const itemsRes = String(companyId) === "16"
+          ? await api.get(`/api/finance/external/inventory-products/${companyId}`)
+          : await api.get(`/api/companies/${companyId}/items`);
 
-        let itemsData = itemsRes.data;
-        if (Array.isArray(itemsRes)) itemsData = itemsRes;
-        else if (Array.isArray(itemsRes.data)) itemsData = itemsRes.data;
-        else if (itemsRes?.data?.data && Array.isArray(itemsRes.data.data)) itemsData = itemsRes.data.data;
-
-        setItems(Array.isArray(itemsData) ? itemsData : []);
+        setItems(normalizeList(itemsRes));
       } catch (error) {
         console.error("Error fetching items and projects:", error);
       } finally {

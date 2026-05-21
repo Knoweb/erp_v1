@@ -1,6 +1,7 @@
 package com.example.GinumApps.controller;
 
 import com.example.GinumApps.dto.external.InventoryPoResponseDto;
+import com.example.GinumApps.dto.external.InventoryProductResponseDto;
 import com.example.GinumApps.service.ExternalInventoryIntegrationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,24 @@ public class ExternalIntegrationController {
             errorResponse.put("error", e.getMessage());
             errorResponse.put("timestamp", System.currentTimeMillis());
             errorResponse.put("supplierId", supplierId);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    @GetMapping("/inventory-products/{orgId}")
+    public ResponseEntity<?> getProductsByOrganization(@PathVariable Long orgId) {
+        try {
+            log.info("Received request for products for orgId: {}", orgId);
+            List<InventoryProductResponseDto> products =
+                    externalInventoryIntegrationService.getProductsByOrganization(orgId);
+            log.info("Successfully retrieved {} products for orgId: {}", products.size(), orgId);
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            log.error("Error retrieving products for orgId: {}", orgId, e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            errorResponse.put("timestamp", System.currentTimeMillis());
+            errorResponse.put("orgId", orgId);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }

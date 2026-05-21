@@ -2,6 +2,7 @@ package com.example.GinumApps.service;
 
 import com.example.GinumApps.client.InventoryClient;
 import com.example.GinumApps.dto.external.InventoryPoResponseDto;
+import com.example.GinumApps.dto.external.InventoryProductResponseDto;
 import com.example.GinumApps.util.SecurityContextUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -197,6 +198,54 @@ public class ExternalInventoryIntegrationService {
         } catch (Exception e) {
             log.error("Error fetching external product by id {}: {}", id, e.getMessage(), e);
             return null;
+        }
+    }
+
+    public List<InventoryProductResponseDto> getProductsByOrganization(Long orgId) {
+        try {
+            String url = middeniyaInventoryUrl + "/inventory-api/api/products/organization/" + orgId;
+            log.info("Fetching Middeniya products from: {}", url);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+            String authorization = resolveRequestHeader("Authorization");
+            if (authorization != null && !authorization.isBlank()) {
+                headers.set(HttpHeaders.AUTHORIZATION, authorization);
+            }
+
+            String currentOrgId = SecurityContextUtil.getCurrentOrganizationId();
+            if (currentOrgId != null && !currentOrgId.isBlank()) {
+                headers.set("X-Org-ID", currentOrgId);
+            }
+
+            copyRequestHeaderIfPresent(headers, "X-Tenant-ID");
+            copyRequestHeaderIfPresent(headers, "X-Industry-Type");
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    String.class
+            );
+
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null || response.getBody().isBlank()) {
+                log.warn("Middeniya product list returned status {} with empty body", response.getStatusCode());
+                return new ArrayList<>();
+            }
+
+            List<Object> rawProducts = objectMapper.readValue(
+                    response.getBody(),
+                    new TypeReference<List<Object>>() {}
+            );
+
+            return rawProducts.stream()
+                    .filter(Objects::nonNull)
+                    .map(product -> objectMapper.convertValue(product, InventoryProductResponseDto.class))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Error fetching Middeniya products for orgId {}: {}", orgId, e.getMessage(), e);
+            return new ArrayList<>();
         }
     }
 }
