@@ -341,7 +341,7 @@ const CreateSaleOrder = () => {
         const itemId = it.itemId || it.item?.id || it.itemId;
         const qty = it.quantity ?? it.noOfUnits ?? 1;
         const price = it.unitPrice ?? it.price ?? it.unit_price ?? 0;
-        const discount = it.discountPercent ?? it.discount || 0;
+        const discount = it.discountPercent ?? it.discount ?? 0;
         const amount = ((parseFloat(qty) || 0) * (parseFloat(price) || 0) * (1 - (parseFloat(discount) || 0) / 100)).toFixed(2);
         return {
           itemId: itemId || "",
