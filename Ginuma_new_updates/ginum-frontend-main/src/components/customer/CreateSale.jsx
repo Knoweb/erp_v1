@@ -78,9 +78,6 @@ const CreateSaleOrder = () => {
   const [rows, setRows] = useState([createEmptyRow()]);
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [customers, setCustomers] = useState([]);
-  const [customerSalesOrders, setCustomerSalesOrders] = useState([]);
-  const [selectedSalesOrderId, setSelectedSalesOrderId] = useState("");
-  const [isLoadingCustomerSalesOrders, setIsLoadingCustomerSalesOrders] = useState(false);
   const [items, setItems] = useState([]);
   const [customerItems, setCustomerItems] = useState([]);
   const [soNumber, setSoNumber] = useState("");
@@ -176,39 +173,7 @@ const CreateSaleOrder = () => {
     setCustomerItems(options);
   }, [selectedCustomer, customers, items]);
 
-  // Fetch sales orders for selected customer (client-side filter)
-  useEffect(() => {
-    const fetchCustomerSales = async () => {
-      if (!selectedCustomer) {
-        setCustomerSalesOrders([]);
-        setSelectedSalesOrderId("");
-        return;
-      }
-
-      try {
-        setIsLoadingCustomerSalesOrders(true);
-        const companyId = localStorage.getItem("companyId");
-        if (!companyId) return;
-
-        const resp = await api.get(`/api/sales-orders/company/${companyId}`);
-        let data = resp && resp.data ? resp.data : resp;
-        if (Array.isArray(resp)) data = resp;
-        else if (resp?.data?.data && Array.isArray(resp.data.data)) data = resp.data.data;
-
-        const filtered = (Array.isArray(data) ? data : []).filter(
-          (so) => String(so.customerId) === String(selectedCustomer)
-        );
-        setCustomerSalesOrders(filtered);
-      } catch (err) {
-        console.error("Error fetching customer sales orders:", err);
-        setCustomerSalesOrders([]);
-      } finally {
-        setIsLoadingCustomerSalesOrders(false);
-      }
-    };
-
-    fetchCustomerSales();
-  }, [selectedCustomer]);
+  
 
   // Fetch accounts from API
   useEffect(() => {
@@ -319,49 +284,7 @@ const CreateSaleOrder = () => {
     fetchSoNumber();
   }, []);
 
-  const handleLoadSalesOrder = async (salesOrderId) => {
-    if (!salesOrderId) {
-      setSelectedSalesOrderId("");
-      setRows([createEmptyRow()]);
-      return;
-    }
-
-    try {
-      const companyId = localStorage.getItem("companyId");
-      if (!companyId) return;
-
-      const resp = await api.get(`/api/sales-orders/company/${companyId}/${salesOrderId}`);
-      const so = resp && resp.data ? resp.data : resp;
-      if (!so) return;
-
-      // Map SO items to rows
-      const mapped = (so.items || []).map((it) => {
-        // find account id by accountCode
-        const accountId = accounts.find(a => a.accountCode === (it.accountCode || it.account?.accountCode))?.id || "";
-        const itemId = it.itemId || it.item?.id || it.itemId;
-        const qty = it.quantity ?? it.noOfUnits ?? 1;
-        const price = it.unitPrice ?? it.price ?? it.unit_price ?? 0;
-        const discount = it.discountPercent ?? it.discount ?? 0;
-        const amount = ((parseFloat(qty) || 0) * (parseFloat(price) || 0) * (1 - (parseFloat(discount) || 0) / 100)).toFixed(2);
-        return {
-          itemId: itemId || "",
-          description: it.description || it.itemDescription || it.descriptionText || "",
-          account: accountId,
-          quantity: qty,
-          unitPrice: price,
-          discount: discount,
-          amount: amount,
-        };
-      });
-
-      setRows([...mapped, createEmptyRow()]);
-      setSelectedSalesOrderId(salesOrderId);
-      // also set SO number if available
-      if (so.soNumber || so.invoice) setSoNumber(so.soNumber || so.invoice);
-    } catch (err) {
-      console.error("Error loading sales order:", err);
-    }
-  };
+  
 
   const handleRowChange = (index, field, value) => {
     const updatedRows = [...rows];
@@ -545,37 +468,7 @@ const CreateSaleOrder = () => {
         </div>
       </div>
 
-      {/* Load existing sales orders for selected customer */}
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-4">
-        <div>
-          <label className="block text-gray-700 font-medium">
-            Load From Existing Sales Order (optional)
-          </label>
-          <select
-            value={selectedSalesOrderId}
-            onChange={(e) => {
-              const val = e.target.value;
-              setSelectedSalesOrderId(val);
-              handleLoadSalesOrder(val);
-            }}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-            disabled={!selectedCustomer || isLoadingCustomerSalesOrders}
-          >
-            <option value="">Select sales order to load</option>
-            {isLoadingCustomerSalesOrders ? (
-              <option value="">Loading...</option>
-            ) : customerSalesOrders.length === 0 ? (
-              <option value="">No sales orders for this customer</option>
-            ) : (
-              customerSalesOrders.map((so) => (
-                <option key={so.id} value={so.id}>
-                  {(so.soNumber || so.invoice || so.invoiceNumber || `SO-${so.id}`) + " — " + (so.customerName || so.customer?.name || "")}
-                </option>
-              ))
-            )}
-          </select>
-        </div>
-      </div>
+      
 
       {/* Sale Order Date and Due Date */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
