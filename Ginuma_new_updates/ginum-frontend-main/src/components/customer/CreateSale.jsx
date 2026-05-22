@@ -72,8 +72,21 @@ const buildCustomerItemOptions = (customerRecord, products = []) => {
     .filter(Boolean);
 };
 
-const buildCompletedCustomerItemOptions = (salesOrders = []) => {
+const buildCompletedCustomerItemOptions = (salesOrders = [], products = []) => {
   const byItemId = new Map();
+  const resolveProductName = (item) => {
+    const productId = item.externalItemId || item.productId || item.itemId;
+    const matchedProduct = products.find((product) => String(product.id) === String(productId));
+
+    return (
+      item.productName ||
+      matchedProduct?.name ||
+      matchedProduct?.productName ||
+      item.description ||
+      matchedProduct?.sku ||
+      null
+    );
+  };
 
   salesOrders.forEach((order) => {
     (order?.items || []).forEach((item) => {
@@ -84,11 +97,12 @@ const buildCompletedCustomerItemOptions = (salesOrders = []) => {
 
       const key = String(itemId);
       const existing = byItemId.get(key) || {};
+      const resolvedName = resolveProductName(item);
 
       byItemId.set(key, {
         id: itemId,
-        label: item.productName || item.description || existing.label || `Item #${itemId}`,
-        description: item.productName || item.description || existing.description || "",
+        label: resolvedName || existing.label || `Item #${itemId}`,
+        description: resolvedName || existing.description || "",
         accountId: item.accountCode || existing.accountId || "",
         quantity: item.quantity ?? existing.quantity ?? 1,
         unitPrice: item.unitPrice ?? existing.unitPrice ?? "",
@@ -115,6 +129,7 @@ const CreateSaleOrder = () => {
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [customers, setCustomers] = useState([]);
   const [salesOrders, setSalesOrders] = useState([]);
+  const [productCatalog, setProductCatalog] = useState([]);
   const [customerItems, setCustomerItems] = useState([]);
   const [soNumber, setSoNumber] = useState("");
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
@@ -217,11 +232,11 @@ const CreateSaleOrder = () => {
       return matchesCustomer && isCompleted;
     });
 
-    const options = buildCompletedCustomerItemOptions(customerOrders);
+    const options = buildCompletedCustomerItemOptions(customerOrders, productCatalog);
     console.info("[CreateSale] selectedCustomer:", selectedCustomer, "completedOrders:", customerOrders.length);
     console.info("[CreateSale] computed customerItems:", options.length, options);
     setCustomerItems(options);
-  }, [selectedCustomer, salesOrders, customers]);
+  }, [selectedCustomer, salesOrders, customers, productCatalog]);
 
   
 
@@ -303,6 +318,11 @@ const CreateSaleOrder = () => {
         console.info('[CreateSale] fetchSalesOrders raw response:', salesOrdersRes);
         console.info('[CreateSale] fetchSalesOrders normalized count:', normalized.length);
         setSalesOrders(normalized);
+
+        const productsRes = await api.get(`/api/finance/external/inventory-products/${companyId}`);
+        const productsNormalized = normalizeList(productsRes);
+        console.info('[CreateSale] fetchProductCatalog normalized count:', productsNormalized.length);
+        setProductCatalog(productsNormalized);
       } catch (error) {
         console.error("Error fetching sales orders:", error);
       } finally {
@@ -401,7 +421,7 @@ const CreateSaleOrder = () => {
       return matchesCustomer && String(order.status || "").toUpperCase() === "COMPLETED";
     });
 
-    setCustomerItems(buildCompletedCustomerItemOptions(customerOrders));
+    setCustomerItems(buildCompletedCustomerItemOptions(customerOrders, productCatalog));
   };
 
   const handleSubmit = async () => {
