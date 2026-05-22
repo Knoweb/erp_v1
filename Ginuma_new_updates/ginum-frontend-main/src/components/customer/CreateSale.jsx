@@ -299,8 +299,8 @@ const CreateSaleOrder = () => {
 
         setIsLoadingItemsProjects(true);
         const salesOrdersRes = await api.get(`/api/finance/external/completed-sales-orders/${companyId}`);
-        const normalized = normalizeList(salesOrdersRes?.data);
-        console.info('[CreateSale] fetchSalesOrders raw response:', salesOrdersRes?.data);
+        const normalized = normalizeList(salesOrdersRes);
+        console.info('[CreateSale] fetchSalesOrders raw response:', salesOrdersRes);
         console.info('[CreateSale] fetchSalesOrders normalized count:', normalized.length);
         setSalesOrders(normalized);
       } catch (error) {
