@@ -72,6 +72,33 @@ const buildCustomerItemOptions = (customerRecord, products = []) => {
     .filter(Boolean);
 };
 
+const buildCompletedCustomerItemOptions = (salesOrders = []) => {
+  const byItemId = new Map();
+
+  salesOrders.forEach((order) => {
+    (order?.items || []).forEach((item) => {
+      if (!item || item.itemType === "SERVICE") return;
+
+      const itemId = item.externalItemId || item.productId || item.itemId;
+      if (!itemId) return;
+
+      const key = String(itemId);
+      const existing = byItemId.get(key) || {};
+
+      byItemId.set(key, {
+        id: itemId,
+        label: item.description || existing.label || `Item #${itemId}`,
+        description: item.description || existing.description || "",
+        accountId: item.accountCode || existing.accountId || "",
+        quantity: item.quantity ?? existing.quantity ?? 1,
+        unitPrice: item.unitPrice ?? existing.unitPrice ?? "",
+      });
+    });
+  });
+
+  return Array.from(byItemId.values());
+};
+
 const CreateSaleOrder = () => {
   const createEmptyRow = () => ({
     itemId: "",
@@ -87,7 +114,7 @@ const CreateSaleOrder = () => {
   const [rows, setRows] = useState([createEmptyRow()]);
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [customers, setCustomers] = useState([]);
-  const [items, setItems] = useState([]);
+  const [salesOrders, setSalesOrders] = useState([]);
   const [customerItems, setCustomerItems] = useState([]);
   const [soNumber, setSoNumber] = useState("");
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
@@ -174,13 +201,17 @@ const CreateSaleOrder = () => {
       return;
     }
 
-    const customerRecord = customers.find((customer) => String(customer.id) === String(selectedCustomer));
-    const options = buildCustomerItemOptions(customerRecord, items);
-    console.debug("[CreateSale] selectedCustomer:", selectedCustomer, "customerRecord:", customerRecord);
-    console.debug("[CreateSale] customer contactInfo mappings:", customerRecord?.contactInfo?.mappings);
+    const customerOrders = salesOrders.filter((order) => {
+      const matchesCustomer = String(order.customerId) === String(selectedCustomer);
+      const isCompleted = Number(order.balanceDue ?? 0) <= 0;
+      return matchesCustomer && isCompleted;
+    });
+
+    const options = buildCompletedCustomerItemOptions(customerOrders);
+    console.debug("[CreateSale] selectedCustomer:", selectedCustomer, "completedOrders:", customerOrders.length);
     console.debug("[CreateSale] computed customerItems:", options.length);
     setCustomerItems(options);
-  }, [selectedCustomer, customers, items]);
+  }, [selectedCustomer, salesOrders]);
 
   
 
@@ -233,7 +264,7 @@ const CreateSaleOrder = () => {
   }, []);
 
         
-  // Fetch customers, items, soNumber
+  // Fetch customers, completed sales orders, soNumber
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
@@ -251,19 +282,16 @@ const CreateSaleOrder = () => {
       }
     };
 
-    const fetchItems = async () => {
+    const fetchSalesOrders = async () => {
       try {
         const companyId = localStorage.getItem("companyId");
         if (!companyId) return;
 
         setIsLoadingItemsProjects(true);
-        const itemsRes = String(companyId) === "16"
-          ? await api.get(`/api/finance/external/inventory-products/${companyId}`)
-          : await api.get(`/api/companies/${companyId}/items`);
-
-        setItems(normalizeList(itemsRes));
+        const salesOrdersRes = await api.get(`/api/sales-orders/company/${companyId}`);
+        setSalesOrders(normalizeList(salesOrdersRes?.data));
       } catch (error) {
-        console.error("Error fetching items and projects:", error);
+        console.error("Error fetching sales orders:", error);
       } finally {
         setIsLoadingItemsProjects(false);
       }
@@ -286,7 +314,7 @@ const CreateSaleOrder = () => {
     };
 
     fetchCustomers();
-    fetchItems();
+    fetchSalesOrders();
     fetchSoNumber();
   }, []);
 
@@ -298,8 +326,7 @@ const CreateSaleOrder = () => {
 
     // Auto-fill details when an item is selected
     if (field === "itemId" && value) {
-      const selectedItem = customerItems.find((item) => String(item.id) === String(value)) ||
-        items.find((item) => String(item.id || item.itemId) === String(value));
+      const selectedItem = customerItems.find((item) => String(item.id) === String(value));
 
       if (selectedItem) {
         updatedRows[index].description = selectedItem.description || selectedItem.label || "";
@@ -347,8 +374,13 @@ const CreateSaleOrder = () => {
       return;
     }
 
-    const customerRecord = customers.find((customer) => String(customer.id) === String(customerId));
-    setCustomerItems(buildCustomerItemOptions(customerRecord, items));
+    const customerOrders = salesOrders.filter((order) => {
+      const matchesCustomer = String(order.customerId) === String(customerId);
+      const isCompleted = Number(order.balanceDue ?? 0) <= 0;
+      return matchesCustomer && isCompleted;
+    });
+
+    setCustomerItems(buildCompletedCustomerItemOptions(customerOrders));
   };
 
   const handleSubmit = async () => {
