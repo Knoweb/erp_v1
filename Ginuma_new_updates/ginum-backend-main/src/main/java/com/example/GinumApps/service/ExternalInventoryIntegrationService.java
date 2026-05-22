@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -245,6 +246,57 @@ public class ExternalInventoryIntegrationService {
                     .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("Error fetching Middeniya products for orgId {}: {}", orgId, e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    public List<Map<String, Object>> getCompletedSalesOrdersByOrganization(Long orgId) {
+        try {
+            String url = middeniyaInventoryUrl + "/inventory-api/api/orders/sales";
+            log.info("Fetching completed sales orders from: {}", url);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+            String authorization = resolveRequestHeader("Authorization");
+            if (authorization != null && !authorization.isBlank()) {
+                headers.set(HttpHeaders.AUTHORIZATION, authorization);
+            }
+
+            String currentOrgId = SecurityContextUtil.getCurrentOrganizationId();
+            if (currentOrgId != null && !currentOrgId.isBlank()) {
+                headers.set("X-Org-ID", currentOrgId);
+            }
+
+            copyRequestHeaderIfPresent(headers, "X-Tenant-ID");
+            copyRequestHeaderIfPresent(headers, "X-Industry-Type");
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    String.class
+            );
+
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null || response.getBody().isBlank()) {
+                log.warn("Middeniya sales order list returned status {} with empty body", response.getStatusCode());
+                return new ArrayList<>();
+            }
+
+            List<Map<String, Object>> rawOrders = objectMapper.readValue(
+                    response.getBody(),
+                    new TypeReference<List<Map<String, Object>>>() {}
+            );
+
+            return rawOrders.stream()
+                    .filter(Objects::nonNull)
+                    .filter(order -> {
+                        Object status = order.get("status");
+                        return status != null && "COMPLETED".equalsIgnoreCase(String.valueOf(status));
+                    })
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Error fetching completed sales orders for orgId {}: {}", orgId, e.getMessage(), e);
             return new ArrayList<>();
         }
     }

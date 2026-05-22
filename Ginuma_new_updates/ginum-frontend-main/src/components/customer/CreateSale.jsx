@@ -87,8 +87,8 @@ const buildCompletedCustomerItemOptions = (salesOrders = []) => {
 
       byItemId.set(key, {
         id: itemId,
-        label: item.description || existing.label || `Item #${itemId}`,
-        description: item.description || existing.description || "",
+        label: item.productName || item.description || existing.label || `Item #${itemId}`,
+        description: item.productName || item.description || existing.description || "",
         accountId: item.accountCode || existing.accountId || "",
         quantity: item.quantity ?? existing.quantity ?? 1,
         unitPrice: item.unitPrice ?? existing.unitPrice ?? "",
@@ -201,9 +201,12 @@ const CreateSaleOrder = () => {
       return;
     }
 
+    const customerRecord = customers.find((customer) => String(customer.id) === String(selectedCustomer));
+    const customerName = customerRecord?.customerName || customerRecord?.name || "";
+
     const customerOrders = salesOrders.filter((order) => {
-      const matchesCustomer = String(order.customerId) === String(selectedCustomer);
-      const isCompleted = Number(order.balanceDue ?? 0) <= 0;
+      const matchesCustomer = String(order.customerName || "") === String(customerName || "");
+      const isCompleted = String(order.status || "").toUpperCase() === "COMPLETED";
       return matchesCustomer && isCompleted;
     });
 
@@ -211,7 +214,7 @@ const CreateSaleOrder = () => {
     console.debug("[CreateSale] selectedCustomer:", selectedCustomer, "completedOrders:", customerOrders.length);
     console.debug("[CreateSale] computed customerItems:", options.length);
     setCustomerItems(options);
-  }, [selectedCustomer, salesOrders]);
+  }, [selectedCustomer, salesOrders, customers]);
 
   
 
@@ -288,7 +291,7 @@ const CreateSaleOrder = () => {
         if (!companyId) return;
 
         setIsLoadingItemsProjects(true);
-        const salesOrdersRes = await api.get(`/api/sales-orders/company/${companyId}`);
+        const salesOrdersRes = await api.get(`/api/finance/external/completed-sales-orders/${companyId}`);
         setSalesOrders(normalizeList(salesOrdersRes?.data));
       } catch (error) {
         console.error("Error fetching sales orders:", error);
@@ -374,10 +377,11 @@ const CreateSaleOrder = () => {
       return;
     }
 
+    const customerRecord = customers.find((customer) => String(customer.id) === String(customerId));
+    const customerName = customerRecord?.customerName || customerRecord?.name || "";
     const customerOrders = salesOrders.filter((order) => {
-      const matchesCustomer = String(order.customerId) === String(customerId);
-      const isCompleted = Number(order.balanceDue ?? 0) <= 0;
-      return matchesCustomer && isCompleted;
+      const matchesCustomer = String(order.customerName || "") === String(customerName || "");
+      return matchesCustomer && String(order.status || "").toUpperCase() === "COMPLETED";
     });
 
     setCustomerItems(buildCompletedCustomerItemOptions(customerOrders));
