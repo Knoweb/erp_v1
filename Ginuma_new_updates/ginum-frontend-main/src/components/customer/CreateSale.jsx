@@ -205,14 +205,14 @@ const CreateSaleOrder = () => {
     const customerName = customerRecord?.customerName || customerRecord?.name || "";
 
     const customerOrders = salesOrders.filter((order) => {
-      const matchesCustomer = String(order.customerName || "") === String(customerName || "");
+      const matchesCustomer = (order.customerId && String(order.customerId) === String(selectedCustomer)) || String(order.customerName || "") === String(customerName || "");
       const isCompleted = String(order.status || "").toUpperCase() === "COMPLETED";
       return matchesCustomer && isCompleted;
     });
 
     const options = buildCompletedCustomerItemOptions(customerOrders);
     console.debug("[CreateSale] selectedCustomer:", selectedCustomer, "completedOrders:", customerOrders.length);
-    console.debug("[CreateSale] computed customerItems:", options.length);
+    console.debug("[CreateSale] computed customerItems:", options.length, options);
     setCustomerItems(options);
   }, [selectedCustomer, salesOrders, customers]);
 
@@ -380,7 +380,7 @@ const CreateSaleOrder = () => {
     const customerRecord = customers.find((customer) => String(customer.id) === String(customerId));
     const customerName = customerRecord?.customerName || customerRecord?.name || "";
     const customerOrders = salesOrders.filter((order) => {
-      const matchesCustomer = String(order.customerName || "") === String(customerName || "");
+      const matchesCustomer = (order.customerId && String(order.customerId) === String(customerId)) || String(order.customerName || "") === String(customerName || "");
       return matchesCustomer && String(order.status || "").toUpperCase() === "COMPLETED";
     });
 
@@ -507,6 +507,13 @@ const CreateSaleOrder = () => {
             value={soNumber}
             onChange={(e) => setSoNumber(e.target.value)}
           />
+        </div>
+      </div>
+
+      {/* Debug banner: shows completed sales orders count and computed customer items */}
+      <div className="mb-4">
+        <div className="inline-block px-3 py-2 bg-yellow-50 border border-yellow-100 rounded-lg text-sm font-bold text-yellow-800">
+          Completed orders fetched: {salesOrders?.length ?? 0} — Computed customer items: {customerItems?.length ?? 0} — Loading items: {isLoadingItemsProjects ? 'yes' : 'no'}
         </div>
       </div>
 
