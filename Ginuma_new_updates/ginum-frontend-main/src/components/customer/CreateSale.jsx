@@ -73,7 +73,7 @@ const buildCustomerItemOptions = (customerRecord, products = []) => {
 };
 
 const buildCompletedCustomerItemOptions = (salesOrders = [], products = []) => {
-  const byItemId = new Map();
+  const options = [];
   const resolveProductName = (item) => {
     const productId = item.externalItemId || item.productId || item.itemId;
     const matchedProduct = products.find((product) => String(product.id) === String(productId));
@@ -89,28 +89,31 @@ const buildCompletedCustomerItemOptions = (salesOrders = [], products = []) => {
   };
 
   salesOrders.forEach((order) => {
-    (order?.items || []).forEach((item) => {
+    (order?.items || []).forEach((item, index) => {
       if (!item || item.itemType === "SERVICE") return;
 
       const itemId = item.externalItemId || item.productId || item.itemId;
       if (!itemId) return;
 
-      const key = String(itemId);
-      const existing = byItemId.get(key) || {};
       const resolvedName = resolveProductName(item);
+      const displayOrderRef = order.soNumber || order.salesOrderNumber || order.id;
+      const uniqueId = `${order.id}-${itemId}-${index}`;
 
-      byItemId.set(key, {
-        id: itemId,
-        label: resolvedName || existing.label || `Item #${itemId}`,
-        description: resolvedName || existing.description || "",
-        accountId: item.accountCode || existing.accountId || "",
-        quantity: item.quantity ?? existing.quantity ?? 1,
-        unitPrice: item.unitPrice ?? existing.unitPrice ?? "",
+      options.push({
+        id: uniqueId,
+        itemId,
+        salesOrderId: order.id,
+        salesOrderNumber: order.soNumber || order.salesOrderNumber || `SO-${String(order.id).padStart(3, "0")}`,
+        label: `${resolvedName || `Item #${itemId}`} (${displayOrderRef ? `SO-${String(displayOrderRef).replace(/^SO-/, "")}` : `SO-${String(order.id).padStart(3, "0")}`})`,
+        description: resolvedName || "",
+        accountId: item.accountCode || "",
+        quantity: item.quantity ?? 1,
+        unitPrice: item.unitPrice ?? "",
       });
     });
   });
 
-  return Array.from(byItemId.values());
+  return options;
 };
 
 const CreateSaleOrder = () => {
@@ -362,7 +365,7 @@ const CreateSaleOrder = () => {
       const selectedItem = customerItems.find((item) => String(item.id) === String(value));
 
       if (selectedItem) {
-        updatedRows[index].description = selectedItem.description || selectedItem.label || "";
+          updatedRows[index].description = selectedItem.description || selectedItem.label || "";
         updatedRows[index].quantity = selectedItem.quantity ?? 1;
         updatedRows[index].unitPrice = selectedItem.unitPrice ?? "";
         updatedRows[index].account = selectedItem.accountId || "";
