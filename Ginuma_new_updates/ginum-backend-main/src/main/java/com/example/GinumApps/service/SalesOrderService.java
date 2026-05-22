@@ -73,11 +73,7 @@ public class SalesOrderService {
         Company company = companyRepo.findById(companyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Company not found"));
 
-        Customer customer = resolveCustomerForCompany(request, companyId)
-            .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
-        if (!customer.getCompany().getCompanyId().equals(companyId)) {
-            throw new AccessDeniedException("Customer does not belong to your company");
-        }
+        Customer customer = resolveOrCreateCustomerForCompany(request, company, companyId);
 
         Account paymentAccount = null;
         if (request.getPaymentAccountCode() != null) {
@@ -133,25 +129,45 @@ public class SalesOrderService {
         return convertToDto(savedOrder);
     }
 
-    private Optional<Customer> resolveCustomerForCompany(SalesOrderRequestDto request, Integer companyId) {
+    private Customer resolveOrCreateCustomerForCompany(SalesOrderRequestDto request, Company company, Integer companyId) {
         Optional<Customer> directCustomer = customerRepo.findById(request.getCustomerId())
                 .filter(customer -> customer.getCompany() != null && customer.getCompany().getCompanyId().equals(companyId));
         if (directCustomer.isPresent()) {
-            return directCustomer;
+            return directCustomer.get();
         }
 
         String requestedName = request.getCustomerName();
         if (requestedName == null || requestedName.isBlank()) {
-            return Optional.empty();
+            requestedName = "Walk-in Customer";
         }
 
         String normalizedRequestedName = requestedName.trim().toLowerCase();
-        return customerRepo.findByCompany_CompanyId(companyId).stream()
+        Optional<Customer> matchedCustomer = customerRepo.findByCompany_CompanyId(companyId).stream()
                 .filter(customer -> customer.getName() != null)
                 .filter(customer -> customer.getName().trim().toLowerCase().equals(normalizedRequestedName)
                         || customer.getName().trim().toLowerCase().contains(normalizedRequestedName)
                         || normalizedRequestedName.contains(customer.getName().trim().toLowerCase()))
                 .findFirst();
+
+        if (matchedCustomer.isPresent()) {
+            return matchedCustomer.get();
+        }
+
+        Customer createdCustomer = new Customer();
+        createdCustomer.setCompany(company);
+        createdCustomer.setName(requestedName.trim());
+        createdCustomer.setPhoneNo("");
+        createdCustomer.setEmail("");
+        createdCustomer.setNicNo("");
+        createdCustomer.setCustomerType(CustomerType.INDIVIDUAL);
+        createdCustomer.setVat("");
+        createdCustomer.setTinNo("");
+        createdCustomer.setDeliveryAddress("");
+        createdCustomer.setTax(TaxType.EXCLUSIVE);
+        createdCustomer.setBillingAddress("");
+        createdCustomer.setSwiftNo("");
+        createdCustomer.setDiscountPercentage(0D);
+        return customerRepo.save(createdCustomer);
     }
 
     private void processItems(List<SalesOrderItemRequestDto> items, SalesOrder order, Company company) {
