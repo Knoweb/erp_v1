@@ -15,6 +15,8 @@ public class SalesOrderRequestDto {
     @NotNull
     private Long customerId;
 
+    private String customerName;
+
     @NotBlank
     private String soNumber;
 

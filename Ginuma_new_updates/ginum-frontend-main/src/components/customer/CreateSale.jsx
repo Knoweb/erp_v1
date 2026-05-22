@@ -457,6 +457,7 @@ const CreateSaleOrder = () => {
     const payload = {
       companyId: parseInt(companyId),
       customerId: parseInt(selectedCustomer),
+      customerName: customers.find((customer) => String(customer.id) === String(selectedCustomer))?.customerName || customers.find((customer) => String(customer.id) === String(selectedCustomer))?.name || "",
       soNumber: soNumber,
       issueDate: issueDate,
       dueDate: dueDate || null,
