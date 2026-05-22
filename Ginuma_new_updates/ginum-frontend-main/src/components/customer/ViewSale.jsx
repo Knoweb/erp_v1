@@ -13,6 +13,16 @@ const ViewSale = () => {
 
   const companyId = localStorage.getItem("companyId");
 
+  const getItemLabel = (item) => {
+    if (!item) return 'Unknown Item';
+
+    const label = item.itemName || item.productName || item.description || item.name;
+    if (label) return label;
+
+    const idLabel = item.externalItemId ?? item.productId ?? item.itemId ?? item.id;
+    return idLabel ? `Item #${idLabel}` : 'Unknown Item';
+  };
+
   useEffect(() => {
     const fetchSale = async () => {
       try {
@@ -123,7 +133,7 @@ const ViewSale = () => {
                 {sale.items && sale.items.length > 0 ? (
                   sale.items.map((item, index) => (
                     <tr key={index} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3 text-sm text-gray-900">{item.itemName || 'Unknown Item'}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900">{getItemLabel(item)}</td>
                       <td className="px-4 py-3 text-sm text-gray-900 text-right">{item.quantity || 0}</td>
                       <td className="px-4 py-3 text-sm text-gray-900 text-right">{Number(item.unitPrice || 0).toFixed(2)}</td>
                       <td className="px-4 py-3 text-sm text-gray-900 text-right">{Number(item.discountPercent || 0).toFixed(2)}%</td>
