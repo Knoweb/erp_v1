@@ -204,15 +204,22 @@ const CreateSaleOrder = () => {
     const customerRecord = customers.find((customer) => String(customer.id) === String(selectedCustomer));
     const customerName = customerRecord?.customerName || customerRecord?.name || "";
 
+    const safe = (s) => String(s || "").trim().toLowerCase();
+    const custSafe = safe(customerName);
     const customerOrders = salesOrders.filter((order) => {
-      const matchesCustomer = (order.customerId && String(order.customerId) === String(selectedCustomer)) || String(order.customerName || "") === String(customerName || "");
+      const orderCustId = order.customerId;
+      const orderCustName = safe(order.customerName);
+      const matchesById = orderCustId && String(orderCustId) === String(selectedCustomer);
+      const matchesByNameExact = orderCustName === custSafe && custSafe !== "";
+      const matchesByNameFuzzy = custSafe !== "" && (orderCustName.includes(custSafe) || custSafe.includes(orderCustName));
+      const matchesCustomer = matchesById || matchesByNameExact || matchesByNameFuzzy;
       const isCompleted = String(order.status || "").toUpperCase() === "COMPLETED";
       return matchesCustomer && isCompleted;
     });
 
     const options = buildCompletedCustomerItemOptions(customerOrders);
-    console.debug("[CreateSale] selectedCustomer:", selectedCustomer, "completedOrders:", customerOrders.length);
-    console.debug("[CreateSale] computed customerItems:", options.length, options);
+    console.info("[CreateSale] selectedCustomer:", selectedCustomer, "completedOrders:", customerOrders.length);
+    console.info("[CreateSale] computed customerItems:", options.length, options);
     setCustomerItems(options);
   }, [selectedCustomer, salesOrders, customers]);
 
@@ -292,7 +299,10 @@ const CreateSaleOrder = () => {
 
         setIsLoadingItemsProjects(true);
         const salesOrdersRes = await api.get(`/api/finance/external/completed-sales-orders/${companyId}`);
-        setSalesOrders(normalizeList(salesOrdersRes?.data));
+        const normalized = normalizeList(salesOrdersRes?.data);
+        console.info('[CreateSale] fetchSalesOrders raw response:', salesOrdersRes?.data);
+        console.info('[CreateSale] fetchSalesOrders normalized count:', normalized.length);
+        setSalesOrders(normalized);
       } catch (error) {
         console.error("Error fetching sales orders:", error);
       } finally {
@@ -379,8 +389,15 @@ const CreateSaleOrder = () => {
 
     const customerRecord = customers.find((customer) => String(customer.id) === String(customerId));
     const customerName = customerRecord?.customerName || customerRecord?.name || "";
+    const safe = (s) => String(s || "").trim().toLowerCase();
+    const custSafe = safe(customerName);
     const customerOrders = salesOrders.filter((order) => {
-      const matchesCustomer = (order.customerId && String(order.customerId) === String(customerId)) || String(order.customerName || "") === String(customerName || "");
+      const orderCustId = order.customerId;
+      const orderCustName = safe(order.customerName);
+      const matchesById = orderCustId && String(orderCustId) === String(customerId);
+      const matchesByNameExact = orderCustName === custSafe && custSafe !== "";
+      const matchesByNameFuzzy = custSafe !== "" && (orderCustName.includes(custSafe) || custSafe.includes(orderCustName));
+      const matchesCustomer = matchesById || matchesByNameExact || matchesByNameFuzzy;
       return matchesCustomer && String(order.status || "").toUpperCase() === "COMPLETED";
     });
 
