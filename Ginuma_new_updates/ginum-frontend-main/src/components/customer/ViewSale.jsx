@@ -83,11 +83,6 @@ const ViewSale = () => {
             {companyProfile?.address && <p className="text-sm text-gray-700">{companyProfile.address}</p>}
           </div>
           <div className="flex items-center gap-6">
-            <div className="text-right text-sm text-gray-700">
-              <p><strong>Date:</strong> {sale?.issueDate || ''}</p>
-              <p><strong>VAT REG. NO. :</strong> {companyProfile?.vatNumber || companyProfile?.vatRegNo || companyProfile?.vat || ''}</p>
-              <p><strong>CUST. VAT NO. :</strong> {sale?.customerVat || sale?.customer?.vatNumber || sale?.customer?.vatNo || ''}</p>
-            </div>
             <div className="print-logo">
               <img
                 src={companyProfile?.logo || localStorage.getItem('companyLogo') || '/logo-print.png'}
@@ -95,6 +90,11 @@ const ViewSale = () => {
                 style={{ maxWidth: 160, maxHeight: 80 }}
               />
             </div>
+                <div className="p-4 rounded-lg border border-gray-100 bg-blue-50">
+                  <p className="text-sm text-blue-700"><strong>Date:</strong> {sale?.issueDate || ''}</p>
+                  <p className="text-sm text-blue-700"><strong>VAT REG. NO. :</strong> {companyProfile?.vatNumber || companyProfile?.vatRegNo || companyProfile?.vat || ''}</p>
+                  <p className="text-sm text-blue-700"><strong>CUST. VAT NO. :</strong> {sale?.customerVat || sale?.customer?.vatNumber || sale?.customer?.vatNo || ''}</p>
+                </div>
           </div>
         </div>
       </div>
