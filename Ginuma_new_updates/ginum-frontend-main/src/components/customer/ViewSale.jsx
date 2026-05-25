@@ -81,6 +81,11 @@ const ViewSale = () => {
           <div className="text-left">
             <h2 className="text-2xl font-bold">{companyProfile?.companyName || companyProfile?.name || 'Company'}</h2>
             {companyProfile?.address && <p className="text-sm text-gray-700">{companyProfile.address}</p>}
+            <div className="mt-2 text-sm text-gray-700">
+              <p><strong>Date:</strong> {sale?.issueDate || ''}</p>
+              <p><strong>VAT REG. NO. :</strong> {companyProfile?.vatNumber || companyProfile?.vatRegNo || companyProfile?.vat || ''}</p>
+              <p><strong>CUST. VAT NO. :</strong> {sale?.customerVat || sale?.customer?.vatNumber || sale?.customer?.vatNo || ''}</p>
+            </div>
           </div>
           <div className="print-logo">
             <img
@@ -136,14 +141,7 @@ const ViewSale = () => {
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Notes</h3>
-              <p className="mt-2 text-gray-700 whitespace-pre-wrap text-sm border-l-2 border-gray-200 pl-3">
-                {sale.notes || 'No notes provided.'}
-              </p>
-            </div>
-          </div>
+          {/* Notes removed per request */}
         </div>
 
         <div className="border-t border-gray-200 px-6 py-6">
