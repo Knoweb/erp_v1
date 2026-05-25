@@ -136,6 +136,14 @@ const CustomersList = () => {
                               <FiMapPin className="text-slate-400" />
                               <span>{contactAddress}</span>
                             </div>
+                            <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                              <span className="inline-flex items-center rounded-full bg-cyan-50 px-2.5 py-1 font-medium text-cyan-700">
+                                Phone: {phone}
+                              </span>
+                              <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 font-medium text-emerald-700">
+                                VAT: {vat || 'N/A'}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -246,6 +254,19 @@ const CustomersList = () => {
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Discount %</p>
                   <p className="mt-2 font-semibold text-slate-900">{viewCustomer.discountPercentage != null ? `${viewCustomer.discountPercentage}%` : '—'}</p>
                 </div>
+                {viewCustomer.contactInfo && Object.keys(viewCustomer.contactInfo).length > 0 && (
+                  <div className="rounded-2xl bg-slate-50 p-4 sm:col-span-2">
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Contact Info</p>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                      {Object.entries(viewCustomer.contactInfo).map(([key, value]) => (
+                        <div key={key} className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+                          <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">{key}</p>
+                          <p className="mt-1 text-sm font-semibold text-slate-900 break-words">{String(value)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="mt-6 flex justify-end">

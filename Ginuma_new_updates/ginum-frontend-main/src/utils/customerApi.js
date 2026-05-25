@@ -20,11 +20,12 @@ export const normalizeCustomer = (customer) => {
       customer.phone ||
       customer.mobileNo ||
       customer.mobileNumber ||
+      contactInfo.phoneNumber ||
       contactInfo.phone ||
       contactInfo.phoneNo ||
       contactInfo.mobileNo ||
       "",
-    billingAddress: customer.billingAddress || customer.address || contactInfo.address || "",
+    billingAddress: customer.billingAddress || customer.address || contactInfo.address || contactInfo.billingAddress || "",
     deliveryAddress: customer.deliveryAddress || customer.delivery || "",
     customerType: customer.customerType || "",
     tax:
@@ -37,7 +38,16 @@ export const normalizeCustomer = (customer) => {
       "",
     nicNo: customer.nicNo || "",
     tinNo: customer.tinNo || "",
-    vat: customer.vat || customer.vatNumber || customer.vatNo || customer.tax || customer.taxNumber || "",
+    vat:
+      customer.vat ||
+      customer.vatNumber ||
+      customer.vatNo ||
+      customer.tax ||
+      customer.taxNumber ||
+      contactInfo.vat ||
+      contactInfo.vatNumber ||
+      contactInfo.vatNo ||
+      "",
     swiftNo: customer.swiftNo || "",
     discountPercentage: customer.discountPercentage ?? null,
     contactInfo,
