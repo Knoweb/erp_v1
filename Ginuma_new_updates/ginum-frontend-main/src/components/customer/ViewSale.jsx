@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiPrinter, FiAlertCircle } from 'react-icons/fi';
 import api from '../../utils/api';
-import { fetchCompanyCustomers, normalizeCustomer } from '../../utils/customerApi';
+import { fetchCompanyCustomers } from '../../utils/customerApi';
 
 const ViewSale = () => {
   const { id } = useParams();
@@ -59,35 +59,20 @@ const ViewSale = () => {
       try {
         if (!companyId || !sale) return;
 
-        let customers = [];
-        try {
-          const direct = await api.get(`/api/customers/companies/${companyId}`);
-          customers = Array.isArray(direct) ? direct.map(normalizeCustomer) : [];
-        } catch (e) {
-          customers = [];
-        }
+        const token =
+          localStorage.getItem('auth_token') ||
+          localStorage.getItem('token') ||
+          localStorage.getItem('ginuma_token') ||
+          sessionStorage.getItem('auth_token') ||
+          '';
 
-        if (!customers.length) {
-          const token =
-            localStorage.getItem('auth_token') ||
-            localStorage.getItem('token') ||
-            localStorage.getItem('ginuma_token') ||
-            sessionStorage.getItem('auth_token') ||
-            '';
-          customers = await fetchCompanyCustomers(companyId, token);
-        }
-
+        const customers = await fetchCompanyCustomers(companyId, token);
         const saleCustomerId = sale.customerId || sale.customer?.id || sale.customer?.customerId;
         const saleCustomerName = (sale.customerName || sale.customer?.name || '').trim().toLowerCase();
 
         const matched = customers.find((c) => {
-          const customerId = c?.id || c?.customerId;
-          const customerName = String(c?.name || c?.customerName || '').trim().toLowerCase();
-          const byId = saleCustomerId && customerId && String(customerId) === String(saleCustomerId);
-          const byName =
-            saleCustomerName &&
-            customerName &&
-            (customerName === saleCustomerName || customerName.includes(saleCustomerName) || saleCustomerName.includes(customerName));
+          const byId = saleCustomerId && String(c.id) === String(saleCustomerId);
+          const byName = saleCustomerName && String(c.name || c.customerName || '').trim().toLowerCase() === saleCustomerName;
           return byId || byName;
         });
 
@@ -113,13 +98,10 @@ const ViewSale = () => {
   const customerPhone =
     customerProfile?.phoneNo ||
     customerProfile?.phoneNumber ||
-    customerProfile?.phone ||
     customerProfile?.mobileNo ||
-    customerProfile?.mobile ||
     customerProfile?.contactInfo?.phone ||
     sale?.customerPhone ||
     sale?.customer?.phoneNo ||
-    sale?.customer?.phone ||
     sale?.customer?.phoneNumber ||
     '';
 
@@ -129,7 +111,6 @@ const ViewSale = () => {
     customerProfile?.deliveryAddress ||
     sale?.customerAddress ||
     sale?.customer?.billingAddress ||
-    sale?.customer?.deliveryAddress ||
     sale?.customer?.address ||
     '';
 

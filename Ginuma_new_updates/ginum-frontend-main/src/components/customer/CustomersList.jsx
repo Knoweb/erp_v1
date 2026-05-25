@@ -119,9 +119,8 @@ const CustomersList = () => {
                   const displayName = customer.name || customer.customerName || 'Unnamed customer';
                   const contactAddress = customer.billingAddress || customer.address || customer.deliveryAddress || '-';
                   const customerType = customer.customerType || 'Customer';
-                  const phone = customer.phoneNo || customer.phoneNumber || customer.phone || customer.mobileNo || customer.mobile || customer.contactNumber || '-';
+                  const phone = customer.phoneNo || customer.phoneNumber || '-';
                   const email = customer.email || '-';
-                  const vatNo = customer.vat || customer.vatNumber || customer.vatNo || customer.tax || '-';
 
                   return (
                     <tr key={customer.id} className="transition hover:bg-slate-50/80">
@@ -149,10 +148,6 @@ const CustomersList = () => {
                             <FiMail className="text-slate-400" />
                             <span>{email}</span>
                           </div>
-                          <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
-                            <FiMapPin className="text-slate-400" />
-                            <span>{contactAddress}</span>
-                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-5 align-top">
@@ -160,9 +155,9 @@ const CustomersList = () => {
                           <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
                             {customerType}
                           </span>
-                            {vatNo && vatNo !== '-' ? (
+                          {customer.vat || customer.vatNumber ? (
                             <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-                                VAT {vatNo}
+                              VAT {customer.vat || customer.vatNumber}
                             </span>
                           ) : (
                             <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
