@@ -74,7 +74,7 @@ const ViewSale = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
+    <div className="invoice-page max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
       {/* Print Header: shows only when printing (or when using print styles) */}
       <div className="hidden print:block print-header mb-6">
         <div className="flex justify-between items-center">
@@ -121,8 +121,8 @@ const ViewSale = () => {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="invoice-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="invoice-meta p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div>
               <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Customer Information</h3>
@@ -146,7 +146,7 @@ const ViewSale = () => {
           {/* Notes removed per request */}
         </div>
 
-        <div className="border-t border-gray-200 px-6 py-6">
+        <div className="invoice-items border-t border-gray-200 px-6 py-6">
           <h3 className="text-lg font-bold text-gray-800 mb-4 border-b-2 border-indigo-400 inline-block">Item Details</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -180,8 +180,8 @@ const ViewSale = () => {
           </div>
         </div>
 
-        <div className="border-t border-gray-200 px-6 py-6 bg-gray-50 flex flex-col md:flex-row justify-end">
-          <div className="w-full md:w-1/3 space-y-3">
+        <div className="invoice-totals border-t border-gray-200 px-6 py-6 bg-gray-50 flex flex-col md:flex-row justify-end">
+          <div className="invoice-summary w-full md:w-1/3 space-y-3">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600 font-medium">Subtotal</span>
               <span className="text-gray-900 font-semibold">{Number(sale.subtotal).toFixed(2)}</span>

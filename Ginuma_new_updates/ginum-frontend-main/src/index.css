@@ -33,6 +33,11 @@
 
 /* Print Styles Optimization */
 @media print {
+    @page {
+        size: A4;
+        margin: 8mm;
+    }
+
     /* Hide navigation and UI elements */
     .no-print,
     nav,
@@ -83,6 +88,58 @@
     table {
         width: 100% !important;
         border-collapse: collapse !important;
+    }
+
+    /* Keep invoice in one page by reducing print spacing and preventing section splits */
+    .invoice-page {
+        font-size: 11px !important;
+        line-height: 1.25 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    .invoice-card {
+        border: 0 !important;
+        border-radius: 0 !important;
+    }
+
+    .print-header,
+    .invoice-meta,
+    .invoice-items,
+    .invoice-totals,
+    .invoice-summary,
+    .invoice-items table,
+    .invoice-items tr {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    .invoice-meta {
+        padding: 10px 12px !important;
+        gap: 10px !important;
+    }
+
+    .invoice-items {
+        padding: 10px 12px !important;
+    }
+
+    .invoice-items th,
+    .invoice-items td {
+        padding: 4px 6px !important;
+        font-size: 10px !important;
+    }
+
+    .invoice-totals {
+        padding: 8px 12px !important;
+        margin-top: 0 !important;
+    }
+
+    .invoice-summary {
+        width: 42% !important;
+    }
+
+    .invoice-summary .text-lg {
+        font-size: 14px !important;
     }
 
     /* Print header styles (logo + company info) */
