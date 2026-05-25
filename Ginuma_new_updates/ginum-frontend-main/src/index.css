@@ -98,4 +98,46 @@
         max-height: 80px !important;
         object-fit: contain !important;
     }
+
+    /* Invoice print layout */
+    .invoice-print-wrapper {
+        padding: 8px 0 16px 0;
+    }
+
+    .invoice-company-name {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .invoice-logo {
+        max-width: 140px !important;
+        max-height: 90px !important;
+        object-fit: contain !important;
+    }
+
+    .invoice-title {
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 2px;
+    }
+
+    .invoice-meta .meta-label {
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-right: 6px;
+    }
+
+    .invoice-meta .meta-value {
+        font-weight: 500;
+    }
+
+    .invoice-customer-name {
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .invoice-customer-address {
+        color: #374151; /* gray-700 */
+    }
 }
