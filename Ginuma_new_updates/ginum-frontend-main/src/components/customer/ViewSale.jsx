@@ -75,50 +75,19 @@ const ViewSale = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
-      {/* Print invoice header matching template */}
-      <div className="hidden print:block invoice-print-wrapper mb-6">
-        <div className="flex justify-between items-start">
-          <div className="w-2/3 text-center">
-            <h1 className="invoice-company-name">{companyProfile?.companyName || companyProfile?.name || 'Company'}</h1>
-            {companyProfile?.companyTagline && <div className="text-sm">{companyProfile.companyTagline}</div>}
+      {/* Print Header: shows only when printing (or when using print styles) */}
+      <div className="hidden print:block print-header mb-6">
+        <div className="flex justify-between items-center">
+          <div className="text-left">
+            <h2 className="text-2xl font-bold">{companyProfile?.companyName || companyProfile?.name || 'Company'}</h2>
+            {companyProfile?.address && <p className="text-sm text-gray-700">{companyProfile.address}</p>}
           </div>
-          <div className="w-1/3 text-right">
+          <div className="print-logo">
             <img
               src={companyProfile?.logo || localStorage.getItem('companyLogo') || '/logo-print.png'}
               alt="Company Logo"
-              className="invoice-logo"
+              style={{ maxWidth: 160, maxHeight: 80 }}
             />
-          </div>
-        </div>
-
-        <div className="text-center mt-2">
-          <h2 className="invoice-title">TAX INVOICE</h2>
-        </div>
-
-        <div className="mt-4 flex justify-between invoice-meta">
-          <div className="w-1/2">
-            <div><span className="meta-label">INVOICE NO :</span> <span className="meta-value">{sale.soNumber || ''}</span></div>
-            <div><span className="meta-label">CUSTOMER REF.:</span> <span className="meta-value">{sale.customerRef || sale.customer?.ref || ''}</span></div>
-            <div><span className="meta-label">PAYMENT TERMS:</span> <span className="meta-value">{sale.paymentTerms || ''}</span></div>
-          </div>
-          <div className="w-1/2 text-right">
-            <div><span className="meta-label">DATE :</span> <span className="meta-value">{sale.issueDate || ''}</span></div>
-            <div><span className="meta-label">VAT REG. NO. :</span> <span className="meta-value">{companyProfile?.vatRegNo || companyProfile?.vatNumber || ''}</span></div>
-            <div><span className="meta-label">CUST. VAT NO. :</span> <span className="meta-value">{sale.customer?.vatNumber || sale.customerVat || ''}</span></div>
-          </div>
-        </div>
-
-        <div className="mt-6 flex">
-          <div className="w-1/2">
-            <div className="text-sm font-semibold">NAME</div>
-            <div className="invoice-customer-name mt-1">{sale.customerName || sale.customer?.name || ''}</div>
-            {sale.customer && (
-              <div className="invoice-customer-address mt-2 text-sm">
-                {sale.customer.addressLine1 && <div>{sale.customer.addressLine1}</div>}
-                {sale.customer.addressLine2 && <div>{sale.customer.addressLine2}</div>}
-                {sale.customer.city && <div>{sale.customer.city}</div>}
-              </div>
-            )}
           </div>
         </div>
       </div>
