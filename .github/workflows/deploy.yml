@@ -203,6 +203,8 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             cd /app
+            export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
             docker compose pull
-            docker compose up -d
-            docker system prune -af
+            docker compose up -d --force-recreate --remove-orphans
+            docker compose ps
+            docker image prune -af
