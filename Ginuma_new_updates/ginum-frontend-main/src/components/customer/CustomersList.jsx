@@ -119,8 +119,9 @@ const CustomersList = () => {
                   const displayName = customer.name || customer.customerName || 'Unnamed customer';
                   const contactAddress = customer.billingAddress || customer.address || customer.deliveryAddress || '-';
                   const customerType = customer.customerType || 'Customer';
-                  const phone = customer.phoneNo || customer.phoneNumber || '-';
+                  const phone = customer.phoneNo || customer.phoneNumber || customer.phone || customer.mobileNo || '-';
                   const email = customer.email || '-';
+                  const vat = customer.vat || customer.vatNumber || customer.vatNo || customer.tax || customer.taxNumber || null;
 
                   return (
                     <tr key={customer.id} className="transition hover:bg-slate-50/80">
@@ -155,9 +156,9 @@ const CustomersList = () => {
                           <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
                             {customerType}
                           </span>
-                          {customer.vat || customer.vatNumber ? (
+                          {vat ? (
                             <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-                              VAT {customer.vat || customer.vatNumber}
+                              VAT {vat}
                             </span>
                           ) : (
                             <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
@@ -223,7 +224,7 @@ const CustomersList = () => {
                 </div>
                 <div className="rounded-2xl bg-slate-50 p-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Phone</p>
-                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.phoneNo || viewCustomer.phoneNumber || '—'}</p>
+                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.phoneNo || viewCustomer.phoneNumber || viewCustomer.phone || viewCustomer.mobileNo || '—'}</p>
                 </div>
                 <div className="rounded-2xl bg-slate-50 p-4 sm:col-span-2">
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Address</p>
@@ -231,7 +232,7 @@ const CustomersList = () => {
                 </div>
                 <div className="rounded-2xl bg-slate-50 p-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">VAT No</p>
-                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.vat || viewCustomer.vatNumber || '—'}</p>
+                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.vat || viewCustomer.vatNumber || viewCustomer.vatNo || viewCustomer.tax || viewCustomer.taxNumber || '—'}</p>
                 </div>
                 <div className="rounded-2xl bg-slate-50 p-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">NIC No</p>
