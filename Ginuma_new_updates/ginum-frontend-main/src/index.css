@@ -84,4 +84,18 @@
         width: 100% !important;
         border-collapse: collapse !important;
     }
+
+    /* Print header styles (logo + company info) */
+    .print-header {
+        display: block !important;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .print-header .print-logo img {
+        max-width: 160px !important;
+        max-height: 80px !important;
+        object-fit: contain !important;
+    }
 }

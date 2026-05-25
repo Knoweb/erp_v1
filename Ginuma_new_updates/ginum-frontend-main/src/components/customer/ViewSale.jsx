@@ -75,6 +75,22 @@ const ViewSale = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
+      {/* Print Header: shows only when printing (or when using print styles) */}
+      <div className="hidden print:block print-header mb-6">
+        <div className="flex justify-between items-center">
+          <div className="text-left">
+            <h2 className="text-2xl font-bold">{companyProfile?.companyName || companyProfile?.name || 'Company'}</h2>
+            {companyProfile?.address && <p className="text-sm text-gray-700">{companyProfile.address}</p>}
+          </div>
+          <div className="print-logo">
+            <img
+              src={companyProfile?.logo || localStorage.getItem('companyLogo') || '/logo-print.png'}
+              alt="Company Logo"
+              style={{ maxWidth: 160, maxHeight: 80 }}
+            />
+          </div>
+        </div>
+      </div>
       <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <button 
