@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiPrinter, FiAlertCircle } from 'react-icons/fi';
 import api from '../../utils/api';
-import Alert from '../../components/Alert/Alert';
+import { fetchCompanyCustomers, normalizeCustomer } from '../../utils/customerApi';
 
 const ViewSale = () => {
   const { id } = useParams();
@@ -14,6 +14,7 @@ const ViewSale = () => {
   const companyId = localStorage.getItem("companyId");
 
   const [companyProfile, setCompanyProfile] = useState(null);
+  const [customerProfile, setCustomerProfile] = useState(null);
   useEffect(() => {
     const fetchCompany = async () => {
       try {
@@ -53,6 +54,85 @@ const ViewSale = () => {
     fetchSale();
   }, [id, companyId]);
 
+  useEffect(() => {
+    const fetchCustomerProfile = async () => {
+      try {
+        if (!companyId || !sale) return;
+
+        let customers = [];
+        try {
+          const direct = await api.get(`/api/customers/companies/${companyId}`);
+          customers = Array.isArray(direct) ? direct.map(normalizeCustomer) : [];
+        } catch (e) {
+          customers = [];
+        }
+
+        if (!customers.length) {
+          const token =
+            localStorage.getItem('auth_token') ||
+            localStorage.getItem('token') ||
+            localStorage.getItem('ginuma_token') ||
+            sessionStorage.getItem('auth_token') ||
+            '';
+          customers = await fetchCompanyCustomers(companyId, token);
+        }
+
+        const saleCustomerId = sale.customerId || sale.customer?.id || sale.customer?.customerId;
+        const saleCustomerName = (sale.customerName || sale.customer?.name || '').trim().toLowerCase();
+
+        const matched = customers.find((c) => {
+          const customerId = c?.id || c?.customerId;
+          const customerName = String(c?.name || c?.customerName || '').trim().toLowerCase();
+          const byId = saleCustomerId && customerId && String(customerId) === String(saleCustomerId);
+          const byName =
+            saleCustomerName &&
+            customerName &&
+            (customerName === saleCustomerName || customerName.includes(saleCustomerName) || saleCustomerName.includes(customerName));
+          return byId || byName;
+        });
+
+        setCustomerProfile(matched || null);
+      } catch (e) {
+        setCustomerProfile(null);
+      }
+    };
+
+    fetchCustomerProfile();
+  }, [companyId, sale]);
+
+  const customerVat =
+    customerProfile?.vat ||
+    customerProfile?.vatNumber ||
+    customerProfile?.tax ||
+    sale?.customerVat ||
+    sale?.customer?.vatNumber ||
+    sale?.customer?.vatNo ||
+    sale?.customer?.vat ||
+    '';
+
+  const customerPhone =
+    customerProfile?.phoneNo ||
+    customerProfile?.phoneNumber ||
+    customerProfile?.phone ||
+    customerProfile?.mobileNo ||
+    customerProfile?.mobile ||
+    customerProfile?.contactInfo?.phone ||
+    sale?.customerPhone ||
+    sale?.customer?.phoneNo ||
+    sale?.customer?.phone ||
+    sale?.customer?.phoneNumber ||
+    '';
+
+  const customerAddress =
+    customerProfile?.billingAddress ||
+    customerProfile?.address ||
+    customerProfile?.deliveryAddress ||
+    sale?.customerAddress ||
+    sale?.customer?.billingAddress ||
+    sale?.customer?.deliveryAddress ||
+    sale?.customer?.address ||
+    '';
+
   if (loading) {
     return <div className="p-6 text-center text-gray-500">Loading sales order details...</div>;
   }
@@ -75,7 +155,6 @@ const ViewSale = () => {
 
   return (
     <div className="invoice-page max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
-      {/* Print Header: shows only when printing (or when using print styles) */}
       <div className="hidden print:block print-header mb-6">
         <div className="flex justify-between items-center">
           <div className="text-left">
@@ -90,11 +169,14 @@ const ViewSale = () => {
                 style={{ maxWidth: 160, maxHeight: 80 }}
               />
             </div>
-                <div className="p-4 rounded-lg border border-gray-100 bg-blue-50">
-                  <p className="text-sm text-blue-700"><strong>Date:</strong> {sale?.issueDate || ''}</p>
-                  <p className="text-sm text-blue-700"><strong>VAT REG. NO. :</strong> {companyProfile?.vatNumber || companyProfile?.vatRegNo || companyProfile?.vat || ''}</p>
-                  <p className="text-sm text-blue-700"><strong>CUST. VAT NO. :</strong> {sale?.customerVat || sale?.customer?.vatNumber || sale?.customer?.vatNo || ''}</p>
-                </div>
+            <div className="p-4 rounded-lg border border-gray-100 bg-blue-50">
+              <p className="text-sm text-blue-700"><strong>VAT:</strong> {companyProfile?.vatNo || companyProfile?.vatNumber || companyProfile?.vatRegNo || companyProfile?.vat || ''}</p>
+              <p className="text-sm text-blue-700"><strong>Phone:</strong> {companyProfile?.phoneNo || companyProfile?.phone || companyProfile?.mobileNo || companyProfile?.mobile || companyProfile?.contactNumber || ''}</p>
+              <p className="text-sm text-blue-700"><strong>Address:</strong> {companyProfile?.address || ''}</p>
+              <p className="text-sm text-blue-700"><strong>Date:</strong> {sale?.issueDate || ''}</p>
+              <p className="text-sm text-blue-700"><strong>CUST. VAT NO. :</strong> {customerVat || 'N/A'}</p>
+              <p className="text-sm text-blue-700"><strong>CUST. PHONE:</strong> {customerPhone || 'N/A'}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -127,6 +209,9 @@ const ViewSale = () => {
             <div>
               <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Customer Information</h3>
               <p className="mt-2 text-lg font-medium text-gray-900">{sale.customerName || (sale.customer && sale.customer.name) || 'N/A'}</p>
+              <p className="mt-1 text-sm text-gray-700"><span className="font-medium">Phone:</span> {customerPhone || 'N/A'}</p>
+              <p className="mt-1 text-sm text-gray-700"><span className="font-medium">VAT:</span> {customerVat || 'N/A'}</p>
+              <p className="mt-1 text-sm text-gray-700"><span className="font-medium">Address:</span> {customerAddress || 'N/A'}</p>
             </div>
             <div>
               <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Dates</h3>
