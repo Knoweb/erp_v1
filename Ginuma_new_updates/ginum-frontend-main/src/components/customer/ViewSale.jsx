@@ -133,18 +133,6 @@ const ViewSale = () => {
     sale?.customer?.address ||
     '';
 
-  const invoiceNo = sale.invoiceNo || sale.soNumber || sale.id || '';
-  const customerRef = sale.customerRef || sale.customerReference || sale.reference || sale.soNumber || '';
-  const paymentTerms = sale.paymentTerms || sale.terms || (sale.dueDate ? 'N/A' : 'N/A');
-  const grossTotal = Number(sale.subtotal || sale.grossTotal || sale.netTotal || 0);
-  const taxLine = sale.taxBreakdown && sale.taxBreakdown.length > 0 ? sale.taxBreakdown[0] : null;
-  const taxLabel = taxLine?.taxType || 'VAT';
-  const taxPercent = taxLine?.percentage != null && taxLine?.percentage !== '' ? `${taxLine.percentage}%` : '';
-  const taxAmount = Number(sale.taxAmount || sale.totalTax || taxLine?.amount || 0);
-  const grandTotal = Number(sale.total || grossTotal + taxAmount);
-  const companyPhone = companyProfile?.phoneNo || companyProfile?.phone || companyProfile?.mobileNo || companyProfile?.mobile || companyProfile?.contactNumber || '';
-  const companyVat = companyProfile?.vatNo || companyProfile?.vatNumber || companyProfile?.vatRegNo || companyProfile?.vat || '';
-
   if (loading) {
     return <div className="p-6 text-center text-gray-500">Loading sales order details...</div>;
   }
@@ -167,95 +155,31 @@ const ViewSale = () => {
 
   return (
     <div className="invoice-page max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
-      <div className="hidden print:block invoice-print-sheet">
-        <div className="invoice-paper">
-          <div className="invoice-top-row">
-            <div className="invoice-company-title">
-              <div className="invoice-company-name">{companyProfile?.companyName || companyProfile?.name || 'Company Name'}</div>
-              {companyProfile?.address && <div className="invoice-company-address">{companyProfile.address}</div>}
-            </div>
-            <div className="invoice-logo-wrap">
+      <div className="hidden print:block print-header mb-6">
+        <div className="flex justify-between items-center">
+          <div className="text-left">
+            <h2 className="text-2xl font-bold">{companyProfile?.companyName || companyProfile?.name || 'Company'}</h2>
+            {companyProfile?.address && <p className="text-sm text-gray-700">{companyProfile.address}</p>}
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="print-logo">
               <img
                 src={companyProfile?.logo || localStorage.getItem('companyLogo') || '/logo-print.png'}
                 alt="Company Logo"
-                className="invoice-logo"
+                style={{ maxWidth: 160, maxHeight: 80 }}
               />
             </div>
-          </div>
-
-          <div className="invoice-title">TAX INVOICE</div>
-
-          <div className="invoice-info-grid">
-            <div className="invoice-info-left">
-              <div className="invoice-field-row"><span className="label">INVOICE NO</span><span className="sep">:</span><span className="value">{invoiceNo || 'N/A'}</span></div>
-              <div className="invoice-field-row"><span className="label">CUSTOMER REF.</span><span className="sep">:</span><span className="value">{customerRef || 'N/A'}</span></div>
-              <div className="invoice-field-row"><span className="label">PAYMENT TERMS</span><span className="sep">:</span><span className="value">{paymentTerms || 'N/A'}</span></div>
-              <div className="invoice-ship-block">
-                <div className="invoice-field-title">NAME</div>
-                <div className="invoice-field-value">{sale.customerName || sale.customer?.name || 'N/A'}</div>
-                <div className="invoice-field-title">ADDRESS</div>
-                <div className="invoice-field-value">{customerAddress || 'N/A'}</div>
-              </div>
+            <div className="p-4 rounded-lg border border-gray-100 bg-blue-50">
+              <p className="text-sm text-blue-700"><strong>VAT:</strong> {companyProfile?.vatNo || companyProfile?.vatNumber || companyProfile?.vatRegNo || companyProfile?.vat || ''}</p>
+              <p className="text-sm text-blue-700"><strong>Phone:</strong> {companyProfile?.phoneNo || companyProfile?.phone || companyProfile?.mobileNo || companyProfile?.mobile || companyProfile?.contactNumber || ''}</p>
+              <p className="text-sm text-blue-700"><strong>Address:</strong> {companyProfile?.address || ''}</p>
+              <p className="text-sm text-blue-700"><strong>Date:</strong> {sale?.issueDate || ''}</p>
+              <p className="text-sm text-blue-700"><strong>CUST. VAT NO. :</strong> {customerVat || 'N/A'}</p>
+              <p className="text-sm text-blue-700"><strong>CUST. PHONE:</strong> {customerPhone || 'N/A'}</p>
             </div>
-
-            <div className="invoice-info-right">
-              <div className="invoice-field-row"><span className="label">DATE</span><span className="sep">:</span><span className="value">{sale.issueDate || 'N/A'}</span></div>
-              <div className="invoice-field-row"><span className="label">VAT REG. NO.</span><span className="sep">:</span><span className="value">{companyVat || 'N/A'}</span></div>
-              <div className="invoice-field-row"><span className="label">CUST. VAT NO.</span><span className="sep">:</span><span className="value">{customerVat || 'N/A'}</span></div>
-            </div>
-          </div>
-
-          <div className="invoice-items-title">ITEM DETAILS</div>
-          <table className="invoice-table">
-            <thead>
-              <tr>
-                <th style={{ width: '6%' }}>NO.</th>
-                <th style={{ width: '14%' }}>ITEM CODE</th>
-                <th>DESCRIPTION</th>
-                <th style={{ width: '8%' }}>UNIT</th>
-                <th style={{ width: '8%' }}>QTY</th>
-                <th style={{ width: '12%' }}>UNIT PRICE</th>
-                <th style={{ width: '14%' }}>NET AMOUNT</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(sale.items && sale.items.length > 0 ? sale.items : []).map((item, index) => (
-                <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td>{item.externalItemId || item.productId || item.itemId || item.id || '-'}</td>
-                  <td>{getItemLabel(item)}</td>
-                  <td>{item.unit || item.uom || item.uomName || 'PCS'}</td>
-                  <td>{item.quantity || 0}</td>
-                  <td>{Number(item.unitPrice || 0).toFixed(2)}</td>
-                  <td>{Number(item.amount || 0).toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="invoice-total-wrap">
-            <div className="invoice-total-box">
-              <div className="total-row"><span>GROSS TOTAL</span><span className="currency">LKR.</span><span className="amount">{grossTotal.toFixed(2)}</span></div>
-              <div className="total-row"><span>{taxLabel} {taxPercent}</span><span className="currency">LKR.</span><span className="amount">{taxAmount.toFixed(2)}</span></div>
-              <div className="total-row total-row-final"><span>TOTAL</span><span className="currency">LKR.</span><span className="amount">{grandTotal.toFixed(2)}</span></div>
-            </div>
-          </div>
-
-          <div className="invoice-signatures">
-            <div>PREPARED BY: ____________________</div>
-            <div>CHECKED BY: ______________________</div>
-            <div>AUTHORIZED BY: __________________</div>
-            <div>CUSTOMER'S SIGNATURE: ____________</div>
-          </div>
-
-          <div className="invoice-footer">
-            <div className="invoice-footer-company">{companyProfile?.companyName || companyProfile?.name || 'Company Name'}</div>
-            <div>{companyProfile?.address || ''}</div>
-            <div>Tel: {companyPhone || 'N/A'}  |  VAT: {companyVat || 'N/A'}</div>
           </div>
         </div>
       </div>
-
       <div className="no-print mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <button 
@@ -279,7 +203,7 @@ const ViewSale = () => {
         </button>
       </div>
 
-      <div className="no-print invoice-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="invoice-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="invoice-meta p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div>
