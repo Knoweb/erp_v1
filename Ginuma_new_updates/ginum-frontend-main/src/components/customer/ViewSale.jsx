@@ -91,7 +91,7 @@ const ViewSale = () => {
           </div>
         </div>
       </div>
-      <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="no-print mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <button 
             onClick={() => navigate('/app/customer/sales/all')}
