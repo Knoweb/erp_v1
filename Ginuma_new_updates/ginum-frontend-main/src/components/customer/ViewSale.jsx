@@ -81,18 +81,20 @@ const ViewSale = () => {
           <div className="text-left">
             <h2 className="text-2xl font-bold">{companyProfile?.companyName || companyProfile?.name || 'Company'}</h2>
             {companyProfile?.address && <p className="text-sm text-gray-700">{companyProfile.address}</p>}
-            <div className="mt-2 text-sm text-gray-700">
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="text-right text-sm text-gray-700">
               <p><strong>Date:</strong> {sale?.issueDate || ''}</p>
               <p><strong>VAT REG. NO. :</strong> {companyProfile?.vatNumber || companyProfile?.vatRegNo || companyProfile?.vat || ''}</p>
               <p><strong>CUST. VAT NO. :</strong> {sale?.customerVat || sale?.customer?.vatNumber || sale?.customer?.vatNo || ''}</p>
             </div>
-          </div>
-          <div className="print-logo">
-            <img
-              src={companyProfile?.logo || localStorage.getItem('companyLogo') || '/logo-print.png'}
-              alt="Company Logo"
-              style={{ maxWidth: 160, maxHeight: 80 }}
-            />
+            <div className="print-logo">
+              <img
+                src={companyProfile?.logo || localStorage.getItem('companyLogo') || '/logo-print.png'}
+                alt="Company Logo"
+                style={{ maxWidth: 160, maxHeight: 80 }}
+              />
+            </div>
           </div>
         </div>
       </div>
