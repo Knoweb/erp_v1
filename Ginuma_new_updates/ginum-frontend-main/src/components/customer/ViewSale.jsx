@@ -137,14 +137,6 @@ const ViewSale = () => {
           </div>
 
           <div className="space-y-4">
-            {companyProfile && (
-              <div>
-                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Company</h3>
-                <p className="mt-2 text-lg font-medium text-gray-900">{companyProfile.companyName || companyProfile.name}</p>
-                {companyProfile.address && <p className="text-sm text-gray-600">{companyProfile.address}</p>}
-                {companyProfile.phone && <p className="text-sm text-gray-600">{companyProfile.phone}</p>}
-              </div>
-            )}
             <div>
               <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Notes</h3>
               <p className="mt-2 text-gray-700 whitespace-pre-wrap text-sm border-l-2 border-gray-200 pl-3">
