@@ -135,33 +135,9 @@ const ViewSale = () => {
   }
 
   return (
-    <div className="invoice-page max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
-      <div className="hidden print:block print-header mb-6">
-        <div className="flex justify-between items-center">
-          <div className="text-left">
-            <h2 className="text-2xl font-bold">{companyProfile?.companyName || companyProfile?.name || 'Company'}</h2>
-            {companyProfile?.address && <p className="text-sm text-gray-700">{companyProfile.address}</p>}
-          </div>
-          <div className="flex items-center gap-6">
-            <div className="print-logo">
-              <img
-                src={companyProfile?.logo || localStorage.getItem('companyLogo') || '/logo-print.png'}
-                alt="Company Logo"
-                style={{ maxWidth: 160, maxHeight: 80 }}
-              />
-            </div>
-            <div className="p-4 rounded-lg border border-gray-100 bg-blue-50">
-              <p className="text-sm text-blue-700"><strong>VAT:</strong> {companyProfile?.vatNo || companyProfile?.vatNumber || companyProfile?.vatRegNo || companyProfile?.vat || ''}</p>
-              <p className="text-sm text-blue-700"><strong>Phone:</strong> {companyProfile?.phoneNo || companyProfile?.phone || companyProfile?.mobileNo || companyProfile?.mobile || companyProfile?.contactNumber || ''}</p>
-              <p className="text-sm text-blue-700"><strong>Address:</strong> {companyProfile?.address || ''}</p>
-              <p className="text-sm text-blue-700"><strong>Date:</strong> {sale?.issueDate || ''}</p>
-              <p className="text-sm text-blue-700"><strong>CUST. VAT NO. :</strong> {customerVat || 'N/A'}</p>
-              <p className="text-sm text-blue-700"><strong>CUST. PHONE:</strong> {customerPhone || 'N/A'}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="no-print mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="invoice-page bg-white">
+      {/* Screen Navigation (hidden when printing) */}
+      <div className="no-print sticky top-0 z-50 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
           <button 
             onClick={() => navigate('/app/customer/sales/all')}
@@ -169,126 +145,153 @@ const ViewSale = () => {
           >
             <FiArrowLeft size={20} />
           </button>
-          <div>
-            <h1 className="text-2xl font-bold border-b-4 border-indigo-500 inline-block pb-1">
-              Sales Order #{sale.soNumber}
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">View details for this sales transaction</p>
-          </div>
+          <h1 className="text-lg font-bold">Tax Invoice #{sale?.soNumber}</h1>
         </div>
         <button 
           onClick={() => window.print()}
-          className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors border border-gray-300"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
         >
-          <FiPrinter /> Print SO
+          <FiPrinter size={18} /> Print Invoice
         </button>
       </div>
 
-      <div className="invoice-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="invoice-meta p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Customer Information</h3>
-              <p className="mt-2 text-lg font-medium text-gray-900">{sale.customerName || (sale.customer && sale.customer.name) || 'N/A'}</p>
-              <p className="mt-1 text-sm text-gray-700"><span className="font-medium">Phone:</span> {customerPhone || 'N/A'}</p>
-              <p className="mt-1 text-sm text-gray-700"><span className="font-medium">VAT:</span> {customerVat || 'N/A'}</p>
-              <p className="mt-1 text-sm text-gray-700"><span className="font-medium">Address:</span> {customerAddress || 'N/A'}</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Dates</h3>
-              <p className="mt-1 text-gray-900"><span className="font-medium">Issue Date:</span> {sale.issueDate || 'N/A'}</p>
-              <p className="mt-1 text-gray-900"><span className="font-medium">Due Date:</span> {sale.dueDate || 'N/A'}</p>
-            </div>
+      {/* Professional Invoice */}
+      <div className="max-w-4xl mx-auto p-8 bg-white">
+        
+        {/* Header */}
+        <div className="flex justify-between items-start mb-8 border-b-2 border-gray-300 pb-6">
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-gray-900">{companyProfile?.companyName || 'Company'}</h1>
+            <p className="text-sm text-gray-600 mt-1">
+              {companyProfile?.address}<br/>
+              Tel: {companyProfile?.phoneNo || companyProfile?.phone || '-'}<br/>
+              Email: {companyProfile?.email || '-'}
+            </p>
           </div>
-
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Order References</h3>
-              <p className="mt-1 text-gray-900"><span className="font-medium">SO Number:</span> {sale.soNumber || 'N/A'}</p>
-              <p className="mt-1 text-gray-900"><span className="font-medium">Sales Type:</span> {sale.salesType || 'N/A'}</p>
-            </div>
-          </div>
-
-          {/* Notes removed per request */}
-        </div>
-
-        <div className="invoice-items border-t border-gray-200 px-6 py-6">
-          <h3 className="text-lg font-bold text-gray-800 mb-4 border-b-2 border-indigo-400 inline-block">Item Details</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-4 py-3 text-sm font-semibold text-gray-600">Item</th>
-                  <th className="px-4 py-3 text-sm font-semibold text-gray-600 text-right">Quantity</th>
-                  <th className="px-4 py-3 text-sm font-semibold text-gray-600 text-right">Unit Price</th>
-                  <th className="px-4 py-3 text-sm font-semibold text-gray-600 text-right">Discount</th>
-                  <th className="px-4 py-3 text-sm font-semibold text-gray-600 text-right">Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {sale.items && sale.items.length > 0 ? (
-                  sale.items.map((item, index) => (
-                    <tr key={index} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3 text-sm text-gray-900">{getItemLabel(item)}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900 text-right">{item.quantity || 0}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900 text-right">{Number(item.unitPrice || 0).toFixed(2)}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900 text-right">{Number(item.discountPercent || 0).toFixed(2)}%</td>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900 text-right">{Number(item.amount || 0).toFixed(2)}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5" className="px-4 py-4 text-center text-gray-500 italic">No items found for this order.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="invoice-totals border-t border-gray-200 px-6 py-6 bg-gray-50 flex flex-col md:flex-row justify-end">
-          <div className="invoice-summary w-full md:w-1/3 space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600 font-medium">Subtotal</span>
-              <span className="text-gray-900 font-semibold">{Number(sale.subtotal).toFixed(2)}</span>
-            </div>
-            
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600 font-medium">Freight</span>
-              <span className="text-gray-900 font-semibold">{Number(sale.freight).toFixed(2)}</span>
-            </div>
-
-            {sale.taxBreakdown && sale.taxBreakdown.length > 0 && (
-              <div className="border-t border-b border-gray-200 py-2 my-2 space-y-2">
-                <span className="text-gray-600 font-medium text-xs uppercase tracking-wider block">Taxes Collected:</span>
-                {sale.taxBreakdown.map((tax, idx) => (
-                  <div key={idx} className="flex justify-between text-sm">
-                    <span className="text-gray-500 italic">{tax.taxType} ({tax.percentage}%)</span>
-                    <span className="text-gray-900">{Number(tax.amount || 0).toFixed(2)}</span>
-                  </div>
-                ))}
-              </div>
+          <div className="text-right">
+            {companyProfile?.logo && (
+              <img
+                src={companyProfile.logo}
+                alt="Company Logo"
+                style={{ maxWidth: 120, maxHeight: 100 }}
+                className="mb-2"
+              />
             )}
+            <h2 className="text-2xl font-bold text-gray-800">TAX INVOICE</h2>
+          </div>
+        </div>
 
-            <div className="flex justify-between text-sm border-t border-gray-200 pt-2">
-              <span className="text-gray-600 font-medium">Total Tax</span>
-              <span className="text-gray-900 font-semibold">{Number(sale.taxAmount || 0).toFixed(2)}</span>
-            </div>
+        {/* Invoice Metadata */}
+        <div className="grid grid-cols-2 gap-8 mb-8">
+          <div className="text-sm space-y-2">
+            <p><strong>INVOICE NO.:</strong> {sale?.soNumber || '-'}</p>
+            <p><strong>CUSTOMER REF.:</strong> {sale?.customerId || '-'}</p>
+            <p><strong>PAYMENT TERMS:</strong> {sale?.paymentTerms || 'N/A'}</p>
+          </div>
+          <div className="text-sm space-y-2 text-right">
+            <p><strong>DATE:</strong> {sale?.issueDate || '-'}</p>
+            <p><strong>VAT REG. NO.:</strong> {companyProfile?.vatNo || companyProfile?.vatNumber || '-'}</p>
+            <p><strong>CUST. VAT NO.:</strong> {customerVat || 'N/A'}</p>
+          </div>
+        </div>
 
-            <div className="flex justify-between text-lg border-t border-gray-300 pt-3 mt-1">
-              <span className="text-gray-800 font-bold">Grand Total</span>
-              <span className="text-indigo-700 font-bold">{Number(sale.total).toFixed(2)}</span>
+        {/* Customer Details */}
+        <div className="mb-8">
+          <h3 className="text-sm font-bold uppercase text-gray-700 mb-3">BILL TO:</h3>
+          <p className="font-semibold text-gray-900">{sale?.customerName || 'N/A'}</p>
+          <p className="text-sm text-gray-600">{customerAddress || '-'}</p>
+          {customerPhone && <p className="text-sm text-gray-600">Tel: {customerPhone}</p>}
+        </div>
+
+        {/* Items Table */}
+        <div className="mb-8">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="bg-gray-200 border border-gray-400">
+                <th className="border border-gray-400 px-3 py-2 text-left font-semibold">NO.</th>
+                <th className="border border-gray-400 px-3 py-2 text-left font-semibold">DESCRIPTION</th>
+                <th className="border border-gray-400 px-3 py-2 text-center font-semibold">UNIT</th>
+                <th className="border border-gray-400 px-3 py-2 text-center font-semibold">QTY</th>
+                <th className="border border-gray-400 px-3 py-2 text-right font-semibold">UNIT PRICE</th>
+                <th className="border border-gray-400 px-3 py-2 text-right font-semibold">NET AMOUNT</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sale?.items && sale.items.length > 0 ? (
+                sale.items.map((item, index) => (
+                  <tr key={index} className="border border-gray-400">
+                    <td className="border border-gray-400 px-3 py-2 text-center">{index + 1}</td>
+                    <td className="border border-gray-400 px-3 py-2">{getItemLabel(item)}</td>
+                    <td className="border border-gray-400 px-3 py-2 text-center text-xs">PCS</td>
+                    <td className="border border-gray-400 px-3 py-2 text-center">{item.quantity || 0}</td>
+                    <td className="border border-gray-400 px-3 py-2 text-right">{Number(item.unitPrice || 0).toFixed(2)}</td>
+                    <td className="border border-gray-400 px-3 py-2 text-right font-medium">{Number(item.amount || 0).toFixed(2)}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="border border-gray-400 px-3 py-2 text-center text-gray-500">No items</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Totals */}
+        <div className="grid grid-cols-2 gap-8 mb-8">
+          <div></div>
+          <div className="text-sm space-y-2 border-l border-gray-300 pl-4">
+            <div className="flex justify-between">
+              <span>GROSS TOTAL</span>
+              <span className="font-medium">{Number(sale?.subtotal || 0).toFixed(2)}</span>
             </div>
-            
-            <div className="flex justify-between text-sm border-t border-gray-200 pt-2 mt-2">
-              <span className="text-green-600 font-medium">Amount Paid</span>
-              <span className="text-green-700 font-semibold">{Number(sale.amountPaid || 0).toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-sm border-t border-gray-200 pt-2">
-              <span className="text-red-600 font-medium">Balance Due</span>
-              <span className="text-red-700 font-semibold">{Number(sale.balanceDue || 0).toFixed(2)}</span>
+            {sale?.taxBreakdown && sale.taxBreakdown.length > 0 && (
+              sale.taxBreakdown.map((tax, idx) => (
+                <div key={idx} className="flex justify-between">
+                  <span>{tax.taxType} ({tax.percentage}%)</span>
+                  <span className="font-medium">{Number(tax.amount || 0).toFixed(2)}</span>
+                </div>
+              ))
+            )}
+            <div className="flex justify-between border-t border-gray-300 pt-2 font-bold text-lg">
+              <span>TOTAL</span>
+              <span>{Number(sale?.total || 0).toFixed(2)}</span>
             </div>
           </div>
+        </div>
+
+        {/* Signatures */}
+        <div className="grid grid-cols-4 gap-4 mb-8 text-center text-xs">
+          <div className="border-t border-gray-400 pt-2">
+            <p className="mt-6 font-semibold">PREPARED BY</p>
+          </div>
+          <div className="border-t border-gray-400 pt-2">
+            <p className="mt-6 font-semibold">CHECKED BY</p>
+          </div>
+          <div className="border-t border-gray-400 pt-2">
+            <p className="mt-6 font-semibold">AUTHORIZED BY</p>
+          </div>
+          <div className="border-t border-gray-400 pt-2">
+            <p className="mt-6 font-semibold">CUSTOMER'S SIGNATURE</p>
+          </div>
+        </div>
+
+        {/* Bank Details */}
+        <div className="bg-gray-50 p-4 mb-8 text-sm border border-gray-300">
+          <p className="font-semibold mb-2">BENEFICIARY BANK:</p>
+          <p>{companyProfile?.bankName || 'Bank Details Not Available'}</p>
+          {companyProfile?.accountNumber && <p>Account Number: {companyProfile.accountNumber}</p>}
+        </div>
+
+        {/* Footer */}
+        <div className="text-center text-xs text-gray-600 border-t border-gray-300 pt-6">
+          <p className="font-semibold">{companyProfile?.companyName}</p>
+          <p>{companyProfile?.address}</p>
+          <p>
+            Tel: {companyProfile?.phoneNo || '-'} | 
+            Email: {companyProfile?.email || '-'} | 
+            Web: {companyProfile?.website || '-'}
+          </p>
         </div>
       </div>
     </div>
