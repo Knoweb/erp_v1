@@ -41,5 +41,22 @@ public class CustomerController {
         return ResponseEntity.ok(result);
     }
 
+    // === GET: Debug endpoint to test Middeniya API connectivity ===
+    @GetMapping("/debug/middeniya/{orgId}")
+    public ResponseEntity<Map<String, Object>> debugMiddeniyaApi(@PathVariable Long orgId) {
+        Map<String, Object> debug = new java.util.HashMap<>();
+        try {
+            Object response = customerSyncService.testMiddeniyaApiConnection(orgId);
+            debug.put("status", "success");
+            debug.put("middeniyaResponse", response);
+            debug.put("responseType", response != null ? response.getClass().getName() : "null");
+        } catch (Exception e) {
+            debug.put("status", "error");
+            debug.put("message", e.getMessage());
+            debug.put("cause", e.getCause() != null ? e.getCause().getMessage() : "unknown");
+        }
+        return ResponseEntity.ok(debug);
+    }
+
     // Update and delete operations removed: customer master data is read-only in this service.
 }

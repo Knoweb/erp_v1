@@ -9,11 +9,13 @@ export const normalizeCustomer = (customer) => {
 
   const contactInfo = customer.contactInfo || {};
   
-  // Extract actual VAT number, not the tax type enum
-  const actualVat = customer.vat || customer.vatNumber || customer.vatNo || contactInfo.vat || contactInfo.vatNumber || contactInfo.vatNo || "";
+  // Extract actual VAT number, filtering out tax type enums
+  let vat = customer.vat || customer.vatNumber || customer.vatNo || contactInfo.vat || contactInfo.vatNumber || contactInfo.vatNo || "";
   
-  // Don't use tax enum as fallback for VAT
-  const vatNumber = actualVat && !['EXCLUSIVE', 'INCLUSIVE', 'VAT', 'SST', 'GST'].includes(actualVat) ? actualVat : actualVat;
+  // Remove if it's actually a tax type enum, not a VAT number
+  if (['EXCLUSIVE', 'INCLUSIVE', 'VAT', 'SST', 'GST'].includes(String(vat).toUpperCase())) {
+    vat = "";
+  }
 
   return {
     id: customer.id,
@@ -44,7 +46,7 @@ export const normalizeCustomer = (customer) => {
       "",
     nicNo: customer.nicNo || "",
     tinNo: customer.tinNo || "",
-    vat: vatNumber,
+    vat: vat,
     swiftNo: customer.swiftNo || "",
     discountPercentage: customer.discountPercentage ?? null,
     contactInfo,

@@ -40,6 +40,16 @@ public class CustomerSyncService {
             List<Map<String, Object>> middeniyaCustomers = fetchMiddeniyaCustomers(orgId);
             log.info("Fetched {} customers from Middeniya", middeniyaCustomers.size());
 
+            if (middeniyaCustomers.isEmpty()) {
+                log.warn("No customers returned from Middeniya API for orgId: {}", orgId);
+                result.put("status", "success");
+                result.put("created", 0);
+                result.put("updated", 0);
+                result.put("total", 0);
+                result.put("warning", "No customers found in Middeniya for organization " + orgId);
+                return result;
+            }
+
             int created = 0;
             int updated = 0;
             List<String> errors = new ArrayList<>();
@@ -82,25 +92,32 @@ public class CustomerSyncService {
     private List<Map<String, Object>> fetchMiddeniyaCustomers(Long orgId) {
         try {
             String url = MIDDENIYA_API_URL + "/" + orgId;
-            log.debug("Calling Middeniya API: {}", url);
+            log.info("Calling Middeniya API: {}", url);
 
             Object response = restTemplate.getForObject(url, Object.class);
+            log.info("Middeniya API response type: {}, value: {}", 
+                    response != null ? response.getClass().getName() : "null", response);
 
             if (response instanceof List) {
-                return (List<Map<String, Object>>) response;
+                List<Map<String, Object>> list = (List<Map<String, Object>>) response;
+                log.info("Received list with {} items from Middeniya", list.size());
+                return list;
             } else if (response instanceof Map) {
                 Map<String, Object> map = (Map<String, Object>) response;
+                log.info("Received map with keys: {}", map.keySet());
                 if (map.containsKey("data")) {
                     Object data = map.get("data");
                     if (data instanceof List) {
-                        return (List<Map<String, Object>>) data;
+                        List<Map<String, Object>> list = (List<Map<String, Object>>) data;
+                        log.info("Extracted data list with {} items from Middeniya", list.size());
+                        return list;
                     }
                 }
             }
-            log.warn("Unexpected response format from Middeniya API");
+            log.warn("Unexpected response format from Middeniya API. Response: {}", response);
             return new ArrayList<>();
         } catch (Exception e) {
-            log.error("Failed to fetch customers from Middeniya", e);
+            log.error("Failed to fetch customers from Middeniya API at " + MIDDENIYA_API_URL + "/" + orgId, e);
             return new ArrayList<>();
         }
     }
@@ -153,5 +170,14 @@ public class CustomerSyncService {
         customer.setTax(TaxType.INCLUSIVE); // Default
 
         return customerRepository.save(customer);
+    }
+
+    /**
+     * Debug: Test Middeniya API connection and return raw response
+     */
+    public Object testMiddeniyaApiConnection(Long orgId) {
+        String url = MIDDENIYA_API_URL + "/" + orgId;
+        log.info("Testing Middeniya API connection: {}", url);
+        return restTemplate.getForObject(url, Object.class);
     }
 }

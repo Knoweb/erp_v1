@@ -148,7 +148,12 @@ const CustomersList = () => {
                   const customerType = customer.customerType || 'Customer';
                   const phone = customer.phoneNo || customer.phoneNumber || customer.phone || customer.mobileNo || '-';
                   const email = customer.email || '-';
-                  const vat = customer.vat && !['EXCLUSIVE', 'INCLUSIVE', 'VAT', 'SST', 'GST'].includes(customer.vat) ? customer.vat : customer.vatNumber || customer.vatNo || customer.tax || customer.taxNumber || 'N/A';
+                  
+                  // Get clean VAT number, filtering out enum values
+                  let displayVat = customer.vat || customer.vatNumber || customer.vatNo || "";
+                  if (['EXCLUSIVE', 'INCLUSIVE', 'VAT', 'SST', 'GST'].includes(String(displayVat).toUpperCase())) {
+                    displayVat = "";
+                  }
 
                   return (
                     <tr key={customer.id} className="transition hover:bg-slate-50/80">
@@ -171,9 +176,9 @@ const CustomersList = () => {
                                   <FiPhone size={12} className="mr-1" /> {phone}
                                 </span>
                               )}
-                              {vat && vat !== 'N/A' && (
+                              {displayVat && displayVat !== '' && (
                                 <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 font-medium text-emerald-700 border border-emerald-200">
-                                  VAT: {vat}
+                                  VAT: {displayVat}
                                 </span>
                               )}
                               {email && email !== '-' && (
@@ -202,21 +207,15 @@ const CustomersList = () => {
                           <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
                             {customerType}
                           </span>
-                          {(() => {
-                            const isEnum = ['EXCLUSIVE', 'INCLUSIVE', 'VAT', 'SST', 'GST'].includes(vat);
-                            if (vat && !isEnum) {
-                              return (
-                                <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-                                  VAT {vat}
-                                </span>
-                              );
-                            }
-                            return (
-                              <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
-                                No tax info
-                              </span>
-                            );
-                          })()}
+                          {displayVat ? (
+                            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                              VAT {displayVat}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
+                              No tax info
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-5 align-top text-center">
