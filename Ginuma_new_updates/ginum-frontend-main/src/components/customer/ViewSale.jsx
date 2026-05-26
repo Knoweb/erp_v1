@@ -193,10 +193,10 @@ const ViewSale = () => {
 
       {/* Professional Invoice Container */}
       <div className="flex-1 overflow-y-auto py-4 px-4 sm:px-6">
-        <div id="invoice-content" className="max-w-[210mm] mx-auto bg-white shadow-[0_0_50px_rgba(0,0,0,0.05)] border border-slate-200 print:shadow-none print:border-none relative p-[10mm] print:p-0 flex flex-col" style={{ minHeight: '297mm' }}>
+        <div id="invoice-content" className="max-w-[210mm] mx-auto bg-white shadow-[0_0_50px_rgba(0,0,0,0.05)] border border-slate-200 print:shadow-none print:border-none relative p-[10mm] print:p-0 flex flex-col justify-between" style={{ height: '297mm' }}>
           
           {/* Header Section */}
-          <div className="flex justify-between items-start gap-8 mb-4 border-b-2 border-slate-900 pb-4">
+          <div className="flex justify-between items-start gap-8 mb-6 border-b-2 border-slate-900 pb-4">
             <div className="flex-1">
               <h1 className="text-xl font-black text-slate-900 tracking-tighter uppercase mb-1.5">
                 {companyProfile?.companyName || 'Company'}
@@ -226,7 +226,7 @@ const ViewSale = () => {
           </div>
 
           {/* Details Bar */}
-          <div className="grid grid-cols-2 gap-x-8 mb-3 text-[10px]">
+          <div className="grid grid-cols-2 gap-x-8 mb-5 text-[10px]">
             <div className="grid grid-cols-[120px,1fr] gap-y-0.5">
               <span className="font-bold uppercase text-slate-400 tracking-wider">Invoice No</span>
               <span className="font-bold text-slate-900 text-[11px]">{sale?.soNumber || '-'}</span>
@@ -250,7 +250,7 @@ const ViewSale = () => {
           </div>
 
           {/* Client Details */}
-          <div className="mb-3 bg-slate-50 border-l-[3px] border-slate-900 p-2.5 flex flex-col gap-0">
+          <div className="mb-5 bg-slate-50 border-l-[3px] border-slate-900 p-2.5 flex flex-col gap-0">
             <h3 className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400 mb-0.5">Bill To:</h3>
             <p className="text-sm font-black text-slate-900 leading-tight uppercase underline underline-offset-3">{sale?.customerName || 'N/A'}</p>
             <p className="text-[10px] text-slate-600 font-medium max-w-sm">{customerAddress || '-'}</p>
@@ -260,7 +260,7 @@ const ViewSale = () => {
           </div>
 
           {/* Table Container */}
-          <div className="mb-4 min-h-[70px]">
+          <div className="mb-5 flex-grow min-h-[80px]">
             <table className="w-full text-[9px] border-collapse">
               <thead>
                 <tr className="bg-slate-900 text-white font-bold h-6">
@@ -294,7 +294,7 @@ const ViewSale = () => {
           </div>
 
           {/* Financial Summary */}
-          <div className="flex justify-between items-start gap-6 mb-3 flex-col">
+          <div className="flex justify-between items-start gap-6 mb-6 flex-col">
             <div className="flex justify-between w-full gap-6">
               <div className="flex-1">
                 <div className="text-[8px] text-slate-500 uppercase tracking-widest font-black mb-0.5">Bank Information:</div>
@@ -333,7 +333,7 @@ const ViewSale = () => {
           </div>
 
           {/* Authorization Section */}
-          <div className="grid grid-cols-4 gap-x-2 mt-auto mb-2 text-center pt-1.5">
+          <div className="grid grid-cols-4 gap-x-2 mb-3 text-center pt-3 border-t-2 border-slate-100">
             <div className="flex flex-col h-12 justify-end">
               <div className="border-t-2 border-slate-400 pt-0.5">
                 <p className="text-[7px] font-black uppercase tracking-[0.2em] text-slate-500">Prepared By</p>
@@ -357,7 +357,7 @@ const ViewSale = () => {
           </div>
 
           {/* Bottom Footer */}
-          <div className="text-center pt-1.5 border-t border-slate-100">
+          <div className="text-center pt-2 border-t border-slate-100">
             <p className="text-[7px] font-black uppercase tracking-[0.4em] text-slate-400 mb-0.5">Thank you for your business</p>
             <div className="text-[8px] font-bold text-slate-600 space-x-1.5">
               <span>TEL: {companyProfile?.phoneNo || '-'}</span>
