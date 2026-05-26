@@ -43,10 +43,12 @@ public class CustomerController {
 
     // === GET: Debug endpoint to test Middeniya API connectivity ===
     @GetMapping("/debug/middeniya/{orgId}")
-    public ResponseEntity<Map<String, Object>> debugMiddeniyaApi(@PathVariable Long orgId) {
+    public ResponseEntity<Map<String, Object>> debugMiddeniyaApi(
+            @PathVariable Long orgId,
+            @RequestHeader(value = "Authorization", required = false) String token) {
         Map<String, Object> debug = new java.util.HashMap<>();
         try {
-            Object response = customerSyncService.testMiddeniyaApiConnection(orgId);
+            Object response = customerSyncService.testMiddeniyaApiConnection(orgId, token);
             debug.put("status", "success");
             debug.put("middeniyaResponse", response);
             debug.put("responseType", response != null ? response.getClass().getName() : "null");

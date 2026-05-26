@@ -8,6 +8,10 @@ import com.example.GinumApps.enums.CustomerType;
 import com.example.GinumApps.enums.TaxType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -37,7 +41,7 @@ public class CustomerSyncService {
                     .orElseThrow(() -> new RuntimeException("Company not found: " + companyId));
 
             // Fetch customers from Middeniya
-            List<Map<String, Object>> middeniyaCustomers = fetchMiddeniyaCustomers(orgId);
+            List<Map<String, Object>> middeniyaCustomers = fetchMiddeniyaCustomers(orgId, token);
             log.info("Fetched {} customers from Middeniya", middeniyaCustomers.size());
 
             if (middeniyaCustomers.isEmpty()) {
@@ -89,14 +93,23 @@ public class CustomerSyncService {
      * Fetch customers from Middeniya API
      */
     @SuppressWarnings("unchecked")
-    private List<Map<String, Object>> fetchMiddeniyaCustomers(Long orgId) {
+    private List<Map<String, Object>> fetchMiddeniyaCustomers(Long orgId, String token) {
         try {
             String url = MIDDENIYA_API_URL + "/" + orgId;
             log.info("Calling Middeniya API: {}", url);
 
-            Object response = restTemplate.getForObject(url, Object.class);
-            log.info("Middeniya API response type: {}, value: {}", 
-                    response != null ? response.getClass().getName() : "null", response);
+            HttpHeaders headers = new HttpHeaders();
+            if (token != null && !token.isEmpty()) {
+                headers.set("Authorization", token);
+            }
+            headers.set("x-org-id", String.valueOf(orgId));
+            
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<Object> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, Object.class);
+            Object response = responseEntity.getBody();
+
+            log.info("Middeniya API response type: {}", 
+                    response != null ? response.getClass().getName() : "null");
 
             if (response instanceof List) {
                 List<Map<String, Object>> list = (List<Map<String, Object>>) response;
@@ -175,9 +188,17 @@ public class CustomerSyncService {
     /**
      * Debug: Test Middeniya API connection and return raw response
      */
-    public Object testMiddeniyaApiConnection(Long orgId) {
+    public Object testMiddeniyaApiConnection(Long orgId, String token) {
         String url = MIDDENIYA_API_URL + "/" + orgId;
         log.info("Testing Middeniya API connection: {}", url);
-        return restTemplate.getForObject(url, Object.class);
+        
+        HttpHeaders headers = new HttpHeaders();
+        if (token != null && !token.isEmpty()) {
+            headers.set("Authorization", token);
+        }
+        headers.set("x-org-id", String.valueOf(orgId));
+        
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        return restTemplate.exchange(url, HttpMethod.GET, entity, Object.class).getBody();
     }
 }
