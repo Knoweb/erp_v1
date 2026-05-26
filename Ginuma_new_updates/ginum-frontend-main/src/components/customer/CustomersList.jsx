@@ -63,54 +63,56 @@ const CustomersList = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
-      <div className="rounded-2xl border border-slate-200 bg-gradient-to-r from-white via-slate-50 to-cyan-50 p-6 shadow-sm">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-cyan-100 px-3 py-1 text-xs font-semibold text-cyan-700">
-              <FiShield /> Master data synced
+    <div className="container mx-auto px-4 py-8 space-y-6 max-w-7xl">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 z-0 opacity-50"></div>
+        <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-indigo-700 border border-indigo-100 mb-2">
+              <FiShield size={12} /> Master Data Repository
             </div>
-            <h1 className="mt-3 text-3xl font-bold text-slate-900">Customers</h1>
-            <p className="mt-2 text-sm text-slate-600">
-              Browse the shared customer directory, check contact details, and open a record when you need more context.
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Customer Directory</h1>
+            <p className="text-sm text-slate-500 max-w-xl">
+              Access and manage your integrated customer database. Synchronize records from the central inventory system and view comprehensive contact profiles.
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex flex-wrap gap-3 items-center">
             <button
               onClick={handleSyncCustomers}
               disabled={syncing}
-              className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-400 text-white px-4 py-3 text-sm font-semibold shadow-sm transition"
-              title="Sync customers from Middeniya system"
+              className="inline-flex items-center gap-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 text-white px-5 py-3 text-sm font-bold shadow-md transition-all active:scale-95"
             >
               <FiRefreshCw size={16} className={syncing ? "animate-spin" : ""} />
-              {syncing ? "Syncing..." : "Sync Data"}
+              {syncing ? "Syncing..." : "Sync Database"}
             </button>
 
-            <div className="rounded-2xl border border-white/70 bg-white/80 px-4 py-3 shadow-sm backdrop-blur-sm">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-100 text-cyan-700">
-                  <FiUsers />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-indigo-600 shadow-sm border border-slate-100">
+                  <FiUsers size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Total customers</p>
-                  <p className="text-lg font-semibold text-slate-900">{customers.length}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-tight">Total count</p>
+                  <p className="text-lg font-black text-slate-900 leading-tight">{customers.length}</p>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
 
-            <div className="relative w-full sm:w-80">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <FiSearch className="text-slate-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search customers, phone, or email"
-                className="w-full rounded-2xl border border-slate-200 bg-white px-10 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+        <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 relative z-10 border-t border-slate-100 pt-6">
+          <div className="relative w-full">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+              <FiSearch className="text-slate-400" size={18} />
             </div>
+            <input
+              type="text"
+              placeholder="Search by name, contact number, email or VAT ID..."
+              className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-12 py-3.5 text-sm text-slate-700 transition focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-50 outline-none shadow-inner"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
         </div>
       </div>
@@ -130,15 +132,15 @@ const CustomersList = () => {
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-hidden bg-white shadow-sm border border-slate-200 rounded-xl">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-slate-50">
+              <thead className="bg-[#f8fafc]">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Customer</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Contact</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Profile</th>
-                  <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">Action</th>
+                  <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-slate-400">Customer Details</th>
+                  <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-slate-400">Contact Information</th>
+                  <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-slate-400">Tax Status</th>
+                  <th className="px-6 py-4 text-right text-[11px] font-bold uppercase tracking-widest text-slate-400">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
@@ -155,76 +157,73 @@ const CustomersList = () => {
                     displayVat = "";
                   }
 
+                  const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+
                   return (
-                    <tr key={customer.id} className="transition hover:bg-slate-50/80">
-                      <td className="px-6 py-5 align-top">
+                    <tr key={customer.id} className="group transition-all duration-200 hover:bg-slate-50/80">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-4">
-                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700">
-                            <FiUser size={20} />
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 font-bold text-sm ring-1 ring-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-200">
+                            {initials}
                           </div>
-                          <div className="flex-1">
-                            <div className="text-sm font-semibold text-slate-900">{displayName}</div>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-semibold text-slate-900 leading-none">{displayName}</span>
                             {contactAddress && contactAddress !== '-' && (
-                              <div className="mt-1 flex items-center gap-2 text-sm text-slate-500">
-                                <FiMapPin className="text-slate-400" size={14} />
-                                <span className="text-xs">{contactAddress}</span>
-                              </div>
+                              <span className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-400 max-w-[200px] truncate" title={contactAddress}>
+                                <FiMapPin size={12} className="shrink-0" />
+                                {contactAddress}
+                              </span>
                             )}
-                            <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                              {phone && phone !== '-' && (
-                                <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 font-medium text-blue-700 border border-blue-200">
-                                  <FiPhone size={12} className="mr-1" /> {phone}
-                                </span>
-                              )}
-                              {displayVat && displayVat !== '' && (
-                                <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 font-medium text-emerald-700 border border-emerald-200">
-                                  VAT: {displayVat}
-                                </span>
-                              )}
-                              {email && email !== '-' && (
-                                <span className="inline-flex items-center rounded-full bg-purple-50 px-2.5 py-1 font-medium text-purple-700 border border-purple-200">
-                                  <FiMail size={12} className="mr-1" /> {email}
-                                </span>
-                              )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-1.5">
+                          {phone && phone !== '-' && (
+                            <div className="flex items-center gap-2 text-[13px] text-slate-600">
+                              <div className="h-6 w-6 rounded flex items-center justify-center bg-slate-100 text-slate-500">
+                                <FiPhone size={12} />
+                              </div>
+                              <span className="font-medium">{phone}</span>
                             </div>
-                          </div>
+                          )}
+                          {email && email !== '-' && (
+                            <div className="flex items-center gap-2 text-[13px] text-slate-500">
+                              <div className="h-6 w-6 rounded flex items-center justify-center bg-slate-100 text-slate-400">
+                                <FiMail size={12} />
+                              </div>
+                              <span className="truncate max-w-[180px]">{email}</span>
+                            </div>
+                          )}
                         </div>
                       </td>
-                      <td className="px-6 py-5 align-top">
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-sm text-slate-700">
-                            <FiPhone className="text-slate-400" />
-                            <span>{phone}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-sm text-slate-500">
-                            <FiMail className="text-slate-400" />
-                            <span>{email}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-5 align-top">
-                        <div className="flex flex-wrap gap-2">
-                          <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider ${
+                            customerType === 'INDIVIDUAL' 
+                              ? 'bg-amber-50 text-amber-700 border border-amber-100' 
+                              : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
+                          }`}>
                             {customerType}
                           </span>
                           {displayVat ? (
-                            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-                              VAT {displayVat}
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 text-[11px] font-bold uppercase tracking-wider">
+                              VAT: {displayVat}
                             </span>
                           ) : (
-                            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
-                              No tax info
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-100 text-slate-500 border border-slate-200 text-[11px] font-medium uppercase tracking-wider">
+                              No Tax ID
                             </span>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-5 align-top text-center">
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
                         <button
                           onClick={() => setViewCustomer(customer)}
-                          className="inline-flex items-center gap-2 rounded-xl bg-cyan-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-cyan-700"
-                          title="View customer details"
+                          className="inline-flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:border-slate-300 hover:text-indigo-600 active:scale-95"
                         >
-                          <FiEye size={12} /> View
+                          <FiEye className="text-slate-400 group-hover:text-indigo-500" />
+                          View Details
                         </button>
                       </td>
                     </tr>
@@ -238,65 +237,70 @@ const CustomersList = () => {
 
       {/* ===== VIEW MODAL ===== */}
       {viewCustomer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 backdrop-blur-sm">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white shadow-2xl">
-            <div className="bg-gradient-to-r from-cyan-600 to-blue-600 px-6 py-5 text-white">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20">
-                    <FiUser size={26} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 px-4 backdrop-blur-sm transition-all duration-300">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200">
+            <div className="bg-slate-900 px-8 py-7 text-white relative overflow-hidden">
+              <div className="absolute right-0 top-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16"></div>
+              <div className="flex items-start justify-between gap-4 relative z-10">
+                <div className="flex items-center gap-5">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20 backdrop-blur-md">
+                    <FiUser size={30} className="text-indigo-300" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium uppercase tracking-[0.2em] text-cyan-100">Customer profile</p>
-                    <h3 className="mt-1 text-2xl font-bold">{viewCustomer.name || viewCustomer.customerName || 'Unnamed customer'}</h3>
-                    <p className="mt-1 text-sm text-cyan-100">Detailed view of the selected customer record.</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-indigo-400 opacity-80">Profile Records</p>
+                    <h3 className="mt-1 text-2xl font-black tracking-tight">{viewCustomer.name || viewCustomer.customerName || 'Unnamed customer'}</h3>
+                    <p className="mt-1 text-sm text-slate-400">Detailed overview of the selected master data record.</p>
                   </div>
                 </div>
-                <button onClick={() => setViewCustomer(null)} className="rounded-full bg-white/15 p-2 text-white transition hover:bg-white/25" aria-label="Close">
+                <button onClick={() => setViewCustomer(null)} className="rounded-xl bg-white/5 p-2.5 text-slate-400 transition-all hover:bg-white/10 hover:text-white" aria-label="Close">
                   <FiX size={20} />
                 </button>
               </div>
             </div>
 
-            <div className="p-6">
-              <div className="mb-5 flex flex-wrap gap-2">
-                <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+            <div className="p-8">
+              <div className="mb-8 flex flex-wrap gap-3">
+                <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider ${
+                  (viewCustomer.customerType || 'Customer') === 'INDIVIDUAL' 
+                    ? 'bg-amber-50 text-amber-700 border border-amber-100' 
+                    : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
+                }`}>
                   {viewCustomer.customerType || 'Customer'}
                 </span>
-                <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-                  <FiShield className="mr-1" /> Master data read-only
+                <span className="inline-flex items-center rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-slate-500 border border-slate-200">
+                  <FiShield size={14} className="mr-2" /> Master File
                 </span>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2 text-sm">
-                <div className="rounded-2xl bg-slate-50 p-4">
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Email</p>
-                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.email || '—'}</p>
+              <div className="grid gap-5 sm:grid-cols-2 text-sm">
+                <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-5">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Primary Email</p>
+                  <p className="font-bold text-slate-900 break-all">{viewCustomer.email || '—'}</p>
                 </div>
-                <div className="rounded-2xl bg-slate-50 p-4">
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Phone</p>
-                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.phoneNo || viewCustomer.phoneNumber || viewCustomer.phone || viewCustomer.mobileNo || '—'}</p>
+                <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-5">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Phone Number</p>
+                  <p className="font-bold text-slate-900">{viewCustomer.phoneNo || viewCustomer.phoneNumber || viewCustomer.phone || viewCustomer.mobileNo || '—'}</p>
                 </div>
-                <div className="rounded-2xl bg-slate-50 p-4 sm:col-span-2">
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Address</p>
-                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.billingAddress || viewCustomer.address || viewCustomer.deliveryAddress || '—'}</p>
+                <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-5 sm:col-span-2">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Registered Address</p>
+                  <p className="font-bold text-slate-900 leading-relaxed">{viewCustomer.billingAddress || viewCustomer.address || viewCustomer.deliveryAddress || '—'}</p>
                 </div>
-                <div className="rounded-2xl bg-slate-50 p-4">
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">VAT No</p>
-                  <p className="mt-2 font-semibold text-slate-900">
+                <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-5">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Tax Registration (VAT)</p>
+                  <p className="font-bold text-emerald-700">
                     {(() => {
                       const vat = viewCustomer.vat || viewCustomer.vatNumber || viewCustomer.vatNo || '';
-                      const isEnum = ['EXCLUSIVE', 'INCLUSIVE', 'VAT', 'SST', 'GST'].includes(vat);
+                      const isEnum = ['EXCLUSIVE', 'INCLUSIVE', 'VAT', 'SST', 'GST'].includes(String(vat).toUpperCase());
                       if (vat && !isEnum) {
                         return vat;
                       }
-                      return viewCustomer.taxNumber || '—';
+                      return viewCustomer.taxNumber && !['EXCLUSIVE', 'INCLUSIVE'].includes(String(viewCustomer.taxNumber).toUpperCase()) ? viewCustomer.taxNumber : 'Not Registered';
                     })()}
                   </p>
                 </div>
-                <div className="rounded-2xl bg-slate-50 p-4">
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">NIC No</p>
-                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.nicNo || '—'}</p>
+                <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-5">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Identity Number (NIC)</p>
+                  <p className="font-bold text-slate-900">{viewCustomer.nicNo || '—'}</p>
                 </div>
                 <div className="rounded-2xl bg-slate-50 p-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">TIN No</p>
