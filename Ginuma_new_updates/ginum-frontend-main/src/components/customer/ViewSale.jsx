@@ -271,7 +271,7 @@ const ViewSale = () => {
           </div>
 
           {/* Financial Summary */}
-          <div className="flex justify-between items-start gap-8 mb-6 flex-1 flex-col">
+          <div className="flex justify-between items-start gap-8 mb-auto">
             <div className="flex justify-between w-full gap-8">
               <div className="flex-1">
                 <div className="text-[9px] text-slate-500 uppercase tracking-widest font-black mb-1">Bank Information:</div>
@@ -307,13 +307,10 @@ const ViewSale = () => {
                 </div>
               </div>
             </div>
-
-            {/* Spacer to push signatures to bottom */}
-            <div className="flex-1"></div>
           </div>
 
           {/* Authorization Section */}
-          <div className="grid grid-cols-4 gap-x-3 mb-4 text-center">
+          <div className="grid grid-cols-4 gap-x-3 mt-auto mb-3 text-center pt-2">
             <div className="flex flex-col h-14 justify-end">
               <div className="border-t-2 border-slate-400 pt-1">
                 <p className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-500">Prepared By</p>
@@ -337,8 +334,8 @@ const ViewSale = () => {
           </div>
 
           {/* Bottom Footer */}
-          <div className="text-center pt-3 border-t border-slate-100 mt-auto">
-            <p className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-400 mb-1">Thank you for your business</p>
+          <div className="text-center pt-2 border-t border-slate-100">
+            <p className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-400 mb-0.5">Thank you for your business</p>
             <div className="text-[9px] font-bold text-slate-600 space-x-2">
               <span>TEL: {companyProfile?.phoneNo || '-'}</span>
               <span className="opacity-30">|</span>
