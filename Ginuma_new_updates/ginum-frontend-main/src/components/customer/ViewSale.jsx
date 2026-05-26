@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FiArrowLeft, FiPrinter, FiAlertCircle, FiDownload, FiShare2 } from 'react-icons/fi';
+import { FiArrowLeft, FiPrinter, FiAlertCircle, FiDownload } from 'react-icons/fi';
+import html2pdf from 'html2pdf.js';
 import api from '../../utils/api';
 import { fetchCompanyCustomers } from '../../utils/customerApi';
 
@@ -86,6 +87,22 @@ const ViewSale = () => {
     fetchCustomerProfile();
   }, [companyId, sale]);
 
+  const downloadPDF = () => {
+    const element = document.getElementById('invoice-content');
+    const filename = `${companyProfile?.companyName || 'Invoice'}_${sale?.soNumber || 'SO'}.pdf`;
+    
+    const options = {
+      margin: 0,
+      filename: filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, logging: false, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: 'avoid-all', before: '.page-break-before' }
+    };
+
+    html2pdf().set(options).from(element).save();
+  };
+
   const isTaxInvoice = (sale?.total > sale?.subtotal) || (sale?.taxBreakdown && sale.taxBreakdown.length > 0);
 
   const customerVat =
@@ -160,6 +177,12 @@ const ViewSale = () => {
         </div>
         <div className="flex items-center gap-2">
           <button 
+            onClick={downloadPDF}
+            className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-md shadow-green-200 transition-all active:scale-95"
+          >
+            <FiDownload size={16} /> PDF
+          </button>
+          <button 
             onClick={() => window.print()}
             className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-bold shadow-md shadow-slate-200 transition-all active:scale-95"
           >
@@ -170,17 +193,17 @@ const ViewSale = () => {
 
       {/* Professional Invoice Container */}
       <div className="flex-1 overflow-y-auto py-4 px-4 sm:px-6">
-        <div className="max-w-[210mm] mx-auto bg-white shadow-[0_0_50px_rgba(0,0,0,0.05)] border border-slate-200 h-[297mm] print:shadow-none print:border-none print:h-auto relative p-[10mm] print:p-0 flex flex-col">
+        <div id="invoice-content" className="max-w-[210mm] mx-auto bg-white shadow-[0_0_50px_rgba(0,0,0,0.05)] border border-slate-200 print:shadow-none print:border-none relative p-[10mm] print:p-0 flex flex-col" style={{ minHeight: '297mm' }}>
           
           {/* Header Section */}
-          <div className="flex justify-between items-start gap-8 mb-5 border-b-2 border-slate-900 pb-5">
+          <div className="flex justify-between items-start gap-8 mb-4 border-b-2 border-slate-900 pb-4">
             <div className="flex-1">
-              <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase mb-2">
+              <h1 className="text-xl font-black text-slate-900 tracking-tighter uppercase mb-1.5">
                 {companyProfile?.companyName || 'Company'}
               </h1>
-              <div className="text-[11px] text-slate-600 leading-relaxed font-medium">
+              <div className="text-[10px] text-slate-600 leading-relaxed font-medium">
                 <p className="max-w-md">{companyProfile?.address}</p>
-                <div className="mt-1 flex flex-col">
+                <div className="mt-0.5 flex flex-col">
                   {companyProfile?.phoneNo && <span>Tel: {companyProfile.phoneNo}</span>}
                   {companyProfile?.email && <span>Email: {companyProfile.email}</span>}
                 </div>
@@ -191,79 +214,79 @@ const ViewSale = () => {
                 <img
                   src={companyProfile.logo}
                   alt="Logo"
-                  className="max-h-10 mb-3 grayscale"
+                  className="max-h-10 mb-2 grayscale"
                 />
               ) : (
-                <div className="h-10 w-10 bg-slate-900 rounded-lg mb-3 flex items-center justify-center text-white font-black">
+                <div className="h-9 w-9 bg-slate-900 rounded-lg mb-2 flex items-center justify-center text-white font-black text-sm">
                   {companyProfile?.companyName?.substring(0, 2).toUpperCase()}
                 </div>
               )}
-              <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-none uppercase">{isTaxInvoice ? 'TAX INVOICE' : 'INVOICE'}</h2>
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase">{isTaxInvoice ? 'TAX INVOICE' : 'INVOICE'}</h2>
             </div>
           </div>
 
           {/* Details Bar */}
-          <div className="grid grid-cols-2 gap-x-12 mb-4 text-[11px]">
-            <div className="grid grid-cols-[140px,1fr] gap-y-1">
+          <div className="grid grid-cols-2 gap-x-8 mb-3 text-[10px]">
+            <div className="grid grid-cols-[120px,1fr] gap-y-0.5">
               <span className="font-bold uppercase text-slate-400 tracking-wider">Invoice No</span>
-              <span className="font-bold text-slate-900">{sale?.soNumber || '-'}</span>
+              <span className="font-bold text-slate-900 text-[11px]">{sale?.soNumber || '-'}</span>
               
               <span className="font-bold uppercase text-slate-400 tracking-wider">Customer Reference</span>
-              <span className="font-bold text-slate-900">{sale?.customerId || '-'}</span>
+              <span className="font-bold text-slate-900 text-[11px]">{sale?.customerId || '-'}</span>
               
               <span className="font-bold uppercase text-slate-400 tracking-wider">Payment Terms</span>
-              <span className="font-bold text-slate-900">{sale?.paymentTerms || 'N/A'}</span>
+              <span className="font-bold text-slate-900 text-[11px]">{sale?.paymentTerms || 'N/A'}</span>
             </div>
-            <div className="grid grid-cols-[140px,1fr] gap-y-1 text-right">
+            <div className="grid grid-cols-[120px,1fr] gap-y-0.5 text-right">
               <span className="font-bold uppercase text-slate-400 tracking-wider">Issue Date</span>
-              <span className="font-bold text-slate-900">{sale?.issueDate || '-'}</span>
+              <span className="font-bold text-slate-900 text-[11px]">{sale?.issueDate || '-'}</span>
               
               <span className="font-bold uppercase text-slate-400 tracking-wider">VAT Reg No</span>
-              <span className="font-bold text-slate-900">{companyProfile?.vatNo || companyProfile?.vatNumber || '-'}</span>
+              <span className="font-bold text-slate-900 text-[11px]">{companyProfile?.vatNo || companyProfile?.vatNumber || '-'}</span>
               
               <span className="font-bold uppercase text-slate-400 tracking-wider">Customer VAT No</span>
-              <span className="font-bold text-slate-900">{customerVat || 'Not Registered'}</span>
+              <span className="font-bold text-slate-900 text-[11px]">{customerVat || 'Not Registered'}</span>
             </div>
           </div>
 
           {/* Client Details */}
-          <div className="mb-5 bg-slate-50 border-l-[4px] border-slate-900 p-3 flex flex-col gap-0.5">
-            <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-0.5">Bill To:</h3>
-            <p className="text-base font-black text-slate-900 leading-tight uppercase underline underline-offset-4">{sale?.customerName || 'N/A'}</p>
-            <p className="text-[11px] text-slate-600 font-medium max-w-sm">{customerAddress || '-'}</p>
+          <div className="mb-3 bg-slate-50 border-l-[3px] border-slate-900 p-2.5 flex flex-col gap-0">
+            <h3 className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400 mb-0.5">Bill To:</h3>
+            <p className="text-sm font-black text-slate-900 leading-tight uppercase underline underline-offset-3">{sale?.customerName || 'N/A'}</p>
+            <p className="text-[10px] text-slate-600 font-medium max-w-sm">{customerAddress || '-'}</p>
             {customerPhone && (
-              <p className="text-[11px] text-slate-700 font-bold">Tel: {customerPhone}</p>
+              <p className="text-[10px] text-slate-700 font-bold">Tel: {customerPhone}</p>
             )}
           </div>
 
           {/* Table Container */}
-          <div className="mb-5 min-h-[80px]">
-            <table className="w-full text-[10px] border-collapse">
+          <div className="mb-4 min-h-[70px]">
+            <table className="w-full text-[9px] border-collapse">
               <thead>
-                <tr className="bg-slate-900 text-white font-bold h-7">
-                  <th className="px-3 py-1 text-center w-10 border border-slate-900">#</th>
-                  <th className="px-3 py-1 text-left border border-slate-900">DESCRIPTION</th>
-                  <th className="px-3 py-1 text-center w-14 border border-slate-900">UNIT</th>
-                  <th className="px-3 py-1 text-center w-16 border border-slate-900">QTY</th>
-                  <th className="px-3 py-1 text-right w-24 border border-slate-900">UNIT PRICE</th>
-                  <th className="px-3 py-1 text-right w-24 border border-slate-900">NET AMOUNT</th>
+                <tr className="bg-slate-900 text-white font-bold h-6">
+                  <th className="px-2 py-0.5 text-center w-8 border border-slate-900">#</th>
+                  <th className="px-2 py-0.5 text-left border border-slate-900">DESCRIPTION</th>
+                  <th className="px-2 py-0.5 text-center w-12 border border-slate-900">UNIT</th>
+                  <th className="px-2 py-0.5 text-center w-12 border border-slate-900">QTY</th>
+                  <th className="px-2 py-0.5 text-right w-20 border border-slate-900">UNIT PRICE</th>
+                  <th className="px-2 py-0.5 text-right w-20 border border-slate-900">NET AMOUNT</th>
                 </tr>
               </thead>
               <tbody className="text-slate-900 font-medium">
                 {sale?.items && sale.items.length > 0 ? (
                   sale.items.map((item, index) => (
-                    <tr key={index} className="h-7 border-x border-slate-300">
-                      <td className="px-3 py-1 text-center border-b border-slate-300">{index + 1}</td>
-                      <td className="px-3 py-1 border-b border-slate-300 uppercase">{getItemLabel(item)}</td>
-                      <td className="px-3 py-1 text-center border-b border-slate-300 tabular-nums">PCS</td>
-                      <td className="px-3 py-1 text-center border-b border-slate-300 tabular-nums">{item.quantity || 0}</td>
-                      <td className="px-3 py-1 text-right border-b border-slate-300 tabular-nums">{Number(item.unitPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                      <td className="px-3 py-1 text-right border-b border-slate-300 font-black tabular-nums">{Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <tr key={index} className="h-6 border-x border-slate-300">
+                      <td className="px-2 py-0.5 text-center border-b border-slate-300 text-[8px]">{index + 1}</td>
+                      <td className="px-2 py-0.5 border-b border-slate-300 uppercase text-[9px]">{getItemLabel(item)}</td>
+                      <td className="px-2 py-0.5 text-center border-b border-slate-300 tabular-nums text-[8px]">PCS</td>
+                      <td className="px-2 py-0.5 text-center border-b border-slate-300 tabular-nums text-[9px]">{item.quantity || 0}</td>
+                      <td className="px-2 py-0.5 text-right border-b border-slate-300 tabular-nums text-[9px]">{Number(item.unitPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="px-2 py-0.5 text-right border-b border-slate-300 font-black tabular-nums text-[9px]">{Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>
                   ))
                 ) : (
                   <tr className="border border-slate-300">
-                    <td colSpan="6" className="px-3 py-4 text-center text-slate-400 italic font-medium uppercase tracking-widest">No transaction items found</td>
+                    <td colSpan="6" className="px-2 py-3 text-center text-slate-400 italic font-medium uppercase tracking-widest text-[8px]">No transaction items found</td>
                   </tr>
                 )}
               </tbody>
@@ -271,38 +294,38 @@ const ViewSale = () => {
           </div>
 
           {/* Financial Summary */}
-          <div className="flex justify-between items-start gap-8 mb-auto">
-            <div className="flex justify-between w-full gap-8">
+          <div className="flex justify-between items-start gap-6 mb-3 flex-col">
+            <div className="flex justify-between w-full gap-6">
               <div className="flex-1">
-                <div className="text-[9px] text-slate-500 uppercase tracking-widest font-black mb-1">Bank Information:</div>
-                <div className="text-[11px] text-slate-800 bg-slate-50 border border-slate-200 p-2.5 rounded-lg leading-relaxed">
-                  <p className="font-black underline mb-0.5 uppercase tracking-tight">{companyProfile?.bankName || 'BENEFICIARY BANK DETAILS'}</p>
-                  <p className="font-bold">ACC NO: {companyProfile?.accountNumber || '—'}</p>
-                  <p className="text-[9px] font-medium text-slate-500 mt-1 uppercase">Please quote the invoice number as reference.</p>
+                <div className="text-[8px] text-slate-500 uppercase tracking-widest font-black mb-0.5">Bank Information:</div>
+                <div className="text-[10px] text-slate-800 bg-slate-50 border border-slate-200 p-2 rounded-lg leading-relaxed">
+                  <p className="font-black underline mb-0.5 uppercase tracking-tight text-[9px]">{companyProfile?.bankName || 'BENEFICIARY BANK DETAILS'}</p>
+                  <p className="font-bold text-[9px]">ACC NO: {companyProfile?.accountNumber || '—'}</p>
+                  <p className="text-[8px] font-medium text-slate-500 mt-0.5 uppercase">Please quote the invoice number as reference.</p>
                 </div>
               </div>
-              <div className="w-64 bg-slate-900 p-3.5 rounded-lg text-white shadow-lg shadow-slate-200">
-                <div className="flex justify-between items-center text-[10px] text-slate-400 uppercase font-black mb-2">
+              <div className="w-56 bg-slate-900 p-3 rounded-lg text-white shadow-lg shadow-slate-200">
+                <div className="flex justify-between items-center text-[9px] text-slate-400 uppercase font-black mb-1.5">
                   <span>Subtotal</span>
-                  <span className="text-white tracking-tight">{Number(sale?.subtotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  <span className="text-white tracking-tight text-[10px]">{Number(sale?.subtotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
                 
                 {sale?.taxBreakdown && sale.taxBreakdown.length > 0 && (
-                  <div className="space-y-1.5 mb-2.5 pt-2 border-t border-white/10">
+                  <div className="space-y-1 mb-2 pt-1.5 border-t border-white/10">
                     {sale.taxBreakdown.map((tax, idx) => (
-                      <div key={idx} className="flex justify-between items-center text-[10px] text-slate-400 uppercase font-bold">
+                      <div key={idx} className="flex justify-between items-center text-[9px] text-slate-400 uppercase font-bold">
                         <span>{tax.taxType} ({tax.percentage}%)</span>
-                        <span className="text-white tracking-tight">{Number(tax.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        <span className="text-white tracking-tight text-[10px]">{Number(tax.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                       </div>
                     ))}
                   </div>
                 )}
                 
-                <div className="flex justify-between items-center pt-2.5 border-t border-white/20">
-                  <span className="text-[9px] font-black uppercase tracking-widest text-[#fbbf24]">Grand Total</span>
+                <div className="flex justify-between items-center pt-1.5 border-t border-white/20">
+                  <span className="text-[8px] font-black uppercase tracking-widest text-[#fbbf24]">Grand Total</span>
                   <div className="text-right">
-                    <span className="text-[8px] block opacity-50 uppercase font-bold leading-none mb-0.5">LKR</span>
-                    <span className="text-lg font-black tracking-tighter leading-none">{Number(sale?.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <span className="text-[7px] block opacity-50 uppercase font-bold leading-none mb-0.5">LKR</span>
+                    <span className="text-base font-black tracking-tighter leading-none">{Number(sale?.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </div>
                 </div>
               </div>
@@ -310,33 +333,33 @@ const ViewSale = () => {
           </div>
 
           {/* Authorization Section */}
-          <div className="grid grid-cols-4 gap-x-3 mt-auto mb-3 text-center pt-2">
-            <div className="flex flex-col h-14 justify-end">
-              <div className="border-t-2 border-slate-400 pt-1">
-                <p className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-500">Prepared By</p>
+          <div className="grid grid-cols-4 gap-x-2 mt-auto mb-2 text-center pt-1.5">
+            <div className="flex flex-col h-12 justify-end">
+              <div className="border-t-2 border-slate-400 pt-0.5">
+                <p className="text-[7px] font-black uppercase tracking-[0.2em] text-slate-500">Prepared By</p>
               </div>
             </div>
-            <div className="flex flex-col h-14 justify-end">
-              <div className="border-t-2 border-slate-400 pt-1">
-                <p className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-500">Checked By</p>
+            <div className="flex flex-col h-12 justify-end">
+              <div className="border-t-2 border-slate-400 pt-0.5">
+                <p className="text-[7px] font-black uppercase tracking-[0.2em] text-slate-500">Checked By</p>
               </div>
             </div>
-            <div className="flex flex-col h-14 justify-end">
-              <div className="border-t-2 border-slate-400 pt-1">
-                <p className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-500">Authorized By</p>
+            <div className="flex flex-col h-12 justify-end">
+              <div className="border-t-2 border-slate-400 pt-0.5">
+                <p className="text-[7px] font-black uppercase tracking-[0.2em] text-slate-500">Authorized By</p>
               </div>
             </div>
-            <div className="flex flex-col h-14 justify-end">
-              <div className="border-t-2 border-slate-400 pt-1">
-                <p className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-500">Customer Sig</p>
+            <div className="flex flex-col h-12 justify-end">
+              <div className="border-t-2 border-slate-400 pt-0.5">
+                <p className="text-[7px] font-black uppercase tracking-[0.2em] text-slate-500">Customer Sig</p>
               </div>
             </div>
           </div>
 
           {/* Bottom Footer */}
-          <div className="text-center pt-2 border-t border-slate-100">
-            <p className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-400 mb-0.5">Thank you for your business</p>
-            <div className="text-[9px] font-bold text-slate-600 space-x-2">
+          <div className="text-center pt-1.5 border-t border-slate-100">
+            <p className="text-[7px] font-black uppercase tracking-[0.4em] text-slate-400 mb-0.5">Thank you for your business</p>
+            <div className="text-[8px] font-bold text-slate-600 space-x-1.5">
               <span>TEL: {companyProfile?.phoneNo || '-'}</span>
               <span className="opacity-30">|</span>
               <span>EMAIL: {companyProfile?.email || '-'}</span>
