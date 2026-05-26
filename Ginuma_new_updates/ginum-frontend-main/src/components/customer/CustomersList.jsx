@@ -121,7 +121,7 @@ const CustomersList = () => {
                   const customerType = customer.customerType || 'Customer';
                   const phone = customer.phoneNo || customer.phoneNumber || customer.phone || customer.mobileNo || '-';
                   const email = customer.email || '-';
-                  const vat = customer.vat || customer.vatNumber || customer.vatNo || customer.tax || customer.taxNumber || null;
+                  const vat = customer.vat && !['EXCLUSIVE', 'INCLUSIVE', 'VAT', 'SST', 'GST'].includes(customer.vat) ? customer.vat : customer.vatNumber || customer.vatNo || customer.tax || customer.taxNumber || 'N/A';
 
                   return (
                     <tr key={customer.id} className="transition hover:bg-slate-50/80">
@@ -130,19 +130,30 @@ const CustomersList = () => {
                           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700">
                             <FiUser size={20} />
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <div className="text-sm font-semibold text-slate-900">{displayName}</div>
-                            <div className="mt-1 flex items-center gap-2 text-sm text-slate-500">
-                              <FiMapPin className="text-slate-400" />
-                              <span>{contactAddress}</span>
-                            </div>
+                            {contactAddress && contactAddress !== '-' && (
+                              <div className="mt-1 flex items-center gap-2 text-sm text-slate-500">
+                                <FiMapPin className="text-slate-400" size={14} />
+                                <span className="text-xs">{contactAddress}</span>
+                              </div>
+                            )}
                             <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                              <span className="inline-flex items-center rounded-full bg-cyan-50 px-2.5 py-1 font-medium text-cyan-700">
-                                Phone: {phone}
-                              </span>
-                              <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 font-medium text-emerald-700">
-                                VAT: {vat || 'N/A'}
-                              </span>
+                              {phone && phone !== '-' && (
+                                <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 font-medium text-blue-700 border border-blue-200">
+                                  <FiPhone size={12} className="mr-1" /> {phone}
+                                </span>
+                              )}
+                              {vat && vat !== 'N/A' && (
+                                <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 font-medium text-emerald-700 border border-emerald-200">
+                                  VAT: {vat}
+                                </span>
+                              )}
+                              {email && email !== '-' && (
+                                <span className="inline-flex items-center rounded-full bg-purple-50 px-2.5 py-1 font-medium text-purple-700 border border-purple-200">
+                                  <FiMail size={12} className="mr-1" /> {email}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -164,15 +175,21 @@ const CustomersList = () => {
                           <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
                             {customerType}
                           </span>
-                          {vat ? (
-                            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-                              VAT {vat}
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
-                              No tax info
-                            </span>
-                          )}
+                          {(() => {
+                            const isEnum = ['EXCLUSIVE', 'INCLUSIVE', 'VAT', 'SST', 'GST'].includes(vat);
+                            if (vat && !isEnum) {
+                              return (
+                                <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                                  VAT {vat}
+                                </span>
+                              );
+                            }
+                            return (
+                              <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
+                                No tax info
+                              </span>
+                            );
+                          })()}
                         </div>
                       </td>
                       <td className="px-6 py-5 align-top text-center">
@@ -240,7 +257,16 @@ const CustomersList = () => {
                 </div>
                 <div className="rounded-2xl bg-slate-50 p-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">VAT No</p>
-                  <p className="mt-2 font-semibold text-slate-900">{viewCustomer.vat || viewCustomer.vatNumber || viewCustomer.vatNo || viewCustomer.tax || viewCustomer.taxNumber || '—'}</p>
+                  <p className="mt-2 font-semibold text-slate-900">
+                    {(() => {
+                      const vat = viewCustomer.vat || viewCustomer.vatNumber || viewCustomer.vatNo || '';
+                      const isEnum = ['EXCLUSIVE', 'INCLUSIVE', 'VAT', 'SST', 'GST'].includes(vat);
+                      if (vat && !isEnum) {
+                        return vat;
+                      }
+                      return viewCustomer.taxNumber || '—';
+                    })()}
+                  </p>
                 </div>
                 <div className="rounded-2xl bg-slate-50 p-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">NIC No</p>

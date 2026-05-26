@@ -8,6 +8,12 @@ export const normalizeCustomer = (customer) => {
   }
 
   const contactInfo = customer.contactInfo || {};
+  
+  // Extract actual VAT number, not the tax type enum
+  const actualVat = customer.vat || customer.vatNumber || customer.vatNo || contactInfo.vat || contactInfo.vatNumber || contactInfo.vatNo || "";
+  
+  // Don't use tax enum as fallback for VAT
+  const vatNumber = actualVat && !['EXCLUSIVE', 'INCLUSIVE', 'VAT', 'SST', 'GST'].includes(actualVat) ? actualVat : actualVat;
 
   return {
     id: customer.id,
@@ -26,7 +32,7 @@ export const normalizeCustomer = (customer) => {
       contactInfo.mobileNo ||
       "",
     billingAddress: customer.billingAddress || customer.address || contactInfo.address || contactInfo.billingAddress || "",
-    deliveryAddress: customer.deliveryAddress || customer.delivery || "",
+    deliveryAddress: customer.deliveryAddress || customer.delivery || contactInfo.deliveryAddress || "",
     customerType: customer.customerType || "",
     tax:
       customer.tax ||
@@ -38,16 +44,7 @@ export const normalizeCustomer = (customer) => {
       "",
     nicNo: customer.nicNo || "",
     tinNo: customer.tinNo || "",
-    vat:
-      customer.vat ||
-      customer.vatNumber ||
-      customer.vatNo ||
-      customer.tax ||
-      customer.taxNumber ||
-      contactInfo.vat ||
-      contactInfo.vatNumber ||
-      contactInfo.vatNo ||
-      "",
+    vat: vatNumber,
     swiftNo: customer.swiftNo || "",
     discountPercentage: customer.discountPercentage ?? null,
     contactInfo,
@@ -67,8 +64,11 @@ export const fetchCompanyCustomers = async (companyId, token) => {
 
   if (companyCustomerResponse.ok) {
     const data = await companyCustomerResponse.json();
+    console.log("🔍 Raw Customer Data from API:", data);
     if (Array.isArray(data) && data.length > 0) {
-      return data.map(normalizeCustomer);
+      const normalized = data.map(normalizeCustomer);
+      console.log("✅ Normalized Customer Data:", normalized);
+      return normalized;
     }
   }
 
