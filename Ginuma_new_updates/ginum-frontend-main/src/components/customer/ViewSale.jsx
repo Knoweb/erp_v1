@@ -156,13 +156,13 @@ const ViewSale = () => {
       </div>
 
       {/* Professional Invoice */}
-      <div className="max-w-none w-full p-0 bg-white print-invoice">
+      <div className="max-w-4xl mx-auto p-8 bg-white">
         
         {/* Header */}
-        <div className="flex justify-between items-start mb-6 border-b-2 border-gray-300 pb-4 px-8 pt-8">
+        <div className="flex justify-between items-start mb-8 border-b-2 border-gray-300 pb-6">
           <div className="flex-1">
-            <h1 className="text-4xl font-bold text-gray-900">{companyProfile?.companyName || 'Company'}</h1>
-            <p className="text-xs text-gray-600 mt-2">
+            <h1 className="text-3xl font-bold text-gray-900">{companyProfile?.companyName || 'Company'}</h1>
+            <p className="text-sm text-gray-600 mt-1">
               {companyProfile?.address}<br/>
               Tel: {companyProfile?.phoneNo || companyProfile?.phone || '-'}<br/>
               Email: {companyProfile?.email || '-'}
@@ -173,22 +173,22 @@ const ViewSale = () => {
               <img
                 src={companyProfile.logo}
                 alt="Company Logo"
-                style={{ maxWidth: 150, maxHeight: 120 }}
-                className="mb-3"
+                style={{ maxWidth: 120, maxHeight: 100 }}
+                className="mb-2"
               />
             )}
-            <h2 className="text-3xl font-bold text-gray-800">TAX INVOICE</h2>
+            <h2 className="text-2xl font-bold text-gray-800">TAX INVOICE</h2>
           </div>
         </div>
 
         {/* Invoice Metadata */}
-        <div className="grid grid-cols-2 gap-12 mb-6 px-8">
-          <div className="text-xs space-y-1">
+        <div className="grid grid-cols-2 gap-8 mb-8">
+          <div className="text-sm space-y-2">
             <p><strong>INVOICE NO.:</strong> {sale?.soNumber || '-'}</p>
             <p><strong>CUSTOMER REF.:</strong> {sale?.customerId || '-'}</p>
             <p><strong>PAYMENT TERMS:</strong> {sale?.paymentTerms || 'N/A'}</p>
           </div>
-          <div className="text-xs space-y-1 text-right">
+          <div className="text-sm space-y-2 text-right">
             <p><strong>DATE:</strong> {sale?.issueDate || '-'}</p>
             <p><strong>VAT REG. NO.:</strong> {companyProfile?.vatNo || companyProfile?.vatNumber || '-'}</p>
             <p><strong>CUST. VAT NO.:</strong> {customerVat || 'N/A'}</p>
@@ -196,16 +196,16 @@ const ViewSale = () => {
         </div>
 
         {/* Customer Details */}
-        <div className="mb-6 px-8">
-          <h3 className="text-xs font-bold uppercase text-gray-700 mb-2">BILL TO:</h3>
-          <p className="font-semibold text-sm text-gray-900">{sale?.customerName || 'N/A'}</p>
-          <p className="text-xs text-gray-600">{customerAddress || '-'}</p>
-          {customerPhone && <p className="text-xs text-gray-600">Tel: {customerPhone}</p>}
+        <div className="mb-8">
+          <h3 className="text-sm font-bold uppercase text-gray-700 mb-3">BILL TO:</h3>
+          <p className="font-semibold text-gray-900">{sale?.customerName || 'N/A'}</p>
+          <p className="text-sm text-gray-600">{customerAddress || '-'}</p>
+          {customerPhone && <p className="text-sm text-gray-600">Tel: {customerPhone}</p>}
         </div>
 
         {/* Items Table */}
-        <div className="mb-6 px-8">
-          <table className="w-full text-xs border-collapse">
+        <div className="mb-8">
+          <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-gray-200 border border-gray-400">
                 <th className="border border-gray-400 px-3 py-2 text-left font-semibold">NO.</th>
@@ -220,12 +220,12 @@ const ViewSale = () => {
               {sale?.items && sale.items.length > 0 ? (
                 sale.items.map((item, index) => (
                   <tr key={index} className="border border-gray-400">
-                    <td className="border border-gray-400 px-3 py-1 text-center">{index + 1}</td>
-                    <td className="border border-gray-400 px-3 py-1">{getItemLabel(item)}</td>
-                    <td className="border border-gray-400 px-3 py-1 text-center">PCS</td>
-                    <td className="border border-gray-400 px-3 py-1 text-center">{item.quantity || 0}</td>
-                    <td className="border border-gray-400 px-3 py-1 text-right">{Number(item.unitPrice || 0).toFixed(2)}</td>
-                    <td className="border border-gray-400 px-3 py-1 text-right font-medium">{Number(item.amount || 0).toFixed(2)}</td>
+                    <td className="border border-gray-400 px-3 py-2 text-center">{index + 1}</td>
+                    <td className="border border-gray-400 px-3 py-2">{getItemLabel(item)}</td>
+                    <td className="border border-gray-400 px-3 py-2 text-center text-xs">PCS</td>
+                    <td className="border border-gray-400 px-3 py-2 text-center">{item.quantity || 0}</td>
+                    <td className="border border-gray-400 px-3 py-2 text-right">{Number(item.unitPrice || 0).toFixed(2)}</td>
+                    <td className="border border-gray-400 px-3 py-2 text-right font-medium">{Number(item.amount || 0).toFixed(2)}</td>
                   </tr>
                 ))
               ) : (
@@ -238,9 +238,9 @@ const ViewSale = () => {
         </div>
 
         {/* Totals */}
-        <div className="grid grid-cols-2 gap-12 mb-6 px-8">
+        <div className="grid grid-cols-2 gap-8 mb-8">
           <div></div>
-          <div className="text-xs space-y-1 border-l border-gray-300 pl-4">
+          <div className="text-sm space-y-2 border-l border-gray-300 pl-4">
             <div className="flex justify-between">
               <span>GROSS TOTAL</span>
               <span className="font-medium">{Number(sale?.subtotal || 0).toFixed(2)}</span>
@@ -253,48 +253,41 @@ const ViewSale = () => {
                 </div>
               ))
             )}
-            <div className="flex justify-between border-t border-gray-300 pt-1 font-bold text-sm">
+            <div className="flex justify-between border-t border-gray-300 pt-2 font-bold text-lg">
               <span>TOTAL</span>
               <span>{Number(sale?.total || 0).toFixed(2)}</span>
             </div>
           </div>
         </div>
 
-        {/* Signatures and Bank Details */}
-        <div className="grid grid-cols-2 gap-12 mb-4 px-8">
-          {/* Signatures */}
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-4 text-center text-xs">
-              <div className="border-t border-gray-400 pt-12">
-                <p className="font-semibold">PREPARED BY</p>
-              </div>
-              <div className="border-t border-gray-400 pt-12">
-                <p className="font-semibold">CHECKED BY</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4 text-center text-xs">
-              <div className="border-t border-gray-400 pt-12">
-                <p className="font-semibold">AUTHORIZED BY</p>
-              </div>
-              <div className="border-t border-gray-400 pt-12">
-                <p className="font-semibold">CUSTOMER'S SIGNATURE</p>
-              </div>
-            </div>
+        {/* Signatures */}
+        <div className="grid grid-cols-4 gap-4 mb-8 text-center text-xs">
+          <div className="border-t border-gray-400 pt-2">
+            <p className="mt-6 font-semibold">PREPARED BY</p>
           </div>
-
-          {/* Bank Details */}
-          <div className="bg-gray-50 p-3 text-xs border border-gray-300">
-            <p className="font-semibold mb-1">BENEFICIARY BANK:</p>
-            <p>{companyProfile?.bankName || 'Bank Details Not Available'}</p>
-            {companyProfile?.accountNumber && <p>Account Number: {companyProfile.accountNumber}</p>}
+          <div className="border-t border-gray-400 pt-2">
+            <p className="mt-6 font-semibold">CHECKED BY</p>
+          </div>
+          <div className="border-t border-gray-400 pt-2">
+            <p className="mt-6 font-semibold">AUTHORIZED BY</p>
+          </div>
+          <div className="border-t border-gray-400 pt-2">
+            <p className="mt-6 font-semibold">CUSTOMER'S SIGNATURE</p>
           </div>
         </div>
 
+        {/* Bank Details */}
+        <div className="bg-gray-50 p-4 mb-8 text-sm border border-gray-300">
+          <p className="font-semibold mb-2">BENEFICIARY BANK:</p>
+          <p>{companyProfile?.bankName || 'Bank Details Not Available'}</p>
+          {companyProfile?.accountNumber && <p>Account Number: {companyProfile.accountNumber}</p>}
+        </div>
+
         {/* Footer */}
-        <div className="text-center text-xs text-gray-600 border-t border-gray-300 pt-4 px-8 pb-8">
+        <div className="text-center text-xs text-gray-600 border-t border-gray-300 pt-6">
           <p className="font-semibold">{companyProfile?.companyName}</p>
-          <p className="text-xs">{companyProfile?.address}</p>
-          <p className="text-xs">
+          <p>{companyProfile?.address}</p>
+          <p>
             Tel: {companyProfile?.phoneNo || '-'} | 
             Email: {companyProfile?.email || '-'} | 
             Web: {companyProfile?.website || '-'}
