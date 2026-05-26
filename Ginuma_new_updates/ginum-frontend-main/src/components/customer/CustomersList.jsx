@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { FiSearch, FiUser, FiPhone, FiMail, FiEye, FiX, FiShield, FiMapPin, FiUsers } from 'react-icons/fi';
+import { FiSearch, FiUser, FiPhone, FiMail, FiEye, FiX, FiShield, FiMapPin, FiUsers, FiRefreshCw } from 'react-icons/fi';
 import { fetchCompanyCustomers } from '../../utils/customerApi';
+import { syncCustomersFromMiddeniya } from '../../utils/syncApi';
 import Alert from '../../components/Alert/Alert';
 
 const CustomersList = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   const companyId = localStorage.getItem("companyId");
@@ -25,6 +27,21 @@ const CustomersList = () => {
       Alert.error("Error loading customers");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSyncCustomers = async () => {
+    try {
+      setSyncing(true);
+      const result = await syncCustomersFromMiddeniya(parseInt(companyId), parseInt(companyId));
+      Alert.success(`✅ Sync completed: ${result.created} created, ${result.updated} updated`);
+      // Refresh the customer list after sync
+      await fetchCustomers();
+    } catch (e) {
+      console.error(e);
+      Alert.error("Sync failed: " + (e.response?.data?.message || e.message));
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -60,6 +77,16 @@ const CustomersList = () => {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <button
+              onClick={handleSyncCustomers}
+              disabled={syncing}
+              className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-400 text-white px-4 py-3 text-sm font-semibold shadow-sm transition"
+              title="Sync customers from Middeniya system"
+            >
+              <FiRefreshCw size={16} className={syncing ? "animate-spin" : ""} />
+              {syncing ? "Syncing..." : "Sync Data"}
+            </button>
+
             <div className="rounded-2xl border border-white/70 bg-white/80 px-4 py-3 shadow-sm backdrop-blur-sm">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-100 text-cyan-700">
