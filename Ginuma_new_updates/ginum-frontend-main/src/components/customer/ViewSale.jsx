@@ -86,6 +86,8 @@ const ViewSale = () => {
     fetchCustomerProfile();
   }, [companyId, sale]);
 
+  const isTaxInvoice = (sale?.total > sale?.subtotal) || (sale?.taxBreakdown && sale.taxBreakdown.length > 0);
+
   const customerVat =
     customerProfile?.vat ||
     customerProfile?.vatNumber ||
@@ -152,7 +154,7 @@ const ViewSale = () => {
             <FiArrowLeft size={20} />
           </button>
           <div>
-            <h1 className="text-base font-bold text-slate-900 leading-tight">Tax Invoice</h1>
+            <h1 className="text-base font-bold text-slate-900 leading-tight">{isTaxInvoice ? 'Tax Invoice' : 'Invoice'}</h1>
             <p className="text-xs text-slate-500 font-medium tracking-tight">#{sale?.soNumber}</p>
           </div>
         </div>
@@ -196,7 +198,7 @@ const ViewSale = () => {
                   {companyProfile?.companyName?.substring(0, 2).toUpperCase()}
                 </div>
               )}
-              <h2 className="text-4xl font-black text-slate-900 tracking-tight leading-none">TAX INVOICE</h2>
+              <h2 className="text-4xl font-black text-slate-900 tracking-tight leading-none uppercase">{isTaxInvoice ? 'TAX INVOICE' : 'INVOICE'}</h2>
             </div>
           </div>
 
