@@ -5,6 +5,7 @@ import html2pdf from 'html2pdf.js';
 import api from '../../utils/api';
 import { fetchCompanyCustomers } from '../../utils/customerApi';
 
+
 const ViewSale = () => {
   const { id } = useParams();
   const navigate = useNavigate();
