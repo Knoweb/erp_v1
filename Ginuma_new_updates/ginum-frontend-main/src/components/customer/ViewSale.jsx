@@ -197,7 +197,7 @@ const ViewSale = () => {
         <div id="invoice-content" className="max-w-[210mm] mx-auto bg-white shadow-[0_0_50px_rgba(0,0,0,0.05)] border border-slate-200 print:shadow-none print:border-none relative p-[10mm] print:p-0 flex flex-col justify-between" style={{ height: '297mm' }}>
           
           {/* Header Section */}
-          <div className="flex justify-between items-start gap-8 mb-6 border-b-2 border-slate-900 pb-4">
+          <div className="flex justify-between items-start gap-8 mb-3 border-b-2 border-slate-900 pb-2">
             <div className="flex-1">
               <h1 className="text-xl font-black text-slate-900 tracking-tighter uppercase mb-1.5">
                 {companyProfile?.companyName || 'Company'}
@@ -227,7 +227,7 @@ const ViewSale = () => {
           </div>
 
           {/* Details Bar */}
-          <div className="grid grid-cols-2 gap-x-8 mb-5 text-[10px]">
+          <div className="grid grid-cols-2 gap-x-8 mb-2 text-[10px]">
             <div className="grid grid-cols-[120px,1fr] gap-y-0.5">
               <span className="font-bold uppercase text-slate-400 tracking-wider">Invoice No</span>
               <span className="font-bold text-slate-900 text-[11px]">{sale?.soNumber || '-'}</span>
@@ -251,7 +251,7 @@ const ViewSale = () => {
           </div>
 
           {/* Client Details */}
-          <div className="mb-5 bg-slate-50 border-l-[3px] border-slate-900 p-2.5 flex flex-col gap-0">
+          <div className="mb-2 bg-slate-50 border-l-[3px] border-slate-900 p-2 flex flex-col gap-0">
             <h3 className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400 mb-0.5">Bill To:</h3>
             <p className="text-sm font-black text-slate-900 leading-tight uppercase underline underline-offset-3">{sale?.customerName || 'N/A'}</p>
             <p className="text-[10px] text-slate-600 font-medium max-w-sm">{customerAddress || '-'}</p>
@@ -261,28 +261,28 @@ const ViewSale = () => {
           </div>
 
           {/* Table Container */}
-          <div className="mb-5 flex-grow min-h-[80px]">
+          <div className="mb-2 flex-grow min-h-[60px]">
             <table className="w-full text-[9px] border-collapse">
               <thead>
-                <tr className="bg-slate-900 text-white font-bold h-6">
-                  <th className="px-2 py-0.5 text-center w-8 border border-slate-900">#</th>
-                  <th className="px-2 py-0.5 text-left border border-slate-900">DESCRIPTION</th>
-                  <th className="px-2 py-0.5 text-center w-12 border border-slate-900">UNIT</th>
-                  <th className="px-2 py-0.5 text-center w-12 border border-slate-900">QTY</th>
-                  <th className="px-2 py-0.5 text-right w-20 border border-slate-900">UNIT PRICE</th>
-                  <th className="px-2 py-0.5 text-right w-20 border border-slate-900">NET AMOUNT</th>
+                <tr className="bg-slate-900 text-white font-bold h-5">
+                  <th className="px-2 py-0 text-center w-8 border border-slate-900">#</th>
+                  <th className="px-2 py-0 text-left border border-slate-900">DESCRIPTION</th>
+                  <th className="px-2 py-0 text-center w-12 border border-slate-900">UNIT</th>
+                  <th className="px-2 py-0 text-center w-12 border border-slate-900">QTY</th>
+                  <th className="px-2 py-0 text-right w-20 border border-slate-900">UNIT PRICE</th>
+                  <th className="px-2 py-0 text-right w-20 border border-slate-900">NET AMOUNT</th>
                 </tr>
               </thead>
               <tbody className="text-slate-900 font-medium">
                 {sale?.items && sale.items.length > 0 ? (
                   sale.items.map((item, index) => (
-                    <tr key={index} className="h-6 border-x border-slate-300">
-                      <td className="px-2 py-0.5 text-center border-b border-slate-300 text-[8px]">{index + 1}</td>
-                      <td className="px-2 py-0.5 border-b border-slate-300 uppercase text-[9px]">{getItemLabel(item)}</td>
-                      <td className="px-2 py-0.5 text-center border-b border-slate-300 tabular-nums text-[8px]">PCS</td>
-                      <td className="px-2 py-0.5 text-center border-b border-slate-300 tabular-nums text-[9px]">{item.quantity || 0}</td>
-                      <td className="px-2 py-0.5 text-right border-b border-slate-300 tabular-nums text-[9px]">{Number(item.unitPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                      <td className="px-2 py-0.5 text-right border-b border-slate-300 font-black tabular-nums text-[9px]">{Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <tr key={index} className="h-5 border-x border-slate-300">
+                      <td className="px-2 py-0 text-center border-b border-slate-300 text-[8px]">{index + 1}</td>
+                      <td className="px-2 py-0 border-b border-slate-300 uppercase text-[9px]">{getItemLabel(item)}</td>
+                      <td className="px-2 py-0 text-center border-b border-slate-300 tabular-nums text-[8px]">PCS</td>
+                      <td className="px-2 py-0 text-center border-b border-slate-300 tabular-nums text-[9px]">{item.quantity || 0}</td>
+                      <td className="px-2 py-0 text-right border-b border-slate-300 tabular-nums text-[9px]">{Number(item.unitPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="px-2 py-0 text-right border-b border-slate-300 font-black tabular-nums text-[9px]">{Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>
                   ))
                 ) : (
@@ -295,24 +295,24 @@ const ViewSale = () => {
           </div>
 
           {/* Financial Summary */}
-          <div className="flex justify-between items-start gap-6 mb-6 flex-col">
+          <div className="flex justify-between items-start gap-3 mb-2 flex-col">
             <div className="flex justify-between w-full gap-6">
               <div className="flex-1">
                 <div className="text-[8px] text-slate-500 uppercase tracking-widest font-black mb-0.5">Bank Information:</div>
-                <div className="text-[10px] text-slate-800 bg-slate-50 border border-slate-200 p-2 rounded-lg leading-relaxed">
-                  <p className="font-black underline mb-0.5 uppercase tracking-tight text-[9px]">{companyProfile?.bankName || 'BENEFICIARY BANK DETAILS'}</p>
-                  <p className="font-bold text-[9px]">ACC NO: {companyProfile?.accountNumber || '—'}</p>
-                  <p className="text-[8px] font-medium text-slate-500 mt-0.5 uppercase">Please quote the invoice number as reference.</p>
+                <div className="text-[10px] text-slate-800 bg-slate-50 border border-slate-200 p-1.5 rounded-lg leading-relaxed">
+                  <p className="font-black underline mb-0 uppercase tracking-tight text-[9px]">{companyProfile?.bankName || 'BENEFICIARY BANK DETAILS'}</p>
+                  <p className="font-bold text-[9px] mb-0">ACC NO: {companyProfile?.accountNumber || '—'}</p>
+                  <p className="text-[8px] font-medium text-slate-500 mt-0.5 uppercase">Quote invoice ref</p>
                 </div>
               </div>
-              <div className="w-56 bg-slate-900 p-3 rounded-lg text-white shadow-lg shadow-slate-200">
-                <div className="flex justify-between items-center text-[9px] text-slate-400 uppercase font-black mb-1.5">
+              <div className="w-56 bg-slate-900 p-2 rounded-lg text-white shadow-lg shadow-slate-200">
+                <div className="flex justify-between items-center text-[9px] text-slate-400 uppercase font-black mb-1">
                   <span>Subtotal</span>
                   <span className="text-white tracking-tight text-[10px]">{Number(sale?.subtotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
                 
                 {sale?.taxBreakdown && sale.taxBreakdown.length > 0 && (
-                  <div className="space-y-1 mb-2 pt-1.5 border-t border-white/10">
+                  <div className="space-y-0.5 mb-1 pt-1 border-t border-white/10">
                     {sale.taxBreakdown.map((tax, idx) => (
                       <div key={idx} className="flex justify-between items-center text-[9px] text-slate-400 uppercase font-bold">
                         <span>{tax.taxType} ({tax.percentage}%)</span>
@@ -322,10 +322,10 @@ const ViewSale = () => {
                   </div>
                 )}
                 
-                <div className="flex justify-between items-center pt-1.5 border-t border-white/20">
+                <div className="flex justify-between items-center pt-1 border-t border-white/20">
                   <span className="text-[8px] font-black uppercase tracking-widest text-[#fbbf24]">Grand Total</span>
                   <div className="text-right">
-                    <span className="text-[7px] block opacity-50 uppercase font-bold leading-none mb-0.5">LKR</span>
+                    <span className="text-[7px] block opacity-50 uppercase font-bold leading-none mb-0">LKR</span>
                     <span className="text-base font-black tracking-tighter leading-none">{Number(sale?.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </div>
                 </div>
@@ -334,23 +334,23 @@ const ViewSale = () => {
           </div>
 
           {/* Authorization Section */}
-          <div className="grid grid-cols-4 gap-x-2 mb-3 text-center pt-3 border-t-2 border-slate-100">
-            <div className="flex flex-col h-12 justify-end">
+          <div className="grid grid-cols-4 gap-x-2 mb-2 text-center pt-2 border-t-2 border-slate-100">
+            <div className="flex flex-col h-10 justify-end">
               <div className="border-t-2 border-slate-400 pt-0.5">
                 <p className="text-[7px] font-black uppercase tracking-[0.2em] text-slate-500">Prepared By</p>
               </div>
             </div>
-            <div className="flex flex-col h-12 justify-end">
+            <div className="flex flex-col h-10 justify-end">
               <div className="border-t-2 border-slate-400 pt-0.5">
                 <p className="text-[7px] font-black uppercase tracking-[0.2em] text-slate-500">Checked By</p>
               </div>
             </div>
-            <div className="flex flex-col h-12 justify-end">
+            <div className="flex flex-col h-10 justify-end">
               <div className="border-t-2 border-slate-400 pt-0.5">
                 <p className="text-[7px] font-black uppercase tracking-[0.2em] text-slate-500">Authorized By</p>
               </div>
             </div>
-            <div className="flex flex-col h-12 justify-end">
+            <div className="flex flex-col h-10 justify-end">
               <div className="border-t-2 border-slate-400 pt-0.5">
                 <p className="text-[7px] font-black uppercase tracking-[0.2em] text-slate-500">Customer Sig</p>
               </div>
@@ -358,8 +358,8 @@ const ViewSale = () => {
           </div>
 
           {/* Bottom Footer */}
-          <div className="text-center pt-2 border-t border-slate-100">
-            <p className="text-[7px] font-black uppercase tracking-[0.4em] text-slate-400 mb-0.5">Thank you for your business</p>
+          <div className="text-center pt-1 border-t border-slate-100">
+            <p className="text-[7px] font-black uppercase tracking-[0.4em] text-slate-400 mb-0">Thank you for your business</p>
             <div className="text-[8px] font-bold text-slate-600 space-x-1.5">
               <span>TEL: {companyProfile?.phoneNo || '-'}</span>
               <span className="opacity-30">|</span>
