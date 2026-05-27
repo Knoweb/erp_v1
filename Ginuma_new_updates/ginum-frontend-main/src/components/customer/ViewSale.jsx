@@ -210,9 +210,9 @@ const ViewSale = () => {
                 <h1 className="text-lg font-bold text-slate-900">{companyProfile?.companyName?.substring(0, 25) || 'Company'}</h1>
               </div>
               <div className="text-[9px] text-slate-600 leading-relaxed space-y-0.5">
-                <p>{companyProfile?.address || 'Address'}</p>
-                <p>{companyProfile?.email || 'email@company.com'}</p>
-                {companyProfile?.phoneNo && <p>Contact Number: {companyProfile?.phoneNo}</p>}
+                {companyProfile?.address && <p><span className="font-semibold">Address</span><br />{companyProfile.address}</p>}
+                {companyProfile?.email && <p><span className="font-semibold">Email</span><br />{companyProfile.email}</p>}
+                {companyProfile?.phoneNo && <p><span className="font-semibold">Contact Number</span><br />{companyProfile.phoneNo}</p>}
               </div>
             </div>
             <div className="text-right">
