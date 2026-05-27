@@ -261,8 +261,8 @@ const ViewSale = () => {
           </div>
 
           {/* Table Container */}
-          <div className="mb-2 flex-grow min-h-[60px]">
-            <table className="w-full text-[9px] border-collapse">
+          <div className="mb-2 flex-grow flex flex-col min-h-[200px]">
+            <table className="w-full text-[9px] border-collapse flex-1">
               <thead>
                 <tr className="bg-slate-900 text-white font-bold h-5">
                   <th className="px-2 py-0 text-center w-8 border border-slate-900">#</th>
@@ -289,6 +289,14 @@ const ViewSale = () => {
                   <tr className="border border-slate-300">
                     <td colSpan="6" className="px-2 py-3 text-center text-slate-400 italic font-medium uppercase tracking-widest text-[8px]">No transaction items found</td>
                   </tr>
+                )}
+                {/* Filler rows to expand table */}
+                {sale?.items && sale.items.length < 5 && (
+                  Array.from({ length: 5 - (sale?.items?.length || 0) }).map((_, idx) => (
+                    <tr key={`filler-${idx}`} className="h-5 border-x border-slate-300">
+                      <td colSpan="6" className="px-2 py-0 border-b border-slate-300"></td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>
