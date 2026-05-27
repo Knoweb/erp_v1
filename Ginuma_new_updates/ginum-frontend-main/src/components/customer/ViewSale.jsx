@@ -249,24 +249,30 @@ const ViewSale = () => {
           <div className="mb-6 flex-grow">
             <table className="w-full text-[10px] border-collapse">
               <thead>
-                <tr className="border-b border-slate-900">
-                  <th className="px-2 py-2 text-left font-bold text-slate-900 border-r border-slate-200">Description</th>
-                  <th className="px-2 py-2 text-center font-bold text-slate-900 border-r border-slate-200 w-12">Qty</th>
-                  <th className="px-2 py-2 text-right font-bold text-slate-900 border-r border-slate-200 w-24">Amount</th>
+                <tr className="border-b-2 border-slate-900 bg-slate-900 text-white">
+                  <th className="px-2 py-2 text-center font-bold w-6">#</th>
+                  <th className="px-2 py-2 text-left font-bold">DESCRIPTION</th>
+                  <th className="px-2 py-2 text-center font-bold w-12">UNIT</th>
+                  <th className="px-2 py-2 text-center font-bold w-8">QTY</th>
+                  <th className="px-2 py-2 text-right font-bold w-20">UNIT PRICE</th>
+                  <th className="px-2 py-2 text-right font-bold w-24">NET AMOUNT</th>
                 </tr>
               </thead>
               <tbody>
                 {sale?.items && sale.items.length > 0 ? (
                   sale.items.map((item, index) => (
                     <tr key={index} className="border-b border-slate-200 hover:bg-slate-50">
+                      <td className="px-2 py-2 text-center text-slate-900 text-[9px]">{index + 1}</td>
                       <td className="px-2 py-2 text-slate-900">{getItemLabel(item)}</td>
-                      <td className="px-2 py-2 text-center text-slate-900">{item.quantity || 0}</td>
-                      <td className="px-2 py-2 text-right text-slate-900 font-semibold">{Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="px-2 py-2 text-center text-slate-900 text-[9px]">PCS</td>
+                      <td className="px-2 py-2 text-center text-slate-900 tabular-nums">{item.quantity || 0}</td>
+                      <td className="px-2 py-2 text-right text-slate-900 tabular-nums">{Number(item.unitPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="px-2 py-2 text-right text-slate-900 font-semibold tabular-nums">{Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="3" className="px-2 py-4 text-center text-slate-400 text-[9px]">No items</td>
+                    <td colSpan="6" className="px-2 py-4 text-center text-slate-400 text-[9px]">No items</td>
                   </tr>
                 )}
               </tbody>
