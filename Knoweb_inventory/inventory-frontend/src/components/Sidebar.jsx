@@ -6,6 +6,7 @@ import {
     Warehouse,
     ShoppingCart,
     Truck,
+    Users,
     Building2,
     Bell,
     BookOpen,
@@ -154,6 +155,11 @@ const Sidebar = () => {
                 <NavLink to="/suppliers" className={navLinkClass}>
                     <Truck className={iconClass} />
                     <span>Supply Chain</span>
+                </NavLink>
+
+                <NavLink to="/customers" className={navLinkClass}>
+                    <Users className={iconClass} />
+                    <span>Customers</span>
                 </NavLink>
 
 
