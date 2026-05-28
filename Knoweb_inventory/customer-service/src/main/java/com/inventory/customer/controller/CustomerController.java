@@ -40,8 +40,13 @@ public class CustomerController {
     @PostMapping
     public ResponseEntity<Customer> createCustomer(@RequestBody CustomerRequestDto dto,
                                                    @RequestHeader(value = "X-Org-ID", required = false) Long orgId) {
+        String customerName = dto.getCustomerName() != null ? dto.getCustomerName() : dto.getName();
+        if (customerName == null || customerName.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
         Customer customer = new Customer();
-        customer.setCustomerName(dto.getCustomerName());
+        customer.setCustomerName(customerName.trim());
         customer.setVatNumber(dto.getVatNumber());
         customer.setPhoneNumber(dto.getPhoneNumber());
         customer.setAddress(dto.getAddress());

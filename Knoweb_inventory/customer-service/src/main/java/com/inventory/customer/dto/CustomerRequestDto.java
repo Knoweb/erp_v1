@@ -6,6 +6,7 @@ import java.util.Map;
 @Data
 public class CustomerRequestDto {
     private String customerName;
+    private String name;
     private String vatNumber;
     private String phoneNumber;
     private String address;

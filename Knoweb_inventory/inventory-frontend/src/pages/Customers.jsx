@@ -47,13 +47,13 @@ function Customers() {
   };
 
   const handleEdit = (customer) => {
-    const { contactInfo = {}, name, orgId, id } = customer;
+    const { contactInfo = {}, customerName, name, orgId, id } = customer;
     const { email, phone, ...others } = contactInfo || {};
 
     const otherDetails = Object.entries(others).map(([key, value]) => ({ key, value }));
 
     setFormData({
-      name: name,
+      name: customerName || name || '',
       email: email || '',
       phone: phone || '',
       orgId: orgId || (user?.orgId || 1)
@@ -80,7 +80,7 @@ function Customers() {
       });
 
       const payload = {
-        name: formData.name,
+        customerName: formData.name,
         orgId: formData.orgId,
         contactInfo: contactInfoPayload
       };
@@ -216,10 +216,10 @@ function Customers() {
                       <td className="px-10 py-8">
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 font-black text-lg group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors">
-                            {customer.name.charAt(0)}
+                            {(customer.customerName || customer.name || '?').charAt(0)}
                           </div>
                           <div>
-                            <div className="font-black text-slate-800 text-lg tracking-tight uppercase italic">{customer.name}</div>
+                            <div className="font-black text-slate-800 text-lg tracking-tight uppercase italic">{customer.customerName || customer.name}</div>
                             <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">ID: #{String(customer.id).padStart(4, '0')}</div>
                           </div>
                         </div>
