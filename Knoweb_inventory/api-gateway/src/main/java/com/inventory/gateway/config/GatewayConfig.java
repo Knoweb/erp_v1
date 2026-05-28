@@ -111,6 +111,13 @@ public class GatewayConfig {
                                                                 .apply(new JwtAuthenticationFilter.Config())))
                                                 .uri("lb://ginuma-service"))
 
+                                // Customer Service - Inventory customer management
+                                .route("customer-service", r -> r
+                                                .path("/api/customers/**", "/api/customers")
+                                                .filters(f -> f.filter(jwtAuthenticationFilter
+                                                                .apply(new JwtAuthenticationFilter.Config())))
+                                                .uri("lb://customer-service"))
+
                                 // Inventory Service - Suppliers (Specific to Inventory Organization)
                                 .route("inventory-suppliers-org", r -> r
                                                 .path("/api/suppliers/organization/**")
