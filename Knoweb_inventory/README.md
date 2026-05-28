@@ -16,8 +16,9 @@
 5. **order-service** - Purchase & Sales Orders (Port: 8083)
 6. **warehouse-service** - Warehouse Management (Port: 8084)
 7. **supplier-service** - Supplier Management (Port: 8085)
-8. **user-service** - User & Authentication (Port: 8086)
-9. **notification-service** - Notifications (Port: 8087)
+8. **customer-service** - Customer Management (Port: 8088)
+9. **user-service** - User & Authentication (Port: 8086)
+10. **notification-service** - Notifications (Port: 8087)
 
 ### Frontend
 - **inventory-frontend** - React + Vite Application (Port: 5173)
@@ -39,6 +40,7 @@ CREATE DATABASE inventory_db;
 CREATE DATABASE order_db;
 CREATE DATABASE warehouse_db;
 CREATE DATABASE supplier_db;
+CREATE DATABASE customer_db;
 CREATE DATABASE user_db;
 CREATE DATABASE notification_db;
 ```

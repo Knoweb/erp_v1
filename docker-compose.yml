@@ -184,6 +184,27 @@ services:
       - app-network
     restart: unless-stopped
 
+  # Customer Service
+  customer-service:
+    image: ${DOCKER_USERNAME}/customer-service:latest
+    container_name: customer-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/customer_db?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=knoweb_admin_2026
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka/
+    ports:
+      - "8088:8088"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      service-discovery:
+        condition: service_started
+    networks:
+      - app-network
+    restart: unless-stopped
+
   # User Service
   user-service:
     image: ${DOCKER_USERNAME}/user-service:latest

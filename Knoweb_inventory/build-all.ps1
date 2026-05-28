@@ -43,6 +43,12 @@ Set-Location supplier-service
 mvn clean package -DskipTests
 Set-Location ..
 
+# Build Customer Service
+Write-Host "`nBuilding Customer Service..." -ForegroundColor Cyan
+Set-Location customer-service
+mvn clean package -DskipTests
+Set-Location ..
+
 # Build User Service
 Write-Host "`nBuilding User Service..." -ForegroundColor Cyan
 Set-Location user-service
@@ -52,6 +58,24 @@ Set-Location ..
 # Build Notification Service
 Write-Host "`nBuilding Notification Service..." -ForegroundColor Cyan
 Set-Location notification-service
+mvn clean package -DskipTests
+Set-Location ..
+
+# Build Reporting Service
+Write-Host "`nBuilding Reporting Service..." -ForegroundColor Cyan
+Set-Location reporting-service
+mvn clean package -DskipTests
+Set-Location ..
+
+# Build Catalog Service
+Write-Host "`nBuilding Catalog Service..." -ForegroundColor Cyan
+Set-Location catalog-service
+mvn clean package -DskipTests
+Set-Location ..
+
+# Build Identity Service
+Write-Host "`nBuilding Identity Service..." -ForegroundColor Cyan
+Set-Location identity-service
 mvn clean package -DskipTests
 Set-Location ..
 

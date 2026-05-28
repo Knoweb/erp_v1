@@ -39,6 +39,11 @@ Write-Host "`nStarting Supplier Service on port 8085..." -ForegroundColor Cyan
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd supplier-service; mvn spring-boot:run"
 Start-Sleep -Seconds 10
 
+# Start Customer Service
+Write-Host "`nStarting Customer Service on port 8088..." -ForegroundColor Cyan
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd customer-service; mvn spring-boot:run"
+Start-Sleep -Seconds 10
+
 # Start User Service
 Write-Host "`nStarting User Service on port 8086..." -ForegroundColor Cyan
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd user-service; mvn spring-boot:run"
@@ -48,6 +53,8 @@ Start-Sleep -Seconds 10
 Write-Host "`nStarting Notification Service on port 8087..." -ForegroundColor Cyan
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd notification-service; mvn spring-boot:run"
 Start-Sleep -Seconds 10
+
+Write-Host "`n✅ All services started!" -ForegroundColor Green
 
 # Start Identity Service
 Write-Host "`nStarting Identity Service on port 8088..." -ForegroundColor Cyan

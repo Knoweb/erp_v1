@@ -125,6 +125,14 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/supplier-service:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/supplier-service:latest
 
+      - name: Build customer-service
+        working-directory: Knoweb_inventory/customer-service
+        run: |
+          mvn clean package -DskipTests
+          cp target/*.jar target/app.jar
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/customer-service:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/customer-service:latest
+
       - name: Build user-service
         working-directory: Knoweb_inventory/user-service
         run: |
