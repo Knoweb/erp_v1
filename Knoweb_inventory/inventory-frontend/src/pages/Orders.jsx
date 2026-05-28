@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import apiClient, { orderService, supplierService, productService, warehouseService } from '../services/api';
+import apiClient, { orderService, supplierService, productService, warehouseService, customerService } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import PurchaseOrdersTable from '../components/PurchaseOrdersTable';
 import { ShoppingCart, DollarSign, X, Plus, Package, MessageSquare, ArrowRight, CheckCircle2, AlertCircle, RefreshCw, Layers, TrendingUp } from 'lucide-react';
@@ -13,6 +13,7 @@ const INIT_PO = {
 };
 
 const INIT_SO = {
+  customerId: '',
   customerName: '',
   warehouseId: '',
   notes: '',
@@ -262,6 +263,8 @@ function CreatePurchaseOrderModal({ suppliers, onClose, onCreated }) {
 function CreateSalesOrderModal({ onClose, onCreated }) {
   const [availableProducts, setAvailableProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
+  const [availableCustomers, setAvailableCustomers] = useState([]);
+  const [customersLoading, setCustomersLoading] = useState(true);
   const [availableWarehouses, setAvailableWarehouses] = useState([]);
   const [warehousesLoading, setWarehousesLoading] = useState(true);
   const [form, setForm] = useState(INIT_SO);
@@ -284,6 +287,19 @@ function CreateSalesOrderModal({ onClose, onCreated }) {
       })
       .catch(err => console.error('Failed to load products:', err))
       .finally(() => setProductsLoading(false));
+
+    customerService.getByOrganization(orgId)
+      .then(res => {
+        const data = res.data;
+        const list = Array.isArray(data) ? data : (data?.content ?? data?.data ?? []);
+        const customers = list.map(customer => ({
+          id: customer.id,
+          name: customer.customerName || customer.name || `Customer #${customer.id}`,
+        }));
+        setAvailableCustomers(customers);
+      })
+      .catch(err => console.error('Failed to load customers:', err))
+      .finally(() => setCustomersLoading(false));
 
     const warehouseFetch = orgId
       ? warehouseService.getByOrganization(orgId)
@@ -331,9 +347,23 @@ function CreateSalesOrderModal({ onClose, onCreated }) {
     return sum + qty * price;
   }, 0);
 
+  const handleCustomerSelect = (customerId) => {
+    if (!customerId) {
+      setForm(prev => ({ ...prev, customerId: '', customerName: '' }));
+      return;
+    }
+
+    const customer = availableCustomers.find(c => String(c.id) === String(customerId));
+    setForm(prev => ({
+      ...prev,
+      customerId,
+      customerName: customer ? customer.name : prev.customerName,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.customerName.trim()) { setError('Please enter a customer name.'); return; }
+    if (!form.customerName.trim()) { setError('Please select a customer.'); return; }
     if (!form.warehouseId) { setError('Please select a warehouse.'); return; }
     if (form.items.some(it => !it.productId || !it.quantity || !it.unitPrice)) {
       setError('Please fill in all item fields.'); return;
@@ -343,6 +373,7 @@ function CreateSalesOrderModal({ onClose, onCreated }) {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const payload = {
         customerName: form.customerName.trim(),
+        customerId: form.customerId ? Number(form.customerId) : null,
         warehouseId: Number(form.warehouseId),
         orgId: user.orgId ? Number(user.orgId) : null,
         notes: form.notes.trim() || null,
@@ -384,7 +415,18 @@ function CreateSalesOrderModal({ onClose, onCreated }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1.5">
               <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest">Customer Entity *</label>
-              <input type="text" className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 outline-none transition-all" placeholder="e.g. Acme Corp Overseas" value={form.customerName} onChange={e => setForm(p => ({ ...p, customerName: e.target.value }))} required />
+              <select
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 outline-none transition-all"
+                value={form.customerId}
+                onChange={e => handleCustomerSelect(e.target.value)}
+                required
+                disabled={customersLoading}
+              >
+                <option value="">{customersLoading ? '⏳ Loading customers…' : '— Select customer —'}</option>
+                {availableCustomers.map(customer => (
+                  <option key={customer.id} value={customer.id}>{customer.name}</option>
+                ))}
+              </select>
             </div>
 
             <div className="space-y-1.5">
