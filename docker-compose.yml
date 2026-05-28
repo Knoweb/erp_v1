@@ -195,7 +195,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=knoweb_admin_2026
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka/
     ports:
-      - "8088:8088"
+      - "8093:8088"
     depends_on:
       mysql:
         condition: service_healthy
