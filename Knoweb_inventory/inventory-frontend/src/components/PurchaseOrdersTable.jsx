@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Eye, CheckCircle2, Package, XCircle, Building2, Undo2 } from 'lucide-react';
+import { Search, Eye, CheckCircle2, Package, XCircle, Building2, Undo2, Loader2 } from 'lucide-react';
 
 const STATUS_META = {
     PENDING: { label: 'Pending', icon: '🕐', cls: 'bg-amber-50 text-amber-700 border-amber-100' },
@@ -39,6 +39,7 @@ function PurchaseOrdersTable({
     onReceive,
     onCancel,
     onReturn,
+    actionLoading = null,
     loading = false,
 }) {
     const [search, setSearch] = useState('');
@@ -65,6 +66,8 @@ function PurchaseOrdersTable({
         });
         return map;
     }, [warehouses]);
+
+    const isActionLoading = (type, id) => actionLoading?.type === type && actionLoading?.id === id;
 
     const filtered = useMemo(() => {
         const q = search.trim().toLowerCase();
@@ -207,10 +210,12 @@ function PurchaseOrdersTable({
 
                                                     {isApproved && (
                                                         <button
-                                                            className="p-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-100 transition-all font-black text-[10px] flex items-center gap-1.5"
+                                                            className="p-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-100 transition-all font-black text-[10px] flex items-center gap-1.5 disabled:opacity-70 disabled:cursor-not-allowed"
+                                                            disabled={isActionLoading('receive', order.id)}
                                                             onClick={() => onReceive?.(order.id)}
                                                         >
-                                                            <Package size={14} /> RECEIVE
+                                                            {isActionLoading('receive', order.id) ? <Loader2 size={14} className="animate-spin" /> : <Package size={14} />}
+                                                            {isActionLoading('receive', order.id) ? 'RECEIVING...' : 'RECEIVE'}
                                                         </button>
                                                     )}
                                                     

@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import apiClient, { orderService, supplierService, productService, warehouseService, customerService } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import PurchaseOrdersTable from '../components/PurchaseOrdersTable';
-import { ShoppingCart, DollarSign, X, Plus, Package, MessageSquare, ArrowRight, CheckCircle2, AlertCircle, RefreshCw, Layers, TrendingUp } from 'lucide-react';
+import { ShoppingCart, DollarSign, X, Plus, Package, MessageSquare, ArrowRight, CheckCircle2, AlertCircle, RefreshCw, Layers, TrendingUp, Loader2 } from 'lucide-react';
 
 // ── Initial form states ────────────────────────────────────────────────────────
 const INIT_PO = {
@@ -633,6 +633,7 @@ function Orders() {
   const [activeTab, setActiveTab] = useState('purchase');
   const [actionError, setActionError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
+  const [actionLoading, setActionLoading] = useState(null);
   const [showCreatePO, setShowCreatePO] = useState(false);
   const [showCreateSO, setShowCreateSO] = useState(false);
   const [showReturnPO, setShowReturnPO] = useState(null); // stores the order to return
@@ -700,6 +701,8 @@ function Orders() {
     setTimeout(() => setActionSuccess(''), 3500);
   };
 
+  const isActionLoading = (type, id) => actionLoading?.type === type && actionLoading?.id === id;
+
   const handleApprove = async (orderId) => {
     const isConfirmed = await confirm({
       title: 'Approve Purchase Order',
@@ -726,10 +729,14 @@ function Orders() {
     });
     if (!isConfirmed) return;
     try {
+      setActionLoading({ type: 'receive', id: orderId });
       await apiClient.patch(`/api/orders/purchase/${orderId}/receive`);
       showSuccess(`Order marked as received.`);
       fetchOrders();
     } catch (e) { setActionError(e.response?.data?.error || 'Failed to mark order as received.'); }
+    finally {
+      setActionLoading(null);
+    }
   };
 
   const handleReturnAction = (orderId, reason) => {
@@ -782,11 +789,14 @@ function Orders() {
     });
     if (!isConfirmed) return;
     try {
+      setActionLoading({ type: 'complete', id: orderId });
       await orderService.completeSalesOrder(orderId);
       showSuccess(`Sales Order fulfilled — stock updated ✅`);
       fetchOrders();
     } catch (e) {
       setActionError(e.response?.data?.error || 'Failed to complete order. Check stock availability.');
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -911,7 +921,7 @@ function Orders() {
               <span className={`ml-1 text-[9px] px-2 py-0.5 rounded-full font-black ${activeTab === 'purchase' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-500'}`}>{purchaseOrders.length}</span>
             </button>
             <button onClick={() => setActiveTab('sales')} className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2.5 transition-all ${activeTab === 'sales' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100' : 'text-slate-400 hover:text-slate-600'}`}>
-              <TrendingUp size={16} /> Fulfillment
+              <TrendingUp size={16} /> Sales Order
               <span className={`ml-1 text-[9px] px-2 py-0.5 rounded-full font-black ${activeTab === 'sales' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-500'}`}>{salesOrders.length}</span>
             </button>
           </div>
@@ -957,6 +967,7 @@ function Orders() {
                 onReceive={handleReceive}
                 onCancel={handleCancel}
                 onReturn={handleReturnAction}
+                actionLoading={actionLoading}
               />
             </div>
           ) : (
@@ -989,15 +1000,20 @@ function Orders() {
                           <td className="px-6 py-4">
                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm border ${order.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'
                               }`}>
-                              {order.status === 'COMPLETED' ? '✅ Fulfilled' : '⏳ Pending'}
+                              {order.status === 'COMPLETED' ? '✅ Completed' : '⏳ Pending'}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-[10px] font-black text-slate-300 uppercase italic tracking-tighter">{new Date(order.createdAt).toLocaleDateString()}</td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex justify-end gap-2">
                               {order.status !== 'COMPLETED' && (
-                                <button onClick={() => handleComplete(order.id)} className="px-4 py-2 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-emerald-700 shadow-lg shadow-emerald-50 transition-all flex items-center gap-2">
-                                  <CheckCircle2 size={12} /> Mark Fulfilled
+                                <button
+                                  onClick={() => handleComplete(order.id)}
+                                  disabled={isActionLoading('complete', order.id)}
+                                  className="px-4 py-2 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-emerald-700 shadow-lg shadow-emerald-50 transition-all flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                                >
+                                  {isActionLoading('complete', order.id) ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
+                                  {isActionLoading('complete', order.id) ? 'Completing...' : 'Mark Completed'}
                                 </button>
                               )}
                               <button className="p-2 bg-slate-100 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-all" title="View Detail"><MessageSquare size={16} /></button>
