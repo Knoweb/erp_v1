@@ -16,8 +16,9 @@ public interface InventoryClient {
     @GetMapping("/api/inventory/items/{id}")
     ItemResponseDto getItemById(@PathVariable("id") String id);
 
-    @GetMapping("/api/inventory/suppliers")
-    List<SupplierResponseDto> getSuppliers(@RequestParam(value = "companyId", required = false) Integer companyId);
+    // Map to the Knoweb inventory supplier endpoint (organization scoped)
+    @GetMapping("/api/suppliers/organization/{companyId}")
+    List<SupplierResponseDto> getSuppliers(@PathVariable("companyId") Integer companyId);
 
     @GetMapping("/api/orders/purchase")
     List<InventoryPoResponseDto> getPurchaseOrders();
