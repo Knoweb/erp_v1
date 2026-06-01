@@ -212,6 +212,7 @@ const ViewSale = () => {
               <div className="text-[9px] text-slate-600 leading-relaxed space-y-0.5">
                 {companyProfile?.companyRegisteredAddress && <p>{companyProfile.companyRegisteredAddress}</p>}
                 {companyProfile?.companyFactoryAddress && !companyProfile?.companyRegisteredAddress && <p>{companyProfile.companyFactoryAddress}</p>}
+                {companyProfile?.vatNo && <p>VAT No: {companyProfile.vatNo}</p>}
                 {companyProfile?.email && <p>{companyProfile.email}</p>}
                 {companyProfile?.phoneNo && <p>Contact Number: {companyProfile.phoneNo}</p>}
               </div>
