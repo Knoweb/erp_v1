@@ -251,8 +251,16 @@ const ViewSale = () => {
           <div className="mb-6 flex-grow">
             <table className="w-full text-[10px] border-collapse">
               <thead>
-                <tr className="border-b-2 border-slate-900 bg-slate-900 text-white">
-                  <th className="px-2 py-2 text-center font-bold w-6">#</th>
+                <tr
+                  className="border-b-2 border-slate-900 text-white"
+                  style={{
+                    backgroundColor: '#0f172a',
+                    color: '#ffffff',
+                    WebkitPrintColorAdjust: 'exact',
+                    printColorAdjust: 'exact',
+                  }}
+                >
+                  <th className="px-2 py-2 text-center font-bold w-6">No.</th>
                   <th className="px-2 py-2 text-left font-bold">DESCRIPTION</th>
                   <th className="px-2 py-2 text-center font-bold w-12">UNIT</th>
                   <th className="px-2 py-2 text-center font-bold w-8">QTY</th>
