@@ -228,10 +228,7 @@ const ViewSale = () => {
                   <span className="text-slate-500 font-semibold">Invoice Number:</span>
                   <span className="font-bold">{sale?.soNumber || '-'}</span>
                 </div>
-                <div className="flex justify-end gap-3">
-                  <span className="text-slate-500 font-semibold">Payment Method:</span>
-                  <span className="font-bold">{sale?.paymentTerms || 'N/A'}</span>
-                </div>
+                {/* Payment Method removed as requested */}
               </div>
             </div>
           </div>
@@ -260,12 +257,42 @@ const ViewSale = () => {
                     printColorAdjust: 'exact',
                   }}
                 >
-                  <th className="px-2 py-2 text-center font-bold w-6">No.</th>
-                  <th className="px-2 py-2 text-left font-bold">DESCRIPTION</th>
-                  <th className="px-2 py-2 text-center font-bold w-12">UNIT</th>
-                  <th className="px-2 py-2 text-center font-bold w-8">QTY</th>
-                  <th className="px-2 py-2 text-right font-bold w-20">UNIT PRICE</th>
-                  <th className="px-2 py-2 text-right font-bold w-24">NET AMOUNT</th>
+                  <th
+                    className="px-2 py-2 text-center font-bold w-6 bg-black text-white"
+                    style={{ backgroundColor: '#000000', color: '#ffffff' }}
+                  >
+                    No.
+                  </th>
+                  <th
+                    className="px-2 py-2 text-left font-bold bg-black text-white"
+                    style={{ backgroundColor: '#000000', color: '#ffffff' }}
+                  >
+                    DESCRIPTION
+                  </th>
+                  <th
+                    className="px-2 py-2 text-center font-bold w-12 bg-black text-white"
+                    style={{ backgroundColor: '#000000', color: '#ffffff' }}
+                  >
+                    UNIT
+                  </th>
+                  <th
+                    className="px-2 py-2 text-center font-bold w-8 bg-black text-white"
+                    style={{ backgroundColor: '#000000', color: '#ffffff' }}
+                  >
+                    QTY
+                  </th>
+                  <th
+                    className="px-2 py-2 text-right font-bold w-20 bg-black text-white"
+                    style={{ backgroundColor: '#000000', color: '#ffffff' }}
+                  >
+                    UNIT PRICE
+                  </th>
+                  <th
+                    className="px-2 py-2 text-right font-bold w-24 bg-black text-white"
+                    style={{ backgroundColor: '#000000', color: '#ffffff' }}
+                  >
+                    NET AMOUNT
+                  </th>
                 </tr>
               </thead>
               <tbody>
