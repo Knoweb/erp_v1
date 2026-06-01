@@ -194,7 +194,7 @@ const ViewSale = () => {
 
       {/* Professional Invoice Container */}
       <div className="flex-1 overflow-y-auto py-4 px-4 sm:px-6">
-        <div id="invoice-content" className="max-w-[210mm] mx-auto bg-white shadow-[0_0_50px_rgba(0,0,0,0.05)] border border-slate-200 print:shadow-none print:border-none relative p-[15mm] print:p-0 flex flex-col justify-between" style={{ height: '297mm' }}>
+        <div id="invoice-content" className="max-w-[210mm] mx-auto bg-white shadow-[0_0_50px_rgba(0,0,0,0.05)] border border-slate-200 relative p-[15mm] flex flex-col justify-between" style={{ height: '297mm' }}>
           
           {/* Header - Logo and Title */}
           <div className="flex justify-between items-start mb-8">
@@ -352,34 +352,20 @@ const ViewSale = () => {
             size: A4;
             margin: 0;
           }
-          body {
-            background-color: white !important;
-          }
-          .invoice-page {
-            background-color: white !important;
-            padding: 0 !important;
-            min-height: 0 !important;
-          }
           .no-print {
             display: none !important;
           }
-          div[class*="max-w-[210mm]"] {
-            box-shadow: none !important;
-            border: none !important;
-            margin: 0 !important;
-            padding: 15mm !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            height: 297mm !important;
+          .invoice-page,
+          #invoice-content,
+          #invoice-content * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
-          table {
-            width: 100% !important;
+          .invoice-page {
+            min-height: auto !important;
           }
-          td, th {
-            padding: 0.5rem 0.5rem !important;
-          }
-          tr {
-            page-break-inside: avoid !important;
+          #invoice-content {
+            margin: 0 auto !important;
           }
         }
       `}</style>
