@@ -237,7 +237,7 @@ const ViewSale = () => {
           </div>
 
           {/* Billed To */}
-          <div className="mb-6 pb-4 border-b border-dashed border-slate-300">
+          <div className="mb-6 pb-4 border-b border-dashed border-slate-300 mt-4 pt-2">
             <p className="text-[10px] text-slate-500 font-semibold mb-1">Billed To:</p>
             <p className="text-[11px] font-bold text-slate-900">{sale?.customerName || 'Customer'}</p>
             <p className="text-[9px] text-slate-600">{customerAddress || '-'}</p>
@@ -252,9 +252,9 @@ const ViewSale = () => {
             <table className="w-full text-[10px] border-collapse">
               <thead>
                 <tr
-                  className="border-b-2 border-slate-900 text-white"
+                  className="border-b-2 border-black text-white"
                   style={{
-                    backgroundColor: '#0f172a',
+                    backgroundColor: '#000000',
                     color: '#ffffff',
                     WebkitPrintColorAdjust: 'exact',
                     printColorAdjust: 'exact',
@@ -374,6 +374,15 @@ const ViewSale = () => {
           }
           #invoice-content {
             margin: 0 auto !important;
+          }
+
+          /* Force table header to print as solid black with white text */
+          #invoice-content table thead tr {
+            background-color: #000000 !important;
+            color: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            border-color: #000000 !important;
           }
         }
       `}</style>
