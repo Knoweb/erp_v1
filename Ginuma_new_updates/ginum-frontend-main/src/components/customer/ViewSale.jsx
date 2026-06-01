@@ -312,6 +312,28 @@ const ViewSale = () => {
             <p className="text-[9px] text-slate-600">Account: {companyProfile?.accountNumber || '-'}</p>
           </div>
 
+          {/* Signature Block */}
+          <div className="mb-8 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 text-center">
+              <div className="flex flex-col items-center">
+                <div className="h-16 w-40 border-b border-slate-400"></div>
+                <p className="text-xs text-slate-600 mt-2">PREPARED BY</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="h-16 w-40 border-b border-slate-400"></div>
+                <p className="text-xs text-slate-600 mt-2">CHECKED BY</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="h-16 w-40 border-b border-slate-400"></div>
+                <p className="text-xs text-slate-600 mt-2">AUTHORIZED BY</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="h-16 w-40 border-b border-slate-400"></div>
+                <p className="text-xs text-slate-600 mt-2">CUSTOMER'S SIGNATURE</p>
+              </div>
+            </div>
+          </div>
+
           {/* Footer */}
           <div className="text-center pt-3 border-t border-slate-200">
             <p className="text-[8px] font-semibold text-slate-600 tracking-wide mb-1">Thank you for your business</p>
