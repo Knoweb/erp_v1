@@ -226,6 +226,27 @@ function Customers() {
                       </td>
                       <td className="px-10 py-8">
                         <div className="space-y-3">
+                          {customer.vatNumber && (
+                            <div className="flex items-center gap-3">
+                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-20 shrink-0">VAT</span>
+                              <span className="text-sm font-semibold text-slate-700 tracking-tight">{customer.vatNumber}</span>
+                            </div>
+                          )}
+
+                          {customer.phoneNumber && (
+                            <div className="flex items-center gap-3">
+                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-20 shrink-0">Phone</span>
+                              <span className="text-sm font-semibold text-slate-700 tracking-tight">{customer.phoneNumber}</span>
+                            </div>
+                          )}
+
+                          {customer.address && (
+                            <div className="flex items-start gap-3">
+                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-20 shrink-0">Address</span>
+                              <span className="text-sm font-semibold text-slate-700 tracking-tight">{customer.address}</span>
+                            </div>
+                          )}
+
                           {customer.contactInfo && Object.entries(customer.contactInfo).map(([key, value]) => {
                             if (!value) return null;
                             return (
@@ -238,7 +259,7 @@ function Customers() {
                             );
                           })}
 
-                          {(!customer.contactInfo || Object.keys(customer.contactInfo).length === 0) && (
+                          {(!customer.contactInfo || Object.keys(customer.contactInfo).length === 0) && !customer.vatNumber && !customer.phoneNumber && !customer.address && (
                             <span className="text-slate-300 text-[11px] font-black uppercase tracking-widest italic flex items-center gap-2">
                               <AlertCircle size={14} /> Inactive
                             </span>
