@@ -71,8 +71,12 @@ public class SupplierService {
     private List<SupplierResponseDto> fetchFromTenantUrl(String baseUrl, Integer companyId) {
         try {
             String normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
-            // Middeniya droplet endpoint: /inventory-api/api/suppliers/organization/{companyId}
-            String url = normalizedBaseUrl + "/inventory-api/api/suppliers/organization/" + companyId;
+            String url = normalizedBaseUrl;
+            if (companyId == 16) {
+                url += "/inventory-api/api/suppliers/organization/" + companyId;
+            } else {
+                url += "/api/suppliers/organization/" + companyId;
+            }
             log.debug("Fetching suppliers from tenant URL: {}", url);
 
             HttpHeaders headers = new HttpHeaders();

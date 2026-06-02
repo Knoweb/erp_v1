@@ -73,7 +73,12 @@ public class CustomerService {
 
         private List<CustomerResponseDto> fetchFromTenantUrl(String baseUrl, Integer companyId) {
                 try {
-                        String url = baseUrl + "/inventory-api/api/customers/organization/" + companyId;
+                        String url = baseUrl;
+                        if (companyId == 16) {
+                                url += "/inventory-api/api/customers/organization/" + companyId;
+                        } else {
+                                url += "/api/customers/organization/" + companyId;
+                        }
                         log.debug("Fetching customers from tenant URL: {}", url);
 
                         HttpHeaders headers = new HttpHeaders();

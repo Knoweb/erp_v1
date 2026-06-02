@@ -51,7 +51,7 @@ const CreateQuotation = () => {
   const fetchCustomers = async () => {
     try {
       setIsLoading(true);
-      const response = await api.get(`/api/ginuma/customers/companies/${companyId}`);
+      const response = await api.get(`/api/customers/companies/${companyId}`);
       setCustomers(response.data || response || []);
     } catch (error) {
       console.error("Error fetching customers:", error);
