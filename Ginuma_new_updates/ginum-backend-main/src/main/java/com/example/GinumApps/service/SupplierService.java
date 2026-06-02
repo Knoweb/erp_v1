@@ -1,6 +1,5 @@
 package com.example.GinumApps.service;
 
-import com.example.GinumApps.client.InventoryClient;
 import com.example.GinumApps.dto.SupplierSummaryDto;
 import com.example.GinumApps.dto.external.MiddeniyaSupplierDto;
 import com.example.GinumApps.dto.external.SupplierResponseDto;
@@ -34,7 +33,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SupplierService {
 
-    private final InventoryClient inventoryClient;
     private final CompanyRepository companyRepository;
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
@@ -61,8 +59,7 @@ public class SupplierService {
             externalSuppliers = fetchFromTenantUrl(middeniyaInventoryUrl, companyId);
         } else {
             log.info("Company ID {} routing to Knoweb droplet: {}", companyId, knowebInventoryUrl);
-            // For other companies, use the default Feign client (Knoweb/Ginuma droplet)
-            externalSuppliers = inventoryClient.getSuppliers(companyId);
+            externalSuppliers = fetchFromTenantUrl(knowebInventoryUrl, companyId);
         }
 
         return externalSuppliers.stream()
@@ -73,8 +70,9 @@ public class SupplierService {
     // Fetch suppliers from a specific tenant URL using RestTemplate
     private List<SupplierResponseDto> fetchFromTenantUrl(String baseUrl, Integer companyId) {
         try {
+            String normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
             // Middeniya droplet endpoint: /inventory-api/api/suppliers/organization/{companyId}
-            String url = baseUrl + "/inventory-api/api/suppliers/organization/" + companyId;
+            String url = normalizedBaseUrl + "/inventory-api/api/suppliers/organization/" + companyId;
             log.debug("Fetching suppliers from tenant URL: {}", url);
 
             HttpHeaders headers = new HttpHeaders();
@@ -100,17 +98,25 @@ public class SupplierService {
                     String.class
             );
 
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                // Parse Middeniya format (with nested contactInfo) and convert to standard format
-                List<MiddeniyaSupplierDto> middeniyaSuppliers = objectMapper.readValue(
+                if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                if (baseUrl.equals(middeniyaInventoryUrl)) {
+                    // Parse Middeniya format (with nested contactInfo) and convert to standard format
+                    List<MiddeniyaSupplierDto> middeniyaSuppliers = objectMapper.readValue(
                         response.getBody(),
-                        new TypeReference<List<MiddeniyaSupplierDto>>() {}
-                );
+                        new TypeReference<List<MiddeniyaSupplierDto>>() {
+                        });
 
-                return middeniyaSuppliers.stream()
+                    return middeniyaSuppliers.stream()
                         .map(MiddeniyaSupplierDto::toSupplierResponseDto)
                         .collect(Collectors.toList());
-            }
+                }
+
+                // Knoweb inventory already returns supplier-shaped records
+                return objectMapper.readValue(
+                    response.getBody(),
+                    new TypeReference<List<SupplierResponseDto>>() {
+                    });
+                }
 
             return List.of();
         } catch (Exception e) {
