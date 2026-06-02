@@ -127,13 +127,59 @@ public class CustomerService {
         }
 
         private CustomerSummaryDto convertExternalToSummaryDto(CustomerResponseDto customer) {
+                var contact = customer.getContactInfo();
+
+                String name = customer.getCustomerName();
+                if ((name == null || name.isBlank()) && contact != null) {
+                        name = contact.containsKey("name") ? String.valueOf(contact.get("name")) : null;
+                        if (name == null || name.isBlank()) {
+                                name = contact.containsKey("customerName") ? String.valueOf(contact.get("customerName")) : null;
+                        }
+                }
+
+                String phone = customer.getPhoneNumber();
+                if ((phone == null || phone.isBlank()) && contact != null) {
+                        phone = contact.containsKey("phoneNumber") ? String.valueOf(contact.get("phoneNumber")) : null;
+                        if (phone == null || phone.isBlank()) {
+                                phone = contact.containsKey("phone") ? String.valueOf(contact.get("phone")) : null;
+                        }
+                        if (phone == null || phone.isBlank()) {
+                                phone = contact.containsKey("mobileNo") ? String.valueOf(contact.get("mobileNo")) : null;
+                        }
+                }
+
+                String email = null;
+                if (contact != null) {
+                        email = contact.containsKey("email") ? String.valueOf(contact.get("email")) : null;
+                }
+
+                String address = customer.getAddress();
+                if ((address == null || address.isBlank()) && contact != null) {
+                        address = contact.containsKey("address") ? String.valueOf(contact.get("address")) : null;
+                        if (address == null || address.isBlank()) {
+                                address = contact.containsKey("billingAddress") ? String.valueOf(contact.get("billingAddress")) : null;
+                        }
+                }
+
+                String vat = customer.getVatNumber();
+                if ((vat == null || vat.isBlank()) && contact != null) {
+                        vat = contact.containsKey("vatNumber") ? String.valueOf(contact.get("vatNumber")) : null;
+                        if (vat == null || vat.isBlank()) {
+                                vat = contact.containsKey("vatNo") ? String.valueOf(contact.get("vatNo")) : null;
+                        }
+                        if (vat == null || vat.isBlank()) {
+                                vat = contact.containsKey("vat") ? String.valueOf(contact.get("vat")) : null;
+                        }
+                }
+
                 return CustomerSummaryDto.builder()
                                 .id(customer.getId())
-                                .name(customer.getCustomerName())
-                                .phoneNo(customer.getPhoneNumber())
-                                .billingAddress(customer.getAddress())
-                                .deliveryAddress(customer.getAddress())
-                                .vat(customer.getVatNumber())
+                                .name(name)
+                                .email(email)
+                                .phoneNo(phone)
+                                .billingAddress(address)
+                                .deliveryAddress(address)
+                                .vat(vat)
                                 .build();
         }
 

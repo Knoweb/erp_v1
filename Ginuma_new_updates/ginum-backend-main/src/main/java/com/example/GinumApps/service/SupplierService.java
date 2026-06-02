@@ -184,7 +184,34 @@ public class SupplierService {
 
     private SupplierSummaryDto convertExternalToSummary(SupplierResponseDto s) {
         String name = s.getSupplierName() != null ? s.getSupplierName() : s.getName();
+        var contact = s.getContactInfo();
+
         String mobile = s.getMobileNo() != null ? s.getMobileNo() : s.getContactNumber();
+        if ((mobile == null || mobile.isBlank()) && contact != null) {
+            mobile = contact.containsKey("phoneNumber") ? String.valueOf(contact.get("phoneNumber")) : null;
+            if (mobile == null || mobile.isBlank()) {
+                mobile = contact.containsKey("phone") ? String.valueOf(contact.get("phone")) : null;
+            }
+            if (mobile == null || mobile.isBlank()) {
+                mobile = contact.containsKey("mobileNo") ? String.valueOf(contact.get("mobileNo")) : null;
+            }
+            if (mobile == null || mobile.isBlank()) {
+                mobile = contact.containsKey("contactNumber") ? String.valueOf(contact.get("contactNumber")) : null;
+            }
+        }
+
+        String email = s.getEmail();
+        if ((email == null || email.isBlank()) && contact != null) {
+            email = contact.containsKey("email") ? String.valueOf(contact.get("email")) : null;
+        }
+
+        String address = s.getAddress();
+        if ((address == null || address.isBlank()) && contact != null) {
+            address = contact.containsKey("address") ? String.valueOf(contact.get("address")) : null;
+            if (address == null || address.isBlank()) {
+                address = contact.containsKey("billingAddress") ? String.valueOf(contact.get("billingAddress")) : null;
+            }
+        }
 
         SupplierType supplierType = null;
         TaxType taxType = null;
@@ -193,16 +220,26 @@ public class SupplierService {
         } catch (Exception ignored) {
         }
         try {
-            if (s.getTax() != null) taxType = TaxType.valueOf(s.getTax());
+            String taxStr = s.getTax();
+            if ((taxStr == null || taxStr.isBlank()) && contact != null) {
+                taxStr = contact.containsKey("tax") ? String.valueOf(contact.get("tax")) : null;
+                if (taxStr == null || taxStr.isBlank()) {
+                    taxStr = contact.containsKey("vatNumber") ? String.valueOf(contact.get("vatNumber")) : null;
+                }
+                if (taxStr == null || taxStr.isBlank()) {
+                    taxStr = contact.containsKey("vatNo") ? String.valueOf(contact.get("vatNo")) : null;
+                }
+            }
+            if (taxStr != null) taxType = TaxType.valueOf(taxStr);
         } catch (Exception ignored) {
         }
 
         return SupplierSummaryDto.builder()
                 .id(s.getId())
                 .supplierName(name)
-                .email(s.getEmail())
+                .email(email)
                 .mobileNo(mobile)
-                .address(s.getAddress())
+                .address(address)
                 .supplierType(supplierType)
                 .tax(taxType)
                 .itemCategory(s.getItemCategory())
