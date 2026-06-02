@@ -58,7 +58,7 @@ export const fetchCompanyCustomers = async (companyId, token) => {
     return [];
   }
 
-  const companyCustomerResponse = await fetch(`${apiUrl}/api/ginuma/customers/companies/${companyId}`, {
+  const companyCustomerResponse = await fetch(`${apiUrl}/api/customers/companies/${companyId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

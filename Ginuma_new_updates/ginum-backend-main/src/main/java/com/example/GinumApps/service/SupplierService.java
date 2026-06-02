@@ -43,9 +43,6 @@ public class SupplierService {
     @Value("${inventory.url.knoweb:http://localhost:8082}")
     private String knowebInventoryUrl;
 
-    @Value("${inventory.url.knoweb.fallback:http://167.71.206.166:8080}")
-    private String knowebInventoryFallbackUrl;
-
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // Tenant-aware supplier fetching: Company ID 16 (Middeniya) routes to Middeniya droplet,
@@ -63,14 +60,6 @@ public class SupplierService {
         } else {
             log.info("Company ID {} routing to Knoweb droplet: {}", companyId, knowebInventoryUrl);
             externalSuppliers = fetchFromTenantUrl(knowebInventoryUrl, companyId);
-
-            if (externalSuppliers.isEmpty() && knowebInventoryFallbackUrl != null
-                    && !knowebInventoryFallbackUrl.isBlank()
-                    && !knowebInventoryFallbackUrl.equals(knowebInventoryUrl)) {
-                log.warn("No suppliers from primary Knoweb URL {} for company {}. Trying fallback {}",
-                        knowebInventoryUrl, companyId, knowebInventoryFallbackUrl);
-                externalSuppliers = fetchFromTenantUrl(knowebInventoryFallbackUrl, companyId);
-            }
         }
 
         return externalSuppliers.stream()

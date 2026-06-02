@@ -41,9 +41,6 @@ public class CustomerService {
         @Value("${inventory.url.knoweb:http://localhost:8082}")
         private String knowebInventoryUrl;
 
-        @Value("${inventory.url.knoweb.fallback:http://167.71.206.166:8080}")
-        private String knowebInventoryFallbackUrl;
-
         private final ObjectMapper objectMapper = new ObjectMapper();
 
         // Creation of Customer is disabled in this service; master data is owned by a separate microservice.
@@ -62,14 +59,6 @@ public class CustomerService {
                 } else {
                         log.info("Company ID {} routing customers to Knoweb droplet: {}", companyId, knowebInventoryUrl);
                         externalCustomers = fetchFromTenantUrl(knowebInventoryUrl, companyId);
-
-                        if (externalCustomers.isEmpty() && knowebInventoryFallbackUrl != null
-                                        && !knowebInventoryFallbackUrl.isBlank()
-                                        && !knowebInventoryFallbackUrl.equals(knowebInventoryUrl)) {
-                                log.warn("No customers from primary Knoweb URL {} for company {}. Trying fallback {}",
-                                                knowebInventoryUrl, companyId, knowebInventoryFallbackUrl);
-                                externalCustomers = fetchFromTenantUrl(knowebInventoryFallbackUrl, companyId);
-                        }
                 }
 
                 if (!externalCustomers.isEmpty()) {
