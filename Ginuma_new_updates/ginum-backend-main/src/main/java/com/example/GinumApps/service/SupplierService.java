@@ -40,8 +40,8 @@ public class SupplierService {
     @Value("${inventory.url.middeniya:http://localhost:8082}")
     private String middeniyaInventoryUrl;
 
-    @Value("${inventory.url.knoweb:http://localhost:8082}")
-    private String knowebInventoryUrl;
+    @Value("${supplier.url.knoweb:http://localhost:8085}")
+    private String knowebSupplierUrl;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -58,8 +58,8 @@ public class SupplierService {
             log.info("Company ID {} is Middeniya - routing to Middeniya droplet: {}", companyId, middeniyaInventoryUrl);
             externalSuppliers = fetchFromTenantUrl(middeniyaInventoryUrl, companyId);
         } else {
-            log.info("Company ID {} routing to Knoweb droplet: {}", companyId, knowebInventoryUrl);
-            externalSuppliers = fetchFromTenantUrl(knowebInventoryUrl, companyId);
+            log.info("Company ID {} routing to Knoweb supplier service: {}", companyId, knowebSupplierUrl);
+            externalSuppliers = fetchFromTenantUrl(knowebSupplierUrl, companyId);
         }
 
         return externalSuppliers.stream()

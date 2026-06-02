@@ -38,8 +38,8 @@ public class CustomerService {
         @Value("${inventory.url.middeniya:http://localhost:8082}")
         private String middeniyaInventoryUrl;
 
-        @Value("${inventory.url.knoweb:http://localhost:8082}")
-        private String knowebInventoryUrl;
+        @Value("${customer.url.knoweb:http://localhost:8088}")
+        private String knowebCustomerUrl;
 
         private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -57,8 +57,8 @@ public class CustomerService {
                                         middeniyaInventoryUrl);
                         externalCustomers = fetchFromTenantUrl(middeniyaInventoryUrl, companyId);
                 } else {
-                        log.info("Company ID {} routing customers to Knoweb droplet: {}", companyId, knowebInventoryUrl);
-                        externalCustomers = fetchFromTenantUrl(knowebInventoryUrl, companyId);
+                        log.info("Company ID {} routing customers to Knoweb customer service: {}", companyId, knowebCustomerUrl);
+                        externalCustomers = fetchFromTenantUrl(knowebCustomerUrl, companyId);
                 }
 
                 if (!externalCustomers.isEmpty()) {
