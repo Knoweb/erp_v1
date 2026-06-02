@@ -44,7 +44,7 @@ const NewProjectForm = () => {
   // Fetch customers from backend
   const fetchCustomers = async () => {
     try {
-      const response = await api.get(`/api/customers/companies/${companyId}`);
+      const response = await api.get(`/api/ginuma/customers/companies/${companyId}`);
       const data = response.data || response || [];
       setCustomers(Array.isArray(data) ? data : []);
     } catch (error) {
