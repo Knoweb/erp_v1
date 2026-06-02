@@ -104,6 +104,13 @@ public class GatewayConfig {
 
                                 // --- GINUMA SERVICE ROUTES (MOVED UP TO PREVENT CONFLICTS) ---
 
+                                // Ginuma Service - Customers (Specific to Ginuma)
+                                .route("ginuma-customers-company", r -> r
+                                                .path("/api/customers/companies/**")
+                                                .filters(f -> f.filter(jwtAuthenticationFilter
+                                                                .apply(new JwtAuthenticationFilter.Config())))
+                                                .uri("lb://ginuma-service"))
+
                                 // Ginuma Service - Suppliers (Specific to Ginuma)
                                 .route("ginuma-suppliers-company", r -> r
                                                 .path("/api/suppliers/companies/**")
