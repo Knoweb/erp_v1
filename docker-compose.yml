@@ -68,6 +68,8 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka/
       - CUSTOMER_URL_KNOWEB=http://customer-service:8088
       - SUPPLIER_URL_KNOWEB=http://supplier-service:8085
+      - ORDER_URL_KNOWEB=http://order-service:8083
+      - PRODUCT_URL_KNOWEB=http://product-service:8081
     ports:
       - "8081:8081"
     depends_on:

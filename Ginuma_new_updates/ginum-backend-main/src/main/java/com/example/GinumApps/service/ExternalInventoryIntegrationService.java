@@ -38,6 +38,12 @@ public class ExternalInventoryIntegrationService {
     @Value("${inventory.url.middeniya:http://178.128.221.122:3002}")
     private String middeniyaInventoryUrl;
 
+    @Value("${order.url.knoweb:http://localhost:8083}")
+    private String knowebOrderUrl;
+
+    @Value("${product.url.knoweb:http://localhost:8092}")
+    private String knowebProductUrl;
+
     public List<InventoryPoResponseDto> getApprovedPurchaseOrdersBySupplierId(Long supplierId) {
         try {
             log.info("Fetching approved purchase orders for supplierId: {}", supplierId);
@@ -46,36 +52,7 @@ public class ExternalInventoryIntegrationService {
                 return fetchFromMiddeniyaDroplet(supplierId);
             }
 
-            List<InventoryPoResponseDto> purchaseOrders = inventoryClient.getPurchaseOrders();
-            log.info("Successfully fetched {} purchase orders from inventory service", 
-                    purchaseOrders != null ? purchaseOrders.size() : 0);
-            
-            if (purchaseOrders == null || purchaseOrders.isEmpty()) {
-                log.warn("No purchase orders found from inventory service");
-                return new ArrayList<>();
-            }
-            
-            List<InventoryPoResponseDto> filtered = purchaseOrders.stream()
-                    .filter(Objects::nonNull)
-                    .peek(po -> log.debug("Processing PO: id={}, supplierId={}, status={}", 
-                            po.getId(), po.getSupplierId(), po.getStatus()))
-                    .filter(po -> supplierId.equals(po.getSupplierId()))
-                    .filter(po -> "APPROVED".equalsIgnoreCase(po.getStatus()))
-                    .collect(Collectors.toList());
-            
-            log.info("Filtered to {} approved purchase orders for supplierId: {}", 
-                    filtered.size(), supplierId);
-            return filtered;
-            
-        } catch (feign.FeignException e) {
-            String body = null;
-            try {
-                body = e.contentUTF8();
-            } catch (Exception ex) {
-                // ignore
-            }
-            log.error("Feign error fetching purchase orders (status={}) message={} body={}", e.status(), e.getMessage(), body);
-            return new ArrayList<>();
+            return fetchFromKnowebOrderService(supplierId);
         } catch (Exception e) {
             log.error("Error fetching approved purchase orders for supplierId: {}", supplierId, e);
             return new ArrayList<>();
@@ -84,6 +61,61 @@ public class ExternalInventoryIntegrationService {
 
     private boolean isMiddeniyaTenant() {
         return "16".equals(SecurityContextUtil.getCurrentOrganizationId());
+    }
+
+    private List<InventoryPoResponseDto> fetchFromKnowebOrderService(Long supplierId) {
+        try {
+            String url = knowebOrderUrl + "/api/orders/purchase";
+            log.info("Routing PO fetch for org {} to local order service: {}", SecurityContextUtil.getCurrentOrganizationId(), url);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+            String authorization = resolveRequestHeader("Authorization");
+            if (authorization != null && !authorization.isBlank()) {
+                headers.set(HttpHeaders.AUTHORIZATION, authorization);
+            }
+
+            String orgId = SecurityContextUtil.getCurrentOrganizationId();
+            if (orgId != null && !orgId.isBlank()) {
+                headers.set("X-Org-ID", orgId);
+            }
+
+            copyRequestHeaderIfPresent(headers, "X-Tenant-ID");
+            copyRequestHeaderIfPresent(headers, "X-Industry-Type");
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    String.class
+            );
+
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null || response.getBody().isBlank()) {
+                log.warn("Knoweb PO fetch returned status {} with empty body", response.getStatusCode());
+                return new ArrayList<>();
+            }
+
+            List<InventoryPoResponseDto> purchaseOrders = objectMapper.readValue(
+                    response.getBody(),
+                    new TypeReference<List<InventoryPoResponseDto>>() {}
+            );
+
+            List<InventoryPoResponseDto> filtered = purchaseOrders.stream()
+                    .filter(Objects::nonNull)
+                    .peek(po -> log.debug("Knoweb PO: id={}, supplierId={}, status={}",
+                            po.getId(), po.getSupplierId(), po.getStatus()))
+                    .filter(po -> supplierId.equals(po.getSupplierId()))
+                    .filter(po -> "APPROVED".equalsIgnoreCase(po.getStatus()))
+                    .collect(Collectors.toList());
+
+            log.info("Knoweb order service returned {} approved purchase orders for supplierId {}",
+                    filtered.size(), supplierId);
+            return filtered;
+        } catch (Exception e) {
+            log.error("Error fetching Knoweb purchase orders for supplierId {}: {}", supplierId, e.getMessage(), e);
+            return new ArrayList<>();
+        }
     }
 
     private List<InventoryPoResponseDto> fetchFromMiddeniyaDroplet(Long supplierId) {
@@ -204,6 +236,18 @@ public class ExternalInventoryIntegrationService {
 
     public List<InventoryProductResponseDto> getProductsByOrganization(Long orgId) {
         try {
+            if (isMiddeniyaTenant()) {
+                return fetchProductsFromMiddeniya(orgId);
+            }
+            return fetchProductsFromKnoweb(orgId);
+        } catch (Exception e) {
+            log.error("Error fetching products for orgId {}: {}", orgId, e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    private List<InventoryProductResponseDto> fetchProductsFromMiddeniya(Long orgId) {
+        try {
             String url = middeniyaInventoryUrl + "/inventory-api/api/products/organization/" + orgId;
             log.info("Fetching Middeniya products from: {}", url);
 
@@ -250,10 +294,70 @@ public class ExternalInventoryIntegrationService {
         }
     }
 
+    private List<InventoryProductResponseDto> fetchProductsFromKnoweb(Long orgId) {
+        try {
+            String url = knowebProductUrl + "/api/products/organization/" + orgId;
+            log.info("Fetching Knoweb products from: {}", url);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+            String authorization = resolveRequestHeader("Authorization");
+            if (authorization != null && !authorization.isBlank()) {
+                headers.set(HttpHeaders.AUTHORIZATION, authorization);
+            }
+
+            String currentOrgId = SecurityContextUtil.getCurrentOrganizationId();
+            if (currentOrgId != null && !currentOrgId.isBlank()) {
+                headers.set("X-Org-ID", currentOrgId);
+            }
+
+            copyRequestHeaderIfPresent(headers, "X-Tenant-ID");
+            copyRequestHeaderIfPresent(headers, "X-Industry-Type");
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    String.class
+            );
+
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null || response.getBody().isBlank()) {
+                log.warn("Knoweb product list returned status {} with empty body", response.getStatusCode());
+                return new ArrayList<>();
+            }
+
+            List<Object> rawProducts = objectMapper.readValue(
+                    response.getBody(),
+                    new TypeReference<List<Object>>() {}
+            );
+
+            return rawProducts.stream()
+                    .filter(Objects::nonNull)
+                    .map(product -> objectMapper.convertValue(product, InventoryProductResponseDto.class))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Error fetching Knoweb products for orgId {}: {}", orgId, e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
     public List<Map<String, Object>> getCompletedSalesOrdersByOrganization(Long orgId) {
         try {
+            if (isMiddeniyaTenant()) {
+                return fetchSalesOrdersFromMiddeniya(orgId);
+            }
+            return fetchSalesOrdersFromKnoweb(orgId);
+        } catch (Exception e) {
+            log.error("Error fetching completed sales orders for orgId {}: {}", orgId, e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    private List<Map<String, Object>> fetchSalesOrdersFromMiddeniya(Long orgId) {
+        try {
             String url = middeniyaInventoryUrl + "/inventory-api/api/orders/sales";
-            log.info("Fetching completed sales orders from: {}", url);
+            log.info("Fetching completed sales orders from Middeniya: {}", url);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(List.of(MediaType.APPLICATION_JSON));
@@ -296,7 +400,58 @@ public class ExternalInventoryIntegrationService {
                     })
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            log.error("Error fetching completed sales orders for orgId {}: {}", orgId, e.getMessage(), e);
+            log.error("Error fetching completed sales orders from Middeniya for orgId {}: {}", orgId, e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    private List<Map<String, Object>> fetchSalesOrdersFromKnoweb(Long orgId) {
+        try {
+            String url = knowebOrderUrl + "/api/orders/sales";
+            log.info("Fetching completed sales orders from Knoweb: {}", url);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+            String authorization = resolveRequestHeader("Authorization");
+            if (authorization != null && !authorization.isBlank()) {
+                headers.set(HttpHeaders.AUTHORIZATION, authorization);
+            }
+
+            String currentOrgId = SecurityContextUtil.getCurrentOrganizationId();
+            if (currentOrgId != null && !currentOrgId.isBlank()) {
+                headers.set("X-Org-ID", currentOrgId);
+            }
+
+            copyRequestHeaderIfPresent(headers, "X-Tenant-ID");
+            copyRequestHeaderIfPresent(headers, "X-Industry-Type");
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    String.class
+            );
+
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null || response.getBody().isBlank()) {
+                log.warn("Knoweb sales order list returned status {} with empty body", response.getStatusCode());
+                return new ArrayList<>();
+            }
+
+            List<Map<String, Object>> rawOrders = objectMapper.readValue(
+                    response.getBody(),
+                    new TypeReference<List<Map<String, Object>>>() {}
+            );
+
+            return rawOrders.stream()
+                    .filter(Objects::nonNull)
+                    .filter(order -> {
+                        Object status = order.get("status");
+                        return status != null && "COMPLETED".equalsIgnoreCase(String.valueOf(String.valueOf(status)));
+                    })
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Error fetching completed sales orders from Knoweb for orgId {}: {}", orgId, e.getMessage(), e);
             return new ArrayList<>();
         }
     }
