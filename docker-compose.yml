@@ -66,6 +66,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=knoweb_admin_2026
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka/
+      - INVENTORY_URL_KNOWEB=http://api-gateway:8080
     ports:
       - "8081:8081"
     depends_on:
