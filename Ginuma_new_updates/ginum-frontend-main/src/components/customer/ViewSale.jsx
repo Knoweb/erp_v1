@@ -287,6 +287,14 @@ const ViewSale = () => {
                   >
                     UNIT PRICE
                   </th>
+                  {sale?.items?.some(item => item.discount && Number(item.discount) > 0) && (
+                    <th
+                      className="px-2 py-2 text-right font-bold w-16 bg-black text-white"
+                      style={{ backgroundColor: '#000000', color: '#ffffff' }}
+                    >
+                      DISC (%)
+                    </th>
+                  )}
                   <th
                     className="px-2 py-2 text-right font-bold w-24 bg-black text-white"
                     style={{ backgroundColor: '#000000', color: '#ffffff' }}
@@ -297,19 +305,27 @@ const ViewSale = () => {
               </thead>
               <tbody>
                 {sale?.items && sale.items.length > 0 ? (
-                  sale.items.map((item, index) => (
-                    <tr key={index} className="border-b border-slate-200 hover:bg-slate-50">
-                      <td className="px-2 py-2 text-center text-slate-900 text-[9px]">{index + 1}</td>
-                      <td className="px-2 py-2 text-slate-900">{getItemLabel(item)}</td>
-                      <td className="px-2 py-2 text-center text-slate-900 text-[9px]">PCS</td>
-                      <td className="px-2 py-2 text-center text-slate-900 tabular-nums">{item.quantity || 0}</td>
-                      <td className="px-2 py-2 text-right text-slate-900 tabular-nums">{Number(item.unitPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                      <td className="px-2 py-2 text-right text-slate-900 font-semibold tabular-nums">{Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                    </tr>
-                  ))
+                  (() => {
+                    const hasDiscount = sale.items.some(item => item.discount && Number(item.discount) > 0);
+                    return sale.items.map((item, index) => (
+                      <tr key={index} className="border-b border-slate-200 hover:bg-slate-50">
+                        <td className="px-2 py-2 text-center text-slate-900 text-[9px]">{index + 1}</td>
+                        <td className="px-2 py-2 text-slate-900">{getItemLabel(item)}</td>
+                        <td className="px-2 py-2 text-center text-slate-900 text-[9px]">PCS</td>
+                        <td className="px-2 py-2 text-center text-slate-900 tabular-nums">{item.quantity || 0}</td>
+                        <td className="px-2 py-2 text-right text-slate-900 tabular-nums">{Number(item.unitPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        {hasDiscount && (
+                          <td className="px-2 py-2 text-right text-slate-900 tabular-nums">
+                            {item.discount && Number(item.discount) > 0 ? `${Number(item.discount)}%` : '-'}
+                          </td>
+                        )}
+                        <td className="px-2 py-2 text-right text-slate-900 font-semibold tabular-nums">{Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      </tr>
+                    ));
+                  })()
                 ) : (
                   <tr>
-                    <td colSpan="6" className="px-2 py-4 text-center text-slate-400 text-[9px]">No items</td>
+                    <td colSpan={sale?.items?.some(item => item.discount && Number(item.discount) > 0) ? 7 : 6} className="px-2 py-4 text-center text-slate-400 text-[9px]">No items</td>
                   </tr>
                 )}
               </tbody>
