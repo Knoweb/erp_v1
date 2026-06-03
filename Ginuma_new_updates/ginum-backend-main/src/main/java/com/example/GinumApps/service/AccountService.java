@@ -8,6 +8,7 @@ import com.example.GinumApps.model.Account;
 import com.example.GinumApps.model.Company;
 import com.example.GinumApps.repository.AccountRepository;
 import com.example.GinumApps.repository.CompanyRepository;
+import com.example.GinumApps.repository.JournalEntryLineRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final CompanyRepository companyRepository;
+    private final JournalEntryLineRepository journalEntryLineRepository;
 
     @Transactional
     public Account createAccount(Integer companyId, AccountRequestDto request) {
@@ -140,5 +142,35 @@ public class AccountService {
             case "Liability" -> List.of("2100");
             default -> List.of();
         };
+    }
+
+    @Transactional
+    public void deleteAccount(Integer companyId, Long id) {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found with ID: " + id));
+        if (account.getCompany() == null || !account.getCompany().getCompanyId().equals(companyId)) {
+            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to delete this account");
+        }
+
+        // Check if reserved code
+        if (RESERVED_CODES.contains(account.getAccountCode()) || "1100".equals(account.getAccountCode())) {
+            throw new IllegalArgumentException("Cannot delete reserved system accounts (e.g., Accounts Receivable, Accounts Payable, Tax, Freight).");
+        }
+
+        // Check default configuration
+        Company company = account.getCompany();
+        if (id.equals(company.getAccountsPayableAccount() != null ? company.getAccountsPayableAccount().getId() : null) ||
+            id.equals(company.getAccountsReceivableAccount() != null ? company.getAccountsReceivableAccount().getId() : null) ||
+            id.equals(company.getTaxAccount() != null ? company.getTaxAccount().getId() : null) ||
+            id.equals(company.getFreightAccount() != null ? company.getFreightAccount().getId() : null)) {
+            throw new IllegalArgumentException("Cannot delete account because it is configured as a default account for your company.");
+        }
+
+        // Check transaction history
+        if (journalEntryLineRepository.existsByAccount_Id(id)) {
+            throw new IllegalArgumentException("Cannot delete account because it contains transaction history. Please delete all transactions referencing this account first.");
+        }
+
+        accountRepository.delete(account);
     }
 }

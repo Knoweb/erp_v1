@@ -42,4 +42,13 @@ public class AccountController {
         return ResponseEntity.ok(accounts);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteAccount(
+            @PathVariable Integer companyId,
+            @PathVariable Long id
+    ) {
+        accountService.deleteAccount(companyId, id);
+        return ResponseEntity.ok(Map.of("message", "Account deleted successfully"));
+    }
+
 }

@@ -136,7 +136,8 @@ const AllPurchases = () => {
                         className="text-red-600 hover:text-red-900" 
                         title="Delete" 
                         onClick={async () => { 
-                          if (window.confirm("Are you sure you want to delete this purchase order? This will also revert the associated journal entries and account balances.")) {
+                          const result = await Alert.confirm("Are you sure you want to delete this purchase order? This will also revert the associated journal entries and account balances.");
+                          if (result.isConfirmed) {
                             try {
                               await api.delete(`/api/${companyId}/purchase-orders/${po.id}`);
                               Alert.success("Purchase order deleted successfully");

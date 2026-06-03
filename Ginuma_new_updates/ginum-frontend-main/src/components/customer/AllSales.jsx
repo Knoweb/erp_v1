@@ -119,7 +119,8 @@ const AllSales = () => {
                         className="text-red-600 hover:text-red-900" 
                         title="Delete" 
                         onClick={async () => { 
-                          if (window.confirm("Are you sure you want to delete this sales bill? This will also revert the associated journal entries and account balances.")) {
+                          const result = await Alert.confirm("Are you sure you want to delete this sales bill? This will also revert the associated journal entries and account balances.");
+                          if (result.isConfirmed) {
                             try {
                               await api.delete(`/api/sales-orders/company/${companyId}/${so.id}`);
                               Alert.success("Sales bill deleted successfully");

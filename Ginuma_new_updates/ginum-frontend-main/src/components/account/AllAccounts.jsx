@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import api from "../../utils/api";
 import Alert from "../Alert/Alert";
 import { FaPlus, FaSearch, FaUniversity, FaMoneyBill } from "react-icons/fa";
+import { FiEye, FiTrash2 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 function AllAccounts() {
@@ -197,6 +198,9 @@ function AllAccounts() {
                   <th className="py-4 px-6 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Balance
                   </th>
+                  <th className="py-4 px-6 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -207,8 +211,7 @@ function AllAccounts() {
                       key={account.id}
                       className="hover:bg-gray-50 transition-colors cursor-pointer"
                       onClick={() => {
-                        // Future: navigate to account details page
-                        console.log("Account clicked:", account);
+                        navigate("/app/reports/general-ledger", { state: { accountId: account.id } });
                       }}
                     >
                       <td className="py-4 px-6">
@@ -248,6 +251,36 @@ function AllAccounts() {
                         >
                           {formatBalance(account.currentBalance)}
                         </span>
+                      </td>
+                      <td className="py-4 px-6 text-right flex justify-end gap-3" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          className="text-blue-600 hover:text-blue-900"
+                          title="View Ledger"
+                          onClick={() => {
+                            navigate("/app/reports/general-ledger", { state: { accountId: account.id } });
+                          }}
+                        >
+                          <FiEye size={18} />
+                        </button>
+                        <button
+                          className="text-red-600 hover:text-red-900"
+                          title="Delete Account"
+                          onClick={async () => {
+                            const result = await Alert.confirm("Are you sure you want to delete this account? This action cannot be undone.");
+                            if (result.isConfirmed) {
+                              try {
+                                const companyId = localStorage.getItem("companyId");
+                                await api.delete(`/api/companies/${companyId}/accounts/${account.id}`);
+                                Alert.success("Account deleted successfully");
+                                fetchAccounts();
+                              } catch (err) {
+                                Alert.error(err.response?.data?.error || err.response?.data?.message || "Failed to delete account");
+                              }
+                            }
+                          }}
+                        >
+                          <FiTrash2 size={18} />
+                        </button>
                       </td>
                     </tr>
                   );

@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import api from '../../utils/api';
 import Alert from '../Alert/Alert';
 import { FaBook, FaFileDownload, FaPrint, FaFilter } from 'react-icons/fa';
+import { useLocation } from 'react-router-dom';
 
 function GeneralLedger() {
+  const location = useLocation();
   const [accounts, setAccounts] = useState([]);
   const [selectedAccountId, setSelectedAccountId] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -20,6 +22,30 @@ function GeneralLedger() {
     setEndDate(today.toISOString().split('T')[0]);
   }, []);
 
+  useEffect(() => {
+    if (selectedAccountId && location.state?.accountId && startDate && endDate && !ledgerData) {
+      const fetchLedgerOnLoad = async () => {
+        try {
+          setIsLoading(true);
+          const companyId = localStorage.getItem('companyId');
+          const response = await api.get(`/api/companies/${companyId}/reports/general-ledger`, {
+            params: {
+              accountId: selectedAccountId,
+              startDate,
+              endDate
+            }
+          });
+          setLedgerData(response);
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchLedgerOnLoad();
+    }
+  }, [selectedAccountId, startDate, endDate]);
+
   const fetchAccounts = async () => {
     try {
       const companyId = localStorage.getItem('companyId');
@@ -30,7 +56,11 @@ function GeneralLedger() {
       if (!Array.isArray(accountsData)) throw new Error('Invalid accounts structure');
 
       setAccounts(accountsData);
-      if (accountsData.length > 0) {
+      
+      const passedAccountId = location.state?.accountId;
+      if (passedAccountId) {
+        setSelectedAccountId(passedAccountId);
+      } else if (accountsData.length > 0) {
         setSelectedAccountId(accountsData[0].id);
       }
     } catch (error) {

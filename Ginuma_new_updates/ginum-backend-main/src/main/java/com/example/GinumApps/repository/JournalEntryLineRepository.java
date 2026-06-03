@@ -11,6 +11,7 @@ import java.util.List;
 
 @Repository
 public interface JournalEntryLineRepository extends JpaRepository<JournalEntryLine, Long> {
+    boolean existsByAccount_Id(Long accountId);
 
     @Query("SELECT jel FROM JournalEntryLine jel " +
            "JOIN jel.journalEntry je " +
