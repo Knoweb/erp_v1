@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiSearch, FiPlus, FiEye } from 'react-icons/fi';
+import { FiSearch, FiPlus, FiEye, FiTrash2 } from 'react-icons/fi';
 import api from '../../utils/api';
 import Alert from '../../components/Alert/Alert';
 import { useNavigate } from 'react-router-dom';
@@ -111,9 +111,26 @@ const AllSales = () => {
                         Rs. {so.balanceDue?.toFixed(2)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button className="text-blue-600 hover:text-blue-900" title="View" onClick={(e) => { e.stopPropagation(); navigate(`/app/customer/sales/${so.id}`); }}>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-3" onClick={(e) => e.stopPropagation()}>
+                      <button className="text-blue-600 hover:text-blue-900" title="View" onClick={() => navigate(`/app/customer/sales/${so.id}`)}>
                         <FiEye size={18} />
+                      </button>
+                      <button 
+                        className="text-red-600 hover:text-red-900" 
+                        title="Delete" 
+                        onClick={async () => { 
+                          if (window.confirm("Are you sure you want to delete this sales bill? This will also revert the associated journal entries and account balances.")) {
+                            try {
+                              await api.delete(`/api/sales-orders/company/${companyId}/${so.id}`);
+                              Alert.success("Sales bill deleted successfully");
+                              fetchSalesOrders();
+                            } catch (err) {
+                              Alert.error(err.response?.data?.message || "Failed to delete sales bill");
+                            }
+                          }
+                        }}
+                      >
+                        <FiTrash2 size={18} />
                       </button>
                     </td>
                   </tr>

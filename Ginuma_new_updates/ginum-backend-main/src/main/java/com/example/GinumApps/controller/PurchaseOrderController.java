@@ -57,6 +57,16 @@ public class PurchaseOrderController {
         return ResponseEntity.ok(purchaseOrderService.getPurchaseOrderById(id, companyId));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePurchaseOrder(
+            @PathVariable Integer companyId,
+            @PathVariable Long id) {
+        purchaseOrderService.deletePurchaseOrder(id, companyId);
+        java.util.Map<String, String> response = new java.util.HashMap<>();
+        response.put("message", "Purchase Order deleted successfully");
+        return ResponseEntity.ok(response);
+    }
+
     // Exception handler for validation errors
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalArgumentException.class)

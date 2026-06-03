@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AgingReceivableSnapshotRepository extends JpaRepository<AgingReceivableSnapshot, Long> {
+    java.util.Optional<AgingReceivableSnapshot> findByCompany_CompanyIdAndSoNumber(Integer companyId, String soNumber);
 }

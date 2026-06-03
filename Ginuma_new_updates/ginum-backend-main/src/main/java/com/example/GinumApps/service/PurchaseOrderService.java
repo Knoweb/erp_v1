@@ -649,4 +649,28 @@ public class PurchaseOrderService {
         journal.setLines(lines);
         journalEntryService.createJournalEntry(journal);
     }
+
+    @Transactional
+    public void deletePurchaseOrder(Long id, Integer companyId) {
+        PurchaseOrder po = purchaseOrderRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Purchase Order not found with ID: " + id));
+        if (po.getCompany() == null || !po.getCompany().getCompanyId().equals(companyId)) {
+            throw new AccessDeniedException("You don't have access to delete this order.");
+        }
+        
+        try {
+            journalEntryService.deleteJournalEntryByReferenceNoAndCompanyId(po.getSupplierInvoiceNumber(), companyId);
+        } catch (Exception e) {
+            // ignore
+        }
+        
+        try {
+            agingRepo.findByCompany_CompanyIdAndPoNumber(companyId, po.getPoNumber())
+                .ifPresent(agingRepo::delete);
+        } catch (Exception e) {
+            // ignore
+        }
+        
+        purchaseOrderRepo.delete(po);
+    }
 }

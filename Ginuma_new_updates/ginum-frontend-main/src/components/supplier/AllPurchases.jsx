@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiSearch, FiPlus, FiFileText, FiDollarSign } from 'react-icons/fi';
+import { FiSearch, FiPlus, FiFileText, FiEye, FiTrash2 } from 'react-icons/fi';
 import api from '../../utils/api';
 import Alert from '../../components/Alert/Alert';
 import { useNavigate } from 'react-router-dom';
@@ -11,22 +11,22 @@ const AllPurchases = () => {
   const navigate = useNavigate();
 
   const companyId = localStorage.getItem("companyId");
-  const token = localStorage.getItem("auth_token");
+
+  const fetchPurchases = async () => {
+    try {
+      if (!companyId) return;
+      setLoading(true);
+      const data = await api.get(`/api/${companyId}/purchase-orders`);
+      setPurchases(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error(err);
+      Alert.error("Error loading purchase orders");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchPurchases = async () => {
-      try {
-        if (!companyId) return;
-        setLoading(true);
-        const data = await api.get(`/api/${companyId}/purchase-orders`);
-        setPurchases(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error(err);
-        Alert.error("Error loading purchase orders");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchPurchases();
   }, [companyId]);
 
@@ -93,6 +93,7 @@ const AllPurchases = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issue Date</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -126,6 +127,28 @@ const AllPurchases = () => {
                       ) : (
                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Unpaid</span>
                       )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-3" onClick={(e) => e.stopPropagation()}>
+                      <button className="text-blue-600 hover:text-blue-900" title="View" onClick={() => navigate(`/app/supplier/purchase/${po.id}`)}>
+                        <FiEye size={18} />
+                      </button>
+                      <button 
+                        className="text-red-600 hover:text-red-900" 
+                        title="Delete" 
+                        onClick={async () => { 
+                          if (window.confirm("Are you sure you want to delete this purchase order? This will also revert the associated journal entries and account balances.")) {
+                            try {
+                              await api.delete(`/api/${companyId}/purchase-orders/${po.id}`);
+                              Alert.success("Purchase order deleted successfully");
+                              fetchPurchases();
+                            } catch (err) {
+                              Alert.error(err.response?.data?.message || "Failed to delete purchase order");
+                            }
+                          }
+                        }}
+                      >
+                        <FiTrash2 size={18} />
+                      </button>
                     </td>
                   </tr>
                 ))}

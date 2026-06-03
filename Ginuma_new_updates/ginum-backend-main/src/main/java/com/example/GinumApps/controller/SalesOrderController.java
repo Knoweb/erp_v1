@@ -63,6 +63,16 @@ public class SalesOrderController {
         return ResponseEntity.ok(salesOrderService.getSalesOrderById(id, companyId));
     }
 
+    @DeleteMapping("/company/{companyId}/{id}")
+    public ResponseEntity<?> deleteSalesOrder(
+            @PathVariable Integer companyId,
+            @PathVariable Long id) {
+        salesOrderService.deleteSalesOrder(id, companyId);
+        java.util.Map<String, String> response = new java.util.HashMap<>();
+        response.put("message", "Sales Order deleted successfully");
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/company/{companyId}/pay/{soId}")
     public ResponseEntity<?> paySalesOrder(
             @PathVariable Integer companyId,

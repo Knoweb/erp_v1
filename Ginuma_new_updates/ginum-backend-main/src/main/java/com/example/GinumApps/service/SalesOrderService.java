@@ -468,4 +468,28 @@ public class SalesOrderService {
         dto.setItemType(item.getItemType());
         return dto;
     }
+
+    @Transactional
+    public void deleteSalesOrder(Long id, Integer companyId) {
+        SalesOrder order = salesOrderRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Sales Order not found with ID: " + id));
+        if (order.getCompany() == null || !order.getCompany().getCompanyId().equals(companyId)) {
+            throw new org.springframework.security.access.AccessDeniedException("You don't have access to delete this order.");
+        }
+        
+        try {
+            journalService.deleteJournalEntryByReferenceNoAndCompanyId(order.getSoNumber(), companyId);
+        } catch (Exception e) {
+            // ignore
+        }
+        
+        try {
+            agingReceivableSnapshotRepo.findByCompany_CompanyIdAndSoNumber(companyId, order.getSoNumber())
+                .ifPresent(agingReceivableSnapshotRepo::delete);
+        } catch (Exception e) {
+            // ignore
+        }
+        
+        salesOrderRepo.delete(order);
+    }
 }

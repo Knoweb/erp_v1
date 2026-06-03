@@ -139,6 +139,32 @@ public class JournalEntryService {
         accountRepo.save(account);
     }
 
+    @Transactional
+    public void deleteJournalEntryByReferenceNoAndCompanyId(String referenceNo, Integer companyId) {
+        if (referenceNo == null || referenceNo.isBlank()) return;
+        List<JournalEntry> entries = journalEntryRepo.findByCompany_CompanyIdOrderByEntryDateDesc(companyId).stream()
+                .filter(e -> referenceNo.equals(e.getReferenceNo()))
+                .collect(Collectors.toList());
+
+        for (JournalEntry entry : entries) {
+            if (entry.getJournalEntryLines() != null) {
+                for (JournalEntryLine line : entry.getJournalEntryLines()) {
+                    Account account = line.getAccount();
+                    if (account != null) {
+                        BigDecimal balanceChange = calculateBalanceChange(
+                                account.getAccountType(),
+                                line.isDebit(),
+                                line.getAmount()
+                        );
+                        // Reverse the balance change (subtract it)
+                        updateAccountBalance(account, balanceChange.negate());
+                    }
+                }
+            }
+            journalEntryRepo.delete(entry);
+        }
+    }
+
     // Custom exception
     public static class InvalidJournalEntryException extends RuntimeException {
         public InvalidJournalEntryException(String message) {
