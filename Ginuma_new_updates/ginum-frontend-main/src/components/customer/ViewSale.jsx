@@ -287,7 +287,7 @@ const ViewSale = () => {
                   >
                     UNIT PRICE
                   </th>
-                  {sale?.items?.some(item => item.discount && Number(item.discount) > 0) && (
+                  {sale?.items?.some(item => (item.discount || item.discountPercent) && Number(item.discount || item.discountPercent) > 0) && (
                     <th
                       className="px-2 py-2 text-right font-bold w-16 bg-black text-white"
                       style={{ backgroundColor: '#000000', color: '#ffffff' }}
@@ -306,7 +306,7 @@ const ViewSale = () => {
               <tbody>
                 {sale?.items && sale.items.length > 0 ? (
                   (() => {
-                    const hasDiscount = sale.items.some(item => item.discount && Number(item.discount) > 0);
+                    const hasDiscount = sale.items.some(item => (item.discount || item.discountPercent) && Number(item.discount || item.discountPercent) > 0);
                     return sale.items.map((item, index) => (
                       <tr key={index} className="border-b border-slate-200 hover:bg-slate-50">
                         <td className="px-2 py-2 text-center text-slate-900 text-[9px]">{index + 1}</td>
@@ -316,7 +316,10 @@ const ViewSale = () => {
                         <td className="px-2 py-2 text-right text-slate-900 tabular-nums">{Number(item.unitPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                         {hasDiscount && (
                           <td className="px-2 py-2 text-right text-slate-900 tabular-nums">
-                            {item.discount && Number(item.discount) > 0 ? `${Number(item.discount)}%` : '-'}
+                            {(() => {
+                              const disc = item.discountPercent ?? item.discount;
+                              return disc && Number(disc) > 0 ? `${Number(disc)}%` : '-';
+                            })()}
                           </td>
                         )}
                         <td className="px-2 py-2 text-right text-slate-900 font-semibold tabular-nums">{Number(item.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
@@ -325,7 +328,7 @@ const ViewSale = () => {
                   })()
                 ) : (
                   <tr>
-                    <td colSpan={sale?.items?.some(item => item.discount && Number(item.discount) > 0) ? 7 : 6} className="px-2 py-4 text-center text-slate-400 text-[9px]">No items</td>
+                    <td colSpan={sale?.items?.some(item => (item.discount || item.discountPercent) && Number(item.discount || item.discountPercent) > 0) ? 7 : 6} className="px-2 py-4 text-center text-slate-400 text-[9px]">No items</td>
                   </tr>
                 )}
               </tbody>
