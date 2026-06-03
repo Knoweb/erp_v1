@@ -362,6 +362,11 @@ const CreatePurchase = () => {
         if (invRes && invRes.invoiceNumber) {
           setSupplierInvoiceNumber(invRes.invoiceNumber);
         }
+
+        const poRes = await api.get(`/api/${companyId}/purchase-orders/next-po-number`);
+        if (poRes && poRes.poNumber) {
+          setManualPoNumber(poRes.poNumber);
+        }
       } catch (error) {
         console.error("Error fetching next PO or Invoice number:", error);
       }
@@ -393,6 +398,9 @@ const CreatePurchase = () => {
         updatedRows[index].account = selectedItem.account || "";
         updatedRows[index].accountCode = selectedItem.accountCode || updatedRows[index].accountCode || "";
         updatedRows[index].discount = selectedItem.discount || updatedRows[index].discount || "0";
+        if (selectedItem.parentPoNumber) {
+          setManualPoNumber(selectedItem.parentPoNumber);
+        }
       }
     } else if (field === "poItemSelectionKey" && !value) {
       updatedRows[index].itemId = "";
