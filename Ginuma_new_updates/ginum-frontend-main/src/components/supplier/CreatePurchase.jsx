@@ -637,14 +637,14 @@ const CreatePurchase = () => {
           <thead>
             <tr className="bg-gray-100 text-gray-700 text-sm">
               {!isServiceMode && (
-                <th className="p-2">
+                <th className="p-2 w-1/4 min-w-[200px]">
                   Item ID <span className="text-red-500">*</span>
                 </th>
               )}
-              <th className="p-2">
+              <th className="p-2 min-w-[150px]">
                 Description <span className="text-red-500">*</span>
               </th>
-              <th className="p-2">
+              <th className="p-2 w-1/5 min-w-[180px]">
                 Account <span className="text-red-500">*</span>
                 <button
                   onClick={() => setShowAccountModal(true)}
@@ -655,19 +655,19 @@ const CreatePurchase = () => {
               </th>
               {!isServiceMode && (
                 <>
-                  <th className="p-2">
+                  <th className="p-2 w-24 min-w-[95px]">
                     No of Units <span className="text-red-500">*</span>
                   </th>
-                  <th className="p-2">
+                  <th className="p-2 w-28 min-w-[110px]">
                     Unit Price <span className="text-red-500">*</span>
                   </th>
-                  <th className="p-2">Discount (%)</th>
+                  <th className="p-2 w-24 min-w-[95px]">Discount (%)</th>
                 </>
               )}
-              <th className="p-2">
+              <th className="p-2 w-32 min-w-[130px]">
                 Amount (Rs.) <span className="text-red-500">*</span>
               </th>
-              <th className="p-2"></th>
+              <th className="p-2 w-10"></th>
             </tr>
           </thead>
           <tbody>
