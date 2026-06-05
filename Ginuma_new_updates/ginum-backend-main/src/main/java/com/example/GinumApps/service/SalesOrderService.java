@@ -29,6 +29,7 @@ public class SalesOrderService {
     private final JournalEntryService journalService;
     private final AgingReceivableSnapshotRepository agingReceivableSnapshotRepo;
     private final JournalEntryRepository journalEntryRepo;
+    private final MoneyTransactionRepository moneyTransactionRepository;
 
     public String getNextSoNumber(Integer companyId) {
         // COUNT-based generation: total orders for this company + 1
@@ -523,6 +524,16 @@ public class SalesOrderService {
                         if (so.getCustomer() != null) {
                             customerName = so.getCustomer().getName();
                         }
+                    }
+                } catch (Exception ignored) {}
+            }
+
+            // Look up payee/customer name from MoneyTransaction if general transaction
+            if (customerName.equals("N/A") && entry.getReferenceNo() != null) {
+                try {
+                    Optional<MoneyTransaction> mtOpt = moneyTransactionRepository.findByCompany_CompanyIdAndTransactionNumber(companyId, entry.getReferenceNo());
+                    if (mtOpt.isPresent()) {
+                        customerName = mtOpt.get().getPayeeName();
                     }
                 } catch (Exception ignored) {}
             }

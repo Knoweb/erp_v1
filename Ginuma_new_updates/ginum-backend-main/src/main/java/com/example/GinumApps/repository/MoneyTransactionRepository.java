@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface MoneyTransactionRepository extends JpaRepository<MoneyTransaction, Integer> {
     
     List<MoneyTransaction> findByCompany_CompanyIdOrderByTransactionDateDesc(Integer companyId);
+    Optional<MoneyTransaction> findByCompany_CompanyIdAndTransactionNumber(Integer companyId, String transactionNumber);
     
     List<MoneyTransaction> findByCompany_CompanyIdAndTypeOrderByTransactionDateDesc(Integer companyId, TransactionType type);
     

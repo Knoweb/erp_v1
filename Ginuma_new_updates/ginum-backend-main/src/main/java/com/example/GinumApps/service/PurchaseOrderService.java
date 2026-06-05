@@ -36,6 +36,7 @@ public class PurchaseOrderService {
     private final SupplierService supplierService;
     private final ExternalInventoryIntegrationService externalInventoryIntegrationService;
     private final JournalEntryRepository journalEntryRepo;
+    private final MoneyTransactionRepository moneyTransactionRepository;
 
     public String getNextPoNumber(Integer companyId) {
         // COUNT-based generation: total POs for this company + 1
@@ -704,6 +705,16 @@ public class PurchaseOrderService {
                         if (po.getSupplier() != null) {
                             supplierName = po.getSupplier().getSupplierName();
                         }
+                    }
+                } catch (Exception ignored) {}
+            }
+
+            // Look up payee/supplier name from MoneyTransaction if general transaction
+            if (supplierName.equals("N/A") && entry.getReferenceNo() != null) {
+                try {
+                    Optional<MoneyTransaction> mtOpt = moneyTransactionRepository.findByCompany_CompanyIdAndTransactionNumber(companyId, entry.getReferenceNo());
+                    if (mtOpt.isPresent()) {
+                        supplierName = mtOpt.get().getPayeeName();
                     }
                 } catch (Exception ignored) {}
             }
