@@ -154,6 +154,7 @@ const CreateSaleOrder = () => {
   const [notes, setNotes] = useState("");
   const [paymentAccountCode, setPaymentAccountCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
   // Calculate totals when relevant values change
@@ -393,6 +394,20 @@ const CreateSaleOrder = () => {
       updatedRows.push(createEmptyRow());
     }
 
+    if (errors.rows && errors.rows[index]) {
+      const updatedRowErrors = [...errors.rows];
+      if (updatedRowErrors[index]) {
+        delete updatedRowErrors[index][field];
+        if (field === "itemId") {
+          delete updatedRowErrors[index]["itemId"];
+        }
+        if (Object.keys(updatedRowErrors[index]).length === 0) {
+          delete updatedRowErrors[index];
+        }
+      }
+      setErrors(prev => ({ ...prev, rows: updatedRowErrors }));
+    }
+
     setRows(updatedRows);
   };
 
@@ -427,10 +442,108 @@ const CreateSaleOrder = () => {
     setCustomerItems(buildCompletedCustomerItemOptions(customerOrders, productCatalog));
   };
 
-  const handleSubmit = async () => {
-    // Validate required fields
+  const validateForm = () => {
+    const newErrors = {};
     if (!selectedCustomer) {
-      Alert.error("Please select a customer.");
+      newErrors.customer = "Customer is required";
+    }
+    if (!soNumber) {
+      newErrors.soNumber = "Sale Order Number is required";
+    }
+    if (!issueDate) {
+      newErrors.issueDate = "Order Date is required";
+    }
+
+    const rowErrors = [];
+    let hasRowErrors = false;
+
+    // Filter out completely empty rows (unless it is the only row, in which case we validate it)
+    const activeRows = rows.filter((row, idx) => {
+      const isEmpty = isServiceMode
+        ? !row.description && !row.account && !row.amount
+        : !row.itemId && !row.description && !row.account && !row.quantity && !row.unitPrice;
+      return !isEmpty || (rows.length === 1 && idx === 0);
+    });
+
+    if (activeRows.length === 0) {
+      newErrors.general = "Please add at least one line item";
+    } else {
+      rows.forEach((row, index) => {
+        const isEmpty = isServiceMode
+          ? !row.description && !row.account && !row.amount
+          : !row.itemId && !row.description && !row.account && !row.quantity && !row.unitPrice;
+
+        if (isEmpty) return; // skip trailing empty row validation
+
+        const errorsInRow = {};
+        if (!isServiceMode && !row.itemId) {
+          errorsInRow.itemId = "Item selection is required";
+        }
+        if (!row.description) {
+          errorsInRow.description = "Description is required";
+        }
+        if (!row.account) {
+          errorsInRow.account = "Account is required";
+        } else if (!accounts.find(a => a.id.toString() === row.account.toString())?.accountCode) {
+          errorsInRow.account = "Selected account is invalid";
+        }
+        
+        if (!isServiceMode) {
+          const qty = parseFloat(row.quantity);
+          const price = parseFloat(row.unitPrice);
+          if (!row.quantity || isNaN(qty) || qty <= 0) {
+            errorsInRow.quantity = "Quantity must be > 0";
+          }
+          if (!row.unitPrice || isNaN(price) || price <= 0) {
+            errorsInRow.unitPrice = "Unit Price must be > 0";
+          }
+        } else {
+          const amt = parseFloat(row.amount);
+          if (!row.amount || isNaN(amt) || amt <= 0) {
+            errorsInRow.amount = "Amount must be > 0";
+          }
+        }
+
+        if (Object.keys(errorsInRow).length > 0) {
+          rowErrors[index] = errorsInRow;
+          hasRowErrors = true;
+        }
+      });
+    }
+
+    if (hasRowErrors) {
+      newErrors.rows = rowErrors;
+    }
+
+    const paidAmount = parseFloat(amountPaid) || 0;
+    const roundedTotal = Number(total.toFixed(2));
+    const roundedPaid = Number(paidAmount.toFixed(2));
+
+    if (roundedPaid > roundedTotal) {
+      newErrors.amountPaid = "Amount paid cannot exceed total amount";
+    }
+
+    if (roundedTotal - roundedPaid > 0.01 && !dueDate) {
+      newErrors.dueDate = "Due Date is required for balance due";
+    }
+
+    if (roundedPaid > 0 && !paymentAccountCode) {
+      newErrors.paymentAccountCode = "Payment Account is required for payments";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      Alert.error("Please fill all required fields correctly.");
+      setTimeout(() => {
+        const firstErrorEl = document.querySelector(".border-red-500");
+        if (firstErrorEl) {
+          firstErrorEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 100);
       return;
     }
 
@@ -449,11 +562,6 @@ const CreateSaleOrder = () => {
         (!isServiceMode ? row.quantity && row.unitPrice : row.amount)
     );
 
-    if (validRows.length === 0) {
-      Alert.error("Please add at least one valid item/service row.");
-      return;
-    }
-
     const payload = {
       companyId: parseInt(companyId),
       customerId: parseInt(selectedCustomer),
@@ -466,11 +574,11 @@ const CreateSaleOrder = () => {
       amountPaid: parseFloat(amountPaid) || 0,
       paymentAccountCode: paymentAccountCode || null,
       freight: parseFloat(freight) || 0,
-        taxBreakdown: taxes.map(t => ({
-          taxType: t.taxType,
-          percentage: parseFloat(t.percentage) || 0,
-          amount: parseFloat(t.amount) || ((subtotal + parseFloat(freight || 0)) * (parseFloat(t.percentage || 0) / 100))
-        })),
+      taxBreakdown: taxes.map(t => ({
+        taxType: t.taxType,
+        percentage: parseFloat(t.percentage) || 0,
+        amount: parseFloat(t.amount) || ((subtotal + parseFloat(freight || 0)) * (parseFloat(t.percentage || 0) / 100))
+      })),
       items: validRows.map((row) => ({
         itemId: isServiceMode ? null : parseInt(row.itemId),
         description: row.description,
@@ -486,7 +594,6 @@ const CreateSaleOrder = () => {
     setIsSubmitting(true);
     try {
       const response = await api.post(`/api/sales-orders/company/${companyId}`, payload);
-      // api.js returns response.data directly, so we check if the request was successful (response defined)
       if (response) {
         Alert.success("Sales bill created successfully!");
         navigate("/app/customer/sales/all"); 
@@ -519,8 +626,15 @@ const CreateSaleOrder = () => {
           </label>
           <select
             value={selectedCustomer}
-            onChange={(e) => handleCustomerChange(e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+            onChange={(e) => {
+              handleCustomerChange(e.target.value);
+              if (errors.customer) {
+                setErrors(prev => ({ ...prev, customer: null }));
+              }
+            }}
+            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 text-sm sm:text-base ${
+              errors.customer ? "border-red-500 focus:ring-red-500 bg-red-50" : "border-gray-300 focus:ring-blue-500"
+            }`}
             disabled={isLoadingCustomers}
           >
             <option value="">Select a customer</option>
@@ -536,6 +650,9 @@ const CreateSaleOrder = () => {
               ))
             )}
           </select>
+          {errors.customer && (
+            <p className="text-red-500 text-xs mt-1">{errors.customer}</p>
+          )}
         </div>
         <div>
           <label className="block text-gray-700 font-medium">
@@ -543,11 +660,21 @@ const CreateSaleOrder = () => {
           </label>
           <input
             type="text"
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 text-sm sm:text-base ${
+              errors.soNumber ? "border-red-500 focus:ring-red-500 bg-red-50" : "border-gray-300 focus:ring-blue-500"
+            }`}
             placeholder="SO-00000001"
             value={soNumber}
-            onChange={(e) => setSoNumber(e.target.value)}
+            onChange={(e) => {
+              setSoNumber(e.target.value);
+              if (errors.soNumber) {
+                setErrors(prev => ({ ...prev, soNumber: null }));
+              }
+            }}
           />
+          {errors.soNumber && (
+            <p className="text-red-500 text-xs mt-1">{errors.soNumber}</p>
+          )}
         </div>
       </div>
 
@@ -568,10 +695,20 @@ const CreateSaleOrder = () => {
           </label>
           <input
             type="date"
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 text-sm sm:text-base ${
+              errors.issueDate ? "border-red-500 focus:ring-red-500 bg-red-50" : "border-gray-300 focus:ring-blue-500"
+            }`}
             value={issueDate}
-            onChange={(e) => setIssueDate(e.target.value)}
+            onChange={(e) => {
+              setIssueDate(e.target.value);
+              if (errors.issueDate) {
+                setErrors(prev => ({ ...prev, issueDate: null }));
+              }
+            }}
           />
+          {errors.issueDate && (
+            <p className="text-red-500 text-xs mt-1">{errors.issueDate}</p>
+          )}
         </div>
       </div>
 
@@ -641,125 +778,155 @@ const CreateSaleOrder = () => {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, index) => (
-              <tr key={index}>
-                {!isServiceMode && (
+            {rows.map((row, index) => {
+              const rowErr = errors.rows?.[index] || {};
+              return (
+                <tr key={index}>
+                  {!isServiceMode && (
+                    <td className="p-2">
+                      <select
+                        value={row.itemId}
+                        onChange={(e) =>
+                          handleRowChange(index, "itemId", e.target.value)
+                        }
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 text-sm sm:text-base ${
+                          rowErr.itemId ? "border-red-500 focus:ring-red-500 bg-red-50" : "border-gray-300 focus:ring-blue-500"
+                        }`}
+                        disabled={isLoadingItemsProjects || !selectedCustomer}
+                      >
+                        <option value="">{selectedCustomer ? "Select Item" : "Select customer first"}</option>
+                        {isLoadingItemsProjects ? (
+                          <option value="">Loading items...</option>
+                        ) : (
+                          customerItems.map((item) => (
+                            <option key={item.id} value={item.id}>
+                              {item.label}
+                            </option>
+                          ))
+                        )}
+                      </select>
+                      {rowErr.itemId && (
+                        <p className="text-red-500 text-xs mt-0.5">{rowErr.itemId}</p>
+                      )}
+                    </td>
+                  )}
+                  <td className="p-2">
+                    <input
+                      type="text"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 text-sm sm:text-base ${
+                        rowErr.description ? "border-red-500 focus:ring-red-500 bg-red-50" : "border-gray-300 focus:ring-blue-500"
+                      }`}
+                      placeholder="Description"
+                      value={row.description}
+                      onChange={(e) =>
+                        handleRowChange(index, "description", e.target.value)
+                      }
+                    />
+                    {rowErr.description && (
+                      <p className="text-red-500 text-xs mt-0.5">{rowErr.description}</p>
+                    )}
+                  </td>
                   <td className="p-2">
                     <select
-                      value={row.itemId}
+                      value={row.account}
                       onChange={(e) =>
-                        handleRowChange(index, "itemId", e.target.value)
+                        handleRowChange(index, "account", e.target.value)
                       }
-                      className=" px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                      disabled={isLoadingItemsProjects || !selectedCustomer}
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 text-sm sm:text-base ${
+                        rowErr.account ? "border-red-500 focus:ring-red-500 bg-red-50" : "border-gray-300 focus:ring-blue-500"
+                      }`}
+                      disabled={isLoadingAccounts}
                     >
-                      <option value="">{selectedCustomer ? "Select Item" : "Select customer first"}</option>
-                      {isLoadingItemsProjects ? (
-                        <option value="">Loading items...</option>
+                      <option value="">Select Account</option>
+                      {isLoadingAccounts ? (
+                        <option value="">Loading accounts...</option>
+                      ) : accountsError ? (
+                        <option value="">Error loading accounts</option>
+                      ) : accounts.length === 0 ? (
+                        <option value="">No accounts available</option>
                       ) : (
-                        customerItems.map((item) => (
-                          <option key={item.id} value={item.id}>
-                            {item.label}
+                        filterAccountsByContext(accounts, AccountContext.SALES_ITEM_ACCOUNT).map((account) => (
+                          <option key={account.id} value={account.id}>
+                            {account.name}
                           </option>
                         ))
                       )}
                     </select>
-                  </td>
-                )}
-                <td className="p-2">
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                    placeholder="Description"
-                    value={row.description}
-                    onChange={(e) =>
-                      handleRowChange(index, "description", e.target.value)
-                    }
-                  />
-                </td>
-                <td className="p-2">
-                  <select
-                    value={row.account}
-                    onChange={(e) =>
-                      handleRowChange(index, "account", e.target.value)
-                    }
-                    className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                    disabled={isLoadingAccounts}
-                  >
-                    <option value="">Select Account</option>
-                    {isLoadingAccounts ? (
-                      <option value="">Loading accounts...</option>
-                    ) : accountsError ? (
-                      <option value="">Error loading accounts</option>
-                    ) : accounts.length === 0 ? (
-                      <option value="">No accounts available</option>
-                    ) : (
-                      filterAccountsByContext(accounts, AccountContext.SALES_ITEM_ACCOUNT).map((account) => (
-                        <option key={account.id} value={account.id}>
-                          {account.name}
-                        </option>
-                      ))
+                    {rowErr.account && (
+                      <p className="text-red-500 text-xs mt-0.5">{rowErr.account}</p>
                     )}
-                  </select>
-                </td>
-                {!isServiceMode && (
-                  <>
-                    <td className="p-2">
-                      <input
-                        type="number"
-                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                        // placeholder="No of units"
-                        value={row.quantity}
-                        onChange={(e) =>
-                          handleRowChange(index, "quantity", e.target.value)
-                        }
-                        min="0"
-                        step="1"
-                      />
-                    </td>
-                    <td className="p-2">
-                      <input
-                        type="number"
-                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                        // placeholder="Unit price"
-                        value={row.unitPrice}
-                        onChange={(e) =>
-                          handleRowChange(index, "unitPrice", e.target.value)
-                        }
-                        min="0"
-                        step="0.01"
-                      />
-                    </td>
-                    <td className="p-2">
-                      <input
-                        type="number"
-                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                        placeholder="(%)"
-                        value={row.discount}
-                        onChange={(e) =>
-                          handleRowChange(index, "discount", e.target.value)
-                        }
-                        min="0"
-                        max="100"
-                        step="1"
-                      />
-                    </td>
-                  </>
-                )}
-                <td className="p-2">
-                  <input
-                    type="number"
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                    placeholder="Amount (Rs.)"
-                    value={row.amount}
-                    onChange={(e) =>
-                      handleRowChange(index, "amount", e.target.value)
-                    }
-                    readOnly={!isServiceMode}
-                    min="0"
-                    step="0.01"
-                  />
-                </td>
+                  </td>
+                  {!isServiceMode && (
+                    <>
+                      <td className="p-2">
+                        <input
+                          type="number"
+                          className={`w-full px-3 py-2 border rounded-lg focus:ring-2 text-sm sm:text-base ${
+                            rowErr.quantity ? "border-red-500 focus:ring-red-500 bg-red-50" : "border-gray-300 focus:ring-blue-500"
+                          }`}
+                          value={row.quantity}
+                          onChange={(e) =>
+                            handleRowChange(index, "quantity", e.target.value)
+                          }
+                          min="0"
+                          step="1"
+                        />
+                        {rowErr.quantity && (
+                          <p className="text-red-500 text-xs mt-0.5">{rowErr.quantity}</p>
+                        )}
+                      </td>
+                      <td className="p-2">
+                        <input
+                          type="number"
+                          className={`w-full px-3 py-2 border rounded-lg focus:ring-2 text-sm sm:text-base ${
+                            rowErr.unitPrice ? "border-red-500 focus:ring-red-500 bg-red-50" : "border-gray-300 focus:ring-blue-500"
+                          }`}
+                          value={row.unitPrice}
+                          onChange={(e) =>
+                            handleRowChange(index, "unitPrice", e.target.value)
+                          }
+                          min="0"
+                          step="0.01"
+                        />
+                        {rowErr.unitPrice && (
+                          <p className="text-red-500 text-xs mt-0.5">{rowErr.unitPrice}</p>
+                        )}
+                      </td>
+                      <td className="p-2">
+                        <input
+                          type="number"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                          placeholder="(%)"
+                          value={row.discount}
+                          onChange={(e) =>
+                            handleRowChange(index, "discount", e.target.value)
+                          }
+                          min="0"
+                          max="100"
+                          step="1"
+                        />
+                      </td>
+                    </>
+                  )}
+                  <td className="p-2">
+                    <input
+                      type="number"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 text-sm sm:text-base ${
+                        rowErr.amount ? "border-red-500 focus:ring-red-500 bg-red-50" : "border-gray-300 focus:ring-blue-500"
+                      }`}
+                      placeholder="Amount (Rs.)"
+                      value={row.amount}
+                      onChange={(e) =>
+                        handleRowChange(index, "amount", e.target.value)
+                      }
+                      readOnly={!isServiceMode}
+                      min="0"
+                      step="0.01"
+                    />
+                    {rowErr.amount && (
+                      <p className="text-red-500 text-xs mt-0.5">{rowErr.amount}</p>
+                    )}
+                  </td>
                 <td className="p-2">
                   {index !== rows.length - 1 && (
                     <button
@@ -865,33 +1032,57 @@ const CreateSaleOrder = () => {
           <span className="text-gray-700 font-medium">Total:</span>
           <span className="text-gray-900">Rs. {total.toFixed(2)}</span>
         </div>
-        <div className="w-full md:w-1/2 flex justify-between items-center">
-          <label className="text-gray-700 font-medium">Amount Paid (Rs.):</label>
-          <input
-            type="number"
-            className="w-1/2 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-            placeholder="0.00"
-            value={amountPaid}
-            onChange={(e) => setAmountPaid(e.target.value)}
-            min="0"
-            step="0.01"
-          />
+        <div className="w-full md:w-1/2 flex flex-col items-end">
+          <div className="w-full flex justify-between items-center">
+            <label className="text-gray-700 font-medium">Amount Paid (Rs.):</label>
+            <input
+              type="number"
+              className={`w-1/2 px-3 py-2 border rounded-lg focus:ring-2 text-sm sm:text-base ${
+                errors.amountPaid ? "border-red-500 focus:ring-red-500 bg-red-50" : "border-gray-300 focus:ring-blue-500"
+              }`}
+              placeholder="0.00"
+              value={amountPaid}
+              onChange={(e) => {
+                setAmountPaid(e.target.value);
+                if (errors.amountPaid) {
+                  setErrors(prev => ({ ...prev, amountPaid: null }));
+                }
+              }}
+              min="0"
+              step="0.01"
+            />
+          </div>
+          {errors.amountPaid && (
+            <p className="text-red-500 text-xs mt-1 self-end w-1/2 text-left pr-2">{errors.amountPaid}</p>
+          )}
         </div>
-        <div className="w-full md:w-1/2 flex justify-between items-center mb-2">
-          <label className="text-gray-700 font-medium">Payment Account:</label>
-          <select
-            className="w-1/2 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-            value={paymentAccountCode}
-            onChange={(e) => setPaymentAccountCode(e.target.value)}
-            disabled={isLoadingAccounts || parseFloat(amountPaid) <= 0}
-          >
-            <option value="">Select Account</option>
-            {filterAccountsByContext(accounts, AccountContext.SALES_PAYMENT_ACCOUNT).map((account) => (
-              <option key={account.id} value={account.accountCode}>
-                {account.name}
-              </option>
-            ))}
-          </select>
+        <div className="w-full md:w-1/2 flex flex-col items-end mb-2">
+          <div className="w-full flex justify-between items-center">
+            <label className="text-gray-700 font-medium">Payment Account:</label>
+            <select
+              className={`w-1/2 px-3 py-2 border rounded-lg focus:ring-2 text-sm sm:text-base ${
+                errors.paymentAccountCode ? "border-red-500 focus:ring-red-500 bg-red-50" : "border-gray-300 focus:ring-blue-500"
+              }`}
+              value={paymentAccountCode}
+              onChange={(e) => {
+                setPaymentAccountCode(e.target.value);
+                if (errors.paymentAccountCode) {
+                  setErrors(prev => ({ ...prev, paymentAccountCode: null }));
+                }
+              }}
+              disabled={isLoadingAccounts || parseFloat(amountPaid) <= 0}
+            >
+              <option value="">Select Account</option>
+              {filterAccountsByContext(accounts, AccountContext.SALES_PAYMENT_ACCOUNT).map((account) => (
+                <option key={account.id} value={account.accountCode}>
+                  {account.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          {errors.paymentAccountCode && (
+            <p className="text-red-500 text-xs mt-1 self-end w-1/2 text-left pr-2">{errors.paymentAccountCode}</p>
+          )}
         </div>
         <div className="w-full md:w-1/2 flex justify-between items-center">
           <span className="text-gray-700 font-medium">Balance Due:</span>
@@ -899,17 +1090,29 @@ const CreateSaleOrder = () => {
         </div>
 
         {balanceDue > 0 && (
-          <div className="w-full md:w-1/2 flex justify-between items-center">
-            <label className="block text-gray-700 font-medium">
-              Due Date <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              className="w-1/2 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              required
-            />
+          <div className="w-full md:w-1/2 flex flex-col items-end">
+            <div className="w-full flex justify-between items-center">
+              <label className="block text-gray-700 font-medium">
+                Due Date <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                className={`w-1/2 px-3 py-2 border rounded-lg focus:ring-2 text-sm sm:text-base ${
+                  errors.dueDate ? "border-red-500 focus:ring-red-500 bg-red-50" : "border-gray-300 focus:ring-blue-500"
+                }`}
+                value={dueDate}
+                onChange={(e) => {
+                  setDueDate(e.target.value);
+                  if (errors.dueDate) {
+                    setErrors(prev => ({ ...prev, dueDate: null }));
+                  }
+                }}
+                required
+              />
+            </div>
+            {errors.dueDate && (
+              <p className="text-red-500 text-xs mt-1 self-end w-1/2 text-left pr-2">{errors.dueDate}</p>
+            )}
           </div>
         )}
       </div>
