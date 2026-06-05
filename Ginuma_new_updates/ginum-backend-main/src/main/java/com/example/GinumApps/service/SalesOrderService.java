@@ -28,6 +28,7 @@ public class SalesOrderService {
     private final AccountRepository accountRepo;
     private final JournalEntryService journalService;
     private final AgingReceivableSnapshotRepository agingReceivableSnapshotRepo;
+    private final JournalEntryRepository journalEntryRepo;
 
     public String getNextSoNumber(Integer companyId) {
         // COUNT-based generation: total orders for this company + 1
@@ -492,5 +493,55 @@ public class SalesOrderService {
         }
         
         salesOrderRepo.delete(order);
+    }
+
+    public List<java.util.Map<String, Object>> getPaymentHistory(Integer companyId) {
+        List<JournalEntry> receipts = journalEntryRepo.findByCompany_CompanyIdAndEntryTypeOrderByEntryDateDesc(companyId, JournalEntryType.RECEIPT);
+        List<java.util.Map<String, Object>> result = new ArrayList<>();
+        
+        for (JournalEntry entry : receipts) {
+            java.util.Map<String, Object> map = new java.util.HashMap<>();
+            map.put("id", entry.getId());
+            map.put("date", entry.getEntryDate());
+            map.put("referenceNo", entry.getReferenceNo());
+            map.put("description", entry.getDescription());
+            
+            String desc = entry.getDescription();
+            String soNumber = "N/A";
+            String customerName = "N/A";
+            Long salesOrderId = null;
+            
+            if (desc != null && desc.contains("Payment received for SO #")) {
+                try {
+                    String idStr = desc.substring(desc.indexOf("Payment received for SO #") + 25).trim();
+                    Long soId = Long.parseLong(idStr);
+                    salesOrderId = soId;
+                    Optional<SalesOrder> soOpt = salesOrderRepo.findById(soId);
+                    if (soOpt.isPresent()) {
+                        SalesOrder so = soOpt.get();
+                        soNumber = so.getSoNumber();
+                        if (so.getCustomer() != null) {
+                            customerName = so.getCustomer().getName();
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+            
+            map.put("soNumber", soNumber);
+            map.put("salesOrderId", salesOrderId);
+            map.put("customerName", customerName);
+            
+            BigDecimal totalAmount = BigDecimal.ZERO;
+            for (JournalEntryLine line : entry.getJournalEntryLines()) {
+                // For a receipt journal entry, we debit Cash/Bank and credit Accounts Receivable.
+                // The amount credited to AR (or debited to Bank) represents the receipt amount.
+                if (line.isDebit()) {
+                    totalAmount = line.getAmount();
+                }
+            }
+            map.put("amount", totalAmount);
+            result.add(map);
+        }
+        return result;
     }
 }

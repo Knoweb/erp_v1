@@ -35,6 +35,7 @@ public class PurchaseOrderService {
     private final PurchaseOrderRepository poRepo;
     private final SupplierService supplierService;
     private final ExternalInventoryIntegrationService externalInventoryIntegrationService;
+    private final JournalEntryRepository journalEntryRepo;
 
     public String getNextPoNumber(Integer companyId) {
         // COUNT-based generation: total POs for this company + 1
@@ -673,5 +674,53 @@ public class PurchaseOrderService {
         }
         
         purchaseOrderRepo.delete(po);
+    }
+
+    public List<java.util.Map<String, Object>> getPaymentHistory(Integer companyId) {
+        List<JournalEntry> payments = journalEntryRepo.findByCompany_CompanyIdAndEntryTypeOrderByEntryDateDesc(companyId, JournalEntryType.PAYMENT);
+        List<java.util.Map<String, Object>> result = new ArrayList<>();
+        
+        for (JournalEntry entry : payments) {
+            java.util.Map<String, Object> map = new java.util.HashMap<>();
+            map.put("id", entry.getId());
+            map.put("date", entry.getEntryDate());
+            map.put("referenceNo", entry.getReferenceNo());
+            map.put("description", entry.getDescription());
+            
+            String desc = entry.getDescription();
+            String poNumber = "N/A";
+            String supplierName = "N/A";
+            Long purchaseOrderId = null;
+            
+            if (desc != null && desc.contains("Payment for PO #")) {
+                try {
+                    String idStr = desc.substring(desc.indexOf("Payment for PO #") + 16).trim();
+                    Long poId = Long.parseLong(idStr);
+                    purchaseOrderId = poId;
+                    Optional<PurchaseOrder> poOpt = purchaseOrderRepo.findById(poId);
+                    if (poOpt.isPresent()) {
+                        PurchaseOrder po = poOpt.get();
+                        poNumber = po.getPoNumber();
+                        if (po.getSupplier() != null) {
+                            supplierName = po.getSupplier().getSupplierName();
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+            
+            map.put("poNumber", poNumber);
+            map.put("purchaseOrderId", purchaseOrderId);
+            map.put("supplierName", supplierName);
+            
+            BigDecimal totalAmount = BigDecimal.ZERO;
+            for (JournalEntryLine line : entry.getJournalEntryLines()) {
+                if (line.isDebit()) {
+                    totalAmount = line.getAmount();
+                }
+            }
+            map.put("amount", totalAmount);
+            result.add(map);
+        }
+        return result;
     }
 }

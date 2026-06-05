@@ -95,4 +95,9 @@ public class PurchaseOrderController {
         return ResponseEntity.ok("Payment recorded successfully");
     }
 
+    @GetMapping("/payment-history")
+    public ResponseEntity<java.util.List<java.util.Map<String, Object>>> getPaymentHistory(@PathVariable Integer companyId) {
+        return ResponseEntity.ok(purchaseOrderService.getPaymentHistory(companyId));
+    }
+
 }

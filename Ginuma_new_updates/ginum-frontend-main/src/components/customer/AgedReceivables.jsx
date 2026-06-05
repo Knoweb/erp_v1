@@ -16,6 +16,9 @@ export default function AgedReceivables() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
+  const [historyData, setHistoryData] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
   useEffect(() => {
     const fetchAgedReceivables = async () => {
       try {
@@ -62,19 +65,43 @@ export default function AgedReceivables() {
     fetchAgedReceivables();
   }, []);
 
+  useEffect(() => {
+    if (activeTab === 'history') {
+      const fetchHistory = async () => {
+        try {
+          const companyId = localStorage.getItem("companyId");
+          if (!companyId) return;
+          setLoadingHistory(true);
+          const data = await api.get(`/api/sales-orders/company/${companyId}/payment-history`);
+          setHistoryData(Array.isArray(data) ? data : []);
+        } catch (err) {
+          console.error("Error fetching payment history:", err);
+          Alert.error("Error fetching payment history");
+        } finally {
+          setLoadingHistory(false);
+        }
+      };
+      fetchHistory();
+    }
+  }, [activeTab]);
+
   // Filter data based on search query and date range
   const filterData = (data) => {
     let filteredData = data;
 
     // Search by customer
     if (searchQuery) {
-      filteredData = filteredData.filter((row) =>
-        row.customer.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      filteredData = filteredData.filter((row) => {
+        if (activeTab === 'history') {
+          return (row.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  row.soNumber?.toLowerCase().includes(searchQuery.toLowerCase()));
+        }
+        return row.customer?.toLowerCase().includes(searchQuery.toLowerCase());
+      });
     }
 
     // Date range filtering
-    if (dateRange) {
+    if (dateRange && activeTab !== 'history') {
       const today = new Date();
       filteredData = filteredData.filter((row) => {
         const invoiceDate = new Date(row.invoiceDate);
@@ -99,7 +126,9 @@ export default function AgedReceivables() {
   };
 
   const handleExport = () => {
-    const dataToExport = activeTab === 'summary' ? receivableSummaryData : receivableDetailData;
+    const dataToExport = activeTab === 'summary' 
+      ? receivableSummaryData 
+      : (activeTab === 'detail' ? receivableDetailData : historyData);
     if (!dataToExport || dataToExport.length === 0) {
       Alert.error("No data to export");
       return;
@@ -137,7 +166,13 @@ export default function AgedReceivables() {
   };
 
   // Paginate the filtered data
-  const paginatedData = filterData(activeTab === 'summary' ? receivableSummaryData : receivableDetailData)
+  const getSourceData = () => {
+    if (activeTab === 'summary') return receivableSummaryData;
+    if (activeTab === 'detail') return receivableDetailData;
+    return historyData;
+  };
+
+  const paginatedData = filterData(getSourceData())
     .slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   if (loading) {
@@ -201,20 +236,26 @@ export default function AgedReceivables() {
       <div className="flex space-x-4 border-b">
         <button
           className={`px-4 py-2 text-sm font-medium ${activeTab === 'summary' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600'}`}
-          onClick={() => setActiveTab('summary')}
+          onClick={() => { setActiveTab('summary'); setPage(1); setSearchQuery(''); }}
         >
           Summary
         </button>
         <button
           className={`px-4 py-2 text-sm font-medium ${activeTab === 'detail' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600'}`}
-          onClick={() => setActiveTab('detail')}
+          onClick={() => { setActiveTab('detail'); setPage(1); setSearchQuery(''); }}
         >
           Detail
+        </button>
+        <button
+          className={`px-4 py-2 text-sm font-medium ${activeTab === 'history' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600'}`}
+          onClick={() => { setActiveTab('history'); setPage(1); setSearchQuery(''); }}
+        >
+          History
         </button>
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'summary' ? (
+      {activeTab === 'summary' && (
         <div className="mt-6 bg-white shadow rounded-lg overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">
@@ -241,7 +282,9 @@ export default function AgedReceivables() {
             </tbody>
           </table>
         </div>
-      ) : (
+      )}
+
+      {activeTab === 'detail' && (
         <div className="mt-6 bg-white shadow rounded-lg overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">
@@ -275,11 +318,48 @@ export default function AgedReceivables() {
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-center">
                     <button
                       className="px-3 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600 transition"
-                      onClick={() => navigate(`/app/bank/receive-money?salesOrderId=${row.id}&salesOrderNumber=${row.invoice}&payeeType=CUSTOMER&payeeId=${row.customerId}&amount=${row.balance}&description=Payment for SO: ${row.invoice}`)}
+                      onClick={() => navigate(`/app/bank/receive-money?salesOrderId=${row.salesOrderId}&salesOrderNumber=${row.invoice}&payeeType=CUSTOMER&payeeId=${row.customerId}&amount=${row.balance}&description=Payment for SO: ${row.invoice}`)}
                     >
                       Get Payment
                     </button>
                   </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {activeTab === 'history' && (
+        <div className="mt-6 bg-white shadow rounded-lg overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Receipt Date</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">SO #</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Customer</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Description</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Reference No</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">Amount Received</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {loadingHistory ? (
+                <tr>
+                  <td colSpan="6" className="px-4 py-8 text-center text-gray-500">Loading history...</td>
+                </tr>
+              ) : paginatedData.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="px-4 py-8 text-center text-gray-500">No receipt history found.</td>
+                </tr>
+              ) : paginatedData.map((row) => (
+                <tr key={row.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{row.date}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-blue-600 font-semibold">{row.soNumber || 'N/A'}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-medium">{row.customerName || 'N/A'}</td>
+                  <td className="px-4 py-3 text-sm text-gray-600">{row.description}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{row.referenceNo || 'N/A'}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-green-600 font-bold">Rs. {parseFloat(row.amount || 0).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -300,7 +380,7 @@ export default function AgedReceivables() {
           </button>
           <button
             onClick={() => handlePaginationChange(page + 1)}
-            disabled={page * itemsPerPage >= (activeTab === 'summary' ? receivableSummaryData.length : receivableDetailData.length)}
+            disabled={page * itemsPerPage >= filterData(getSourceData()).length}
             className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md"
           >
             Next

@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface JournalEntryRepository extends JpaRepository<JournalEntry, Long> {
     List<JournalEntry> findByCompany_CompanyIdOrderByEntryDateDesc(Integer companyId);
+    List<JournalEntry> findByCompany_CompanyIdAndEntryTypeOrderByEntryDateDesc(Integer companyId, com.example.GinumApps.enums.JournalEntryType entryType);
 }
