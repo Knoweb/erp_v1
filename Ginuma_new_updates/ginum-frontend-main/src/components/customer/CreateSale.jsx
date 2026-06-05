@@ -937,8 +937,9 @@ const CreateSaleOrder = () => {
                     </button>
                   )}
                 </td>
-              </tr>
-            ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
