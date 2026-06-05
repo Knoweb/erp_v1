@@ -353,6 +353,7 @@ public class SalesOrderService {
         snapshot.setCompany(order.getCompany());
         snapshot.setCustomer(order.getCustomer());
         snapshot.setSoNumber(order.getSoNumber());
+        snapshot.setSalesOrderId(order.getId());
         snapshot.setDueDate(order.getDueDate());
         snapshot.setBalanceDue(order.getBalanceDue());
         snapshot.setSnapshotDate(LocalDate.now());

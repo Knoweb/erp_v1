@@ -173,6 +173,7 @@ public class PurchaseOrderService {
         snapshot.setCompany(po.getCompany());
         snapshot.setSupplier(po.getSupplier());
         snapshot.setPoNumber(po.getPoNumber());
+        snapshot.setPurchaseOrderId(po.getId());
         snapshot.setDueDate(po.getDueDate());
         snapshot.setBalanceDue(po.getBalanceDue());
         snapshot.setSnapshotDate(LocalDate.now());

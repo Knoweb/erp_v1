@@ -34,6 +34,9 @@ public class AgingPayableSnapshot {
     @Column(nullable = false)
     private BigDecimal balanceDue;
 
+    @Column(name = "purchase_order_id")
+    private Long purchaseOrderId;
+
     @Column(nullable = false)
     private LocalDate snapshotDate;
 

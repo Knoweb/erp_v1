@@ -32,6 +32,9 @@ public class AgingReceivableSnapshot {
     @Column(nullable = false)
     private BigDecimal balanceDue;
 
+    @Column(name = "sales_order_id")
+    private Long salesOrderId;
+
     @Column(nullable = false)
     private LocalDate snapshotDate;
 

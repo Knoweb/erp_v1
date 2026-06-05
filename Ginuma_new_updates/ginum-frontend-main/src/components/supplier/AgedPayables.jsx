@@ -84,7 +84,7 @@ export default function AgedPayables() {
       amount: row.balanceDue,
       payeeId: row.supplier?.id,
       payeeType: 'SUPPLIER',
-      purchaseOrderId: row.id, // Pass row.id as purchaseOrderId
+      purchaseOrderId: row.purchaseOrderId, // Pass the actual purchase order database ID
       description: `Payment for PO: ${row.poNumber}`
     });
     
