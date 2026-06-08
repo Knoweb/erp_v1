@@ -163,14 +163,14 @@ const CompanyProfile = () => {
         <div className="flex flex-col sm:flex-row gap-6">
           {/* Profile Card */}
           <div className="w-full sm:w-1/3 flex flex-col items-center bg-gray-50 p-6 rounded-lg shadow-md transition hover:scale-105">
-            <div className="relative">
+            <div className="relative w-24 h-24 rounded-full border-4 border-gray-300 hover:border-gray-400 overflow-hidden flex items-center justify-center bg-white transition">
               <img
-                className="w-24 h-24 rounded-full border-4 border-gray-300 hover:border-gray-400 object-cover transition"
+                className="w-full h-full object-contain"
                 src={company.logo}
                 alt="Company Logo"
               />
               {uploading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
                   <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
                 </div>
               )}

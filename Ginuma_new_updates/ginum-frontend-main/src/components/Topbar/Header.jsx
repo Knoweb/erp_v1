@@ -287,11 +287,13 @@ const Header = ({ toggleSidebar, isSidebarVisible }) => {
             onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
             className="flex items-center space-x-2 focus:outline-none cursor-pointer"
           >
-            <img
-              src={companyProfile.logo}
-              alt="User"
-              className="w-10 h-10 rounded-full"
-            />
+            <div className="w-10 h-10 rounded-full border border-gray-200 overflow-hidden flex items-center justify-center bg-white">
+              <img
+                src={companyProfile.logo}
+                alt="User"
+                className="w-full h-full object-contain"
+              />
+            </div>
             <div className="flex flex-col">
               <span className="text-sm font-medium text-gray-700">
                 {companyProfile.name}
