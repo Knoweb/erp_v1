@@ -173,14 +173,14 @@ const CompanyInformationSettings = () => {
             <div className="flex flex-col md:flex-row gap-8">
                 {/* Left Side: Logo */}
                 <div className="w-full md:w-1/4 flex flex-col items-center">
-                    <div className="relative group cursor-pointer">
+                    <div className="relative group cursor-pointer w-32 h-32 rounded-2xl border-4 border-gray-100 shadow-md overflow-hidden flex items-center justify-center bg-white">
                         <img
                             src={company.logo}
                             alt="Company Logo"
-                            className="w-32 h-32 object-cover rounded-2xl border-4 border-gray-100 shadow-md group-hover:opacity-75 transition-opacity"
+                            className="w-full h-full object-contain group-hover:opacity-75 transition-opacity"
                         />
                         {uploading && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-2xl">
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/60">
                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
                             </div>
                         )}

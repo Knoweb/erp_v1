@@ -28,7 +28,7 @@ export const navItems = [
   {
     id: "supplier",
     path: "/app/supplier",
-    label: "Accounts Payable (Suppliers)",
+    label: "Purchases",
     icon: FaTruck,
     subItems: [
       { id: "all-supplier", path: "/app/supplier/all", label: "All Suppliers" },
@@ -52,7 +52,7 @@ export const navItems = [
   {
     id: "customer",
     path: "/app/customer",
-    label: "Accounts Receivable (Customers)",
+    label: "Sales",
     icon: FaUserTie,
     subItems: [
       { id: "all-customer", path: "/app/customer/all", label: "Customers" },
@@ -84,7 +84,7 @@ export const navItems = [
   {
     id: "bank",
     path: "/app/bank",
-    label: "Bank Statement",
+    label: "Banking",
     icon: FaUniversity,
     subItems: [
       {
@@ -103,7 +103,7 @@ export const navItems = [
   {
     id: "account",
     path: "/app/account",
-    label: "Accounts",
+    label: "Accountant",
     icon: FaBook,
     subItems: [
       { id: "all-accounts", path: "/app/account/all", label: "All Accounts" },
