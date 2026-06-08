@@ -318,7 +318,7 @@ export default function AgedReceivables() {
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-center">
                     <button
                       className="px-3 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600 transition"
-                      onClick={() => navigate(`/app/bank/receive-money?salesOrderId=${row.salesOrderId}&salesOrderNumber=${row.invoice}&payeeType=CUSTOMER&payeeId=${row.customerId}&amount=${row.balance}&description=Payment for SO: ${row.invoice}`)}
+                      onClick={() => navigate(`/app/bank/receive-money?salesOrderId=${row.id}&salesOrderNumber=${row.invoice}&payeeType=CUSTOMER&payeeId=${row.customerId}&amount=${row.balance}&description=Payment for SO: ${row.invoice}`)}
                     >
                       Get Payment
                     </button>
