@@ -1049,20 +1049,19 @@ function Orders() {
 
   return (
     <div className="space-y-6">
-      {/* View Detail Modal Integration */}
       {viewOrder && (
         <div className="fixed inset-0 z-[1000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setViewOrder(null)}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
-            <div className={`px-8 py-8 text-white ${viewOrder.soNumber ? 'bg-emerald-600' : 'bg-indigo-600'}`}>
+            <div className={`px-8 py-8 text-white ${viewOrder.customerName ? 'bg-emerald-600' : 'bg-indigo-600'}`}>
               <div className="flex justify-between items-start">
                 <h2 className="text-2xl font-black flex items-center gap-3">
                   <ShoppingCart size={32} />
-                  {viewOrder.soNumber ? 'Sales Order Details' : 'Purchase Order Details'}
+                  {viewOrder.customerName ? 'Sales Order Details' : 'Purchase Order Details'}
                 </h2>
                 <button onClick={() => setViewOrder(null)} className="text-white/60 hover:text-white transition-colors"><X size={28} /></button>
               </div>
               <div className="mt-4 flex gap-4 items-center">
-                <span className="text-xs font-black uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full border border-white/20 shadow-sm">Ref ID: {viewOrder.soNumber ? `#SO-${String(viewOrder.id).padStart(3, '0')}` : `#PO-${String(viewOrder.id).padStart(3, '0')}`}</span>
+                <span className="text-xs font-black uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full border border-white/20 shadow-sm">Ref ID: {viewOrder.customerName ? `#SO-${String(viewOrder.id).padStart(3, '0')}` : `#PO-${String(viewOrder.id).padStart(3, '0')}`}</span>
                 <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">Created: {new Date(viewOrder.createdAt).toLocaleDateString()}</span>
               </div>
             </div>
@@ -1091,7 +1090,7 @@ function Orders() {
 
               <div className="grid grid-cols-1 gap-4">
                 <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                  <div className={viewOrder.soNumber ? "p-3 bg-white rounded-lg shadow-sm text-emerald-500" : "p-3 bg-white rounded-lg shadow-sm text-indigo-500"}><Layers size={20} /></div>
+                  <div className={viewOrder.customerName ? "p-3 bg-white rounded-lg shadow-sm text-emerald-500" : "p-3 bg-white rounded-lg shadow-sm text-indigo-500"}><Layers size={20} /></div>
                   <div className="flex-1">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Resource Composition</span>
                     <span className="text-sm font-bold text-slate-700">{viewOrder.items?.length ?? 0} Distinct Line Items</span>
@@ -1112,7 +1111,7 @@ function Orders() {
                       <div key={i} className="p-3 grid grid-cols-3 gap-2 font-bold text-slate-600 hover:bg-slate-50 transition-colors">
                         <span className="truncate">{getProductName(item.productId)}</span>
                         <span className="text-center">{item.quantity}</span>
-                        <span className={`text-right ${viewOrder.soNumber ? 'text-emerald-600' : 'text-indigo-600'}`}>Rs.{Number(item.unitPrice).toFixed(2)}</span>
+                        <span className={`text-right ${viewOrder.customerName ? 'text-emerald-600' : 'text-indigo-600'}`}>Rs.{Number(item.unitPrice).toFixed(2)}</span>
                       </div>
                     ))}
                   </div>
@@ -1121,7 +1120,7 @@ function Orders() {
             </div>
 
             <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
-              {viewOrder.soNumber && (
+              {viewOrder.customerName && (
                 <button
                   onClick={() => handlePrintSO(viewOrder)}
                   className="px-6 py-2.5 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-xl shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-95 flex items-center gap-2"
