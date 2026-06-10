@@ -390,6 +390,13 @@ const ViewPurchase = () => {
             <p className="text-[9px] text-slate-600">Account: {companyProfile?.accountNumber || '-'}</p>
           </div>
 
+          {purchase?.notes && (
+            <div className="mb-6 pb-4 border-b border-dashed border-slate-300">
+              <p className="text-[9px] text-slate-500 font-semibold mb-1">MEMO / NOTES</p>
+              <p className="text-[9px] text-slate-700 italic">{purchase.notes}</p>
+            </div>
+          )}
+
           {/* Signature Block */}
           <div className="mb-8 mt-6">
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 text-center">

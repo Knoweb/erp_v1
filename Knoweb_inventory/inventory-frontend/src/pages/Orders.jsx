@@ -969,25 +969,25 @@ function Orders() {
           <div class="header">
             <div class="company-details">
               <h1>${companyName}</h1>
-              <p>Supply Chain & Procurement Manifest</p>
+              <p>Supply Chain & Procurement Bill</p>
             </div>
             <div class="invoice-title">
-              <h2>PURCHASE MANIFEST</h2>
+              <h2>PURCHASE Bill</h2>
               <p>#PO-${String(order.id).padStart(3, '0')}</p>
             </div>
           </div>
           
           <div class="info-grid">
             <div class="info-block">
-              <label>Supplier Partner</label>
+              <label>Supplier</label>
               <value>${supplierName}</value>
             </div>
             <div class="info-block" style="text-align: right;">
-              <label>Destination Warehouse</label>
+              <label>Warehouse</label>
               <value>${getWarehouseName(order.warehouseId)}</value>
             </div>
             <div class="info-block">
-              <label>Procurement status</label>
+              <label>status</label>
               <value style="color: #4f46e5; font-weight: 800;">
                 📦 ${order.status}
               </value>
@@ -1222,7 +1222,7 @@ function Orders() {
           <div class="header">
             <div class="company-details">
               <h1>${companyName}</h1>
-              <p>Supply Chain & Inventory Management</p>
+              <p>Customer Chain & Inventory Management</p>
             </div>
             <div class="invoice-title">
               <h2>SALES BILL</h2>

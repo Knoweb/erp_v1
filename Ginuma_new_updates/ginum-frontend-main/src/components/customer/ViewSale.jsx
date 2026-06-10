@@ -356,6 +356,19 @@ const ViewSale = () => {
                 <span className="text-[11px] font-bold uppercase tracking-wide">Grand Total</span>
                 <span className="text-[16px] font-black tabular-nums">{Number(sale?.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
+              
+              <div className="flex justify-between items-center pt-1 text-green-400">
+                <span className="text-[10px] font-semibold uppercase tracking-wide">Amount Paid</span>
+                <span className="text-[11px] font-semibold tabular-nums">{Number(sale?.amountPaid || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              </div>
+
+              <div className="flex justify-between items-center text-red-400">
+                <span className="text-[10px] font-semibold uppercase tracking-wide">Balance Due</span>
+                <span className="text-[11px] font-semibold tabular-nums">{Number((() => {
+                  const val = Number(sale?.balanceDue || 0);
+                  return Math.abs(val) <= 0.01 ? 0 : val;
+                })()).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              </div>
             </div>
           </div>
 
@@ -365,6 +378,13 @@ const ViewSale = () => {
             <p className="text-[9px] font-semibold text-slate-900">{companyProfile?.bankName || 'Bank Name'}</p>
             <p className="text-[9px] text-slate-600">Account: {companyProfile?.accountNumber || '-'}</p>
           </div>
+
+          {sale?.notes && (
+            <div className="mb-6 pb-4 border-b border-dashed border-slate-300">
+              <p className="text-[9px] text-slate-500 font-semibold mb-1">MEMO / NOTES</p>
+              <p className="text-[9px] text-slate-700 italic">{sale.notes}</p>
+            </div>
+          )}
 
           {/* Signature Block */}
           <div className="mb-8 mt-6">
