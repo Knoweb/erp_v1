@@ -798,11 +798,11 @@ function Orders() {
       </tr>
     `).join('') || `<tr><td colspan="4" style="padding: 12px; text-align: center; color: #94a3b8;">No items</td></tr>`;
 
-    const invoiceHtml = \`
+    const invoiceHtml = `
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Sales Order Invoice - #SO-\${String(order.id).padStart(3, '0')}</title>
+        <title>Sales Order Invoice - #SO-${String(order.id).padStart(3, '0')}</title>
         <style>
           body {
             font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -941,33 +941,33 @@ function Orders() {
         <div class="invoice-card">
           <div class="header">
             <div class="company-details">
-              <h1>\${companyName}</h1>
+              <h1>${companyName}</h1>
               <p>Supply Chain & Inventory Management Node</p>
             </div>
             <div class="invoice-title">
               <h2>SALES BILL</h2>
-              <p>#SO-\${String(order.id).padStart(3, '0')}</p>
+              <p>#SO-${String(order.id).padStart(3, '0')}</p>
             </div>
           </div>
           
           <div class="info-grid">
             <div class="info-block">
               <label>Client Entity (Customer)</label>
-              <value>\${order.customerName}</value>
+              <value>${order.customerName}</value>
             </div>
             <div class="info-block" style="text-align: right;">
               <label>Origin logic (Warehouse)</label>
-              <value>\${getWarehouseName(order.warehouseId)}</value>
+              <value>${getWarehouseName(order.warehouseId)}</value>
             </div>
             <div class="info-block">
               <label>Fulfillment Status</label>
-              <value style="color: \${order.status === 'COMPLETED' ? '#10b981' : '#f59e0b'}; font-weight: 800;">
-                \${order.status === 'COMPLETED' ? '✅ COMPLETED' : '⏳ PENDING'}
+              <value style="color: ${order.status === 'COMPLETED' ? '#10b981' : '#f59e0b'}; font-weight: 800;">
+                ${order.status === 'COMPLETED' ? '✅ COMPLETED' : '⏳ PENDING'}
               </value>
             </div>
             <div class="info-block" style="text-align: right;">
               <label>Billing Date</label>
-              <value>\${new Date(order.createdAt).toLocaleDateString()}</value>
+              <value>${new Date(order.createdAt).toLocaleDateString()}</value>
             </div>
           </div>
 
@@ -981,7 +981,7 @@ function Orders() {
               </tr>
             </thead>
             <tbody>
-              \${itemsHtml}
+              ${itemsHtml}
             </tbody>
           </table>
 
@@ -989,21 +989,21 @@ function Orders() {
             <table class="totals-table">
               <tr>
                 <td style="color: #64748b; font-weight: bold;">Subtotal</td>
-                <td style="text-align: right; font-weight: bold; color: #334155;">Rs. \${(order.totalAmount || 0).toFixed(2)}</td>
+                <td style="text-align: right; font-weight: bold; color: #334155;">Rs. ${(order.totalAmount || 0).toFixed(2)}</td>
               </tr>
               <tr style="border-top: 2px solid #e2e8f0;">
                 <td class="final-total">Total Due</td>
-                <td class="final-total" style="text-align: right;">Rs. \${(order.totalAmount || 0).toFixed(2)}</td>
+                <td class="final-total" style="text-align: right;">Rs. ${(order.totalAmount || 0).toFixed(2)}</td>
               </tr>
             </table>
           </div>
 
-          \${order.notes ? \`
+          ${order.notes ? `
             <div style="margin-top: 32px; padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px dashed #e2e8f0;">
               <span style="font-size: 10px; font-weight: 800; color: #94a3b8; uppercase tracking-widest block mb-1">Memo / Notes</span>
-              <p style="margin: 0; font-size: 13px; color: #475569; font-style: italic;">\${order.notes}</p>
+              <p style="margin: 0; font-size: 13px; color: #475569; font-style: italic;">${order.notes}</p>
             </div>
-          \` : ''}
+          ` : ''}
 
           <div class="footer">
             <p>Thank you for your business! This is an electronically generated document.</p>
@@ -1020,7 +1020,7 @@ function Orders() {
         </script>
       </body>
       </html>
-    \`;
+    `;
 
     printWindow.document.write(invoiceHtml);
     printWindow.document.close();
