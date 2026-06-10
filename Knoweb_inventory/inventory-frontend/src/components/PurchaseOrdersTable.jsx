@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Eye, CheckCircle2, Package, XCircle, Building2, Undo2, Loader2 } from 'lucide-react';
+import { Search, Eye, CheckCircle2, Package, XCircle, Building2, Undo2, Loader2, Printer } from 'lucide-react';
 
 const STATUS_META = {
     PENDING: { label: 'Pending', icon: '🕐', cls: 'bg-amber-50 text-amber-700 border-amber-100' },
@@ -39,6 +39,7 @@ function PurchaseOrdersTable({
     onReceive,
     onCancel,
     onReturn,
+    onPrint,
     actionLoading = null,
     loading = false,
 }) {
@@ -197,6 +198,13 @@ function PurchaseOrdersTable({
                                                         title="View details"
                                                     >
                                                         <Eye size={16} />
+                                                    </button>
+                                                    <button
+                                                        className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm"
+                                                        onClick={() => onPrint?.(order)}
+                                                        title="Print Invoice"
+                                                    >
+                                                        <Printer size={16} />
                                                     </button>
 
                                                     {isPending && (

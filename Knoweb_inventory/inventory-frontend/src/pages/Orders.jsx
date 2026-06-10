@@ -805,6 +805,260 @@ function Orders() {
     setViewOrder(order);
   };
 
+  const handlePrintPO = (order) => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Please allow popups to print manifests.');
+      return;
+    }
+
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const companyName = user.orgName || 'KNOWEB INVENTORY';
+    const supplierName = suppliers.find(s => String(s.id) === String(order.supplierId))?.name || `Supplier #${order.supplierId}`;
+
+    const itemsHtml = order.items?.map((item, idx) => `
+      <tr style="border-bottom: 1px solid #f1f5f9;">
+        <td style="padding: 12px; font-weight: bold; color: #334155;">${getProductName(item.productId)}</td>
+        <td style="padding: 12px; text-align: center; color: #475569;">${item.quantity}</td>
+        <td style="padding: 12px; text-align: right; color: #475569;">Rs. ${Number(item.unitPrice).toFixed(2)}</td>
+        <td style="padding: 12px; text-align: right; font-weight: bold; color: #0f172a;">Rs. ${(item.quantity * item.unitPrice).toFixed(2)}</td>
+      </tr>
+    `).join('') || `<tr><td colspan="4" style="padding: 12px; text-align: center; color: #94a3b8;">No items</td></tr>`;
+
+    const invoiceHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Purchase Order Manifest - #PO-${String(order.id).padStart(3, '0')}</title>
+        <style>
+          body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #1e293b;
+            margin: 0;
+            padding: 40px;
+            background-color: #ffffff;
+          }
+          .invoice-card {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+          }
+          .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 24px;
+            margin-bottom: 24px;
+          }
+          .company-details h1 {
+            margin: 0 0 8px 0;
+            font-size: 28px;
+            font-weight: 900;
+            color: #4f46e5;
+            letter-spacing: -0.025em;
+          }
+          .company-details p {
+            margin: 0;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+          }
+          .invoice-title {
+            text-align: right;
+          }
+          .invoice-title h2 {
+            margin: 0 0 8px 0;
+            font-size: 28px;
+            font-weight: 900;
+            color: #0f172a;
+            letter-spacing: -0.025em;
+          }
+          .invoice-title p {
+            margin: 0;
+            font-family: monospace;
+            font-weight: bold;
+            color: #4f46e5;
+            background-color: #e0e7ff;
+            padding: 4px 12px;
+            border-radius: 6px;
+            display: inline-block;
+          }
+          .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+          }
+          .info-block label {
+            display: block;
+            font-size: 10px;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 6px;
+          }
+          .info-block value {
+            display: block;
+            font-size: 15px;
+            font-weight: 700;
+            color: #334155;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 32px;
+          }
+          th {
+            background-color: #f8fafc;
+            color: #64748b;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+          }
+          .totals-block {
+            display: flex;
+            justify-content: flex-end;
+          }
+          .totals-table {
+            width: 300px;
+            margin-bottom: 0;
+          }
+          .totals-table tr td {
+            padding: 8px 12px;
+          }
+          .final-total {
+            font-size: 20px;
+            font-weight: 900;
+            color: #4f46e5;
+          }
+          .footer {
+            margin-top: 48px;
+            text-align: center;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 24px;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 500;
+          }
+          @media print {
+            body {
+              padding: 0;
+            }
+            .invoice-card {
+              border: none;
+              box-shadow: none;
+              padding: 0;
+            }
+            .no-print {
+              display: none;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="invoice-card">
+          <div class="header">
+            <div class="company-details">
+              <h1>${companyName}</h1>
+              <p>Supply Chain & Procurement Manifest</p>
+            </div>
+            <div class="invoice-title">
+              <h2>PURCHASE MANIFEST</h2>
+              <p>#PO-${String(order.id).padStart(3, '0')}</p>
+            </div>
+          </div>
+          
+          <div class="info-grid">
+            <div class="info-block">
+              <label>Supplier Partner</label>
+              <value>${supplierName}</value>
+            </div>
+            <div class="info-block" style="text-align: right;">
+              <label>Destination Warehouse</label>
+              <value>${getWarehouseName(order.warehouseId)}</value>
+            </div>
+            <div class="info-block">
+              <label>Procurement status</label>
+              <value style="color: #4f46e5; font-weight: 800;">
+                📦 ${order.status}
+              </value>
+            </div>
+            <div class="info-block" style="text-align: right;">
+              <label>Order Date</label>
+              <value>${new Date(order.createdAt).toLocaleDateString()}</value>
+            </div>
+            ${order.refNo ? `
+            <div class="info-block" style="grid-column: span 2; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #f1f5f9;">
+              <label>Order Number / Reference</label>
+              <value style="font-size: 16px; font-weight: 800; color: #4f46e5;">${order.refNo}</value>
+            </div>
+            ` : ''}
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 50%;">Product Details</th>
+                <th style="width: 15%; text-align: center;">Qty</th>
+                <th style="width: 15%; text-align: right;">Unit Price</th>
+                <th style="width: 20%; text-align: right;">Line Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+
+          <div class="totals-block">
+            <table class="totals-table">
+              <tr>
+                <td style="color: #64748b; font-weight: bold;">Subtotal</td>
+                <td style="text-align: right; font-weight: bold; color: #334155;">Rs. ${(order.totalAmount || 0).toFixed(2)}</td>
+              </tr>
+              <tr style="border-top: 2px solid #e2e8f0;">
+                <td class="final-total">Total Due</td>
+                <td class="final-total" style="text-align: right;">Rs. ${(order.totalAmount || 0).toFixed(2)}</td>
+              </tr>
+            </table>
+          </div>
+
+          ${order.notes ? `
+            <div style="margin-top: 32px; padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px dashed #e2e8f0;">
+              <span style="font-size: 10px; font-weight: 800; color: #94a3b8; uppercase tracking-widest block mb-1">Internal Notes</span>
+              <p style="margin: 0; font-size: 13px; color: #475569; font-style: italic;">${order.notes}</p>
+            </div>
+          ` : ''}
+
+          <div class="footer">
+            <p>This is an electronically generated document.</p>
+          </div>
+        </div>
+        
+        <script>
+          window.onload = function() {
+            window.print();
+            window.onafterprint = function() {
+              window.close();
+            };
+          }
+        </script>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(invoiceHtml);
+    printWindow.document.close();
+  };
+
   const handlePrintSO = (order) => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
@@ -1155,12 +1409,19 @@ function Orders() {
             </div>
 
             <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
-              {viewOrder.customerName && (
+              {viewOrder.customerName ? (
                 <button
                   onClick={() => handlePrintSO(viewOrder)}
                   className="px-6 py-2.5 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-xl shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-95 flex items-center gap-2"
                 >
                   <Printer size={14} /> Print Bill
+                </button>
+              ) : (
+                <button
+                  onClick={() => handlePrintPO(viewOrder)}
+                  className="px-6 py-2.5 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
+                >
+                  <Printer size={14} /> Print Manifest
                 </button>
               )}
               <button onClick={() => setViewOrder(null)} className="px-8 py-2.5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-xl shadow-lg shadow-slate-200 hover:bg-black transition-all active:scale-95">Dismiss Detail</button>
@@ -1256,6 +1517,7 @@ function Orders() {
                 onReceive={handleReceive}
                 onCancel={handleCancel}
                 onReturn={handleReturnAction}
+                onPrint={handlePrintPO}
                 actionLoading={actionLoading}
               />
             </div>
