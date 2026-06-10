@@ -506,7 +506,7 @@ function ReturnOrderModal({ order, products, onClose, onReturned }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [reason, setReason] = useState('');
-  
+
   // Track quantities for each item being returned (initially full qty)
   const [returnQtys, setReturnQtys] = useState(() => {
     const qtys = {};
@@ -524,7 +524,7 @@ function ReturnOrderModal({ order, products, onClose, onReturned }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!reason.trim()) { setError('Please provide a reason for the return.'); return; }
-    
+
     // Check if at least one item has a return qty > 0
     const totalReturnQty = Object.values(returnQtys).reduce((sum, q) => sum + Number(q), 0);
     if (totalReturnQty <= 0) {
@@ -534,7 +534,7 @@ function ReturnOrderModal({ order, products, onClose, onReturned }) {
 
     setSubmitting(true);
     setError('');
-    
+
     try {
       // We send back the quantities map and the reason
       const payload = {
@@ -544,7 +544,7 @@ function ReturnOrderModal({ order, products, onClose, onReturned }) {
           quantity: Number(qty)
         }))
       };
-      
+
       await apiClient.patch(`/api/orders/purchase/${order.id}/return`, payload);
       onReturned('Return processed & inventory updated.');
       onClose();
@@ -584,13 +584,13 @@ function ReturnOrderModal({ order, products, onClose, onReturned }) {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-black text-slate-400 uppercase">Return:</span>
-                    <input 
-                      type="number" 
-                      max={item.quantity} 
+                    <input
+                      type="number"
+                      max={item.quantity}
                       min="0"
                       className="w-20 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-black text-slate-800 outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-400"
                       value={returnQtys[item.id] || 0}
-                      onChange={(e) => setReturnQtys(prev => ({...prev, [item.id]: e.target.value}))}
+                      onChange={(e) => setReturnQtys(prev => ({ ...prev, [item.id]: e.target.value }))}
                     />
                   </div>
                 </div>
@@ -600,10 +600,10 @@ function ReturnOrderModal({ order, products, onClose, onReturned }) {
 
           <div className="space-y-1.5">
             <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest">Reason for Return *</label>
-            <textarea 
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none focus:border-purple-400 min-h-[80px]" 
-              placeholder="e.g. Expired on arrival, Physical damage to packaging..." 
-              value={reason} 
+            <textarea
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none focus:border-purple-400 min-h-[80px]"
+              placeholder="e.g. Expired on arrival, Physical damage to packaging..."
+              value={reason}
               onChange={e => setReason(e.target.value)}
               required
             />
@@ -942,7 +942,7 @@ function Orders() {
           <div class="header">
             <div class="company-details">
               <h1>${companyName}</h1>
-              <p>Supply Chain & Inventory Management Node</p>
+              <p>Supply Chain & Inventory Management</p>
             </div>
             <div class="invoice-title">
               <h2>SALES BILL</h2>
@@ -952,15 +952,15 @@ function Orders() {
           
           <div class="info-grid">
             <div class="info-block">
-              <label>Client Entity (Customer)</label>
+              <label>Customer</label>
               <value>${order.customerName}</value>
             </div>
             <div class="info-block" style="text-align: right;">
-              <label>Origin logic (Warehouse)</label>
+              <label>Warehouse</label>
               <value>${getWarehouseName(order.warehouseId)}</value>
             </div>
             <div class="info-block">
-              <label>Fulfillment Status</label>
+              <label>Status</label>
               <value style="color: ${order.status === 'COMPLETED' ? '#10b981' : '#f59e0b'}; font-weight: 800;">
                 ${order.status === 'COMPLETED' ? '✅ COMPLETED' : '⏳ PENDING'}
               </value>
