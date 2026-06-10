@@ -45,6 +45,12 @@ public class SalesOrder {
     @OneToMany(mappedBy = "salesOrder", cascade = CascadeType.ALL)
     private List<SalesOrderItem> items = new ArrayList<>();
 
+    @Column(name = "ref_no")
+    private String refNo;
+
+    @Column(name = "notes", length = 1000)
+    private String notes;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

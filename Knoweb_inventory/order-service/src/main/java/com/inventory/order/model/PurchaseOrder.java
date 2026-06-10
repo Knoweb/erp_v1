@@ -55,6 +55,12 @@ public class PurchaseOrder {
     @Column(name = "returned_at")
     private LocalDateTime returnedAt;
 
+    @Column(name = "ref_no")
+    private String refNo;
+
+    @Column(name = "notes", length = 1000)
+    private String notes;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

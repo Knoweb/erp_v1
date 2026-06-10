@@ -68,6 +68,8 @@ public class PurchaseOrderService {
         order.setSupplierId(dto.getSupplierId());
         order.setWarehouseId(dto.getWarehouseId());
         order.setOrgId(dto.getOrgId());
+        order.setRefNo(dto.getRefNo());
+        order.setNotes(dto.getNotes());
 
         // ── Build line items ──────────────────────────────────────────────────
         List<PurchaseOrderItem> items = new ArrayList<>();

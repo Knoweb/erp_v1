@@ -8,6 +8,7 @@ import { ShoppingCart, DollarSign, X, Plus, Package, MessageSquare, ArrowRight, 
 const INIT_PO = {
   supplierId: '',
   warehouseId: '',
+  refNo: '',
   notes: '',
   items: [{ productId: '', productName: '', quantity: '', unitPrice: '' }],
 };
@@ -16,6 +17,7 @@ const INIT_SO = {
   customerId: '',
   customerName: '',
   warehouseId: '',
+  refNo: '',
   notes: '',
   items: [{ productId: '', productName: '', quantity: '', unitPrice: '' }],
 };
@@ -108,6 +110,7 @@ function CreatePurchaseOrderModal({ suppliers, onClose, onCreated }) {
         supplierId: Number(form.supplierId),
         warehouseId: Number(form.warehouseId),
         orgId: user.orgId ? Number(user.orgId) : null,
+        refNo: form.refNo.trim() || null,
         notes: form.notes.trim() || null,
         items: form.items.map(it => ({
           productId: Number(it.productId),
@@ -201,6 +204,17 @@ function CreatePurchaseOrderModal({ suppliers, onClose, onCreated }) {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className="space-y-1.5 md:col-span-2">
+              <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest">Order Number / Reference <span className="normal-case opacity-40 font-bold ml-1">(Optional)</span></label>
+              <input
+                type="text"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all"
+                placeholder="e.g. PO-99238"
+                value={form.refNo}
+                onChange={e => setForm(p => ({ ...p, refNo: e.target.value }))}
+              />
             </div>
           </div>
 
@@ -376,6 +390,7 @@ function CreateSalesOrderModal({ onClose, onCreated }) {
         customerId: form.customerId ? Number(form.customerId) : null,
         warehouseId: Number(form.warehouseId),
         orgId: user.orgId ? Number(user.orgId) : null,
+        refNo: form.refNo.trim() || null,
         notes: form.notes.trim() || null,
         totalAmount: computedTotal,
         items: form.items.map(it => ({
@@ -443,6 +458,17 @@ function CreateSalesOrderModal({ onClose, onCreated }) {
                   <option key={w.id} value={w.id}>{w.name || w.warehouseName || `WH-${w.id}`}</option>
                 ))}
               </select>
+            </div>
+
+            <div className="space-y-1.5 md:col-span-2">
+              <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest">Order Number / Reference <span className="normal-case opacity-40 font-bold ml-1">(Optional)</span></label>
+              <input
+                type="text"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 outline-none transition-all"
+                placeholder="e.g. SO-2026-0091"
+                value={form.refNo}
+                onChange={e => setForm(p => ({ ...p, refNo: e.target.value }))}
+              />
             </div>
           </div>
 
@@ -969,6 +995,12 @@ function Orders() {
               <label>Billing Date</label>
               <value>${new Date(order.createdAt).toLocaleDateString()}</value>
             </div>
+            ${order.refNo ? `
+            <div class="info-block" style="grid-column: span 2; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #f1f5f9;">
+              <label>Order Number / Reference</label>
+              <value style="font-size: 16px; font-weight: 800; color: #10b981;">${order.refNo}</value>
+            </div>
+            ` : ''}
           </div>
 
           <table>
@@ -1061,7 +1093,10 @@ function Orders() {
                 <button onClick={() => setViewOrder(null)} className="text-white/60 hover:text-white transition-colors"><X size={28} /></button>
               </div>
               <div className="mt-4 flex gap-4 items-center">
-                <span className="text-xs font-black uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full border border-white/20 shadow-sm">Ref ID: {viewOrder.customerName ? `#SO-${String(viewOrder.id).padStart(3, '0')}` : `#PO-${String(viewOrder.id).padStart(3, '0')}`}</span>
+                <span className="text-xs font-black uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full border border-white/20 shadow-sm">
+                  Ref ID: {viewOrder.customerName ? `#SO-${String(viewOrder.id).padStart(3, '0')}` : `#PO-${String(viewOrder.id).padStart(3, '0')}`}
+                  {viewOrder.refNo ? ` (${viewOrder.refNo})` : ''}
+                </span>
                 <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">Created: {new Date(viewOrder.createdAt).toLocaleDateString()}</span>
               </div>
             </div>

@@ -30,6 +30,9 @@ public class PurchaseOrderRequestDto {
     /** Optional notes / reference number. */
     private String notes;
 
+    /** Optional reference number. */
+    private String refNo;
+
     // ── Nested line-item DTO ──────────────────────────────────────────────────
 
     @Data
