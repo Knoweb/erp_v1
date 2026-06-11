@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from 'react-router-dom';
+import allInOneImg from "../assets/AllinOne.png";
 
 
 export default function LandingPage() {
@@ -146,7 +147,6 @@ export default function LandingPage() {
             color: "text-teal-500",
             bg: "bg-teal-500",
             lightBg: "bg-teal-50",
-            span: "md:col-span-1 lg:col-span-3 lg:w-1/2", // Half width hack if flex? No, kept simple grid
             span: "md:col-span-1 lg:col-span-3",
             badge: "Infrastructure"
         },
@@ -306,101 +306,9 @@ export default function LandingPage() {
                             <div className="absolute -top-10 -right-10 w-72 h-72 bg-sky-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
                             <div className="absolute -bottom-10 -left-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
 
-                            {/* Main Glass Dashboard */}
-                            <div className="relative bg-white/40 backdrop-blur-xl border border-white/50 rounded-2xl shadow-2xl p-6 overflow-hidden">
-                                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500"></div>
-
-                                {/* Header Mockup */}
-                                <div className="flex items-center justify-between mb-8">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                                        <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                                        <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                                    </div>
-                                    <div className="h-2 w-20 bg-gray-200 rounded-full"></div>
-                                </div>
-
-                                {/* Dashboard Grid */}
-                                <div className="grid grid-cols-2 gap-4">
-                                    {/* Stats Card 1 (HR) */}
-                                    <div className="bg-white/60 p-4 rounded-xl shadow-sm border border-white/50">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <div className="p-1.5 bg-sky-100 rounded-lg text-sky-600"><Users size={14} /></div>
-                                            <span className="text-xs font-bold text-gray-500">Total Employees</span>
-                                        </div>
-                                        <div className="text-2xl font-bold text-slate-800">1,248</div>
-                                        <div className="text-xs text-green-500 font-medium flex items-center gap-1">
-                                            <TrendingUp size={10} /> +12% this month
-                                        </div>
-                                    </div>
-
-                                    {/* Stats Card 2 (Finance) */}
-                                    <div className="bg-white/60 p-4 rounded-xl shadow-sm border border-white/50">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <div className="p-1.5 bg-blue-100 rounded-lg text-blue-600"><DollarSign size={14} /></div>
-                                            <span className="text-xs font-bold text-gray-500">Revenue</span>
-                                        </div>
-                                        <div className="text-2xl font-bold text-slate-800">$482k</div>
-                                        <div className="text-xs text-green-500 font-medium flex items-center gap-1">
-                                            <TrendingUp size={10} /> +8.4% vs last week
-                                        </div>
-                                    </div>
-
-                                    {/* Wide Card (Inventory) */}
-                                    <div className="col-span-2 bg-white/60 p-4 rounded-xl shadow-sm border border-white/50">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <div className="flex items-center gap-2">
-                                                <div className="p-1.5 bg-indigo-100 rounded-lg text-indigo-600"><Package size={14} /></div>
-                                                <span className="text-xs font-bold text-gray-500">Recent Orders</span>
-                                            </div>
-                                            <div className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-bold">Live</div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            {[1, 2, 3].map((_, i) => (
-                                                <div key={i} className="flex items-center justify-between py-1 border-b border-gray-100 last:border-0">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-md bg-gray-100"></div>
-                                                        <div className="w-16 h-2 bg-gray-200 rounded-full"></div>
-                                                    </div>
-                                                    <div className="w-8 h-2 bg-gray-200 rounded-full"></div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Floating Elements */}
-                                <motion.div
-                                    animate={{ y: [0, -10, 0] }}
-                                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                                    className="absolute -right-4 top-20 bg-white p-3 rounded-lg shadow-xl border border-gray-100 z-10"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="bg-green-100 p-2 rounded-full text-green-600">
-                                            <CheckCircle size={16} />
-                                        </div>
-                                        <div>
-                                            <div className="text-xs font-bold text-gray-500">Payroll</div>
-                                            <div className="text-sm font-bold text-slate-800">Completed</div>
-                                        </div>
-                                    </div>
-                                </motion.div>
-
-                                <motion.div
-                                    animate={{ y: [0, 10, 0] }}
-                                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                                    className="absolute -left-4 bottom-20 bg-white p-3 rounded-lg shadow-xl border border-gray-100 z-10"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="bg-amber-100 p-2 rounded-full text-amber-600">
-                                            <RotateCw size={16} />
-                                        </div>
-                                        <div>
-                                            <div className="text-xs font-bold text-gray-500">Syncing</div>
-                                            <div className="text-sm font-bold text-slate-800">Inventory...</div>
-                                        </div>
-                                    </div>
-                                </motion.div>
+                            {/* Main Dashboard Image */}
+                            <div className="relative rounded-2xl shadow-2xl overflow-hidden border border-slate-200/50 bg-white">
+                                <img src={allInOneImg} alt="ERP All-in-One Dashboard" className="w-full h-auto object-cover rounded-2xl" />
                             </div>
                         </motion.div>
                     </div>
