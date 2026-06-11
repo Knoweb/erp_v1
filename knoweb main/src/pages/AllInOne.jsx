@@ -278,9 +278,6 @@ export default function LandingPage() {
                                 >
                                     Get Started Free
                                 </button>
-                                <button className="px-8 py-4 bg-white text-slate-700 font-bold rounded-full shadow-sm border border-gray-200 hover:border-gray-300 transition-all flex items-center gap-2 group">
-                                    Watch Demo <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                </button>
                             </div>
                         </motion.div>
 
