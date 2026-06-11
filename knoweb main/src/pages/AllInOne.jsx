@@ -175,18 +175,6 @@ export default function LandingPage() {
         {
             icon: <Package />, title: "Smart Inventory", desc: "Optimize stock levels, manage multiple warehouses, and streamline procurement.",
             color: "text-indigo-500", bg: "hover:bg-indigo-50", border: "hover:border-indigo-200", badge: "SCM"
-        },
-        {
-            icon: <BarChart2 />, title: "Unified Analytics", desc: "Gain actionable insights by connecting data points across HR, Finance, and Sales.",
-            color: "text-violet-500", bg: "hover:bg-violet-50", border: "hover:border-violet-200", badge: "BI"
-        },
-        {
-            icon: <Cloud />, title: "Cloud Security", desc: "Enterprise-grade security with daily backups and role-based access control.",
-            color: "text-teal-500", bg: "hover:bg-teal-50", border: "hover:border-teal-200", badge: "Secure"
-        },
-        {
-            icon: <Zap />, title: "Workflow Automation", desc: "Save time by automating repetitive tasks between your connected systems.",
-            color: "text-amber-500", bg: "hover:bg-amber-50", border: "hover:border-amber-200", badge: "Auto"
         }
     ];
 
@@ -474,17 +462,17 @@ export default function LandingPage() {
 
             {/* ================= FAQ ================= */}
             <section id="faq" className="py-24 bg-slate-50">
-                <div className="max-w-3xl mx-auto px-6">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-4xl font-extrabold text-center mb-16">Frequently Asked Questions</h2>
-                    <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {[
                             { q: "Can I use only one module (e.g., just Inventory)?", a: "Yes! While ERPSite is powerful as a suite, you can start with the Starter Bundle and use features as you need them." },
                             { q: "Is my data secure?", a: "Absolutely. We use bank-grade AES-256 encryption and daily cloud backups to ensure your business data is never lost or compromised." },
                             { q: "Do you offer free trials?", a: "Yes, we offer a 14-day full feature free trial. No credit card required to start." },
                         ].map((item, i) => (
-                            <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                                <h3 className="font-bold text-lg mb-2 text-slate-900">{item.q}</h3>
-                                <p className="text-slate-600">{item.a}</p>
+                            <div key={i} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                                <h3 className="font-bold text-lg mb-4 text-slate-900">{item.q}</h3>
+                                <p className="text-slate-600 text-sm leading-relaxed">{item.a}</p>
                             </div>
                         ))}
                     </div>
