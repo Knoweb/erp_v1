@@ -207,7 +207,7 @@ export default function LandingPage() {
                                 <a
                                     key={link.name}
                                     href={link.href}
-                                    className="text-sm font-bold text-gray-600 hover:text-sky-600 transition-colors"
+                                    className="text-lg font-medium text-gray-900 hover:text-gray-600 transition-colors"
                                 >
                                     {link.name}
                                 </a>
