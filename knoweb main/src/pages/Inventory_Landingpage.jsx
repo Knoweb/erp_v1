@@ -213,9 +213,9 @@ function Features() {
                             className="bg-sky-400 p-8 rounded-2xl shadow-xl text-white transform hover:-translate-y-2 transition-transform duration-300"
                         >
                             <Boxes className="w-10 h-10 mb-6" />
-                            <h3 className="text-xl font-bold mb-3">Smart Tracking</h3>
+                            <h3 className="text-xl font-bold mb-3">Multi-Warehouse</h3>
                             <p className="text-sky-50 leading-relaxed font-medium">
-                                Track stock levels, product movements, and warehouse locations in real-time with ease.
+                                Manage stock levels, transfers, and locations dynamically across multiple warehouses and branches.
                             </p>
                         </motion.div>
 
@@ -227,9 +227,9 @@ function Features() {
                             className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 transform hover:-translate-y-2 transition-transform duration-300"
                         >
                             <Globe className="w-10 h-10 text-sky-400 mb-6" />
-                            <h3 className="text-xl font-bold text-gray-900 mb-3">Global Suppliers</h3>
+                            <h3 className="text-xl font-bold text-gray-900 mb-3">Orders & Bills</h3>
                             <p className="text-gray-600 leading-relaxed font-medium">
-                                Manage suppliers across borders with built-in multi-currency purchasing support.
+                                Create purchase orders, generate sales bills, track due balances, and print PDF invoices easily.
                             </p>
                         </motion.div>
 
@@ -241,9 +241,9 @@ function Features() {
                             className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 transform hover:-translate-y-2 transition-transform duration-300"
                         >
                             <ShieldCheck className="w-10 h-10 text-sky-400 mb-6" />
-                            <h3 className="text-xl font-bold text-gray-900 mb-3">Secure Data</h3>
+                            <h3 className="text-xl font-bold text-gray-900 mb-3">Manufacturing & WIP</h3>
                             <p className="text-gray-600 leading-relaxed font-medium">
-                                Ensure accurate stock records and generate audit-ready reports automatically.
+                                Define Bills of Materials (BOM), automate production assembly, and track Work-In-Progress logs.
                             </p>
                         </motion.div>
 
@@ -255,9 +255,9 @@ function Features() {
                             className="bg-sky-400 p-8 rounded-2xl shadow-xl text-white transform hover:-translate-y-2 transition-transform duration-300"
                         >
                             <BarChart2 className="w-10 h-10 mb-6" />
-                            <h3 className="text-xl font-bold mb-3">Actionable Reports</h3>
+                            <h3 className="text-xl font-bold mb-3">Industry Layouts</h3>
                             <p className="text-sky-50 leading-relaxed font-medium">
-                                Get instant insights into best-selling products, low stock alerts, and inventory value.
+                                Customize modules for Retail POS, Pharmacy prescription tracking, or general product inventory.
                             </p>
                         </motion.div>
                     </div>
@@ -271,12 +271,12 @@ function Features() {
 /* ================= MODULES ================= */
 function Modules() {
     const features = [
-        { icon: <Boxes />, title: "Product Management", desc: "Add, update, and categorize products easily." },
-        { icon: <TrendingUp />, title: "Stock Tracking", desc: "Monitor stock levels in real time." },
-        { icon: <Calculator />, title: "Cost Management", desc: "Track inventory value and costs accurately." },
-        { icon: <Clock />, title: "Order Tracking", desc: "Track purchase and sales orders efficiently." },
-        { icon: <Users />, title: "Supplier Management", desc: "Manage suppliers and purchase history." },
-        { icon: <Cloud />, title: "Cloud Backup", desc: "Secure data access anytime, anywhere." }
+        { icon: <Boxes />, title: "Product & Catalog Management", desc: "Register general products, unified registration forms, categories, and customize properties." },
+        { icon: <TrendingUp />, title: "Stock Ledger & Tracking", desc: "Track stock transactions dynamically with detailed logs, entry histories, and ledgers." },
+        { icon: <Calculator />, title: "Valuation & Costing", desc: "Automate inventory valuation, cost accounting, and real-time average costing calculations." },
+        { icon: <Clock />, title: "Purchase & Sales Bills", desc: "Draft supplier bills, issue customer invoices, track balance due, and print layouts." },
+        { icon: <Users />, title: "Manufacturing & WIP", desc: "Manage Bill of Materials (BOM), track work-in-progress logs, and assemble products." },
+        { icon: <Cloud />, title: "Multi-Warehouse & Branches", desc: "Transfer stock across branches and warehouses with organization profiles." }
     ];
 
     return (
