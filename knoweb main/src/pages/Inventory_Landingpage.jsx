@@ -25,6 +25,26 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../assets/inventory-landingpage/inventory-logo.jpeg';
 import heroImg from '../assets/inventory-landingpage/inventory-hero.jpeg';
 
+// Glance Images
+import i1 from '../assets/inventory_images/i1.jpeg';
+import i2 from '../assets/inventory_images/i2.jpeg';
+import i3 from '../assets/inventory_images/i3.jpeg';
+import i4 from '../assets/inventory_images/i4.jpeg';
+import i5 from '../assets/inventory_images/i5.jpeg';
+import i6 from '../assets/inventory_images/i6.jpeg';
+import i7 from '../assets/inventory_images/i7.jpeg';
+import i8 from '../assets/inventory_images/i8.jpeg';
+import i9 from '../assets/inventory_images/i9.jpeg';
+import i10 from '../assets/inventory_images/i10.jpeg';
+import i11 from '../assets/inventory_images/i11.jpeg';
+import i12 from '../assets/inventory_images/i12.jpeg';
+import i13 from '../assets/inventory_images/i13.jpeg';
+import i14 from '../assets/inventory_images/i14.jpeg';
+import i15 from '../assets/inventory_images/i15.jpeg';
+import i16 from '../assets/inventory_images/i16.jpeg';
+
+const glanceImages = [i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15, i16];
+
 
 
 export default function App() {
@@ -34,7 +54,7 @@ export default function App() {
             <Hero />
             <Features />
             <Modules />
-
+            <Glance />
             <Pricing />
             <Footer />
         </div>
@@ -48,7 +68,7 @@ function Navbar() {
     const navLinks = [
         { name: 'Home', href: '#home' },
         { name: 'Features', href: '#features' },
-
+        { name: 'Overview', href: '#overview' },
         { name: 'Pricing', href: '#pricing' },
         { name: 'Contact', href: '#contact' },
     ];
@@ -307,7 +327,93 @@ function Modules() {
     );
 }
 
+/* ================= GLANCE ================= */
+function Glance() {
+    const [activeIndex, setActiveIndex] = useState(1);
 
+    // Auto-scroll loop
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setActiveIndex((prev) => (prev + 1) % glanceImages.length);
+        }, 3000);
+        return () => clearInterval(interval);
+    }, []);
+
+    return (
+        <section id="overview" className="py-24 bg-gray-50 overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+                {/* Header Section */}
+                <div className="text-center mb-16">
+                    <h2 className="text-4xl font-extrabold text-gray-900 mb-6">
+                        Inventory at a Glance
+                    </h2>
+                    <p className="mt-4 text-gray-500 max-w-3xl mx-auto text-lg leading-relaxed">
+                        Explore our clean, intuitive inventory management system designed to make tracking products, managing stock, and coordinating warehouses simple and seamless.
+                    </p>
+
+                    {/* Decorative Line */}
+                    <div className="flex justify-center items-center gap-2 mt-8 mb-4">
+                        <div className="h-1 w-8 bg-black rounded-full"></div>
+                        <div className="h-1 w-12 bg-sky-400 rounded-full"></div>
+                    </div>
+                </div>
+
+                {/* Carousel */}
+                <div className="relative h-[400px] md:h-[500px] flex items-center justify-center">
+                    {glanceImages.map((img, index) => {
+                        const isActive = index === activeIndex;
+                        const isPrev = index === (activeIndex - 1 + glanceImages.length) % glanceImages.length;
+                        const isNext = index === (activeIndex + 1) % glanceImages.length;
+
+                        if (!isActive && !isPrev && !isNext) return null;
+
+                        return (
+                            <motion.div
+                                key={index}
+                                initial={false}
+                                animate={{
+                                    scale: isActive ? 1 : 0.8,
+                                    opacity: isActive ? 1 : 0.5,
+                                    x: isActive ? 0 : isPrev ? '-65%' : '65%',
+                                    zIndex: isActive ? 10 : 5,
+                                    filter: isActive ? 'blur(0px)' : 'blur(2px)',
+                                }}
+                                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                                className="absolute top-0 w-[95%] md:w-[90%] lg:w-[85%] h-full rounded-xl shadow-2xl overflow-hidden bg-white border border-gray-100 flex items-center justify-center"
+                                style={{
+                                    left: '0',
+                                    right: '0',
+                                    margin: 'auto'
+                                }}
+                            >
+                                <img
+                                    src={img}
+                                    alt={`Screenshot ${index + 1}`}
+                                    className="w-full h-full object-cover rounded-lg"
+                                />
+                            </motion.div>
+                        );
+                    })}
+                </div>
+
+                {/* Pagination Dots */}
+                <div className="flex justify-center items-center gap-3 mt-12">
+                    {glanceImages.map((_, index) => (
+                        <button
+                            key={index}
+                            onClick={() => setActiveIndex(index)}
+                            className={`w-3 h-3 rounded-full transition-all duration-300 ${activeIndex === index ? 'bg-sky-400 scale-125' : 'bg-gray-300 hover:bg-gray-400'
+                                }`}
+                            aria-label={`Go to slide ${index + 1}`}
+                        />
+                    ))}
+                </div>
+
+            </div>
+        </section>
+    );
+}
 
 /* ================= PRICING ================= */
 function Pricing() {
