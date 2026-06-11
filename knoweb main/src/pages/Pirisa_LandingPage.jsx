@@ -240,7 +240,7 @@ function Features() {
                             <FileText className="w-10 h-10 mb-6" />
                             <h3 className="text-xl font-bold mb-3">Easy Payroll</h3>
                             <p className="text-sky-50 leading-relaxed">
-                                Process payroll with ease. Automate calculations for tax, allowances, and deductions in just a few clicks.
+                                Process payroll with custom allowances, deductions, taxes, and generate employee payslips.
                             </p>
                         </motion.div>
 
@@ -252,9 +252,9 @@ function Features() {
                             className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 transform hover:-translate-y-2 transition-transform duration-300"
                         >
                             <Globe className="w-10 h-10 text-sky-400 mb-6" />
-                            <h3 className="text-xl font-bold text-gray-900 mb-3">Global Support</h3>
+                            <h3 className="text-xl font-bold text-gray-900 mb-3">Attendance & Shifts</h3>
                             <p className="text-gray-600 leading-relaxed">
-                                Manage diverse teams across borders with built-in multi-currency and localization support.
+                                Log check-ins/outs, calculate total working hours, and manage shift schedules dynamically.
                             </p>
                         </motion.div>
 
@@ -266,9 +266,9 @@ function Features() {
                             className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 transform hover:-translate-y-2 transition-transform duration-300"
                         >
                             <ShieldCheck className="w-10 h-10 text-sky-400 mb-6" />
-                            <h3 className="text-xl font-bold text-gray-900 mb-3">Compliance Ready</h3>
+                            <h3 className="text-xl font-bold text-gray-900 mb-3">Leave Portal</h3>
                             <p className="text-gray-600 leading-relaxed">
-                                Ensure accurate statutory compliance and generate reports for audits and regulations automatically.
+                                Apply for leave requests, monitor balances, and approve leaves through a centralized workflow.
                             </p>
                         </motion.div>
 
@@ -280,9 +280,9 @@ function Features() {
                             className="bg-sky-400 p-8 rounded-2xl shadow-xl text-white transform hover:-translate-y-2 transition-transform duration-300"
                         >
                             <BarChart2 className="w-10 h-10 mb-6" />
-                            <h3 className="text-xl font-bold mb-3">Real-Time Reporting</h3>
+                            <h3 className="text-xl font-bold mb-3">Performance Appraisals</h3>
                             <p className="text-sky-50 leading-relaxed">
-                                Get actionable insights into your workforce trends, attendance, and expenses anytime.
+                                Perform review appraisals, set goal ratings, and evaluate overall employee performance.
                             </p>
                         </motion.div>
                     </div>
@@ -297,34 +297,34 @@ function Features() {
 function Modules() {
     const features = [
         {
-            icon: <FileText className="w-6 h-6" />,
-            title: "Simplified Payroll",
-            desc: "Generate professional payslips and manage salaries in seconds."
+            icon: <Users className="w-6 h-6" />,
+            title: "Employee Profiles",
+            desc: "Onboard employees, maintain profile logs, documents, and manage roles."
+        },
+        {
+            icon: <Clock className="w-6 h-6" />,
+            title: "Attendance & Shifts",
+            desc: "Log daily work hours, check-ins, check-outs, and customize shifts."
         },
         {
             icon: <TrendingUp className="w-6 h-6" />,
             title: "Leave Management",
-            desc: "Stay on top of employee leaves and attendance with detailed monitoring."
+            desc: "Track leave allowances, request leave applications, and view approvals."
+        },
+        {
+            icon: <FileText className="w-6 h-6" />,
+            title: "Payroll & Payslips",
+            desc: "Configure basic pay details, track allowances/deductions, and process runs."
         },
         {
             icon: <Calculator className="w-6 h-6" />,
-            title: "Tax Management",
-            desc: "Automatic tax calculations and statutory compliance support."
+            title: "Performance Appraisals",
+            desc: "Grade work contributions, run review sessions, and set goals."
         },
         {
-            icon: <Clock className="w-6 h-6" />,
-            title: "Real-Time Reporting",
-            desc: "Access HR reports instantly for smarter decisions."
-        },
-        {
-            icon: <Users className="w-6 h-6" />,
-            title: "Multi-User Access",
-            desc: "Collaborate seamlessly with your HR team and department heads."
-        },
-        {
-            icon: <Cloud className="w-6 h-6" />,
-            title: "Cloud Backup & Security",
-            desc: "Your data is safe, accessible anytime, anywhere."
+            icon: <BarChart2 className="w-6 h-6" />,
+            title: "HR Reports & Analytics",
+            desc: "Generate monthly payroll summaries, salary sheets, and attendance stats."
         }
     ];
 
