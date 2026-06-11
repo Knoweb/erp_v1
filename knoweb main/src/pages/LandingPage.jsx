@@ -32,7 +32,6 @@ const Navbar = () => {
         { name: 'Features', href: '#features' },
         { name: 'Overview', href: '#glance' },
         { name: 'Pricing', href: '#pricing' },
-        { name: 'Reviews', href: '#reviews' },
         { name: 'FAQ', href: '#faq' },
         { name: 'Contact', href: '#contact' },
     ];
@@ -898,87 +897,7 @@ const Pricing = () => {
     );
 };
 
-const Testimonials = () => {
-    const testimonials = [
-        {
-            name: "Sarah Jenkins",
-            role: "Financial Director",
-            company: "TechFlow Inc.",
-            content: "Ginum has completely transformed how we manage our finances. The automation features save us hours every week.",
-            rating: 5
-        },
-        {
-            name: "Michael Chen",
-            role: "Small Business Owner",
-            company: "Chen Design",
-            content: "Incredibly intuitive and easy to use. I was up and running in minutes, and the support team is fantastic.",
-            rating: 5
-        },
-        {
-            name: "David Ross",
-            role: "Freelance Consultant",
-            company: "Ross Consulting",
-            content: "The best accounting software for freelancers. It handles multiple currencies perfectly for my international clients.",
-            rating: 4
-        }
-    ];
 
-    return (
-        <section id="reviews" className="py-24 bg-blue-50/30">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-16">
-                    <motion.h2
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        className="text-3xl font-bold text-gray-900 sm:text-4xl"
-                    >
-                        Customer Reviews
-                    </motion.h2>
-                    <p className="mt-4 text-xl text-gray-600 max-w-2xl mx-auto">
-                        See what our users are saying about Ginum.
-                    </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {testimonials.map((testimonial, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.1 }}
-                            className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 relative group hover:-translate-y-1 transition-transform"
-                        >
-                            <Quote className="absolute top-6 right-6 text-blue-100 w-12 h-12 transform rotate-180 group-hover:text-blue-200 transition-colors" />
-
-                            <div className="flex items-center space-x-1 mb-4">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star
-                                        key={i}
-                                        className={`w-5 h-5 ${i < testimonial.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
-                                    />
-                                ))}
-                            </div>
-
-                            <p className="text-gray-600 mb-6 italic relative z-10">
-                                "{testimonial.content}"
-                            </p>
-
-                            <div className="flex items-center mt-auto">
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400 text-white flex items-center justify-center font-bold text-sm">
-                                    {testimonial.name.split(' ').map(n => n[0]).join('')}
-                                </div>
-                                <div className="ml-3">
-                                    <h4 className="text-gray-900 font-bold text-sm">{testimonial.name}</h4>
-                                    <p className="text-gray-500 text-xs">{testimonial.role}, {testimonial.company}</p>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-};
 
 const FAQ = () => {
     const [activeIndex, setActiveIndex] = useState(0);
@@ -1302,7 +1221,6 @@ const LandingPage = () => {
                 <Features />
                 <Glance />
                 <Pricing />
-                <Testimonials />
                 <FAQ />
                 <Contact />
             </main>
