@@ -410,7 +410,7 @@ const Glance = () => {
                 {/* Header Section */}
                 <div className="text-center mb-16">
                     <h2 className="text-4xl font-extrabold text-gray-900 mb-6">
-                        Ginum at a Glance
+                        Ginum Overview
                     </h2>
                     <p className="mt-4 text-gray-500 max-w-3xl mx-auto text-lg leading-relaxed">
                         Ginum is a user friendly accounting software that simplifies financial management with features like expense tracking, invoicing, and detailed reporting, helping businesses stay organized and efficient.

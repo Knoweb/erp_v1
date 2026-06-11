@@ -346,7 +346,7 @@ function Glance() {
                 {/* Header Section */}
                 <div className="text-center mb-16">
                     <h2 className="text-4xl font-extrabold text-gray-900 mb-6">
-                        Inventory at a Glance
+                        Inventory Overview
                     </h2>
                     <p className="mt-4 text-gray-500 max-w-3xl mx-auto text-lg leading-relaxed">
                         Explore our clean, intuitive inventory management system designed to make tracking products, managing stock, and coordinating warehouses simple and seamless.
