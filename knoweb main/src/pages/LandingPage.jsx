@@ -196,8 +196,8 @@ const Features = () => {
         {
             id: 1,
             icon: <FileText className="w-8 h-8 text-white" />,
-            title: "Easy Invoicing",
-            description: "Create, send, and track invoices in just a few clicks. Automate reminders for overdue payments.",
+            title: "Invoicing & Billing",
+            description: "Create customer sales invoices, log supplier bills, and track payment due balances.",
             bgColor: "bg-sky-400", // Light Blue
             textColor: "text-white",
             descColor: "text-sky-100"
@@ -205,8 +205,8 @@ const Features = () => {
         {
             id: 2,
             icon: <DollarSign className="w-8 h-8 text-sky-500" />,
-            title: "Multi-Currency Support",
-            description: "Work seamlessly across borders with built-in multi-currency options.",
+            title: "Chart of Accounts",
+            description: "Set up assets, liabilities, revenues, and record double-entry general ledger journals.",
             bgColor: "bg-white", // White
             textColor: "text-gray-900",
             descColor: "text-gray-500",
@@ -215,8 +215,8 @@ const Features = () => {
         {
             id: 3,
             icon: <CreditCard className="w-8 h-8 text-sky-500" />,
-            title: "Tax Compliance",
-            description: "Ensure accurate tax calculations and generate reports for VAT, GST, and other compliance needs.",
+            title: "Banking & Reconciliation",
+            description: "Manage bank/cash accounts, register transaction logs, and track deposits.",
             bgColor: "bg-white", // White
             textColor: "text-gray-900",
             descColor: "text-gray-500",
@@ -225,8 +225,8 @@ const Features = () => {
         {
             id: 4,
             icon: <BarChart2 className="w-8 h-8 text-white" />,
-            title: "Real-Time Financial Reporting",
-            description: "Get actionable insights into your cash flow, expenses, and profits anytime.",
+            title: "Financial Reporting",
+            description: "Generate Balance Sheets, Income Statements, Trial Balances, and Ledger Books instantly.",
             bgColor: "bg-sky-400", // Light Blue
             textColor: "text-white",
             descColor: "text-sky-100"
@@ -237,33 +237,33 @@ const Features = () => {
     const ourFeatures = [
         {
             icon: <FileText className="w-8 h-8 text-slate-800" />,
-            title: "Simplified Invoicing & Billing",
-            description: "Generate professional invoices in seconds."
+            title: "Chart of Accounts & Ledger",
+            description: "Organize assets, liabilities, equities, revenues, and expenses with general journal entries."
         },
         {
             icon: <BarChart2 className="w-8 h-8 text-slate-800" />,
-            title: "Expense Tracking",
-            description: "Stay on top of your cash flow with detailed expense monitoring."
+            title: "Invoicing & Billing",
+            description: "Easily generate customer sales invoices, draft supplier purchase bills, and track due balances."
         },
         {
             icon: <Calculator className="w-8 h-8 text-slate-800" />,
-            title: "Tax Management",
-            description: "Automatic tax calculations and compliance support."
+            title: "Cash & Banking",
+            description: "Record bank account transactions, deposits, and execute fund transfers."
         },
         {
             icon: <Clock className="w-8 h-8 text-slate-800" />,
-            title: "Real-Time Reporting",
-            description: "Access financial reports instantly for smarter decisions."
+            title: "Payroll Integration",
+            description: "Process monthly employee payroll entries directly linked to ledger accounting books."
         },
         {
             icon: <Users className="w-8 h-8 text-slate-800" />,
-            title: "Multi-User Access",
-            description: "Collaborate seamlessly with your team."
+            title: "Project Costing",
+            description: "Track project-based revenue, expenses, and allocate costs across multiple tasks."
         },
         {
             icon: <Cloud className="w-8 h-8 text-slate-800" />,
-            title: "Cloud Backup & Security",
-            description: "Your data is safe, accessible anytime, anywhere."
+            title: "Financial Statements",
+            description: "Instantly export double-entry Balance Sheets, Income Statements, and Trial Balances."
         },
     ];
 
