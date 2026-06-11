@@ -13,7 +13,7 @@ import allInOneImg from "../assets/AllinOne.png";
 export default function LandingPage() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const navigate = useNavigate();
-    
+
     const handleChoosePlan = (plan) => {
         if (plan.price === 'Custom') {
             // For custom/enterprise plans, maybe show a contact form
@@ -189,7 +189,7 @@ export default function LandingPage() {
                         <div className="flex items-center gap-2">
                             <Layers className="w-8 h-8 text-black" />
                             <span className="text-2xl font-extrabold tracking-tight text-slate-900">
-                                ERPSite
+                                KNOWEB ERP
                             </span>
                         </div>
 
@@ -266,13 +266,13 @@ export default function LandingPage() {
                                 One Platform, Infinite Possibilities
                             </span>
                             <h1 className="text-5xl lg:text-7xl font-extrabold text-slate-900 leading-tight mb-6">
-                                Run Your Entire Business on <span className="text-sky-500">ERPSite</span>
+                                Run Your Entire Business on <span className="text-sky-500">KNOWEB</span>
                             </h1>
                             <p className="text-xl text-slate-600 leading-relaxed max-w-lg mb-10">
                                 Combine the power of <strong>PirisaHR</strong>, <strong>Ginuma Accounting</strong>, and <strong>Smart Inventory</strong> into one seamless operating system.
                             </p>
                             <div className="flex flex-wrap gap-4">
-                                <button 
+                                <button
                                     onClick={() => window.location.href = '/register?system=ALL_IN_ONE'}
                                     className="px-8 py-4 bg-sky-500 text-white font-bold rounded-full shadow-lg shadow-sky-500/20 hover:bg-sky-600 transition-all active:scale-95"
                                 >
@@ -366,16 +366,15 @@ export default function LandingPage() {
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.1 }}
-                                className={`relative bg-white rounded-3xl shadow-2xl overflow-hidden border-2 ${
-                                    plan.popular
+                                className={`relative bg-white rounded-3xl shadow-2xl overflow-hidden border-2 ${plan.popular
                                         ? 'border-blue-500 ring-4 ring-blue-100 scale-105 z-10'
                                         : 'border-gray-200'
-                                } transition-all duration-300 flex flex-col`}
+                                    } transition-all duration-300 flex flex-col`}
                             >
                                 {plan.popular && (
                                     <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-600 to-purple-600" />
                                 )}
-                                
+
                                 <div className="p-8 flex-grow flex flex-col">
                                     <h3 className="text-xl font-extrabold text-gray-900 mb-2 uppercase tracking-wide text-center">{plan.name}</h3>
                                     <p className="mb-4 text-gray-600 text-sm text-center">{plan.description}</p>
@@ -402,11 +401,10 @@ export default function LandingPage() {
 
                                     <button
                                         disabled
-                                        className={`w-full py-3 px-6 rounded-xl font-bold cursor-not-allowed transition-all duration-300 ${
-                                            plan.popular
+                                        className={`w-full py-3 px-6 rounded-xl font-bold cursor-not-allowed transition-all duration-300 ${plan.popular
                                                 ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg opacity-60'
                                                 : 'bg-gray-200 text-gray-500 opacity-60'
-                                        }`}
+                                            }`}
                                     >
                                         Choose {plan.name}
                                     </button>
@@ -427,7 +425,7 @@ export default function LandingPage() {
                                     <Star fill="currentColor" /><Star fill="currentColor" /><Star fill="currentColor" /><Star fill="currentColor" /><Star fill="currentColor" />
                                 </div>
                                 <h2 className="text-3xl lg:text-4xl font-bold text-white mb-8 leading-tight">
-                                    "ERPSite completely transformed how we operate. Having our Inventory linked directly to Ginuma Accounting and PirisaHR has saved us 40+ hours a week."
+                                    "KNOWEB completely transformed how we operate. Having our Inventory linked directly to Ginuma Accounting and PirisaHR has saved us 40+ hours a week."
                                 </h2>
                                 <div>
                                     <p className="text-white font-bold text-lg">Sarah Johnson</p>
@@ -466,7 +464,7 @@ export default function LandingPage() {
                     <h2 className="text-4xl font-extrabold text-center mb-16">Frequently Asked Questions</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {[
-                            { q: "Can I use only one module (e.g., just Inventory)?", a: "Yes! While ERPSite is powerful as a suite, you can start with the Starter Bundle and use features as you need them." },
+                            { q: "Can I use only one module (e.g., just Inventory)?", a: "Yes! While KNOWEB is powerful as a suite, you can start with the Starter Bundle and use features as you need them." },
                             { q: "Is my data secure?", a: "Absolutely. We use bank-grade AES-256 encryption and daily cloud backups to ensure your business data is never lost or compromised." },
                             { q: "Do you offer free trials?", a: "Yes, we offer a 14-day full feature free trial. No credit card required to start." },
                         ].map((item, i) => (
@@ -477,7 +475,7 @@ export default function LandingPage() {
                         ))}
                     </div>
                 </div>
-            </section>   
+            </section>
         </div>
     );
 }
