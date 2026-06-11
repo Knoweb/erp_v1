@@ -51,7 +51,10 @@ const Navbar = () => {
                         </span>
                     </div>
 
-                    {/* Desktop Navigation Links - Centered/Left-aligned */}
+                    {/* Spacer to push links to right */}
+                    <div className="flex-grow"></div>
+
+                    {/* Desktop Navigation Links - Aligned Right */}
                     <div className="hidden lg:flex items-center space-x-8">
                         {navLinks.map((link) => (
                             <a
@@ -64,9 +67,6 @@ const Navbar = () => {
                             </a>
                         ))}
                     </div>
-
-                    {/* Spacer to push buttons to right */}
-                    <div className="flex-grow"></div>
 
                     {/* Auth Buttons - Positioned over the cyan background */}
                     {/*  <div className="hidden lg:flex items-center space-x-4 pl-8">
