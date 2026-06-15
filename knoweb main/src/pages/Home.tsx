@@ -56,7 +56,7 @@ const Home = () => {
                                 title: 'Ginum System',
                                 icon: Zap,
                                 image: ginumLogo,
-                                description: 'Comprehensive accounting and financial management platform with automated invoicing, real-time reporting, multi-currency support, and intelligent expense tracking to streamline your business operations.',
+                                description: 'Comprehensive accounting and financial management platform. Features double-entry Chart of Accounts, custom Invoicing & Billing, Bank Reconciliation, automated Payroll integration, Project Costing, and instant Financial Reports (Balance Sheet, Income Statement).',
                                 color: 'from-orange-400 to-red-500',
                                 link: '/landingpage',
                                 external: false
@@ -65,7 +65,7 @@ const Home = () => {
                                 title: 'PirisaHR',
                                 icon: Users,
                                 image: pirisahrLogo,
-                                description: 'Advanced HR management system featuring automated payroll processing, employee self-service portal, attendance tracking, leave management, performance analytics, and comprehensive workforce insights to empower your team.',
+                                description: 'Advanced HR management system. Features detailed Employee Profiles, daily Attendance logging & Shifts scheduling, Leave application portal with approvals, payroll run calculations with Payslips, Performance Appraisals, and HR Reports.',
                                 color: 'from-blue-400 to-indigo-500',
                                 link: '/pirisahr-landing'
                             },
@@ -73,7 +73,7 @@ const Home = () => {
                                 title: 'Inventory System',
                                 icon: Shield,
                                 image: inventoryLogo,
-                                description: 'Intelligent inventory management solution with real-time stock tracking, automated reorder alerts, multi-warehouse support, supplier management, barcode scanning, and detailed analytics to optimize your supply chain operations.',
+                                description: 'Intelligent inventory management solution. Features Multi-Warehouse tracking, Purchase Orders & Sales Bills, Manufacturing & Bills of Materials (BOM) assembly, custom Retail POS/Pharmacy layouts, Stock Ledger transaction logs, and Cost Valuation.',
                                 color: 'from-emerald-400 to-teal-500',
                                 link: '/inventory-landing'
                             },
