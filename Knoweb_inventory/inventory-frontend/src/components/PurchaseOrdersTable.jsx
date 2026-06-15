@@ -182,7 +182,17 @@ function PurchaseOrdersTable({
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className="text-sm font-black text-slate-900 tracking-tight">
-                                                    {formatCurrency(order.totalAmount)}
+                                                    {(() => {
+                                                        const isReceivedOrReturned = order.status === 'RECEIVED' || order.status === 'RETURNED';
+                                                        if (isReceivedOrReturned) {
+                                                            const computedTotal = order.items?.reduce((sum, item) => {
+                                                                const qty = item.receivedQuantity !== undefined && item.receivedQuantity !== null ? item.receivedQuantity : item.quantity;
+                                                                return sum + (qty * item.unitPrice);
+                                                            }, 0) || 0;
+                                                            return formatCurrency(computedTotal);
+                                                        }
+                                                        return formatCurrency(order.totalAmount);
+                                                    })()}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-center">

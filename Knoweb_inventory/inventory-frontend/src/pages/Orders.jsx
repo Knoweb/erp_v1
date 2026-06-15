@@ -662,7 +662,8 @@ function ReturnOrderModal({ order, products, onClose, onReturned }) {
   const [returnQtys, setReturnQtys] = useState(() => {
     const qtys = {};
     order.items?.forEach(it => {
-      qtys[it.id] = it.quantity || 0;
+      const maxQty = it.receivedQuantity !== undefined && it.receivedQuantity !== null ? it.receivedQuantity : it.quantity;
+      qtys[it.id] = maxQty || 0;
     });
     return qtys;
   });
@@ -731,13 +732,16 @@ function ReturnOrderModal({ order, products, onClose, onReturned }) {
                 <div key={item.id} className="p-4 flex items-center justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-black text-slate-700 truncate">{getProductName(item.productId)}</p>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Original Qty: {item.quantity}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                      {item.receivedQuantity !== undefined && item.receivedQuantity !== null ? `Received Qty: ${item.receivedQuantity}` : `Original Qty: ${item.quantity}`}
+                      {item.receivedQuantity !== undefined && item.receivedQuantity !== null && item.receivedQuantity !== item.quantity && ` (Ordered: ${item.quantity})`}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-black text-slate-400 uppercase">Return:</span>
                     <input
                       type="number"
-                      max={item.quantity}
+                      max={item.receivedQuantity !== undefined && item.receivedQuantity !== null ? item.receivedQuantity : item.quantity}
                       min="0"
                       className="w-20 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-black text-slate-800 outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-400"
                       value={returnQtys[item.id] || 0}
