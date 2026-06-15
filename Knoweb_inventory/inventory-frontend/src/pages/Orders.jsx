@@ -809,7 +809,7 @@ function Orders() {
 
   const getViewOrderTotal = (order) => {
     if (!order) return 0;
-    if (!order.customerName && (order.status === 'RECEIVED' || order.status === 'RETURNED')) {
+    if (!order.customerName && order.status === 'RECEIVED') {
       return order.items?.reduce((sum, item) => {
         const qty = item.receivedQuantity !== undefined && item.receivedQuantity !== null ? item.receivedQuantity : item.quantity;
         return sum + (qty * item.unitPrice);
@@ -949,11 +949,11 @@ function Orders() {
     const companyName = user.orgName || 'KNOWEB INVENTORY';
     const supplierName = suppliers.find(s => String(s.id) === String(order.supplierId))?.name || `Supplier #${order.supplierId}`;
 
-    const isReceivedOrReturned = order.status === 'RECEIVED' || order.status === 'RETURNED';
+    const isReceived = order.status === 'RECEIVED';
     let computedTotal = 0;
 
     const itemsHtml = order.items?.map((item, idx) => {
-      const displayQty = isReceivedOrReturned && item.receivedQuantity !== undefined && item.receivedQuantity !== null
+      const displayQty = isReceived && item.receivedQuantity !== undefined && item.receivedQuantity !== null
         ? item.receivedQuantity
         : item.quantity;
       const lineTotal = displayQty * item.unitPrice;
@@ -964,7 +964,7 @@ function Orders() {
           <td style="padding: 12px; font-weight: bold; color: #334155;">${getProductName(item.productId)}</td>
           <td style="padding: 12px; text-align: center; color: #475569;">
             ${displayQty}
-            ${isReceivedOrReturned && item.receivedQuantity !== undefined && item.receivedQuantity !== null && item.receivedQuantity !== item.quantity ? `<span style="font-size: 10px; color: #94a3b8; display: block;">(Ordered: ${item.quantity})</span>` : ''}
+            ${isReceived && item.receivedQuantity !== undefined && item.receivedQuantity !== null && item.receivedQuantity !== item.quantity ? `<span style="font-size: 10px; color: #94a3b8; display: block;">(Ordered: ${item.quantity})</span>` : ''}
           </td>
           <td style="padding: 12px; text-align: right; color: #475569;">Rs. ${Number(item.unitPrice).toFixed(2)}</td>
           <td style="padding: 12px; text-align: right; font-weight: bold; color: #0f172a;">Rs. ${lineTotal.toFixed(2)}</td>
@@ -1422,11 +1422,11 @@ function Orders() {
             <table class="totals-table">
               <tr>
                 <td style="color: #64748b; font-weight: bold;">Subtotal</td>
-                <td style="text-align: right; font-weight: bold; color: #334155;">Rs. ${computedTotal.toFixed(2)}</td>
+                <td style="text-align: right; font-weight: bold; color: #334155;">Rs. ${(isReceived ? computedTotal : (order.totalAmount || 0)).toFixed(2)}</td>
               </tr>
               <tr style="border-top: 2px solid #e2e8f0;">
                 <td class="final-total">Total Due</td>
-                <td class="final-total" style="text-align: right;">Rs. ${computedTotal.toFixed(2)}</td>
+                <td class="final-total" style="text-align: right;">Rs. ${(isReceived ? computedTotal : (order.totalAmount || 0)).toFixed(2)}</td>
               </tr>
             </table>
           </div>
@@ -1545,7 +1545,7 @@ function Orders() {
                   <div className="divide-y divide-slate-50">
                     {viewOrder.items?.map((item, i) => {
                       const hasReceivedQty = !viewOrder.customerName && 
-                        (viewOrder.status === 'RECEIVED' || viewOrder.status === 'RETURNED') && 
+                        viewOrder.status === 'RECEIVED' && 
                         item.receivedQuantity !== undefined && 
                         item.receivedQuantity !== null;
                       const displayQty = hasReceivedQty ? item.receivedQuantity : item.quantity;
