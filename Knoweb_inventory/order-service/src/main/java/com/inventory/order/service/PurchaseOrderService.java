@@ -225,6 +225,9 @@ public class PurchaseOrderService {
                         BigDecimal returnPrice = originalItem.getUnitPrice().multiply(new BigDecimal(returnItem.getQuantity()));
                         order.setTotalAmount(order.getTotalAmount().subtract(returnPrice));
                         originalItem.setQuantity(originalItem.getQuantity() - returnItem.getQuantity());
+                        if (originalItem.getReceivedQuantity() != null) {
+                            originalItem.setReceivedQuantity(originalItem.getReceivedQuantity() - returnItem.getQuantity());
+                        }
 
                         // Create a temporary item for sync purposes with the return quantity
                         PurchaseOrderItem syncItem = new PurchaseOrderItem();
