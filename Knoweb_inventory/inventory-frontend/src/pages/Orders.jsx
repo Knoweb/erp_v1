@@ -834,11 +834,27 @@ function Orders() {
       ]);
       if (purchaseRes.status === 'fulfilled') {
         const data = purchaseRes.value.data;
-        setPurchaseOrders(Array.isArray(data) ? data : (data?.content ?? data?.data ?? []));
+        const list = Array.isArray(data) ? data : (data?.content ?? data?.data ?? []);
+        setPurchaseOrders(list);
+        setViewOrder(prev => {
+          if (prev && !prev.customerName) {
+            const updated = list.find(o => String(o.id) === String(prev.id));
+            return updated || prev;
+          }
+          return prev;
+        });
       }
       if (salesRes.status === 'fulfilled') {
         const data = salesRes.value.data;
-        setSalesOrders(Array.isArray(data) ? data : (data?.content ?? data?.data ?? []));
+        const list = Array.isArray(data) ? data : (data?.content ?? data?.data ?? []);
+        setSalesOrders(list);
+        setViewOrder(prev => {
+          if (prev && prev.customerName) {
+            const updated = list.find(o => String(o.id) === String(prev.id));
+            return updated || prev;
+          }
+          return prev;
+        });
       }
       if (warehousesRes.status === 'fulfilled') {
         const data = warehousesRes.value.data;

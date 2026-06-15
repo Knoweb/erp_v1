@@ -32,7 +32,7 @@ public class StockLedgerService {
      * Record a transaction in the stock ledger
      * ✅ CRITICAL FIX: Uses REQUIRES_NEW propagation so errors here don't rollback the main transaction
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public StockLedger recordTransaction(InventoryTransaction transaction) {
         log.info("Recording transaction {} in stock ledger", transaction.getId());
 
