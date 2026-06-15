@@ -167,6 +167,8 @@ public class PurchaseOrderService {
                     receiveQty = receiveItem.getQuantity() != null ? receiveItem.getQuantity() : 0;
                 }
                 
+                item.setReceivedQuantity(receiveQty);
+                
                 if (receiveQty > 0) {
                     // Create temporary item with received quantity for sync
                     PurchaseOrderItem syncItem = new PurchaseOrderItem();
@@ -180,6 +182,7 @@ public class PurchaseOrderService {
         } else {
             // Default to full receipt
             for (PurchaseOrderItem item : order.getItems()) {
+                item.setReceivedQuantity(item.getQuantity());
                 syncWithInventory(item, order, "IN", "Purchase order received — order #PO-" + String.format("%03d", id));
             }
         }
