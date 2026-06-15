@@ -2,6 +2,7 @@ package com.inventory.order.service;
 
 import com.inventory.order.dto.PurchaseOrderRequestDto;
 import com.inventory.order.dto.PurchaseReturnRequestDto;
+import com.inventory.order.dto.PurchaseReceiveRequestDto;
 import com.inventory.order.model.PurchaseOrder;
 import com.inventory.order.model.PurchaseOrder.OrderStatus;
 import com.inventory.order.model.PurchaseOrderItem;
@@ -144,7 +145,7 @@ public class PurchaseOrderService {
      * Mark an APPROVED order as RECEIVED (goods delivered).
      * Automatically increases stock in inventory-service (IN transaction).
      */
-    public PurchaseOrder receiveOrder(Long id) {
+    public PurchaseOrder receiveOrder(Long id, PurchaseReceiveRequestDto request) {
         PurchaseOrder order = purchaseOrderRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Purchase order not found: " + id));
 
@@ -154,8 +155,33 @@ public class PurchaseOrderService {
         }
 
         // ── SYNC: Increase stock in inventory-service for each item ───────────
-        for (PurchaseOrderItem item : order.getItems()) {
-            syncWithInventory(item, order, "IN", "Purchase order received — order #PO-" + String.format("%03d", id));
+        if (request != null && request.getItems() != null && !request.getItems().isEmpty()) {
+            for (PurchaseOrderItem item : order.getItems()) {
+                PurchaseReceiveRequestDto.ReceiveItem receiveItem = request.getItems().stream()
+                        .filter(ri -> ri.getItemId().equals(item.getId()))
+                        .findFirst()
+                        .orElse(null);
+                
+                int receiveQty = 0;
+                if (receiveItem != null) {
+                    receiveQty = receiveItem.getQuantity() != null ? receiveItem.getQuantity() : 0;
+                }
+                
+                if (receiveQty > 0) {
+                    // Create temporary item with received quantity for sync
+                    PurchaseOrderItem syncItem = new PurchaseOrderItem();
+                    syncItem.setProductId(item.getProductId());
+                    syncItem.setQuantity(receiveQty);
+                    syncItem.setUnitPrice(item.getUnitPrice());
+                    
+                    syncWithInventory(syncItem, order, "IN", "Purchase order partially received — order #PO-" + String.format("%03d", id));
+                }
+            }
+        } else {
+            // Default to full receipt
+            for (PurchaseOrderItem item : order.getItems()) {
+                syncWithInventory(item, order, "IN", "Purchase order received — order #PO-" + String.format("%03d", id));
+            }
         }
 
         order.setStatus(OrderStatus.RECEIVED);

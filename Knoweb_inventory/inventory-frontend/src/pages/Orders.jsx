@@ -527,6 +527,131 @@ function CreateSalesOrderModal({ onClose, onCreated }) {
   );
 }
 
+// ── Receive Purchase Order Modal ───────────────────────────────────────────────
+function ReceiveOrderModal({ order, products, onClose, onReceived }) {
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  // Track received quantities for each item (initially set to full ordered qty)
+  const [receiveQtys, setReceiveQtys] = useState(() => {
+    const qtys = {};
+    order.items?.forEach(it => {
+      qtys[it.id] = it.quantity || 0;
+    });
+    return qtys;
+  });
+
+  const getProductName = (id) => {
+    const p = products.find(p => String(p.id) === String(id));
+    return p ? p.name : `Product #${id}`;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Check if at least one item has a receive qty > 0
+    const totalReceiveQty = Object.values(receiveQtys).reduce((sum, q) => sum + Number(q), 0);
+    if (totalReceiveQty <= 0) {
+      setError('Please specify at least one item quantity to receive.');
+      return;
+    }
+
+    // Verify receive qty does not exceed ordered qty
+    for (const item of order.items || []) {
+      const rq = Number(receiveQtys[item.id] || 0);
+      if (rq > item.quantity) {
+        setError(`Received quantity for ${getProductName(item.productId)} cannot exceed the ordered quantity (${item.quantity}).`);
+        return;
+      }
+      if (rq < 0) {
+        setError(`Received quantity for ${getProductName(item.productId)} cannot be negative.`);
+        return;
+      }
+    }
+
+    setSubmitting(true);
+    setError('');
+
+    try {
+      const payload = {
+        items: Object.entries(receiveQtys).map(([itemId, qty]) => ({
+          itemId: Number(itemId),
+          quantity: Number(qty)
+        }))
+      };
+
+      await apiClient.patch(`/api/orders/purchase/${order.id}/receive`, payload);
+      onReceived('Inventory reception registered & stock updated.');
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to process reception.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[1000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="px-8 py-6 border-b border-purple-50 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">📦 Receive Purchase Order</h2>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Ref: #PO-{String(order.id).padStart(3, '0')}</p>
+          </div>
+          <button onClick={onClose} className="text-slate-300 hover:text-slate-500 transition-colors"><X size={24} /></button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+          {error && (
+            <div className="bg-rose-50 border border-rose-100 text-rose-600 px-4 py-3 rounded-xl flex items-center gap-2 text-sm font-bold">
+              <AlertCircle size={18} /> {error}
+            </div>
+          )}
+
+          <div className="space-y-4">
+            <label className="text-[10px] font-black text-slate-400 tracking-widest uppercase block px-1">Items to Receive</label>
+            <div className="rounded-xl border border-slate-100 overflow-hidden divide-y divide-slate-50">
+              {order.items?.map((item) => (
+                <div key={item.id} className="p-4 flex items-center justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-black text-slate-700 truncate">{getProductName(item.productId)}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Ordered Qty: {item.quantity}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase">Receive:</span>
+                    <input
+                      type="number"
+                      max={item.quantity}
+                      min="0"
+                      className="w-20 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-black text-slate-800 outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-400"
+                      value={receiveQtys[item.id] ?? 0}
+                      onChange={(e) => setReceiveQtys(prev => ({ ...prev, [item.id]: e.target.value }))}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex gap-4 justify-end pt-4">
+            <button type="button" onClick={onClose} disabled={submitting} className="px-6 py-2.5 text-xs font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors">Cancel</button>
+            <button type="submit" disabled={submitting} className="px-10 py-2.5 bg-purple-600 text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl shadow-lg shadow-purple-100 hover:bg-purple-700 transition-all active:scale-95 disabled:grayscale flex items-center justify-center gap-2">
+              {submitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Processing...</span>
+                </>
+              ) : (
+                'Confirm Receive'
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ── Return Purchase Order Modal ───────────────────────────────────────────────
 function ReturnOrderModal({ order, products, onClose, onReturned }) {
   const [submitting, setSubmitting] = useState(false);
@@ -670,6 +795,7 @@ function Orders() {
   const [showCreatePO, setShowCreatePO] = useState(false);
   const [showCreateSO, setShowCreateSO] = useState(false);
   const [showReturnPO, setShowReturnPO] = useState(null); // stores the order to return
+  const [showReceivePO, setShowReceivePO] = useState(null); // stores the order to receive
   const [viewOrder, setViewOrder] = useState(null);
 
   const getProductName = (productId) => {
@@ -752,24 +878,9 @@ function Orders() {
     } catch (e) { setActionError(e.response?.data?.error || 'Failed to approve order.'); }
   };
 
-  const handleReceive = async (orderId) => {
-    const isConfirmed = await confirm({
-      title: 'Inventory Reception',
-      message: 'Confirming physical receipt of assets. This will update available inventory levels. Proceed?',
-      type: 'info',
-      confirmLabel: 'Mark Received',
-      cancelLabel: 'Cancel'
-    });
-    if (!isConfirmed) return;
-    try {
-      setActionLoading({ type: 'receive', id: orderId });
-      await apiClient.patch(`/api/orders/purchase/${orderId}/receive`);
-      showSuccess(`Order marked as received.`);
-      fetchOrders();
-    } catch (e) { setActionError(e.response?.data?.error || 'Failed to mark order as received.'); }
-    finally {
-      setActionLoading(null);
-    }
+  const handleReceive = (orderId) => {
+    const order = purchaseOrders.find(o => o.id === orderId);
+    if (order) setShowReceivePO(order);
   };
 
   const handleReturnAction = (orderId, reason) => {
@@ -1440,6 +1551,7 @@ function Orders() {
       {showCreatePO && <CreatePurchaseOrderModal suppliers={suppliers} onClose={() => setShowCreatePO(false)} onCreated={(msg) => { showSuccess(msg); fetchOrders(); }} />}
       {showCreateSO && <CreateSalesOrderModal onClose={() => setShowCreateSO(false)} onCreated={(msg) => { showSuccess(msg); fetchOrders(); }} />}
       {showReturnPO && <ReturnOrderModal order={showReturnPO} products={products} onClose={() => setShowReturnPO(null)} onReturned={(msg) => { showSuccess(msg); fetchOrders(); }} />}
+      {showReceivePO && <ReceiveOrderModal order={showReceivePO} products={products} onClose={() => setShowReceivePO(null)} onReceived={(msg) => { showSuccess(msg); fetchOrders(); }} />}
 
       <header className="flex justify-between items-end border-b border-slate-100 pb-6">
         <div>

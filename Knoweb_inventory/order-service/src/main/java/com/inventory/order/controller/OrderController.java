@@ -2,6 +2,7 @@ package com.inventory.order.controller;
 
 import com.inventory.order.dto.PurchaseOrderRequestDto;
 import com.inventory.order.dto.PurchaseReturnRequestDto;
+import com.inventory.order.dto.PurchaseReceiveRequestDto;
 import com.inventory.order.model.PurchaseOrder;
 import com.inventory.order.model.SalesOrder;
 import com.inventory.order.repository.SalesOrderRepository;
@@ -73,9 +74,11 @@ public class OrderController {
 
     /** PATCH /api/orders/purchase/{id}/receive — APPROVED → RECEIVED */
     @PatchMapping("/purchase/{id}/receive")
-    public ResponseEntity<?> receivePurchaseOrder(@PathVariable Long id) {
+    public ResponseEntity<?> receivePurchaseOrder(
+            @PathVariable Long id,
+            @RequestBody(required = false) PurchaseReceiveRequestDto request) {
         try {
-            return ResponseEntity.ok(purchaseOrderService.receiveOrder(id));
+            return ResponseEntity.ok(purchaseOrderService.receiveOrder(id, request));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         } catch (IllegalStateException e) {
