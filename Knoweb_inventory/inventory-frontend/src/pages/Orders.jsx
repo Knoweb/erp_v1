@@ -1185,11 +1185,11 @@ function Orders() {
             <table class="totals-table">
               <tr>
                 <td style="color: #64748b; font-weight: bold;">Subtotal</td>
-                <td style="text-align: right; font-weight: bold; color: #334155;">Rs. ${(order.totalAmount || 0).toFixed(2)}</td>
+                <td style="text-align: right; font-weight: bold; color: #334155;">Rs. ${(isReceivedOrReturned ? computedTotal : (order.totalAmount || 0)).toFixed(2)}</td>
               </tr>
               <tr style="border-top: 2px solid #e2e8f0;">
                 <td class="final-total">Total Due</td>
-                <td class="final-total" style="text-align: right;">Rs. ${(order.totalAmount || 0).toFixed(2)}</td>
+                <td class="final-total" style="text-align: right;">Rs. ${(isReceivedOrReturned ? computedTotal : (order.totalAmount || 0)).toFixed(2)}</td>
               </tr>
             </table>
           </div>
