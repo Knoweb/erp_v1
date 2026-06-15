@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from 'react-router-dom';
-import allInOneImg from "../assets/AllinOne.png";
+import allInOneImg from "../assets/all-logo.png";
 
 
 export default function LandingPage() {
