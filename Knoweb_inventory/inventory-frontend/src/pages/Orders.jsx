@@ -637,8 +637,15 @@ function ReturnOrderModal({ order, products, onClose, onReturned }) {
 
           <div className="flex gap-4 justify-end pt-4">
             <button type="button" onClick={onClose} disabled={submitting} className="px-6 py-2.5 text-xs font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors">Cancel</button>
-            <button type="submit" disabled={submitting} className="px-10 py-2.5 bg-purple-600 text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl shadow-lg shadow-purple-100 hover:bg-purple-700 transition-all active:scale-95 disabled:grayscale">
-              {submitting ? 'Processing...' : 'Submit Return'}
+            <button type="submit" disabled={submitting} className="px-10 py-2.5 bg-purple-600 text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl shadow-lg shadow-purple-100 hover:bg-purple-700 transition-all active:scale-95 disabled:grayscale flex items-center justify-center gap-2">
+              {submitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Processing...</span>
+                </>
+              ) : (
+                'Submit Return'
+              )}
             </button>
           </div>
         </form>
