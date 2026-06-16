@@ -3,6 +3,7 @@ import api from '../../utils/api';
 import Alert from '../Alert/Alert';
 import { FaBook, FaFileDownload, FaPrint, FaFilter } from 'react-icons/fa';
 import { useLocation } from 'react-router-dom';
+import * as XLSX from 'xlsx';
 
 function GeneralLedger() {
   const location = useLocation();
@@ -98,6 +99,59 @@ function GeneralLedger() {
     window.print();
   };
 
+  const handleExport = () => {
+    if (!ledgerData) {
+      Alert.error('No data to export. Please generate the ledger first.');
+      return;
+    }
+
+    // Prepare data rows
+    const rows = [];
+    
+    // Add Metadata header
+    rows.push(['General Ledger Report']);
+    rows.push([`Account Name:`, ledgerData.accountName]);
+    rows.push([`Account Code:`, ledgerData.accountCode]);
+    rows.push([`Account Type:`, ledgerData.accountType]);
+    rows.push([`Period:`, `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`]);
+    rows.push([]); // Empty spacing row
+
+    // Opening Balance
+    rows.push(['Opening Balance', '', '', '', '', parseFloat(ledgerData.openingBalance || 0)]);
+    rows.push([]);
+
+    // Table Headers
+    rows.push(['Date', 'Reference', 'Description', 'Debit', 'Credit', 'Balance']);
+
+    // Transactions
+    if (ledgerData.transactions && ledgerData.transactions.length > 0) {
+      ledgerData.transactions.forEach(tx => {
+        rows.push([
+          new Date(tx.date).toLocaleDateString(),
+          tx.referenceNo || '',
+          tx.description || '',
+          tx.debit > 0 ? parseFloat(tx.debit) : '',
+          tx.credit > 0 ? parseFloat(tx.credit) : '',
+          parseFloat(tx.balance || 0)
+        ]);
+      });
+    }
+
+    rows.push([]);
+    // Closing Balance
+    rows.push(['Closing Balance', '', '', '', '', parseFloat(ledgerData.closingBalance || 0)]);
+
+    // Create worksheet
+    const worksheet = XLSX.utils.aoa_to_sheet(rows);
+
+    // Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'General Ledger');
+
+    // Generate file and trigger download
+    XLSX.writeFile(workbook, `General_Ledger_${ledgerData.accountCode || 'Report'}.xlsx`);
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 my-4 w-full">
       {/* Header */}
@@ -113,7 +167,10 @@ function GeneralLedger() {
           >
             <FaPrint className="inline mr-2" /> Print
           </button>
-          <button className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition drop-shadow-sm font-medium">
+          <button
+            onClick={handleExport}
+            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition drop-shadow-sm font-medium"
+          >
             <FaFileDownload className="inline mr-2" /> Export
           </button>
         </div>
