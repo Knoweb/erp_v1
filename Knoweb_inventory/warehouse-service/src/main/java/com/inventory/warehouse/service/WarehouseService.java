@@ -115,12 +115,10 @@ public class WarehouseService {
         });
     }
 
-    /** Soft-delete */
+    /** Delete from database */
     public boolean deactivateWarehouse(Long id) {
         return warehouseRepository.findById(id).map(w -> {
-            w.setIsActive(false);
-            w.setStatus(Warehouse.WarehouseStatus.INACTIVE);
-            warehouseRepository.save(w);
+            warehouseRepository.delete(w);
             return true;
         }).orElse(false);
     }

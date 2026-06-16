@@ -168,4 +168,24 @@ public class OrderController {
             return ResponseEntity.ok(0L);
         return ResponseEntity.ok(salesOrderRepository.countByOrgId(orgId));
     }
+
+    @DeleteMapping("/purchase/{id}")
+    public ResponseEntity<Void> deletePurchaseOrder(@PathVariable Long id) {
+        try {
+            purchaseOrderService.deleteOrder(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/sales/{id}")
+    public ResponseEntity<Void> deleteSalesOrder(@PathVariable Long id) {
+        try {
+            salesOrderService.deleteOrder(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

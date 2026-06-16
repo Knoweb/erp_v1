@@ -310,4 +310,14 @@ public class PurchaseOrderService {
         log.info("Purchase order {} cancelled", id);
         return purchaseOrderRepository.save(order);
     }
+
+    /**
+     * Hard delete a purchase order.
+     */
+    public void deleteOrder(Long id) {
+        PurchaseOrder order = purchaseOrderRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Purchase order not found: " + id));
+        purchaseOrderRepository.delete(order);
+        log.info("Purchase order {} hard-deleted", id);
+    }
 }

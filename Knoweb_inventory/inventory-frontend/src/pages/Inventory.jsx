@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { inventoryService } from '../services/api';
 import StockTransactionForm from '../components/StockTransactionForm';
-import { Package, Plus, Search, RefreshCw, ArrowDownLeft, ArrowUpRight, Repeat, Scale, Undo2, AlertCircle, XCircle, CheckCircle2 } from 'lucide-react';
+import { Package, Plus, Search, RefreshCw, ArrowDownLeft, ArrowUpRight, Repeat, Scale, Undo2, AlertCircle, XCircle, CheckCircle2, Trash2 } from 'lucide-react';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -74,6 +74,28 @@ function Inventory() {
       setLoading(false);
     }
   }, []);
+
+  const handleDeleteStock = async (id) => {
+    if (window.confirm("Are you sure you want to delete this stock record? This action cannot be undone.")) {
+      try {
+        await inventoryService.deleteStock(id);
+        fetchData();
+      } catch (err) {
+        alert("Failed to delete stock record: " + (err.userMessage || err.message));
+      }
+    }
+  };
+
+  const handleDeleteTransaction = async (id) => {
+    if (window.confirm("Are you sure you want to delete this transaction record? This action cannot be undone.")) {
+      try {
+        await inventoryService.deleteTransaction(id);
+        fetchData();
+      } catch (err) {
+        alert("Failed to delete transaction record: " + (err.userMessage || err.message));
+      }
+    }
+  };
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -249,6 +271,7 @@ function Inventory() {
                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Resv.</th>
                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Level Stats</th>
                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Updated</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -288,6 +311,9 @@ function Inventory() {
                         </td>
                         <td className="px-6 py-4"><StockLevelBar quantity={stock.quantity} reorderLevel={stock.reorderLevel} /></td>
                         <td className="px-6 py-4 text-[10px] font-bold text-slate-400 italic tracking-tighter uppercase whitespace-nowrap">{formatDate(stock.updatedAt)}</td>
+                        <td className="px-6 py-4 text-right">
+                          <button onClick={() => handleDeleteStock(stock.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete"><Trash2 size={16} /></button>
+                        </td>
                       </tr>
                     );
                   })}
@@ -313,6 +339,7 @@ function Inventory() {
                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Delta</th>
                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Reference</th>
                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Timestamp</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -340,6 +367,9 @@ function Inventory() {
                       </td>
                       <td className="px-6 py-4 text-xs font-bold text-slate-400 tracking-tighter max-w-[150px] truncate">{tx.referenceId || '—'}</td>
                       <td className="px-6 py-4 text-[10px] font-bold text-slate-400 italic tracking-tighter uppercase whitespace-nowrap">{formatDate(tx.createdAt || tx.transactionDate)}</td>
+                      <td className="px-6 py-4 text-right">
+                        <button onClick={() => handleDeleteTransaction(tx.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete"><Trash2 size={16} /></button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

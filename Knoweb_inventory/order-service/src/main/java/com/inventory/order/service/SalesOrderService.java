@@ -176,4 +176,14 @@ public class SalesOrderService {
                     "Stock deduction failed for product #" + productId + ": " + e.getMessage(), e);
         }
     }
+
+    /**
+     * Hard delete a sales order.
+     */
+    public void deleteOrder(Long id) {
+        SalesOrder order = salesOrderRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Sales order not found: " + id));
+        salesOrderRepository.delete(order);
+        log.info("Sales order {} hard-deleted", id);
+    }
 }

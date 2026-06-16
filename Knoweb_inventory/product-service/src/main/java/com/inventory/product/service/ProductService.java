@@ -128,8 +128,7 @@ public class ProductService {
         String category = product.getCategory();
         Long orgId = product.getOrgId();
 
-        product.setIsActive(false);
-        productRepository.save(product);
+        productRepository.delete(product);
 
         decrementCategoryCount(category, orgId);
     }

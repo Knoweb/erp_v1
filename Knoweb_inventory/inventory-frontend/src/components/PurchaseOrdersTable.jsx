@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Eye, CheckCircle2, Package, XCircle, Building2, Undo2, Loader2, Printer } from 'lucide-react';
+import { Search, Eye, CheckCircle2, Package, XCircle, Building2, Undo2, Loader2, Printer, Trash2 } from 'lucide-react';
 
 const STATUS_META = {
     PENDING: { label: 'Pending', icon: '🕐', cls: 'bg-amber-50 text-amber-700 border-amber-100' },
@@ -40,6 +40,7 @@ function PurchaseOrdersTable({
     onCancel,
     onReturn,
     onPrint,
+    onDelete,
     actionLoading = null,
     loading = false,
 }) {
@@ -256,6 +257,14 @@ function PurchaseOrdersTable({
                                                             <XCircle size={16} />
                                                         </button>
                                                     )}
+
+                                                    <button
+                                                        className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all shadow-sm"
+                                                        onClick={() => onDelete?.(order.id)}
+                                                        title="Delete purchase order"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>

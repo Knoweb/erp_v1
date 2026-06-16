@@ -502,5 +502,13 @@ public class InventoryService {
     public List<InventoryTransaction> enrichTransactionsWithNames(List<InventoryTransaction> transactions) {
         return transactions.stream().map(this::enrichTransactionWithNames).collect(java.util.stream.Collectors.toList());
     }
+
+    public void deleteStock(Long id) {
+        stockRepository.deleteById(id);
+    }
+
+    public void deleteTransaction(Long id) {
+        transactionRepository.deleteById(id);
+    }
 }
 

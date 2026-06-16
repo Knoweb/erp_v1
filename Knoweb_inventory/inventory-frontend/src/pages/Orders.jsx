@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import apiClient, { orderService, supplierService, productService, warehouseService, customerService } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import PurchaseOrdersTable from '../components/PurchaseOrdersTable';
-import { ShoppingCart, DollarSign, X, Plus, Package, MessageSquare, ArrowRight, CheckCircle2, AlertCircle, RefreshCw, Layers, TrendingUp, Loader2, Eye, Printer } from 'lucide-react';
+import { ShoppingCart, DollarSign, X, Plus, Package, MessageSquare, ArrowRight, CheckCircle2, AlertCircle, RefreshCw, Layers, TrendingUp, Loader2, Eye, Printer, Trash2 } from 'lucide-react';
 
 // ── Initial form states ────────────────────────────────────────────────────────
 const INIT_PO = {
@@ -945,6 +945,48 @@ function Orders() {
     } catch (e) { setActionError(e.response?.data?.error || 'Failed to cancel order.'); }
   };
 
+  const handleDeletePurchaseOrder = async (id) => {
+    const isConfirmed = await confirm({
+      title: 'Delete Purchase Order',
+      message: 'This will purge this purchase order from the system database. Confirm deletion?',
+      type: 'danger',
+      confirmLabel: 'Delete',
+      cancelLabel: 'Cancel'
+    });
+    if (!isConfirmed) return;
+    try {
+      setActionLoading({ type: 'delete', id });
+      await orderService.deletePurchaseOrder(id);
+      showSuccess(`Purchase order successfully deleted`);
+      fetchOrders();
+    } catch (e) {
+      setActionError(e.response?.data?.error || 'Failed to delete purchase order.');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDeleteSalesOrder = async (id) => {
+    const isConfirmed = await confirm({
+      title: 'Delete Sales Order',
+      message: 'This will purge this sales order from the system database. Confirm deletion?',
+      type: 'danger',
+      confirmLabel: 'Delete',
+      cancelLabel: 'Cancel'
+    });
+    if (!isConfirmed) return;
+    try {
+      setActionLoading({ type: 'delete', id });
+      await orderService.deleteSalesOrder(id);
+      showSuccess(`Sales order successfully deleted`);
+      fetchOrders();
+    } catch (e) {
+      setActionError(e.response?.data?.error || 'Failed to delete sales order.');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const getWarehouseName = (id) => {
     const w = warehouses.find(w => String(w.id) === String(id));
     return w ? (w.name || w.warehouseName) : `WH-${id}`;
@@ -1695,6 +1737,7 @@ function Orders() {
                 onCancel={handleCancel}
                 onReturn={handleReturnAction}
                 onPrint={handlePrintPO}
+                onDelete={handleDeletePurchaseOrder}
                 actionLoading={actionLoading}
               />
             </div>
@@ -1757,6 +1800,13 @@ function Orders() {
                                 title="Print Invoice"
                               >
                                 <Printer size={16} />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteSalesOrder(order.id)}
+                                className="p-2 bg-slate-100 text-slate-400 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all"
+                                title="Delete Sales Order"
+                              >
+                                <Trash2 size={16} />
                               </button>
                             </div>
                           </td>

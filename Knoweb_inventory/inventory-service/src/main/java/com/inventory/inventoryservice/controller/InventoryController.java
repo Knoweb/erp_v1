@@ -100,4 +100,16 @@ public class InventoryController {
             return ResponseEntity.ok(0L);
         return ResponseEntity.ok(inventoryService.getLowStockCountByOrg(orgId));
     }
+
+    @DeleteMapping("/stocks/{id}")
+    public ResponseEntity<Void> deleteStock(@PathVariable Long id) {
+        inventoryService.deleteStock(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/transactions/{id}")
+    public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
+        inventoryService.deleteTransaction(id);
+        return ResponseEntity.noContent().build();
+    }
 }
