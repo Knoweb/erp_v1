@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import api from "../../utils/api";
 import Alert from "../Alert/Alert";
 import { FaMoneyBillWave, FaPrint, FaFileExport } from "react-icons/fa";
+import * as XLSX from "xlsx";
+
 
 function Cashflow() {
   const [startDate, setStartDate] = useState("");
@@ -37,6 +39,68 @@ function Cashflow() {
     window.print();
   };
 
+  const handleExport = () => {
+    if (!reportData) {
+      Alert.error("No data to export. Please generate the cashflow statement first.");
+      return;
+    }
+
+    const rows = [];
+    rows.push(["Statement of Cash Flows"]);
+    rows.push([`Period:`, `${startDate} to ${endDate}`]);
+    rows.push([]);
+
+    // Operating Activities
+    rows.push(["Cash Flows from Operating Activities"]);
+    rows.push(["Net Income", parseFloat(reportData.netIncome || 0)]);
+    
+    if (reportData.operatingAdjustments?.length > 0) {
+      rows.push(["Adjustments to reconcile net income:"]);
+      reportData.operatingAdjustments.forEach(adjustment => {
+        rows.push([adjustment.description, parseFloat(adjustment.amount || 0)]);
+      });
+    }
+    rows.push(["Net Cash from Operating Activities", parseFloat(reportData.netCashFromOperating || 0)]);
+    rows.push([]);
+
+    // Investing Activities
+    rows.push(["Cash Flows from Investing Activities"]);
+    if (reportData.investingActivities?.length > 0) {
+      reportData.investingActivities.forEach(activity => {
+        rows.push([activity.description, parseFloat(activity.amount || 0)]);
+      });
+    } else {
+      rows.push(["No investing activities during this period"]);
+    }
+    rows.push(["Net Cash from Investing Activities", parseFloat(reportData.netCashFromInvesting || 0)]);
+    rows.push([]);
+
+    // Financing Activities
+    rows.push(["Cash Flows from Financing Activities"]);
+    if (reportData.financingActivities?.length > 0) {
+      reportData.financingActivities.forEach(activity => {
+        rows.push([activity.description, parseFloat(activity.amount || 0)]);
+      });
+    } else {
+      rows.push(["No financing activities during this period"]);
+    }
+    rows.push(["Net Cash from Financing Activities", parseFloat(reportData.netCashFromFinancing || 0)]);
+    rows.push([]);
+
+    // Summary/End details
+    rows.push([`Net ${reportData.netCashChange >= 0 ? 'Increase' : 'Decrease'} in Cash`, parseFloat(reportData.netCashChange || 0)]);
+    rows.push([]);
+    rows.push(["Cash at Beginning of Period", parseFloat(reportData.beginningCash || 0)]);
+    rows.push(["Net Change in Cash", parseFloat(reportData.netCashChange || 0)]);
+    rows.push(["Cash at End of Period", parseFloat(reportData.endingCash || 0)]);
+
+    const worksheet = XLSX.utils.aoa_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Cashflow Statement");
+    XLSX.writeFile(workbook, `Cashflow_Statement_${startDate}_to_${endDate}.xlsx`);
+  };
+
+
   const formatCurrency = (amount) => {
     if (amount === null || amount === undefined) return "Rs. 0.00";
     const formatted = new Intl.NumberFormat("en-US", {
@@ -65,7 +129,10 @@ function Cashflow() {
               >
                 <FaPrint /> Print
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+              <button
+                onClick={handleExport}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+              >
                 <FaFileExport /> Export
               </button>
             </div>

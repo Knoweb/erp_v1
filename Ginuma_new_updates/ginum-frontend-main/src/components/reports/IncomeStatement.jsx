@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import api from "../../utils/api";
 import Alert from "../Alert/Alert";
 import { FaFileInvoiceDollar, FaPrint, FaFileExport } from "react-icons/fa";
+import * as XLSX from "xlsx";
 
 function IncomeStatement() {
   const [startDate, setStartDate] = useState("");
@@ -37,6 +38,70 @@ function IncomeStatement() {
     window.print();
   };
 
+  const handleExport = () => {
+    if (!reportData) {
+      Alert.error("No data to export. Please generate the income statement first.");
+      return;
+    }
+
+    const rows = [];
+    rows.push(["Income Statement"]);
+    rows.push([`Period:`, `${startDate} to ${endDate}`]);
+    rows.push([]);
+
+    rows.push(["Revenue"]);
+    reportData.revenueAccounts?.forEach(acc => {
+      rows.push([`${acc.accountCode} - ${acc.accountName}`, acc.balance]);
+    });
+    rows.push(["Total Revenue", reportData.totalRevenue]);
+    rows.push([]);
+
+    rows.push(["Cost of Sales"]);
+    reportData.costOfSalesAccounts?.forEach(acc => {
+      rows.push([`${acc.accountCode} - ${acc.accountName}`, acc.balance]);
+    });
+    rows.push(["Total Cost of Sales", reportData.totalCostOfSales]);
+    rows.push([]);
+
+    rows.push(["Gross Profit", reportData.grossProfit]);
+    rows.push([]);
+
+    rows.push(["Operating Expenses"]);
+    reportData.operatingExpenses?.forEach(acc => {
+      rows.push([`${acc.accountCode} - ${acc.accountName}`, acc.balance]);
+    });
+    rows.push(["Total Operating Expenses", reportData.totalOperatingExpenses]);
+    rows.push([]);
+
+    rows.push(["Operating Income", reportData.operatingIncome]);
+    rows.push([]);
+
+    if (reportData.otherIncomeAccounts?.length > 0) {
+      rows.push(["Other Income"]);
+      reportData.otherIncomeAccounts.forEach(acc => {
+        rows.push([`${acc.accountCode} - ${acc.accountName}`, acc.balance]);
+      });
+      rows.push(["Total Other Income", reportData.totalOtherIncome]);
+      rows.push([]);
+    }
+
+    if (reportData.otherExpenseAccounts?.length > 0) {
+      rows.push(["Other Expenses"]);
+      reportData.otherExpenseAccounts.forEach(acc => {
+        rows.push([`${acc.accountCode} - ${acc.accountName}`, acc.balance]);
+      });
+      rows.push(["Total Other Expenses", reportData.totalOtherExpenses]);
+      rows.push([]);
+    }
+
+    rows.push([`Net ${reportData.netProfit >= 0 ? "Profit" : "Loss"}`, Math.abs(reportData.netProfit)]);
+
+    const worksheet = XLSX.utils.aoa_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Income Statement");
+    XLSX.writeFile(workbook, `Income_Statement_${startDate}_to_${endDate}.xlsx`);
+  };
+
   const formatCurrency = (amount) => {
     if (amount === null || amount === undefined) return "Rs. 0.00";
     return new Intl.NumberFormat("en-US", {
@@ -64,7 +129,10 @@ function IncomeStatement() {
               >
                 <FaPrint /> Print
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+              <button
+                onClick={handleExport}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+              >
                 <FaFileExport /> Export
               </button>
             </div>

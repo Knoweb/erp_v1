@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import api from "../../utils/api";
 import Alert from "../Alert/Alert";
 import { FaBalanceScale, FaPrint, FaFileExport, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import * as XLSX from "xlsx";
 
 function BalanceSheet() {
   const [asOfDate, setAsOfDate] = useState(new Date().toISOString().split("T")[0]);
@@ -36,6 +37,79 @@ function BalanceSheet() {
     window.print();
   };
 
+  const handleExport = () => {
+    if (!reportData) {
+      Alert.error("No data to export. Please generate the balance sheet first.");
+      return;
+    }
+
+    const rows = [];
+    rows.push(["Balance Sheet"]);
+    rows.push([`As of Date:`, asOfDate]);
+    rows.push([`Status:`, isBalanced ? "Balanced" : `Out of Balance by ${formatCurrency(Math.abs(reportData.totalAssets - reportData.totalLiabilitiesAndEquity))}`]);
+    rows.push([]);
+
+    rows.push(["ASSETS"]);
+    rows.push(["Current Assets"]);
+    reportData.currentAssets?.forEach(acc => {
+      rows.push([`${acc.accountCode} - ${acc.accountName}`, acc.balance]);
+    });
+    rows.push(["Total Current Assets", reportData.totalCurrentAssets]);
+    rows.push([]);
+
+    rows.push(["Fixed Assets"]);
+    reportData.fixedAssets?.forEach(acc => {
+      rows.push([`${acc.accountCode} - ${acc.accountName}`, acc.balance]);
+    });
+    rows.push(["Total Fixed Assets", reportData.totalFixedAssets]);
+    rows.push([]);
+
+    if (reportData.otherAssets?.length > 0) {
+      rows.push(["Other Assets"]);
+      reportData.otherAssets.forEach(acc => {
+        rows.push([`${acc.accountCode} - ${acc.accountName}`, acc.balance]);
+      });
+      rows.push(["Total Other Assets", reportData.totalOtherAssets]);
+      rows.push([]);
+    }
+
+    rows.push(["TOTAL ASSETS", reportData.totalAssets]);
+    rows.push([]);
+
+    rows.push(["LIABILITIES & EQUITY"]);
+    rows.push(["Current Liabilities"]);
+    reportData.currentLiabilities?.forEach(acc => {
+      rows.push([`${acc.accountCode} - ${acc.accountName}`, acc.balance]);
+    });
+    rows.push(["Total Current Liabilities", reportData.totalCurrentLiabilities]);
+    rows.push([]);
+
+    rows.push(["Long Term Liabilities"]);
+    reportData.longTermLiabilities?.forEach(acc => {
+      rows.push([`${acc.accountCode} - ${acc.accountName}`, acc.balance]);
+    });
+    rows.push(["Total Long Term Liabilities", reportData.totalLongTermLiabilities]);
+    rows.push([]);
+
+    rows.push(["Total Liabilities", reportData.totalLiabilities]);
+    rows.push([]);
+
+    rows.push(["Equity"]);
+    reportData.equityAccounts?.forEach(acc => {
+      rows.push([`${acc.accountCode} - ${acc.accountName}`, acc.balance]);
+    });
+    rows.push(["Retained Earnings", reportData.retainedEarnings]);
+    rows.push(["Total Equity", reportData.totalEquity]);
+    rows.push([]);
+
+    rows.push(["TOTAL LIABILITIES & EQUITY", reportData.totalLiabilitiesAndEquity]);
+
+    const worksheet = XLSX.utils.aoa_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Balance Sheet");
+    XLSX.writeFile(workbook, `Balance_Sheet_${asOfDate}.xlsx`);
+  };
+
   const formatCurrency = (amount) => {
     if (amount === null || amount === undefined) return "Rs. 0.00";
     return new Intl.NumberFormat("en-US", {
@@ -64,7 +138,10 @@ function BalanceSheet() {
               >
                 <FaPrint /> Print
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+              <button
+                onClick={handleExport}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+              >
                 <FaFileExport /> Export
               </button>
             </div>

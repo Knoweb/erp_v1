@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../utils/api';
 import Alert from '../Alert/Alert';
 import { FaBalanceScale, FaFileDownload, FaPrint, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import * as XLSX from 'xlsx';
 
 function TrialBalance() {
   const [asOfDate, setAsOfDate] = useState('');
@@ -51,6 +52,60 @@ function TrialBalance() {
     window.print();
   };
 
+  const handleExport = () => {
+    if (!trialBalanceData) {
+      Alert.error('No data to export. Please generate the trial balance first.');
+      return;
+    }
+
+    const rows = [];
+    rows.push(["Trial Balance Report"]);
+    rows.push([`As of Date:`, asOfDate]);
+    rows.push([`Status:`, trialBalanceData.balanced ? "Balanced" : "Out of Balance"]);
+    rows.push([]);
+
+    rows.push(["Account Code", "Account Name", "Debit", "Credit"]);
+
+    categoryOrder.forEach(category => {
+      if (!groupedAccounts[category] || groupedAccounts[category].length === 0) return;
+      
+      rows.push([category]); // Section Header
+      
+      groupedAccounts[category].forEach(acc => {
+        rows.push([
+          acc.accountCode,
+          acc.accountName,
+          acc.debitBalance > 0 ? parseFloat(acc.debitBalance) : '',
+          acc.creditBalance > 0 ? parseFloat(acc.creditBalance) : ''
+        ]);
+      });
+
+      const categoryAccounts = groupedAccounts[category];
+      const categoryTotalDebit = categoryAccounts.reduce((sum, acc) => sum + parseFloat(acc.debitBalance || 0), 0);
+      const categoryTotalCredit = categoryAccounts.reduce((sum, acc) => sum + parseFloat(acc.creditBalance || 0), 0);
+
+      rows.push([
+        "",
+        `${category} Total`,
+        categoryTotalDebit > 0 ? categoryTotalDebit : '',
+        categoryTotalCredit > 0 ? categoryTotalCredit : ''
+      ]);
+      rows.push([]); // Empty row spacing
+    });
+
+    rows.push([
+      "Grand Total",
+      "",
+      parseFloat(trialBalanceData.totalDebits || 0),
+      parseFloat(trialBalanceData.totalCredits || 0)
+    ]);
+
+    const worksheet = XLSX.utils.aoa_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Trial Balance");
+    XLSX.writeFile(workbook, `Trial_Balance_${asOfDate}.xlsx`);
+  };
+
   const categoryOrder = ['Asset', 'Liability', 'Equity', 'Income', 'Expense', 'Cost of Sales', 'Other Income', 'Other Expense'];
 
   return (
@@ -68,7 +123,10 @@ function TrialBalance() {
           >
             <FaPrint className="inline mr-2" /> Print
           </button>
-          <button className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition drop-shadow-sm font-medium">
+          <button
+            onClick={handleExport}
+            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition drop-shadow-sm font-medium"
+          >
             <FaFileDownload className="inline mr-2" /> Export
           </button>
         </div>
