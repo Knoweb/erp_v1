@@ -513,10 +513,25 @@ public class ExternalInventoryIntegrationService {
             } else {
                 allOrders = fetchAllSalesOrdersFromKnoweb();
             }
-            return allOrders.stream()
+
+            log.info("Total sales orders fetched from inventory: {}", allOrders != null ? allOrders.size() : "null");
+            if (allOrders != null && !allOrders.isEmpty()) {
+                Map<String, Object> firstOrder = allOrders.get(0);
+                log.info("First order keys: {}, customerName: {}, customer_name: {}", 
+                         firstOrder.keySet(), firstOrder.get("customerName"), firstOrder.get("customer_name"));
+            }
+
+            if (allOrders == null) {
+                return new ArrayList<>();
+            }
+
+            List<Map<String, Object>> filtered = allOrders.stream()
                     .filter(Objects::nonNull)
                     .filter(order -> {
                         Object orderCustNameObj = order.get("customerName");
+                        if (orderCustNameObj == null) {
+                            orderCustNameObj = order.get("customer_name");
+                        }
                         if (orderCustNameObj == null) {
                             return false;
                         }
@@ -526,6 +541,9 @@ public class ExternalInventoryIntegrationService {
                                targetNameLower.contains(orderCustName);
                     })
                     .collect(Collectors.toList());
+
+            log.info("Found {} matching sales orders for customer '{}'", filtered.size(), customerName);
+            return filtered;
         } catch (Exception e) {
             log.error("Error fetching sales orders for customerId {}: {}", customerId, e.getMessage(), e);
             return new ArrayList<>();
