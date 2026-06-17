@@ -83,7 +83,7 @@ public class ProductRegistrationService {
         // Step 2: Create initial stock/batch if provided
         Long stockId = null;
         if (request.getInitialBatch() != null && request.getInitialBatch().getQuantity() != null
-                && request.getInitialBatch().getQuantity() > 0) {
+                && request.getInitialBatch().getQuantity() >= 0) {
             try {
                 stockId = createInitialStock(savedProduct, request.getInitialBatch(), request.getOrgId());
             } catch (Exception e) {

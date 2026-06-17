@@ -106,7 +106,9 @@ function UnifiedProductRegistration({ categories: propsCategories, brands: props
     if (!formData.category) newErrors.category = 'Category is required';
 
     if (!formData.initialBatch.warehouseId) newErrors.warehouseId = 'Warehouse is required';
-    if (!formData.initialBatch.quantity || formData.initialBatch.quantity <= 0) newErrors.quantity = 'Valid initial quantity is required';
+    if (formData.initialBatch.quantity === '' || formData.initialBatch.quantity === undefined || formData.initialBatch.quantity === null || formData.initialBatch.quantity < 0) {
+      newErrors.quantity = 'Valid initial quantity is required';
+    }
     if (!formData.initialBatch.purchasePrice || formData.initialBatch.purchasePrice <= 0) newErrors.purchasePrice = 'Valid purchase price is required';
 
     if (user?.industryType === 'PHARMACY' && !formData.genericName) {

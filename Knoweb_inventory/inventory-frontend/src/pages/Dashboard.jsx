@@ -250,54 +250,54 @@ function Dashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center transition-all hover:shadow-md hover:-translate-y-1">
-          <div>
-            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Total Products</h3>
-            <p className="text-3xl font-bold text-gray-900">{stats.totalProducts}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center gap-3 transition-all hover:shadow-md hover:-translate-y-1 min-w-0">
+          <div className="min-w-0">
+            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 truncate">Total Products</h3>
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">{stats.totalProducts}</p>
           </div>
-          <div className="text-blue-500 bg-blue-50 p-3 rounded-lg">
+          <div className="text-blue-500 bg-blue-50 p-3 rounded-lg flex-shrink-0">
             <FaBox size={24} />
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center transition-all hover:shadow-md hover:-translate-y-1">
-          <div>
-            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Stock Items</h3>
-            <p className="text-3xl font-bold text-gray-900">{stats.totalStockItems.toLocaleString()}</p>
+        <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center gap-3 transition-all hover:shadow-md hover:-translate-y-1 min-w-0">
+          <div className="min-w-0">
+            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 truncate">Stock Items</h3>
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">{stats.totalStockItems.toLocaleString()}</p>
           </div>
-          <div className="text-emerald-500 bg-emerald-50 p-3 rounded-lg">
+          <div className="text-emerald-500 bg-emerald-50 p-3 rounded-lg flex-shrink-0">
             <FaWarehouse size={24} />
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center transition-all hover:shadow-md hover:-translate-y-1">
-          <div>
-            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Total Orders</h3>
-            <p className="text-3xl font-bold text-gray-900">{stats.totalOrders}</p>
+        <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center gap-3 transition-all hover:shadow-md hover:-translate-y-1 min-w-0">
+          <div className="min-w-0">
+            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 truncate">Total Orders</h3>
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">{stats.totalOrders}</p>
             {stats.pendingOrders > 0 && (
-              <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold uppercase mt-1 inline-block">
+              <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold uppercase mt-1 inline-block truncate">
                 {stats.pendingOrders} pending
               </span>
             )}
           </div>
-          <div className="text-amber-500 bg-amber-50 p-3 rounded-lg">
+          <div className="text-amber-500 bg-amber-50 p-3 rounded-lg flex-shrink-0">
             <FaShoppingCart size={24} />
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center transition-all hover:shadow-md hover:-translate-y-1">
-          <div>
-            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Warehouses</h3>
-            <div className="flex items-center gap-3">
-              <p className="text-3xl font-bold text-gray-900">{stats.warehouses}</p>
-              <div className="w-px h-8 bg-gray-100 mx-1" />
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-1.5">
+        <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center gap-3 transition-all hover:shadow-md hover:-translate-y-1 min-w-0">
+          <div className="min-w-0">
+            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 truncate">Warehouses</h3>
+            <div className="flex items-center gap-2 min-w-0">
+              <p className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">{stats.warehouses}</p>
+              <div className="w-px h-8 bg-gray-100 mx-0.5 flex-shrink-0" />
+              <div className="flex flex-col gap-1 flex-shrink-0">
+                <div className="flex items-center gap-1">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]" />
                   <span className="text-[10px] font-black text-emerald-600 leading-none">{stats.activeWarehouses}</span>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                   <div className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                   <span className="text-[10px] font-black text-rose-600 leading-none">{stats.inactiveWarehouses}</span>
                 </div>
@@ -309,22 +309,22 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center transition-all hover:shadow-md hover:-translate-y-1">
-          <div>
-            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Low Stock</h3>
-            <p className="text-3xl font-bold text-gray-900">{stats.lowStockAlerts}</p>
+        <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center gap-3 transition-all hover:shadow-md hover:-translate-y-1 min-w-0">
+          <div className="min-w-0">
+            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 truncate">Low Stock</h3>
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">{stats.lowStockAlerts}</p>
           </div>
-          <div className="text-red-500 bg-red-50 p-3 rounded-lg">
+          <div className="text-red-500 bg-red-50 p-3 rounded-lg flex-shrink-0">
             <FaExclamationTriangle size={24} />
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center transition-all hover:shadow-md hover:-translate-y-1">
-          <div>
-            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Stock Value</h3>
-            <p className="text-xl font-bold text-gray-900">{formatCurrency(stats.totalStockValue)}</p>
+        <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center gap-3 transition-all hover:shadow-md hover:-translate-y-1 min-w-0">
+          <div className="min-w-0 flex-1">
+            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 truncate">Stock Value</h3>
+            <p className="text-[14px] sm:text-[15px] md:text-base lg:text-[14px] xl:text-[12px] 2xl:text-base font-extrabold text-gray-900 break-all">{formatCurrency(stats.totalStockValue)}</p>
           </div>
-          <div className="text-green-600 bg-green-50 p-3 rounded-lg">
+          <div className="text-green-600 bg-green-50 p-3 rounded-lg flex-shrink-0">
             <FaChartLine size={24} />
           </div>
         </div>
