@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { FiSearch, FiUser, FiPhone, FiMail, FiEye, FiX, FiShield, FiMapPin, FiUsers, FiRefreshCw } from 'react-icons/fi';
+import { FiSearch, FiUser, FiPhone, FiMail, FiEye, FiX, FiShield, FiMapPin, FiUsers, FiRefreshCw, FiChevronDown, FiChevronUp, FiFileText } from 'react-icons/fi';
 import { fetchCompanyCustomers } from '../../utils/customerApi';
 import { syncCustomersFromMiddeniya } from '../../utils/syncApi';
+import api from '../../utils/api';
 import Alert from '../../components/Alert/Alert';
 
 const CustomersList = () => {
   const [customers, setCustomers] = useState([]);
+  const [productMap, setProductMap] = useState({});
+  const [customerSOsMap, setCustomerSOsMap] = useState({});
+  const [loadingSOsMap, setLoadingSOsMap] = useState({});
+  const [expandedCustomers, setExpandedCustomers] = useState({});
+  const [selectedSO, setSelectedSO] = useState(null);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,13 +26,53 @@ const CustomersList = () => {
     try {
       if (!companyId || !token) throw new Error("Missing credentials");
       setLoading(true);
-      const data = await fetchCompanyCustomers(companyId, token);
-      setCustomers(Array.isArray(data) ? data : []);
+      
+      const [customersData, productsData] = await Promise.all([
+        fetchCompanyCustomers(companyId, token),
+        api.get(`/api/finance/external/inventory-products/${companyId}`).catch(() => [])
+      ]);
+
+      setCustomers(Array.isArray(customersData) ? customersData : []);
+
+      const pMap = {};
+      if (Array.isArray(productsData)) {
+        productsData.forEach(p => {
+          pMap[p.id] = p.name;
+        });
+      }
+      setProductMap(pMap);
     } catch (e) {
       console.error(e);
       Alert.error("Error loading customers");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const toggleExpand = async (customerId) => {
+    const isExpanded = !expandedCustomers[customerId];
+    setExpandedCustomers(prev => ({
+      ...prev,
+      [customerId]: isExpanded
+    }));
+
+    if (isExpanded && !customerSOsMap[customerId]) {
+      try {
+        setLoadingSOsMap(prev => ({ ...prev, [customerId]: true }));
+        const data = await api.get(`/api/finance/external/inventory-sos/${customerId}`);
+        setCustomerSOsMap(prev => ({
+          ...prev,
+          [customerId]: Array.isArray(data) ? data : []
+        }));
+      } catch (err) {
+        console.error("Error loading external SOs:", err);
+        setCustomerSOsMap(prev => ({
+          ...prev,
+          [customerId]: []
+        }));
+      } finally {
+        setLoadingSOsMap(prev => ({ ...prev, [customerId]: false }));
+      }
     }
   };
 
@@ -78,15 +124,6 @@ const CustomersList = () => {
           </div>
 
           <div className="flex flex-wrap gap-3 items-center">
-            <button
-              onClick={handleSyncCustomers}
-              disabled={syncing}
-              className="inline-flex items-center gap-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 text-white px-5 py-3 text-sm font-bold shadow-md transition-all active:scale-95"
-            >
-              <FiRefreshCw size={16} className={syncing ? "animate-spin" : ""} />
-              {syncing ? "Syncing..." : "Sync Database"}
-            </button>
-
             <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-indigo-600 shadow-sm border border-slate-100">
@@ -140,11 +177,11 @@ const CustomersList = () => {
                   <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-slate-400">Customer Details</th>
                   <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-slate-400">Contact Information</th>
                   <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-slate-400">Tax Status</th>
+                  <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-slate-400">Sales Orders</th>
                   <th className="px-6 py-4 text-right text-[11px] font-bold uppercase tracking-widest text-slate-400">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
-                {filteredCustomers.map((customer) => {
+              <tbody className="divide-y divide-slate-100 bg-white">                 {filteredCustomers.map((customer) => {
                   const displayName = customer.name || customer.customerName || 'Unnamed customer';
                   const contactAddress = customer.billingAddress || customer.address || customer.deliveryAddress || '-';
                   const customerType = customer.customerType || 'Customer';
@@ -158,75 +195,147 @@ const CustomersList = () => {
                   }
 
                   const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                  const isExpanded = !!expandedCustomers[customer.id];
 
                   return (
-                    <tr key={customer.id} className="group transition-all duration-200 hover:bg-slate-50/80">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-4">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 font-bold text-sm ring-1 ring-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-200">
-                            {initials}
+                    <React.Fragment key={customer.id}>
+                      <tr className="group transition-all duration-200 hover:bg-slate-50/80">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-4">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 font-bold text-sm ring-1 ring-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-200">
+                              {initials}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-semibold text-slate-900 leading-none">{displayName}</span>
+                              {contactAddress && contactAddress !== '-' && (
+                                <span className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-400 max-w-[200px] truncate" title={contactAddress}>
+                                  <FiMapPin size={12} className="shrink-0" />
+                                  {contactAddress}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex flex-col">
-                            <span className="text-sm font-semibold text-slate-900 leading-none">{displayName}</span>
-                            {contactAddress && contactAddress !== '-' && (
-                              <span className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-400 max-w-[200px] truncate" title={contactAddress}>
-                                <FiMapPin size={12} className="shrink-0" />
-                                {contactAddress}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col gap-1.5">
+                            {phone && phone !== '-' && (
+                              <div className="flex items-center gap-2 text-[13px] text-slate-600">
+                                <div className="h-6 w-6 rounded flex items-center justify-center bg-slate-100 text-slate-500">
+                                  <FiPhone size={12} />
+                                </div>
+                                <span className="font-medium">{phone}</span>
+                              </div>
+                            )}
+                            {email && email !== '-' && (
+                              <div className="flex items-center gap-2 text-[13px] text-slate-500">
+                                <div className="h-6 w-6 rounded flex items-center justify-center bg-slate-100 text-slate-400">
+                                  <FiMail size={12} />
+                                </div>
+                                <span className="truncate max-w-[180px]">{email}</span>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider ${
+                              customerType === 'INDIVIDUAL' 
+                                ? 'bg-amber-50 text-amber-700 border border-amber-100' 
+                                : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
+                            }`}>
+                              {customerType}
+                            </span>
+                            {displayVat ? (
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 text-[11px] font-bold uppercase tracking-wider">
+                                VAT: {displayVat}
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-100 text-slate-500 border border-slate-200 text-[11px] font-medium uppercase tracking-wider">
+                                No Tax ID
                               </span>
                             )}
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col gap-1.5">
-                          {phone && phone !== '-' && (
-                            <div className="flex items-center gap-2 text-[13px] text-slate-600">
-                              <div className="h-6 w-6 rounded flex items-center justify-center bg-slate-100 text-slate-500">
-                                <FiPhone size={12} />
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => toggleExpand(customer.id)}
+                            className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-bold transition-colors"
+                          >
+                            <span>Sales Orders</span>
+                            {isExpanded ? <FiChevronUp /> : <FiChevronDown />}
+                          </button>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                          <button
+                            onClick={() => setViewCustomer(customer)}
+                            className="inline-flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:border-slate-300 hover:text-indigo-600 active:scale-95"
+                          >
+                            <FiEye className="text-slate-400 group-hover:text-indigo-500" />
+                            View Details
+                          </button>
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr>
+                          <td colSpan={5} className="px-8 py-4 bg-gray-50/50">
+                            {loadingSOsMap[customer.id] ? (
+                              <div className="flex justify-center items-center py-4">
+                                <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
                               </div>
-                              <span className="font-medium">{phone}</span>
-                            </div>
-                          )}
-                          {email && email !== '-' && (
-                            <div className="flex items-center gap-2 text-[13px] text-slate-500">
-                              <div className="h-6 w-6 rounded flex items-center justify-center bg-slate-100 text-slate-400">
-                                <FiMail size={12} />
+                            ) : !customerSOsMap[customer.id] || customerSOsMap[customer.id].length === 0 ? (
+                              <div className="text-center py-4 text-gray-500 text-sm italic">
+                                No sales orders found for this customer in inventory.
                               </div>
-                              <span className="truncate max-w-[180px]">{email}</span>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider ${
-                            customerType === 'INDIVIDUAL' 
-                              ? 'bg-amber-50 text-amber-700 border border-amber-100' 
-                              : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
-                          }`}>
-                            {customerType}
-                          </span>
-                          {displayVat ? (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 text-[11px] font-bold uppercase tracking-wider">
-                              VAT: {displayVat}
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-100 text-slate-500 border border-slate-200 text-[11px] font-medium uppercase tracking-wider">
-                              No Tax ID
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <button
-                          onClick={() => setViewCustomer(customer)}
-                          className="inline-flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:border-slate-300 hover:text-indigo-600 active:scale-95"
-                        >
-                          <FiEye className="text-slate-400 group-hover:text-indigo-500" />
-                          View Details
-                        </button>
-                      </td>
-                    </tr>
+                            ) : (
+                              <div className="border border-gray-100 rounded-lg overflow-hidden bg-white shadow-sm">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                  <thead className="bg-gray-50">
+                                    <tr>
+                                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">SO Number</th>
+                                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Created Date</th>
+                                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total Amount</th>
+                                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                      <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-gray-100">
+                                    {customerSOsMap[customer.id].map(so => (
+                                      <tr key={so.id} className="hover:bg-gray-50/80">
+                                        <td className="px-4 py-2.5 whitespace-nowrap text-sm font-medium text-blue-600 flex items-center gap-1.5">
+                                          <FiFileText className="text-gray-400" />
+                                          <span>{`SO-${String(so.id).padStart(3, '0')}`}</span>
+                                        </td>
+                                        <td className="px-4 py-2.5 whitespace-nowrap text-xs text-gray-500">
+                                          {so.createdAt ? new Date(so.createdAt).toLocaleDateString() : '-'}
+                                        </td>
+                                        <td className="px-4 py-2.5 whitespace-nowrap text-sm font-bold text-gray-900">
+                                          Rs. {Number(so.projectedTotal || so.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                        </td>
+                                        <td className="px-4 py-2.5 whitespace-nowrap">
+                                          <span className={`px-2 inline-flex text-[10px] leading-4 font-semibold rounded-full ${
+                                            so.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                          }`}>
+                                            {so.status}
+                                          </span>
+                                        </td>
+                                        <td className="px-4 py-2.5 whitespace-nowrap text-right text-xs">
+                                          <button
+                                            onClick={() => setSelectedSO(so)}
+                                            className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 font-semibold"
+                                          >
+                                            <FiEye /> View Detail
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   );
                 })}
               </tbody>
@@ -328,6 +437,88 @@ const CustomersList = () => {
               <div className="mt-6 flex justify-end">
                 <button onClick={() => setViewCustomer(null)} className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-300">Close</button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Sales Order Details Modal */}
+      {selectedSO && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-800">Sales Order Details</h2>
+              <button 
+                className="text-slate-400 hover:text-slate-600 text-2xl" 
+                onClick={() => setSelectedSO(null)}
+              >
+                &times;
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-slate-500 block">SO Number</span>
+                  <span className="font-bold text-slate-800">{`SO-${String(selectedSO.id).padStart(3, '0')}`}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block">Status</span>
+                  <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${
+                    selectedSO.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {selectedSO.status}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block">Created At</span>
+                  <span className="font-semibold text-slate-700">
+                    {selectedSO.createdAt ? new Date(selectedSO.createdAt).toLocaleDateString() : '-'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block">Total Amount</span>
+                  <span className="font-bold text-indigo-600">
+                    Rs. {Number(selectedSO.projectedTotal || selectedSO.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+              </div>
+
+              <div className="border-t border-slate-100 pt-4">
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Items</h3>
+                <div className="max-h-60 overflow-y-auto border border-slate-100 rounded-lg">
+                  <table className="min-w-full divide-y divide-slate-100 text-sm">
+                    <thead className="bg-slate-50">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-xs font-bold text-slate-500">Product</th>
+                        <th className="px-4 py-2 text-center text-xs font-bold text-slate-500">Qty</th>
+                        <th className="px-4 py-2 text-right text-xs font-bold text-slate-500">Unit Price</th>
+                        <th className="px-4 py-2 text-right text-xs font-bold text-slate-500">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {selectedSO.items?.map((item, idx) => {
+                        const productName = productMap[item.productId] || `Product #${item.productId}`;
+                        const totalAmount = (item.quantity || 0) * (item.unitPrice || 0);
+                        return (
+                          <tr key={idx} className="hover:bg-slate-50/50">
+                            <td className="px-4 py-2 text-slate-700">{productName}</td>
+                            <td className="px-4 py-2 text-center text-slate-700">{item.quantity}</td>
+                            <td className="px-4 py-2 text-right text-slate-700">Rs. {Number(item.unitPrice || 0).toFixed(2)}</td>
+                            <td className="px-4 py-2 text-right font-semibold text-slate-900">Rs. {totalAmount.toFixed(2)}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div className="px-6 py-4 bg-slate-50 flex justify-end">
+              <button 
+                onClick={() => setSelectedSO(null)}
+                className="px-4 py-2 bg-slate-950 text-white text-sm font-bold rounded-lg hover:bg-slate-800 transition-colors"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

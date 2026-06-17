@@ -78,4 +78,24 @@ public class ExternalIntegrationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
+
+    @GetMapping("/inventory-sos/{customerId}")
+    public ResponseEntity<?> getSalesOrdersByCustomerId(
+            @PathVariable Long customerId) {
+        try {
+            log.info("Received request for SOs for customerId: {}", customerId);
+            List<?> salesOrders = 
+                    externalInventoryIntegrationService.getSalesOrdersByCustomerId(customerId);
+            log.info("Successfully retrieved {} SOs for customerId: {}", 
+                    salesOrders.size(), customerId);
+            return ResponseEntity.ok(salesOrders);
+        } catch (Exception e) {
+            log.error("Error retrieving SOs for customerId: {}", customerId, e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            errorResponse.put("timestamp", System.currentTimeMillis());
+            errorResponse.put("customerId", customerId);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
 }

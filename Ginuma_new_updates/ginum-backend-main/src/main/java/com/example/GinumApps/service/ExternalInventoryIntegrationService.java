@@ -487,4 +487,122 @@ public class ExternalInventoryIntegrationService {
             return new ArrayList<>();
         }
     }
+
+    public List<Map<String, Object>> getSalesOrdersByCustomerId(Long customerId) {
+        try {
+            log.info("Fetching sales orders for customerId: {}", customerId);
+            List<Map<String, Object>> allOrders;
+            if (isMiddeniyaTenant()) {
+                allOrders = fetchAllSalesOrdersFromMiddeniya();
+            } else {
+                allOrders = fetchAllSalesOrdersFromKnoweb();
+            }
+            return allOrders.stream()
+                    .filter(Objects::nonNull)
+                    .filter(order -> {
+                        Object orderCustIdObj = order.get("customerId");
+                        return matchesCustomerId(orderCustIdObj, customerId);
+                    })
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Error fetching sales orders for customerId {}: {}", customerId, e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    private boolean matchesCustomerId(Object orderCustIdObj, Long targetCustomerId) {
+        if (orderCustIdObj == null) return false;
+        try {
+            long orderCustId = Long.parseLong(String.valueOf(orderCustIdObj));
+            return orderCustId == targetCustomerId;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private List<Map<String, Object>> fetchAllSalesOrdersFromMiddeniya() {
+        try {
+            String url = middeniyaInventoryUrl + "/inventory-api/api/orders/sales";
+            log.info("Fetching all sales orders from Middeniya: {}", url);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+            String authorization = resolveRequestHeader("Authorization");
+            if (authorization != null && !authorization.isBlank()) {
+                headers.set(HttpHeaders.AUTHORIZATION, authorization);
+            }
+
+            String currentOrgId = SecurityContextUtil.getCurrentOrganizationId();
+            if (currentOrgId != null && !currentOrgId.isBlank()) {
+                headers.set("X-Org-ID", currentOrgId);
+            }
+
+            copyRequestHeaderIfPresent(headers, "X-Tenant-ID");
+            copyRequestHeaderIfPresent(headers, "X-Industry-Type");
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    String.class
+            );
+
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null || response.getBody().isBlank()) {
+                log.warn("Middeniya sales order list returned status {} with empty body", response.getStatusCode());
+                return new ArrayList<>();
+            }
+
+            return objectMapper.readValue(
+                    response.getBody(),
+                    new TypeReference<List<Map<String, Object>>>() {}
+            );
+        } catch (Exception e) {
+            log.error("Error fetching all sales orders from Middeniya: {}", e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    private List<Map<String, Object>> fetchAllSalesOrdersFromKnoweb() {
+        try {
+            String url = knowebOrderUrl + "/api/orders/sales";
+            log.info("Fetching all sales orders from Knoweb: {}", url);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+            String authorization = resolveRequestHeader("Authorization");
+            if (authorization != null && !authorization.isBlank()) {
+                headers.set(HttpHeaders.AUTHORIZATION, authorization);
+            }
+
+            String currentOrgId = SecurityContextUtil.getCurrentOrganizationId();
+            if (currentOrgId != null && !currentOrgId.isBlank()) {
+                headers.set("X-Org-ID", currentOrgId);
+            }
+
+            copyRequestHeaderIfPresent(headers, "X-Tenant-ID");
+            copyRequestHeaderIfPresent(headers, "X-Industry-Type");
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    String.class
+            );
+
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null || response.getBody().isBlank()) {
+                log.warn("Knoweb sales order list returned status {} with empty body", response.getStatusCode());
+                return new ArrayList<>();
+            }
+
+            return objectMapper.readValue(
+                    response.getBody(),
+                    new TypeReference<List<Map<String, Object>>>() {}
+            );
+        } catch (Exception e) {
+            log.error("Error fetching all sales orders from Knoweb: {}", e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
 }
