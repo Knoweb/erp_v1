@@ -129,11 +129,18 @@ function Dashboard() {
         }).length;
       }
 
+      const productPriceMap = {};
+      if (productList.length > 0) {
+        productList.forEach(p => {
+          productPriceMap[p.id] = p.costPrice ?? p.price ?? 0;
+        });
+      }
+
       let totalStockValue = 0;
       if (stockList.length > 0) {
         totalStockValue = stockList.reduce((sum, stock) => {
           const qty = stock.quantity ?? 0;
-          const price = stock.unitPrice ?? stock.unit_price ?? 0;
+          const price = productPriceMap[stock.productId] ?? 0;
           return sum + qty * price;
         }, 0);
       }
