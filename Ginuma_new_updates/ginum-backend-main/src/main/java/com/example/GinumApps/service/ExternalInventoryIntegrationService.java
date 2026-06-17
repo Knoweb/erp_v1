@@ -106,10 +106,9 @@ public class ExternalInventoryIntegrationService {
                     .peek(po -> log.debug("Knoweb PO: id={}, supplierId={}, status={}",
                             po.getId(), po.getSupplierId(), po.getStatus()))
                     .filter(po -> supplierId.equals(po.getSupplierId()))
-                    .filter(po -> "APPROVED".equalsIgnoreCase(po.getStatus()) || "RECEIVED".equalsIgnoreCase(po.getStatus()))
                     .collect(Collectors.toList());
 
-            log.info("Knoweb order service returned {} approved purchase orders for supplierId {}",
+            log.info("Knoweb order service returned {} purchase orders for supplierId {}",
                     filtered.size(), supplierId);
             return filtered;
         } catch (Exception e) {
@@ -161,10 +160,9 @@ public class ExternalInventoryIntegrationService {
                     .peek(po -> log.debug("Middeniya PO: id={}, supplierId={}, status={}",
                             po.getId(), po.getSupplierId(), po.getStatus()))
                     .filter(po -> supplierId.equals(po.getSupplierId()))
-                    .filter(po -> "APPROVED".equalsIgnoreCase(po.getStatus()) || "RECEIVED".equalsIgnoreCase(po.getStatus()))
                     .collect(Collectors.toList());
 
-            log.info("Middeniya droplet returned {} approved purchase orders for supplierId {}",
+            log.info("Middeniya droplet returned {} purchase orders for supplierId {}",
                     filtered.size(), supplierId);
             return filtered;
         } catch (Exception e) {
