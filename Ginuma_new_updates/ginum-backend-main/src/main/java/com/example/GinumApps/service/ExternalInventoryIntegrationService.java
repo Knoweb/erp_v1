@@ -3,6 +3,8 @@ package com.example.GinumApps.service;
 import com.example.GinumApps.client.InventoryClient;
 import com.example.GinumApps.dto.external.InventoryPoResponseDto;
 import com.example.GinumApps.dto.external.InventoryProductResponseDto;
+import com.example.GinumApps.model.Customer;
+import com.example.GinumApps.repository.CustomerRepository;
 import com.example.GinumApps.util.SecurityContextUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,6 +36,7 @@ public class ExternalInventoryIntegrationService {
     private final InventoryClient inventoryClient;
     private final ObjectMapper objectMapper;
     private final org.springframework.web.client.RestTemplate restTemplate;
+    private final CustomerRepository customerRepository;
 
     @Value("${inventory.url.middeniya:http://178.128.221.122:3002}")
     private String middeniyaInventoryUrl;
@@ -491,6 +494,19 @@ public class ExternalInventoryIntegrationService {
     public List<Map<String, Object>> getSalesOrdersByCustomerId(Long customerId) {
         try {
             log.info("Fetching sales orders for customerId: {}", customerId);
+
+            String customerName = customerRepository.findById(customerId)
+                    .map(Customer::getName)
+                    .orElse(null);
+
+            if (customerName == null || customerName.isBlank()) {
+                log.warn("Customer not found or has blank name for ID: {}", customerId);
+                return new ArrayList<>();
+            }
+
+            String targetNameLower = customerName.trim().toLowerCase();
+            log.info("Filtering sales orders for customer name: '{}'", customerName);
+
             List<Map<String, Object>> allOrders;
             if (isMiddeniyaTenant()) {
                 allOrders = fetchAllSalesOrdersFromMiddeniya();
@@ -500,23 +516,19 @@ public class ExternalInventoryIntegrationService {
             return allOrders.stream()
                     .filter(Objects::nonNull)
                     .filter(order -> {
-                        Object orderCustIdObj = order.get("customerId");
-                        return matchesCustomerId(orderCustIdObj, customerId);
+                        Object orderCustNameObj = order.get("customerName");
+                        if (orderCustNameObj == null) {
+                            return false;
+                        }
+                        String orderCustName = String.valueOf(orderCustNameObj).trim().toLowerCase();
+                        return orderCustName.equals(targetNameLower) || 
+                               orderCustName.contains(targetNameLower) || 
+                               targetNameLower.contains(orderCustName);
                     })
                     .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("Error fetching sales orders for customerId {}: {}", customerId, e.getMessage(), e);
             return new ArrayList<>();
-        }
-    }
-
-    private boolean matchesCustomerId(Object orderCustIdObj, Long targetCustomerId) {
-        if (orderCustIdObj == null) return false;
-        try {
-            long orderCustId = Long.parseLong(String.valueOf(orderCustIdObj));
-            return orderCustId == targetCustomerId;
-        } catch (NumberFormatException e) {
-            return false;
         }
     }
 
