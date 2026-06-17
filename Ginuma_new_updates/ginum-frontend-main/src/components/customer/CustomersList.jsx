@@ -49,7 +49,9 @@ const CustomersList = () => {
     }
   };
 
-  const toggleExpand = async (customerId) => {
+  const toggleExpand = async (customer) => {
+    const customerId = customer.id;
+    const displayName = customer.name || customer.customerName || '';
     const isExpanded = !expandedCustomers[customerId];
     setExpandedCustomers(prev => ({
       ...prev,
@@ -59,7 +61,7 @@ const CustomersList = () => {
     if (isExpanded && !customerSOsMap[customerId]) {
       try {
         setLoadingSOsMap(prev => ({ ...prev, [customerId]: true }));
-        const data = await api.get(`/api/finance/external/inventory-sos/${customerId}`);
+        const data = await api.get(`/api/finance/external/inventory-sos/${customerId}?name=${encodeURIComponent(displayName)}`);
         setCustomerSOsMap(prev => ({
           ...prev,
           [customerId]: Array.isArray(data) ? data : []
@@ -258,7 +260,7 @@ const CustomersList = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <button
-                            onClick={() => toggleExpand(customer.id)}
+                            onClick={() => toggleExpand(customer)}
                             className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-bold transition-colors"
                           >
                             <span>Sales Orders</span>

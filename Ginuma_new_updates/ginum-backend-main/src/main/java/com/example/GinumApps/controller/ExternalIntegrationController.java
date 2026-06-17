@@ -81,11 +81,12 @@ public class ExternalIntegrationController {
 
     @GetMapping("/inventory-sos/{customerId}")
     public ResponseEntity<?> getSalesOrdersByCustomerId(
-            @PathVariable Long customerId) {
+            @PathVariable Long customerId,
+            @RequestParam(value = "name", required = false) String name) {
         try {
-            log.info("Received request for SOs for customerId: {}", customerId);
+            log.info("Received request for SOs for customerId: {}, name: {}", customerId, name);
             List<?> salesOrders = 
-                    externalInventoryIntegrationService.getSalesOrdersByCustomerId(customerId);
+                    externalInventoryIntegrationService.getSalesOrdersByCustomerId(customerId, name);
             log.info("Successfully retrieved {} SOs for customerId: {}", 
                     salesOrders.size(), customerId);
             return ResponseEntity.ok(salesOrders);

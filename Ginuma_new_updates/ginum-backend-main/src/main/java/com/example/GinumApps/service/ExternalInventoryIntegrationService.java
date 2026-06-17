@@ -491,13 +491,16 @@ public class ExternalInventoryIntegrationService {
         }
     }
 
-    public List<Map<String, Object>> getSalesOrdersByCustomerId(Long customerId) {
+    public List<Map<String, Object>> getSalesOrdersByCustomerId(Long customerId, String name) {
         try {
-            log.info("Fetching sales orders for customerId: {}", customerId);
+            log.info("Fetching sales orders for customerId: {}, name: {}", customerId, name);
 
-            String customerName = customerRepository.findById(customerId)
-                    .map(Customer::getName)
-                    .orElse(null);
+            String customerName = name;
+            if (customerName == null || customerName.isBlank()) {
+                customerName = customerRepository.findById(customerId)
+                        .map(Customer::getName)
+                        .orElse(null);
+            }
 
             if (customerName == null || customerName.isBlank()) {
                 log.warn("Customer not found or has blank name for ID: {}", customerId);
