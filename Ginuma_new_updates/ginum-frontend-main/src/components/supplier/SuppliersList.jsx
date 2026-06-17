@@ -201,7 +201,7 @@ const SuppliersList = () => {
                                       <tr key={po.id} className="hover:bg-gray-50/80">
                                         <td className="px-4 py-2.5 whitespace-nowrap text-sm font-medium text-blue-600 flex items-center gap-1.5">
                                           <FiFileText className="text-gray-400" />
-                                          <span>{po.poNumber}</span>
+                                          <span>{`PO-${String(po.id).padStart(3, '0')}`}</span>
                                         </td>
                                         <td className="px-4 py-2.5 whitespace-nowrap text-xs text-gray-500">
                                           {po.createdAt ? new Date(po.createdAt).toLocaleDateString() : '-'}
@@ -259,7 +259,7 @@ const SuppliersList = () => {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-slate-500 block">PO Number</span>
-                  <span className="font-bold text-slate-800">{selectedPO.poNumber}</span>
+                  <span className="font-bold text-slate-800">{`PO-${String(selectedPO.id).padStart(3, '0')}`}</span>
                 </div>
                 <div>
                   <span className="text-slate-500 block">Status</span>

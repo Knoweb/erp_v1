@@ -13,6 +13,7 @@ import java.util.List;
 public class InventoryPoResponseDto {
     private Long id;
     private Long orgId;
+    @JsonAlias({"poNumber", "refNo", "ref_no"})
     private String poNumber;
     private Long supplierId;
 
