@@ -121,6 +121,8 @@ const CreatePurchase = () => {
               const unitPrice = Number(poItem.unitPrice || poItem.price) || 0;
               const discount = Number(poItem.discount) || 0;
               const receivedQuantity = Number(poItem.receivedQuantity !== undefined ? poItem.receivedQuantity : poItem.received_quantity) || 0;
+              const returnedQuantity = Number(poItem.returnedQuantity !== undefined ? poItem.returnedQuantity : poItem.returned_quantity) || 0;
+              const netQty = receivedQuantity - returnedQuantity;
 
               if (receivedQuantity <= 0) {
                 return null;
@@ -138,14 +140,17 @@ const CreatePurchase = () => {
                   matchedItem?.expenseAccount?.code ||
                   matchedItem?.expenseAccount?.name ||
                   "",
-                quantity: quantity ? quantity.toString() : "",
+                orderedQty: quantity,
+                quantity: netQty > 0 ? netQty.toString() : "",
                 unitPrice: unitPrice ? unitPrice.toString() : "",
                 discount: discount ? discount.toString() : "0",
-                amount: (quantity * unitPrice * (1 - discount / 100)).toFixed(2),
+                amount: (netQty * unitPrice * (1 - discount / 100)).toFixed(2),
                 parentPoNumber: poDisplayNumber,
                 sourcePoId: po.id,
                 itemName: matchedItem?.name || matchedItem?.description || poItem.description || `Item ID: ${itemKey}`,
                 receivedQuantity: receivedQuantity,
+                returnedQuantity: returnedQuantity,
+                netQty: netQty,
                 remainingQuantity: remainingQuantity,
               };
             })
@@ -824,7 +829,7 @@ const CreatePurchase = () => {
                             const itemLabel = item.itemName || item.description || `Item ${item.itemId}`;
                             return (
                               <option key={itemValue} value={itemValue}>
-                                {item.parentPoNumber} | {itemLabel} | Received: {item.receivedQuantity} | Remaining: {item.remainingQuantity}
+                                {item.parentPoNumber} | {itemLabel} | Ordered: {item.orderedQty} | Received: {item.receivedQuantity} | Returned: {item.returnedQuantity} | NetQTY: {item.netQty}
                               </option>
                             );
                           })}
