@@ -110,7 +110,7 @@ const CreatePurchase = () => {
         const existingBillsList = Array.isArray(existingBillsRes) ? existingBillsRes : (existingBillsRes?.data || []);
         const billedPoNumbers = new Set(
           existingBillsList
-            .map(b => b.poNumber)
+            .map(b => b.purchaseOrderNumber)
             .filter(Boolean)
         );
 
