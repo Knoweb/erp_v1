@@ -67,16 +67,6 @@ const CreatePurchase = () => {
     });
   };
 
-  const normalizePoNumber = (poStr) => {
-    if (poStr === null || poStr === undefined) return "";
-    const str = String(poStr);
-    const match = str.match(/\d+/);
-    if (match) {
-      return `PO-${match[0].padStart(5, "0")}`;
-    }
-    return str.trim().toUpperCase();
-  };
-
   const [subtotal, setSubtotal] = useState(0);
   const [freight, setFreight] = useState(0);
   const [taxes, setTaxes] = useState([]);
@@ -120,11 +110,9 @@ const CreatePurchase = () => {
         const existingBillsList = Array.isArray(existingBillsRes) ? existingBillsRes : (existingBillsRes?.data || []);
         const billedPoNumbers = new Set(
           existingBillsList
-            .map(b => b.purchaseOrderNumber ? normalizePoNumber(b.purchaseOrderNumber) : "")
+            .map(b => b.purchaseOrderNumber)
             .filter(Boolean)
         );
-
-        console.log("Existing Billed POs (normalized):", Array.from(billedPoNumbers));
 
         const posList = Array.isArray(data) ? data : [];
         const flattenedItems = posList.flatMap((po) => {
@@ -151,10 +139,7 @@ const CreatePurchase = () => {
               }
 
               const remainingQuantity = Math.max(quantity - receivedQuantity, 0);
-              const normPoNum = normalizePoNumber(poDisplayNumber);
-              const isBilled = billedPoNumbers.has(normPoNum);
-
-              console.log(`PO item parentPoNumber: ${poDisplayNumber}, normalized: ${normPoNum}, isBilled: ${isBilled}`);
+              const isBilled = billedPoNumbers.has(poDisplayNumber);
 
               return {
                 selectionKey: `${po.id || poDisplayNumber}-${itemKey}-${index}`,
