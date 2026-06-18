@@ -311,7 +311,7 @@ const CustomersList = () => {
                                           {so.createdAt ? new Date(so.createdAt).toLocaleDateString() : '-'}
                                         </td>
                                         <td className="px-4 py-2.5 whitespace-nowrap text-sm font-bold text-gray-900">
-                                          Rs. {Number(so.projectedTotal || so.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                          Rs. {Number(so.totalAmount || so.projectedTotal || so.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                         </td>
                                         <td className="px-4 py-2.5 whitespace-nowrap">
                                           <span className={`px-2 inline-flex text-[10px] leading-4 font-semibold rounded-full ${
@@ -479,7 +479,7 @@ const CustomersList = () => {
                 <div>
                   <span className="text-slate-500 block">Total Amount</span>
                   <span className="font-bold text-indigo-600">
-                    Rs. {Number(selectedSO.projectedTotal || selectedSO.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    Rs. {Number(selectedSO.totalAmount || selectedSO.projectedTotal || selectedSO.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>
