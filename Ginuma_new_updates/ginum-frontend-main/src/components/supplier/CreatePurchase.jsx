@@ -103,7 +103,17 @@ const CreatePurchase = () => {
       }
 
       try {
-        const data = await api.get(`/api/finance/external/inventory-pos/${supplierId}`);
+        const [data, existingBillsRes] = await Promise.all([
+          api.get(`/api/finance/external/inventory-pos/${supplierId}`),
+          api.get(`/api/${companyId}/purchase-orders`).catch(() => [])
+        ]);
+        const existingBillsList = Array.isArray(existingBillsRes) ? existingBillsRes : (existingBillsRes?.data || []);
+        const billedPoNumbers = new Set(
+          existingBillsList
+            .map(b => b.poNumber)
+            .filter(Boolean)
+        );
+
         const posList = Array.isArray(data) ? data : [];
         const flattenedItems = posList.flatMap((po) => {
           const poDisplayNumber = getPoDisplayNumber(po);
@@ -129,6 +139,7 @@ const CreatePurchase = () => {
               }
 
               const remainingQuantity = Math.max(quantity - receivedQuantity, 0);
+              const isBilled = billedPoNumbers.has(poDisplayNumber);
 
               return {
                 selectionKey: `${po.id || poDisplayNumber}-${itemKey}-${index}`,
@@ -152,6 +163,7 @@ const CreatePurchase = () => {
                 returnedQuantity: returnedQuantity,
                 netQty: netQty,
                 remainingQuantity: remainingQuantity,
+                isBilled: isBilled,
               };
             })
             .filter(Boolean);
@@ -829,7 +841,7 @@ const CreatePurchase = () => {
                             const itemLabel = item.itemName || item.description || `Item ${item.itemId}`;
                             return (
                               <option key={itemValue} value={itemValue}>
-                                {item.parentPoNumber} | {itemLabel} | Ordered: {item.orderedQty} | Received: {item.receivedQuantity} | Returned: {item.returnedQuantity} | NetQTY: {item.netQty}
+                                {item.parentPoNumber} | {itemLabel} | Ordered: {item.orderedQty} | Received: {item.receivedQuantity} | Returned: {item.returnedQuantity} | NetQTY: {item.netQty}{item.isBilled ? ' (Already Billed)' : ''}
                               </option>
                             );
                           })}
