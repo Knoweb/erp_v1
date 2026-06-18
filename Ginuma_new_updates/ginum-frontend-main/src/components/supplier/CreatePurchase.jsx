@@ -120,6 +120,13 @@ const CreatePurchase = () => {
               const quantity = Number(poItem.quantity) || 0;
               const unitPrice = Number(poItem.unitPrice || poItem.price) || 0;
               const discount = Number(poItem.discount) || 0;
+              const receivedQuantity = Number(poItem.receivedQuantity !== undefined ? poItem.receivedQuantity : poItem.received_quantity) || 0;
+
+              if (receivedQuantity <= 0) {
+                return null;
+              }
+
+              const remainingQuantity = Math.max(quantity - receivedQuantity, 0);
 
               return {
                 selectionKey: `${po.id || poDisplayNumber}-${itemKey}-${index}`,
@@ -138,6 +145,8 @@ const CreatePurchase = () => {
                 parentPoNumber: poDisplayNumber,
                 sourcePoId: po.id,
                 itemName: matchedItem?.name || matchedItem?.description || poItem.description || `Item ID: ${itemKey}`,
+                receivedQuantity: receivedQuantity,
+                remainingQuantity: remainingQuantity,
               };
             })
             .filter(Boolean);
@@ -232,11 +241,15 @@ const CreatePurchase = () => {
 
   const getPoDisplayNumber = (po) => {
     if (po?.poNumber) {
+      const match = po.poNumber.match(/\d+/);
+      if (match) {
+        return `PO-${match[0].padStart(5, "0")}`;
+      }
       return po.poNumber;
     }
 
     if (po?.id) {
-      return `PO-${String(po.id).padStart(3, "0")}`;
+      return `PO-${String(po.id).padStart(5, "0")}`;
     }
 
     return "PO-UNKNOWN";
@@ -811,8 +824,7 @@ const CreatePurchase = () => {
                             const itemLabel = item.itemName || item.description || `Item ${item.itemId}`;
                             return (
                               <option key={itemValue} value={itemValue}>
-                                {itemLabel}
-                                {item.parentPoNumber ? ` (${item.parentPoNumber})` : ""}
+                                {item.parentPoNumber} | {itemLabel} | Received: {item.receivedQuantity} | Remaining: {item.remainingQuantity}
                               </option>
                             );
                           })}
