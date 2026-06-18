@@ -812,8 +812,8 @@ function Orders() {
     if (!order) return 0;
     if (!order.customerName && (order.status === 'RECEIVED' || order.status === 'RETURNED')) {
       return order.items?.reduce((sum, item) => {
-        const qty = item.receivedQuantity !== undefined && item.receivedQuantity !== null ? item.receivedQuantity : item.quantity;
-        return sum + (qty * item.unitPrice);
+        const qty = (item.receivedQuantity !== undefined && item.receivedQuantity !== null ? item.receivedQuantity : item.quantity) - (item.returnedQuantity || 0);
+        return sum + (Math.max(qty, 0) * item.unitPrice);
       }, 0) || 0;
     }
     return order.totalAmount ?? 0;
@@ -1616,6 +1616,9 @@ function Orders() {
                         item.receivedQuantity !== null;
                       const hasReturned = item.returnedQuantity !== undefined && item.returnedQuantity !== null && item.returnedQuantity > 0;
                       
+                      const netQty = hasReceived ? (item.receivedQuantity - (item.returnedQuantity || 0)) : item.quantity;
+                      const lineTotal = Math.max(netQty, 0) * item.unitPrice;
+                      
                       return (
                         <div key={i} className="p-3 grid grid-cols-3 gap-2 font-bold text-slate-600 hover:bg-slate-50 transition-colors items-center">
                           <span className="truncate">{getProductName(item.productId)}</span>
@@ -1628,7 +1631,7 @@ function Orders() {
                               <span className="block text-[10px] text-rose-600 font-bold">Returned: {item.returnedQuantity}</span>
                             )}
                           </span>
-                          <span className={`text-right ${viewOrder.customerName ? 'text-emerald-600' : 'text-indigo-600'}`}>Rs.{Number(item.unitPrice).toFixed(2)}</span>
+                          <span className={`text-right ${viewOrder.customerName ? 'text-emerald-600' : 'text-indigo-600'}`}>Rs.{Number(lineTotal).toFixed(2)}</span>
                         </div>
                       );
                     })}
