@@ -19,6 +19,20 @@ const SuppliersList = () => {
   const companyId = localStorage.getItem("companyId");
   const token = localStorage.getItem("auth_token");
 
+  const getPOTotal = (po) => {
+    if (po.items && po.items.length > 0) {
+      return po.items.reduce((sum, item) => {
+        const receivedQty = item.receivedQuantity !== undefined ? item.receivedQuantity : (item.received_quantity !== undefined ? item.received_quantity : undefined);
+        const hasReceived = receivedQty !== undefined;
+        const returnedQty = item.returnedQuantity !== undefined ? item.returnedQuantity : (item.returned_quantity !== undefined ? item.returned_quantity : 0);
+        const netQty = hasReceived ? (receivedQty - returnedQty) : item.quantity;
+        const unitPrice = item.unitPrice !== undefined ? item.unitPrice : (item.price !== undefined ? item.price : 0);
+        return sum + (netQty * unitPrice);
+      }, 0);
+    }
+    return po.projectedTotal !== undefined ? po.projectedTotal : (po.totalAmount !== undefined ? po.totalAmount : 0);
+  };
+
   const fetchSuppliers = async () => {
     try {
       if (!companyId || !token) {
@@ -207,7 +221,7 @@ const SuppliersList = () => {
                                           {po.createdAt ? new Date(po.createdAt).toLocaleDateString() : '-'}
                                         </td>
                                         <td className="px-4 py-2.5 whitespace-nowrap text-sm font-bold text-gray-900">
-                                          Rs. {Number(po.projectedTotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                          Rs. {Number(getPOTotal(po)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                         </td>
                                         <td className="px-4 py-2.5 whitespace-nowrap">
                                           <span className={`px-2 inline-flex text-[10px] leading-4 font-semibold rounded-full ${
@@ -278,7 +292,7 @@ const SuppliersList = () => {
                 <div>
                   <span className="text-slate-500 block">Total Amount</span>
                   <span className="font-bold text-indigo-600">
-                    Rs. {Number(selectedPO.projectedTotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    Rs. {Number(getPOTotal(selectedPO)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>
