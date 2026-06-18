@@ -245,7 +245,7 @@ const SuppliersList = () => {
       {/* Details Modal */}
       {selectedPO && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-lg font-bold text-slate-800">Purchase Order Details</h2>
               <button 
@@ -290,7 +290,10 @@ const SuppliersList = () => {
                     <thead className="bg-slate-50">
                       <tr>
                         <th className="px-4 py-2 text-left text-xs font-bold text-slate-500">Product</th>
-                        <th className="px-4 py-2 text-center text-xs font-bold text-slate-500">Qty</th>
+                        <th className="px-4 py-2 text-center text-xs font-bold text-slate-500">Ordered</th>
+                        <th className="px-4 py-2 text-center text-xs font-bold text-slate-500">Received</th>
+                        <th className="px-4 py-2 text-center text-xs font-bold text-slate-500">Returned</th>
+                        <th className="px-4 py-2 text-center text-xs font-bold text-slate-500">Net Qty</th>
                         <th className="px-4 py-2 text-right text-xs font-bold text-slate-500">Unit Price</th>
                         <th className="px-4 py-2 text-right text-xs font-bold text-slate-500">Total</th>
                       </tr>
@@ -298,11 +301,16 @@ const SuppliersList = () => {
                     <tbody className="divide-y divide-slate-100">
                       {selectedPO.items?.map((item, idx) => {
                         const productName = productMap[item.productId] || `Product #${item.productId}`;
-                        const total = (item.quantity || 0) * (item.unitPrice || 0);
+                        const hasReceived = item.receivedQuantity !== undefined;
+                        const netQty = hasReceived ? (item.receivedQuantity - (item.returnedQuantity || 0)) : item.quantity;
+                        const total = netQty * (item.unitPrice || 0);
                         return (
                           <tr key={idx} className="hover:bg-slate-50/50">
-                            <td className="px-4 py-2 text-slate-700">{productName}</td>
+                            <td className="px-4 py-2 text-slate-700 font-medium">{productName}</td>
                             <td className="px-4 py-2 text-center text-slate-700">{item.quantity}</td>
+                            <td className="px-4 py-2 text-center text-emerald-600">{hasReceived ? item.receivedQuantity : '-'}</td>
+                            <td className="px-4 py-2 text-center text-rose-600">{item.returnedQuantity || 0}</td>
+                            <td className="px-4 py-2 text-center text-blue-600">{hasReceived ? netQty : item.quantity}</td>
                             <td className="px-4 py-2 text-right text-slate-700">Rs. {Number(item.unitPrice || 0).toFixed(2)}</td>
                             <td className="px-4 py-2 text-right font-semibold text-slate-900">Rs. {total.toFixed(2)}</td>
                           </tr>
