@@ -68,12 +68,13 @@ const CreatePurchase = () => {
   };
 
   const normalizePoNumber = (poStr) => {
-    if (!poStr) return "";
-    const match = poStr.match(/\d+/);
+    if (poStr === null || poStr === undefined) return "";
+    const str = String(poStr);
+    const match = str.match(/\d+/);
     if (match) {
       return `PO-${match[0].padStart(5, "0")}`;
     }
-    return poStr.trim().toUpperCase();
+    return str.trim().toUpperCase();
   };
 
   const [subtotal, setSubtotal] = useState(0);
