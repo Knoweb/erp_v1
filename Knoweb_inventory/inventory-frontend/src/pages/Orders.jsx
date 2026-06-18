@@ -1226,12 +1226,12 @@ function Orders() {
             ${isReceivedOrReturned ? `
             <tfoot>
               <tr style="background-color: #f8fafc; font-weight: 800; border-top: 2px solid #e2e8f0; font-size: 13px;">
-                <td style="padding: 12px; text-align: left; color: #475569;">Total Summary</td>
-                <td style="padding: 12px; text-align: center; color: #475569;">Rs. ${(order.items?.reduce((sum, it) => sum + ((it.quantity || 0) * it.unitPrice), 0) || 0).toFixed(2)}</td>
-                <td style="padding: 12px; text-align: center; color: #10b981;">Rs. ${(order.items?.reduce((sum, it) => sum + ((it.receivedQuantity || 0) * it.unitPrice), 0) || 0).toFixed(2)}</td>
-                <td style="padding: 12px; text-align: center; color: #ef4444;">Rs. ${(order.items?.reduce((sum, it) => sum + ((it.returnedQuantity || 0) * it.unitPrice), 0) || 0).toFixed(2)}</td>
-                <td style="padding: 12px; text-align: center; color: #2563eb;">Rs. ${computedTotal.toFixed(2)}</td>
-                <td style="padding: 12px; text-align: right; color: #4f46e5; font-size: 14px;">Rs. ${computedTotal.toFixed(2)}</td>
+                <td style="padding: 12px; text-align: left; color: #475569;">Total Summary (Rs.)</td>
+                <td style="padding: 12px; text-align: center; color: #475569;">${(order.items?.reduce((sum, it) => sum + ((it.quantity || 0) * it.unitPrice), 0) || 0).toFixed(2)}</td>
+                <td style="padding: 12px; text-align: center; color: #10b981;">${(order.items?.reduce((sum, it) => sum + ((it.receivedQuantity || 0) * it.unitPrice), 0) || 0).toFixed(2)}</td>
+                <td style="padding: 12px; text-align: center; color: #ef4444;">${(order.items?.reduce((sum, it) => sum + ((it.returnedQuantity || 0) * it.unitPrice), 0) || 0).toFixed(2)}</td>
+                <td style="padding: 12px; text-align: center; color: #2563eb;">${computedTotal.toFixed(2)}</td>
+                <td style="padding: 12px; text-align: right; color: #4f46e5; font-size: 14px;">${computedTotal.toFixed(2)}</td>
               </tr>
             </tfoot>
             ` : ''}
@@ -1656,12 +1656,12 @@ function Orders() {
                     {!viewOrder.customerName && (viewOrder.status === 'RECEIVED' || viewOrder.status === 'RETURNED') && (
                       <tfoot>
                         <tr className="bg-slate-50/50 font-black border-t border-slate-100 text-[11px] text-slate-700">
-                          <td className="p-3 text-left">Total Summary</td>
-                          <td className="p-3 text-center">Rs.{viewOrder.items?.reduce((sum, item) => sum + ((item.quantity || 0) * item.unitPrice), 0).toFixed(2)}</td>
-                          <td className="p-3 text-center text-emerald-700">Rs.{viewOrder.items?.reduce((sum, item) => sum + ((item.receivedQuantity || 0) * item.unitPrice), 0).toFixed(2)}</td>
-                          <td className="p-3 text-center text-rose-700">Rs.{viewOrder.items?.reduce((sum, item) => sum + ((item.returnedQuantity || 0) * item.unitPrice), 0).toFixed(2)}</td>
-                          <td className="p-3 text-center text-blue-700">Rs.{viewOrder.items?.reduce((sum, item) => sum + (((item.receivedQuantity || 0) - (item.returnedQuantity || 0)) * item.unitPrice), 0).toFixed(2)}</td>
-                          <td className="p-3 text-right text-indigo-700">Rs.{getViewOrderTotal(viewOrder).toFixed(2)}</td>
+                          <td className="p-3 text-left">Total Summary (Rs.)</td>
+                          <td className="p-3 text-center">{viewOrder.items?.reduce((sum, item) => sum + ((item.quantity || 0) * item.unitPrice), 0).toFixed(2)}</td>
+                          <td className="p-3 text-center text-emerald-700">{viewOrder.items?.reduce((sum, item) => sum + ((item.receivedQuantity || 0) * item.unitPrice), 0).toFixed(2)}</td>
+                          <td className="p-3 text-center text-rose-700">{viewOrder.items?.reduce((sum, item) => sum + ((item.returnedQuantity || 0) * item.unitPrice), 0).toFixed(2)}</td>
+                          <td className="p-3 text-center text-blue-700">{viewOrder.items?.reduce((sum, item) => sum + (((item.receivedQuantity || 0) - (item.returnedQuantity || 0)) * item.unitPrice), 0).toFixed(2)}</td>
+                          <td className="p-3 text-right text-indigo-700">{getViewOrderTotal(viewOrder).toFixed(2)}</td>
                         </tr>
                       </tfoot>
                     )}
