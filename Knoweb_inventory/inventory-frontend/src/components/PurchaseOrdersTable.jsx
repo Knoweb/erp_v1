@@ -187,8 +187,8 @@ function PurchaseOrdersTable({
                                                         const isReceivedOrReturned = order.status === 'RECEIVED' || order.status === 'RETURNED';
                                                         if (isReceivedOrReturned) {
                                                             const computedTotal = order.items?.reduce((sum, item) => {
-                                                                const qty = item.receivedQuantity !== undefined && item.receivedQuantity !== null ? item.receivedQuantity : item.quantity;
-                                                                return sum + (qty * item.unitPrice);
+                                                                const qty = (item.receivedQuantity !== undefined && item.receivedQuantity !== null ? item.receivedQuantity : item.quantity) - (item.returnedQuantity || 0);
+                                                                return sum + (Math.max(qty, 0) * item.unitPrice);
                                                             }, 0) || 0;
                                                             return formatCurrency(computedTotal);
                                                         }

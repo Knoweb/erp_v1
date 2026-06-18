@@ -734,7 +734,7 @@ function ReturnOrderModal({ order, products, onClose, onReturned }) {
                     <p className="text-xs font-black text-slate-700 truncate">{getProductName(item.productId)}</p>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
                       {`Ordered: ${item.quantity}`}
-                      {item.receivedQuantity !== undefined && item.receivedQuantity !== null && ` | Received: ${item.receivedQuantity}`}
+                      {item.receivedQuantity !== undefined && item.receivedQuantity !== null && ` | Received: ${item.receivedQuantity - (item.returnedQuantity || 0)}`}
                       {item.returnedQuantity !== undefined && item.returnedQuantity !== null && item.returnedQuantity > 0 && ` | Returned: ${item.returnedQuantity}`}
                     </p>
                   </div>
@@ -1017,7 +1017,7 @@ function Orders() {
       
       let qtyDetails = `Ordered: ${item.quantity}`;
       if (hasReceived) {
-        qtyDetails += `<br/><span style="font-size: 11px; color: #10b981; font-weight: bold;">Received: ${item.receivedQuantity}</span>`;
+        qtyDetails += `<br/><span style="font-size: 11px; color: #10b981; font-weight: bold;">Received: ${item.receivedQuantity - (item.returnedQuantity || 0)}</span>`;
       }
       if (hasReturned) {
         qtyDetails += `<br/><span style="font-size: 11px; color: #ef4444; font-weight: bold;">Returned: ${item.returnedQuantity}</span>`;
@@ -1625,7 +1625,7 @@ function Orders() {
                           <span className="text-center text-xs">
                             <span className="block font-black text-slate-700">Ordered: {item.quantity}</span>
                             {hasReceived && (
-                              <span className="block text-[10px] text-emerald-600 font-bold">Received: {item.receivedQuantity}</span>
+                              <span className="block text-[10px] text-emerald-600 font-bold">Received: {item.receivedQuantity - (item.returnedQuantity || 0)}</span>
                             )}
                             {hasReturned && (
                               <span className="block text-[10px] text-rose-600 font-bold">Returned: {item.returnedQuantity}</span>
