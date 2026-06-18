@@ -662,8 +662,8 @@ function ReturnOrderModal({ order, products, onClose, onReturned }) {
   const [returnQtys, setReturnQtys] = useState(() => {
     const qtys = {};
     order.items?.forEach(it => {
-      const maxQty = it.receivedQuantity !== undefined && it.receivedQuantity !== null ? it.receivedQuantity : it.quantity;
-      qtys[it.id] = maxQty || 0;
+      const maxQty = (it.receivedQuantity !== undefined && it.receivedQuantity !== null ? it.receivedQuantity : it.quantity) - (it.returnedQuantity || 0);
+      qtys[it.id] = Math.max(maxQty, 0);
     });
     return qtys;
   });
@@ -733,15 +733,16 @@ function ReturnOrderModal({ order, products, onClose, onReturned }) {
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-black text-slate-700 truncate">{getProductName(item.productId)}</p>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                      {item.receivedQuantity !== undefined && item.receivedQuantity !== null ? `Received Qty: ${item.receivedQuantity}` : `Original Qty: ${item.quantity}`}
-                      {item.receivedQuantity !== undefined && item.receivedQuantity !== null && item.receivedQuantity !== item.quantity && ` (Ordered: ${item.quantity})`}
+                      {`Ordered: ${item.quantity}`}
+                      {item.receivedQuantity !== undefined && item.receivedQuantity !== null && ` | Received: ${item.receivedQuantity}`}
+                      {item.returnedQuantity !== undefined && item.returnedQuantity !== null && item.returnedQuantity > 0 && ` | Returned: ${item.returnedQuantity}`}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-black text-slate-400 uppercase">Return:</span>
                     <input
                       type="number"
-                      max={item.receivedQuantity !== undefined && item.receivedQuantity !== null ? item.receivedQuantity : item.quantity}
+                      max={(item.receivedQuantity !== undefined && item.receivedQuantity !== null ? item.receivedQuantity : item.quantity) - (item.returnedQuantity || 0)}
                       min="0"
                       className="w-20 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-black text-slate-800 outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-400"
                       value={returnQtys[item.id] || 0}
@@ -1011,18 +1012,26 @@ function Orders() {
     let computedTotal = 0;
 
     const itemsHtml = order.items?.map((item, idx) => {
-      const displayQty = isReceivedOrReturned && item.receivedQuantity !== undefined && item.receivedQuantity !== null
-        ? item.receivedQuantity
-        : item.quantity;
-      const lineTotal = displayQty * item.unitPrice;
+      const hasReceived = item.receivedQuantity !== undefined && item.receivedQuantity !== null;
+      const hasReturned = item.returnedQuantity !== undefined && item.returnedQuantity !== null && item.returnedQuantity > 0;
+      
+      let qtyDetails = `Ordered: ${item.quantity}`;
+      if (hasReceived) {
+        qtyDetails += `<br/><span style="font-size: 11px; color: #10b981; font-weight: bold;">Received: ${item.receivedQuantity}</span>`;
+      }
+      if (hasReturned) {
+        qtyDetails += `<br/><span style="font-size: 11px; color: #ef4444; font-weight: bold;">Returned: ${item.returnedQuantity}</span>`;
+      }
+      
+      const netQty = hasReceived ? (item.receivedQuantity - (item.returnedQuantity || 0)) : item.quantity;
+      const lineTotal = netQty * item.unitPrice;
       computedTotal += lineTotal;
 
       return `
         <tr style="border-bottom: 1px solid #f1f5f9;">
           <td style="padding: 12px; font-weight: bold; color: #334155;">${getProductName(item.productId)}</td>
-          <td style="padding: 12px; text-align: center; color: #475569;">
-            ${displayQty}
-            ${isReceivedOrReturned && item.receivedQuantity !== undefined && item.receivedQuantity !== null && item.receivedQuantity !== item.quantity ? `<span style="font-size: 10px; color: #94a3b8; display: block;">(Ordered: ${item.quantity})</span>` : ''}
+          <td style="padding: 12px; text-align: center; color: #475569; font-size: 13px; line-height: 1.4;">
+            ${qtyDetails}
           </td>
           <td style="padding: 12px; text-align: right; color: #475569;">Rs. ${Number(item.unitPrice).toFixed(2)}</td>
           <td style="padding: 12px; text-align: right; font-weight: bold; color: #0f172a;">Rs. ${lineTotal.toFixed(2)}</td>
@@ -1602,19 +1611,21 @@ function Orders() {
                   </div>
                   <div className="divide-y divide-slate-50">
                     {viewOrder.items?.map((item, i) => {
-                      const hasReceivedQty = !viewOrder.customerName && 
-                        (viewOrder.status === 'RECEIVED' || viewOrder.status === 'RETURNED') && 
+                      const hasReceived = (viewOrder.status === 'RECEIVED' || viewOrder.status === 'RETURNED') &&
                         item.receivedQuantity !== undefined && 
                         item.receivedQuantity !== null;
-                      const displayQty = hasReceivedQty ? item.receivedQuantity : item.quantity;
+                      const hasReturned = item.returnedQuantity !== undefined && item.returnedQuantity !== null && item.returnedQuantity > 0;
                       
                       return (
-                        <div key={i} className="p-3 grid grid-cols-3 gap-2 font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+                        <div key={i} className="p-3 grid grid-cols-3 gap-2 font-bold text-slate-600 hover:bg-slate-50 transition-colors items-center">
                           <span className="truncate">{getProductName(item.productId)}</span>
-                          <span className="text-center">
-                            {displayQty}
-                            {hasReceivedQty && item.receivedQuantity !== item.quantity && (
-                              <span className="text-[10px] text-slate-400 font-medium block">({item.quantity} ordered)</span>
+                          <span className="text-center text-xs">
+                            <span className="block font-black text-slate-700">Ordered: {item.quantity}</span>
+                            {hasReceived && (
+                              <span className="block text-[10px] text-emerald-600 font-bold">Received: {item.receivedQuantity}</span>
+                            )}
+                            {hasReturned && (
+                              <span className="block text-[10px] text-rose-600 font-bold">Returned: {item.returnedQuantity}</span>
                             )}
                           </span>
                           <span className={`text-right ${viewOrder.customerName ? 'text-emerald-600' : 'text-indigo-600'}`}>Rs.{Number(item.unitPrice).toFixed(2)}</span>

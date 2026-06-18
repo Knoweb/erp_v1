@@ -30,6 +30,9 @@ public class PurchaseOrderItem {
     @Column(name = "received_quantity")
     private Integer receivedQuantity;
 
+    @Column(name = "returned_quantity")
+    private Integer returnedQuantity = 0;
+
     @Column(name = "unit_price", precision = 15, scale = 2)
     private BigDecimal unitPrice;
 }

@@ -221,13 +221,12 @@ public class PurchaseOrderService {
                             .orElse(null);
                     
                     if (originalItem != null) {
-                        // Subtract price and quantity
+                        // Subtract price
                         BigDecimal returnPrice = originalItem.getUnitPrice().multiply(new BigDecimal(returnItem.getQuantity()));
                         order.setTotalAmount(order.getTotalAmount().subtract(returnPrice));
-                        originalItem.setQuantity(originalItem.getQuantity() - returnItem.getQuantity());
-                        if (originalItem.getReceivedQuantity() != null) {
-                            originalItem.setReceivedQuantity(originalItem.getReceivedQuantity() - returnItem.getQuantity());
-                        }
+                        
+                        int currentReturned = originalItem.getReturnedQuantity() != null ? originalItem.getReturnedQuantity() : 0;
+                        originalItem.setReturnedQuantity(currentReturned + returnItem.getQuantity());
 
                         // Create a temporary item for sync purposes with the return quantity
                         PurchaseOrderItem syncItem = new PurchaseOrderItem();
