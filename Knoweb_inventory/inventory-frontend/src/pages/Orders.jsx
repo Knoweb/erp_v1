@@ -734,8 +734,9 @@ function ReturnOrderModal({ order, products, onClose, onReturned }) {
                     <p className="text-xs font-black text-slate-700 truncate">{getProductName(item.productId)}</p>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
                       {`Ordered: ${item.quantity}`}
-                      {item.receivedQuantity !== undefined && item.receivedQuantity !== null && ` | Received: ${item.receivedQuantity - (item.returnedQuantity || 0)}`}
+                      {item.receivedQuantity !== undefined && item.receivedQuantity !== null && ` | Received: ${item.receivedQuantity}`}
                       {item.returnedQuantity !== undefined && item.returnedQuantity !== null && item.returnedQuantity > 0 && ` | Returned: ${item.returnedQuantity}`}
+                      {item.receivedQuantity !== undefined && item.receivedQuantity !== null && ` | Net Qty: ${item.receivedQuantity - (item.returnedQuantity || 0)}`}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -1017,10 +1018,13 @@ function Orders() {
       
       let qtyDetails = `Ordered: ${item.quantity}`;
       if (hasReceived) {
-        qtyDetails += `<br/><span style="font-size: 11px; color: #10b981; font-weight: bold;">Received: ${item.receivedQuantity - (item.returnedQuantity || 0)}</span>`;
+        qtyDetails += `<br/><span style="font-size: 11px; color: #10b981; font-weight: bold;">Received: ${item.receivedQuantity}</span>`;
       }
       if (hasReturned) {
         qtyDetails += `<br/><span style="font-size: 11px; color: #ef4444; font-weight: bold;">Returned: ${item.returnedQuantity}</span>`;
+      }
+      if (hasReceived) {
+        qtyDetails += `<br/><span style="font-size: 11px; color: #2563eb; font-weight: bold;">Net Qty: ${item.receivedQuantity - (item.returnedQuantity || 0)}</span>`;
       }
       
       const netQty = hasReceived ? (item.receivedQuantity - (item.returnedQuantity || 0)) : item.quantity;
@@ -1625,10 +1629,13 @@ function Orders() {
                           <span className="text-center text-xs">
                             <span className="block font-black text-slate-700">Ordered: {item.quantity}</span>
                             {hasReceived && (
-                              <span className="block text-[10px] text-emerald-600 font-bold">Received: {item.receivedQuantity - (item.returnedQuantity || 0)}</span>
+                              <span className="block text-[10px] text-emerald-600 font-bold">Received: {item.receivedQuantity}</span>
                             )}
                             {hasReturned && (
                               <span className="block text-[10px] text-rose-600 font-bold">Returned: {item.returnedQuantity}</span>
+                            )}
+                            {hasReceived && (
+                              <span className="block text-[10px] text-blue-600 font-bold">Net Qty: {item.receivedQuantity - (item.returnedQuantity || 0)}</span>
                             )}
                           </span>
                           <span className={`text-right ${viewOrder.customerName ? 'text-emerald-600' : 'text-indigo-600'}`}>Rs.{Number(lineTotal).toFixed(2)}</span>
