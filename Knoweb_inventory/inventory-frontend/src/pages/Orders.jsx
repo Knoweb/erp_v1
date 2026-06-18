@@ -1021,22 +1021,10 @@ function Orders() {
       return `
         <tr style="border-bottom: 1px solid #f1f5f9; font-size: 13px;">
           <td style="padding: 12px; font-weight: bold; color: #334155; text-align: left;">${getProductName(item.productId)}</td>
-          <td style="padding: 12px; text-align: center; color: #475569;">
-            <div>${item.quantity}</div>
-            <div style="font-size: 9px; color: #94a3b8;">Rs. ${(item.quantity * item.unitPrice).toFixed(2)}</div>
-          </td>
-          <td style="padding: 12px; text-align: center; color: #10b981; font-weight: bold;">
-            <div>${hasReceived ? item.receivedQuantity : '-'}</div>
-            ${hasReceived ? `<div style="font-size: 9px; color: #6ee7b7;">Rs. ${(item.receivedQuantity * item.unitPrice).toFixed(2)}</div>` : ''}
-          </td>
-          <td style="padding: 12px; text-align: center; color: #ef4444; font-weight: bold;">
-            <div>${item.returnedQuantity || 0}</div>
-            ${item.returnedQuantity > 0 ? `<div style="font-size: 9px; color: #fca5a5;">Rs. ${(item.returnedQuantity * item.unitPrice).toFixed(2)}</div>` : ''}
-          </td>
-          <td style="padding: 12px; text-align: center; color: #2563eb; font-weight: bold;">
-            <div>${hasReceived ? netQty : item.quantity}</div>
-            <div style="font-size: 9px; color: #93c5fd;">Rs. ${(netQty * item.unitPrice).toFixed(2)}</div>
-          </td>
+          <td style="padding: 12px; text-align: center; color: #475569;">${item.quantity}</td>
+          <td style="padding: 12px; text-align: center; color: #10b981; font-weight: bold;">${hasReceived ? item.receivedQuantity : '-'}</td>
+          <td style="padding: 12px; text-align: center; color: #ef4444; font-weight: bold;">${item.returnedQuantity || 0}</td>
+          <td style="padding: 12px; text-align: center; color: #2563eb; font-weight: bold;">${hasReceived ? netQty : item.quantity}</td>
           <td style="padding: 12px; text-align: right; font-weight: bold; color: #0f172a;">Rs. ${lineTotal.toFixed(2)}</td>
         </tr>
       `;
@@ -1239,22 +1227,10 @@ function Orders() {
             <tfoot>
               <tr style="background-color: #f8fafc; font-weight: 800; border-top: 2px solid #e2e8f0; font-size: 13px;">
                 <td style="padding: 12px; text-align: left; color: #475569;">Total Summary</td>
-                <td style="padding: 12px; text-align: center; color: #475569;">
-                  <div>${order.items?.reduce((sum, it) => sum + (it.quantity || 0), 0) || 0}</div>
-                  <div style="font-size: 9px; color: #94a3b8; font-weight: normal;">Rs. ${(order.items?.reduce((sum, it) => sum + ((it.quantity || 0) * it.unitPrice), 0) || 0).toFixed(2)}</div>
-                </td>
-                <td style="padding: 12px; text-align: center; color: #10b981;">
-                  <div>${order.items?.reduce((sum, it) => sum + (it.receivedQuantity || 0), 0) || 0}</div>
-                  <div style="font-size: 9px; color: #6ee7b7; font-weight: normal;">Rs. ${(order.items?.reduce((sum, it) => sum + ((it.receivedQuantity || 0) * it.unitPrice), 0) || 0).toFixed(2)}</div>
-                </td>
-                <td style="padding: 12px; text-align: center; color: #ef4444;">
-                  <div>${order.items?.reduce((sum, it) => sum + (it.returnedQuantity || 0), 0) || 0}</div>
-                  <div style="font-size: 9px; color: #fca5a5; font-weight: normal;">Rs. ${(order.items?.reduce((sum, it) => sum + ((it.returnedQuantity || 0) * it.unitPrice), 0) || 0).toFixed(2)}</div>
-                </td>
-                <td style="padding: 12px; text-align: center; color: #2563eb;">
-                  <div>${(order.items?.reduce((sum, it) => sum + (it.receivedQuantity || 0), 0) || 0) - (order.items?.reduce((sum, it) => sum + (it.returnedQuantity || 0), 0) || 0)}</div>
-                  <div style="font-size: 9px; color: #93c5fd; font-weight: normal;">Rs. ${computedTotal.toFixed(2)}</div>
-                </td>
+                <td style="padding: 12px; text-align: center; color: #475569;">Rs. ${(order.items?.reduce((sum, it) => sum + ((it.quantity || 0) * it.unitPrice), 0) || 0).toFixed(2)}</td>
+                <td style="padding: 12px; text-align: center; color: #10b981;">Rs. ${(order.items?.reduce((sum, it) => sum + ((it.receivedQuantity || 0) * it.unitPrice), 0) || 0).toFixed(2)}</td>
+                <td style="padding: 12px; text-align: center; color: #ef4444;">Rs. ${(order.items?.reduce((sum, it) => sum + ((it.returnedQuantity || 0) * it.unitPrice), 0) || 0).toFixed(2)}</td>
+                <td style="padding: 12px; text-align: center; color: #2563eb;">Rs. ${computedTotal.toFixed(2)}</td>
                 <td style="padding: 12px; text-align: right; color: #4f46e5; font-size: 14px;">Rs. ${computedTotal.toFixed(2)}</td>
               </tr>
             </tfoot>
@@ -1664,26 +1640,10 @@ function Orders() {
                             <td className="p-3 text-left truncate max-w-[200px]">{getProductName(item.productId)}</td>
                             {!viewOrder.customerName ? (
                               <>
-                                <td className="p-3 text-center">
-                                  <div>{item.quantity}</div>
-                                  <div className="text-[9px] text-slate-400 font-medium">Rs.{(item.quantity * item.unitPrice).toFixed(2)}</div>
-                                </td>
-                                <td className="p-3 text-center text-emerald-600">
-                                  <div>{hasReceived ? item.receivedQuantity : '-'}</div>
-                                  {hasReceived && (
-                                    <div className="text-[9px] text-emerald-500 font-medium">Rs.{(item.receivedQuantity * item.unitPrice).toFixed(2)}</div>
-                                  )}
-                                </td>
-                                <td className="p-3 text-center text-rose-600">
-                                  <div>{item.returnedQuantity || 0}</div>
-                                  {item.returnedQuantity > 0 && (
-                                    <div className="text-[9px] text-rose-400 font-medium">Rs.{(item.returnedQuantity * item.unitPrice).toFixed(2)}</div>
-                                  )}
-                                </td>
-                                <td className="p-3 text-center text-blue-600">
-                                  <div>{hasReceived ? netQty : item.quantity}</div>
-                                  <div className="text-[9px] text-blue-400 font-medium">Rs.{(netQty * item.unitPrice).toFixed(2)}</div>
-                                </td>
+                                <td className="p-3 text-center">{item.quantity}</td>
+                                <td className="p-3 text-center text-emerald-600">{hasReceived ? item.receivedQuantity : '-'}</td>
+                                <td className="p-3 text-center text-rose-600">{item.returnedQuantity || 0}</td>
+                                <td className="p-3 text-center text-blue-600">{hasReceived ? netQty : item.quantity}</td>
                               </>
                             ) : (
                               <td className="p-3 text-center">{item.quantity}</td>
@@ -1697,22 +1657,10 @@ function Orders() {
                       <tfoot>
                         <tr className="bg-slate-50/50 font-black border-t border-slate-100 text-[11px] text-slate-700">
                           <td className="p-3 text-left">Total Summary</td>
-                          <td className="p-3 text-center">
-                            <div>{viewOrder.items?.reduce((sum, item) => sum + (item.quantity || 0), 0)}</div>
-                            <div className="text-[9px] text-slate-400 font-medium">Rs.{viewOrder.items?.reduce((sum, item) => sum + ((item.quantity || 0) * item.unitPrice), 0).toFixed(2)}</div>
-                          </td>
-                          <td className="p-3 text-center text-emerald-700">
-                            <div>{viewOrder.items?.reduce((sum, item) => sum + (item.receivedQuantity || 0), 0)}</div>
-                            <div className="text-[9px] text-emerald-500 font-medium">Rs.{viewOrder.items?.reduce((sum, item) => sum + ((item.receivedQuantity || 0) * item.unitPrice), 0).toFixed(2)}</div>
-                          </td>
-                          <td className="p-3 text-center text-rose-700">
-                            <div>{viewOrder.items?.reduce((sum, item) => sum + (item.returnedQuantity || 0), 0)}</div>
-                            <div className="text-[9px] text-rose-500 font-medium">Rs.{viewOrder.items?.reduce((sum, item) => sum + ((item.returnedQuantity || 0) * item.unitPrice), 0).toFixed(2)}</div>
-                          </td>
-                          <td className="p-3 text-center text-blue-700">
-                            <div>{viewOrder.items?.reduce((sum, item) => sum + ((item.receivedQuantity || 0) - (item.returnedQuantity || 0)), 0)}</div>
-                            <div className="text-[9px] text-blue-500 font-medium">Rs.{viewOrder.items?.reduce((sum, item) => sum + (((item.receivedQuantity || 0) - (item.returnedQuantity || 0)) * item.unitPrice), 0).toFixed(2)}</div>
-                          </td>
+                          <td className="p-3 text-center">Rs.{viewOrder.items?.reduce((sum, item) => sum + ((item.quantity || 0) * item.unitPrice), 0).toFixed(2)}</td>
+                          <td className="p-3 text-center text-emerald-700">Rs.{viewOrder.items?.reduce((sum, item) => sum + ((item.receivedQuantity || 0) * item.unitPrice), 0).toFixed(2)}</td>
+                          <td className="p-3 text-center text-rose-700">Rs.{viewOrder.items?.reduce((sum, item) => sum + ((item.returnedQuantity || 0) * item.unitPrice), 0).toFixed(2)}</td>
+                          <td className="p-3 text-center text-blue-700">Rs.{viewOrder.items?.reduce((sum, item) => sum + (((item.receivedQuantity || 0) - (item.returnedQuantity || 0)) * item.unitPrice), 0).toFixed(2)}</td>
                           <td className="p-3 text-right text-indigo-700">Rs.{getViewOrderTotal(viewOrder).toFixed(2)}</td>
                         </tr>
                       </tfoot>
