@@ -1236,7 +1236,31 @@ function Orders() {
             </tbody>
           </table>
 
-          <div class="totals-block">
+          <div class="totals-block" style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 24px;">
+            ${isReceivedOrReturned ? `
+            <div style="font-size: 12px; color: #475569; border: 1px dashed #e2e8f0; padding: 12px 18px; border-radius: 8px; background-color: #f8fafc; min-width: 250px; text-align: left;">
+              <span style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 8px;">Quantities Summary</span>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span>Total Ordered:</span>
+                <strong>${order.items?.reduce((sum, it) => sum + (it.quantity || 0), 0) || 0} units</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #10b981;">
+                <span>Total Received:</span>
+                <strong>${order.items?.reduce((sum, it) => sum + (it.receivedQuantity || 0), 0) || 0} units</strong>
+              </div>
+              ${order.items?.reduce((sum, it) => sum + (it.returnedQuantity || 0), 0) > 0 ? `
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #ef4444;">
+                <span>Total Returned:</span>
+                <strong>${order.items?.reduce((sum, it) => sum + (it.returnedQuantity || 0), 0) || 0} units</strong>
+              </div>
+              ` : ''}
+              <div style="display: flex; justify-content: space-between; padding-top: 4px; border-top: 1px dashed #e2e8f0; margin-top: 4px; color: #2563eb; font-weight: bold;">
+                <span>Net Received Qty:</span>
+                <strong>${(order.items?.reduce((sum, it) => sum + (it.receivedQuantity || 0), 0) || 0) - (order.items?.reduce((sum, it) => sum + (it.returnedQuantity || 0), 0) || 0)} units</strong>
+              </div>
+            </div>
+            ` : ''}
+
             <table class="totals-table">
               <tr>
                 <td style="color: #64748b; font-weight: bold;">Subtotal</td>
@@ -1645,6 +1669,30 @@ function Orders() {
                   </div>
                 </div>
               </div>
+
+              {!viewOrder.customerName && (viewOrder.status === 'RECEIVED' || viewOrder.status === 'RETURNED') && (
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-xs font-bold text-slate-600 space-y-1">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Quantities & Billing Calculation</span>
+                  <div className="flex justify-between">
+                    <span>Total Ordered Qty:</span>
+                    <span>{viewOrder.items?.reduce((sum, item) => sum + (item.quantity || 0), 0)} units</span>
+                  </div>
+                  <div className="flex justify-between text-emerald-600">
+                    <span>Total Received Qty:</span>
+                    <span>{viewOrder.items?.reduce((sum, item) => sum + (item.receivedQuantity || 0), 0)} units</span>
+                  </div>
+                  {viewOrder.items?.reduce((sum, item) => sum + (item.returnedQuantity || 0), 0) > 0 && (
+                    <div className="flex justify-between text-rose-600">
+                      <span>Total Returned Qty:</span>
+                      <span>{viewOrder.items?.reduce((sum, item) => sum + (item.returnedQuantity || 0), 0)} units</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-blue-600 border-t border-slate-200 pt-1 mt-1 font-black">
+                    <span>Total Net Qty in Stock:</span>
+                    <span>{viewOrder.items?.reduce((sum, item) => sum + ((item.receivedQuantity || 0) - (item.returnedQuantity || 0)), 0)} units</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
