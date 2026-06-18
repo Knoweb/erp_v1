@@ -1016,15 +1016,15 @@ function Orders() {
       const hasReceived = item.receivedQuantity !== undefined && item.receivedQuantity !== null;
       const hasReturned = item.returnedQuantity !== undefined && item.returnedQuantity !== null && item.returnedQuantity > 0;
       
-      let qtyDetails = `Ordered: ${item.quantity}`;
+      let qtyDetails = `Ordered: ${item.quantity} (Rs. ${(item.quantity * item.unitPrice).toFixed(2)})`;
       if (hasReceived) {
-        qtyDetails += `<br/><span style="font-size: 11px; color: #10b981; font-weight: bold;">Received: ${item.receivedQuantity}</span>`;
+        qtyDetails += `<br/><span style="font-size: 11px; color: #10b981; font-weight: bold;">Received: ${item.receivedQuantity} (Rs. ${(item.receivedQuantity * item.unitPrice).toFixed(2)})</span>`;
       }
       if (hasReturned) {
-        qtyDetails += `<br/><span style="font-size: 11px; color: #ef4444; font-weight: bold;">Returned: ${item.returnedQuantity}</span>`;
+        qtyDetails += `<br/><span style="font-size: 11px; color: #ef4444; font-weight: bold;">Returned: ${item.returnedQuantity} (Rs. ${(item.returnedQuantity * item.unitPrice).toFixed(2)})</span>`;
       }
       if (hasReceived) {
-        qtyDetails += `<br/><span style="font-size: 11px; color: #2563eb; font-weight: bold;">Net Qty: ${item.receivedQuantity - (item.returnedQuantity || 0)}</span>`;
+        qtyDetails += `<br/><span style="font-size: 11px; color: #2563eb; font-weight: bold;">Net Qty: ${item.receivedQuantity - (item.returnedQuantity || 0)} (Rs. ${lineTotal.toFixed(2)})</span>`;
       }
       
       const netQty = hasReceived ? (item.receivedQuantity - (item.returnedQuantity || 0)) : item.quantity;
@@ -1238,25 +1238,25 @@ function Orders() {
 
           <div class="totals-block" style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 24px;">
             ${isReceivedOrReturned ? `
-            <div style="font-size: 12px; color: #475569; border: 1px dashed #e2e8f0; padding: 12px 18px; border-radius: 8px; background-color: #f8fafc; min-width: 250px; text-align: left;">
+            <div style="font-size: 12px; color: #475569; border: 1px dashed #e2e8f0; padding: 12px 18px; border-radius: 8px; background-color: #f8fafc; min-width: 280px; text-align: left;">
               <span style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 8px;">Quantities Summary</span>
               <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                 <span>Total Ordered:</span>
-                <strong>${order.items?.reduce((sum, it) => sum + (it.quantity || 0), 0) || 0} units</strong>
+                <strong>${order.items?.reduce((sum, it) => sum + (it.quantity || 0), 0) || 0} units (Rs. ${(order.items?.reduce((sum, it) => sum + ((it.quantity || 0) * it.unitPrice), 0) || 0).toFixed(2)})</strong>
               </div>
               <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #10b981;">
                 <span>Total Received:</span>
-                <strong>${order.items?.reduce((sum, it) => sum + (it.receivedQuantity || 0), 0) || 0} units</strong>
+                <strong>${order.items?.reduce((sum, it) => sum + (it.receivedQuantity || 0), 0) || 0} units (Rs. ${(order.items?.reduce((sum, it) => sum + ((it.receivedQuantity || 0) * it.unitPrice), 0) || 0).toFixed(2)})</strong>
               </div>
               ${order.items?.reduce((sum, it) => sum + (it.returnedQuantity || 0), 0) > 0 ? `
               <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #ef4444;">
                 <span>Total Returned:</span>
-                <strong>${order.items?.reduce((sum, it) => sum + (it.returnedQuantity || 0), 0) || 0} units</strong>
+                <strong>${order.items?.reduce((sum, it) => sum + (it.returnedQuantity || 0), 0) || 0} units (Rs. ${(order.items?.reduce((sum, it) => sum + ((it.returnedQuantity || 0) * it.unitPrice), 0) || 0).toFixed(2)})</strong>
               </div>
               ` : ''}
               <div style="display: flex; justify-content: space-between; padding-top: 4px; border-top: 1px dashed #e2e8f0; margin-top: 4px; color: #2563eb; font-weight: bold;">
                 <span>Net Received Qty:</span>
-                <strong>${(order.items?.reduce((sum, it) => sum + (it.receivedQuantity || 0), 0) || 0) - (order.items?.reduce((sum, it) => sum + (it.returnedQuantity || 0), 0) || 0)} units</strong>
+                <strong>${(order.items?.reduce((sum, it) => sum + (it.receivedQuantity || 0), 0) || 0) - (order.items?.reduce((sum, it) => sum + (it.returnedQuantity || 0), 0) || 0)} units (Rs. ${computedTotal.toFixed(2)})</strong>
               </div>
             </div>
             ` : ''}
@@ -1651,15 +1651,15 @@ function Orders() {
                         <div key={i} className="p-3 grid grid-cols-3 gap-2 font-bold text-slate-600 hover:bg-slate-50 transition-colors items-center">
                           <span className="truncate">{getProductName(item.productId)}</span>
                           <span className="text-center text-xs">
-                            <span className="block font-black text-slate-700">Ordered: {item.quantity}</span>
+                            <span className="block font-black text-slate-700">Ordered: {item.quantity} (Rs.{(item.quantity * item.unitPrice).toFixed(2)})</span>
                             {hasReceived && (
-                              <span className="block text-[10px] text-emerald-600 font-bold">Received: {item.receivedQuantity}</span>
+                              <span className="block text-[10px] text-emerald-600 font-bold">Received: {item.receivedQuantity} (Rs.{(item.receivedQuantity * item.unitPrice).toFixed(2)})</span>
                             )}
                             {hasReturned && (
-                              <span className="block text-[10px] text-rose-600 font-bold">Returned: {item.returnedQuantity}</span>
+                              <span className="block text-[10px] text-rose-600 font-bold">Returned: {item.returnedQuantity} (Rs.{(item.returnedQuantity * item.unitPrice).toFixed(2)})</span>
                             )}
                             {hasReceived && (
-                              <span className="block text-[10px] text-blue-600 font-bold">Net Qty: {item.receivedQuantity - (item.returnedQuantity || 0)}</span>
+                              <span className="block text-[10px] text-blue-600 font-bold">Net Qty: {item.receivedQuantity - (item.returnedQuantity || 0)} (Rs.{lineTotal.toFixed(2)})</span>
                             )}
                           </span>
                           <span className={`text-right ${viewOrder.customerName ? 'text-emerald-600' : 'text-indigo-600'}`}>Rs.{Number(lineTotal).toFixed(2)}</span>
@@ -1675,21 +1675,21 @@ function Orders() {
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Quantities & Billing Calculation</span>
                   <div className="flex justify-between">
                     <span>Total Ordered Qty:</span>
-                    <span>{viewOrder.items?.reduce((sum, item) => sum + (item.quantity || 0), 0)} units</span>
+                    <span>{viewOrder.items?.reduce((sum, item) => sum + (item.quantity || 0), 0)} units (Rs.{viewOrder.items?.reduce((sum, item) => sum + ((item.quantity || 0) * item.unitPrice), 0).toFixed(2)})</span>
                   </div>
                   <div className="flex justify-between text-emerald-600">
                     <span>Total Received Qty:</span>
-                    <span>{viewOrder.items?.reduce((sum, item) => sum + (item.receivedQuantity || 0), 0)} units</span>
+                    <span>{viewOrder.items?.reduce((sum, item) => sum + (item.receivedQuantity || 0), 0)} units (Rs.{viewOrder.items?.reduce((sum, item) => sum + ((item.receivedQuantity || 0) * item.unitPrice), 0).toFixed(2)})</span>
                   </div>
                   {viewOrder.items?.reduce((sum, item) => sum + (item.returnedQuantity || 0), 0) > 0 && (
                     <div className="flex justify-between text-rose-600">
                       <span>Total Returned Qty:</span>
-                      <span>{viewOrder.items?.reduce((sum, item) => sum + (item.returnedQuantity || 0), 0)} units</span>
+                      <span>{viewOrder.items?.reduce((sum, item) => sum + (item.returnedQuantity || 0), 0)} units (Rs.{viewOrder.items?.reduce((sum, item) => sum + ((item.returnedQuantity || 0) * item.unitPrice), 0).toFixed(2)})</span>
                     </div>
                   )}
                   <div className="flex justify-between text-blue-600 border-t border-slate-200 pt-1 mt-1 font-black">
                     <span>Total Net Qty in Stock:</span>
-                    <span>{viewOrder.items?.reduce((sum, item) => sum + ((item.receivedQuantity || 0) - (item.returnedQuantity || 0)), 0)} units</span>
+                    <span>{viewOrder.items?.reduce((sum, item) => sum + ((item.receivedQuantity || 0) - (item.returnedQuantity || 0)), 0)} units (Rs.{getViewOrderTotal(viewOrder).toFixed(2)})</span>
                   </div>
                 </div>
               )}
