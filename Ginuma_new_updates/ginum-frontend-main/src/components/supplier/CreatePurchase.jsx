@@ -103,9 +103,10 @@ const CreatePurchase = () => {
       }
 
       try {
+        const localCompanyId = localStorage.getItem("companyId");
         const [data, existingBillsRes] = await Promise.all([
           api.get(`/api/finance/external/inventory-pos/${supplierId}`),
-          api.get(`/api/${companyId}/purchase-orders`).catch(() => [])
+          localCompanyId ? api.get(`/api/${localCompanyId}/purchase-orders`).catch(() => []) : Promise.resolve([])
         ]);
         const existingBillsList = Array.isArray(existingBillsRes) ? existingBillsRes : (existingBillsRes?.data || []);
         const billedPoNumbers = new Set(
