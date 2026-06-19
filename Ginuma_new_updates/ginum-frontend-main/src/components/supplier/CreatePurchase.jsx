@@ -118,7 +118,7 @@ const CreatePurchase = () => {
         };
         const billedPoNumbers = new Set(
           existingBillsList
-            .map(b => extractPoNum(b.poNumber))
+            .map(b => extractPoNum(b.purchaseOrderNumber || b.poNumber))
             .filter(Boolean)
         );
 
