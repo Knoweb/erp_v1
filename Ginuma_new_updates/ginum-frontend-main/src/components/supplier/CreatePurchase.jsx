@@ -167,7 +167,7 @@ const CreatePurchase = () => {
                 isBilled: isBilled,
               };
             })
-            .filter(Boolean);
+            .filter(item => item !== null && !item.isBilled);
         });
 
         setSupplierPoItems(flattenedItems);
@@ -842,7 +842,7 @@ const CreatePurchase = () => {
                             const itemLabel = item.itemName || item.description || `Item ${item.itemId}`;
                             return (
                               <option key={itemValue} value={itemValue}>
-                                {item.parentPoNumber} | {itemLabel} | Ordered: {item.orderedQty} | Received: {item.receivedQuantity} | Returned: {item.returnedQuantity} | NetQTY: {item.netQty}{item.isBilled ? ' (Already Billed)' : ''}
+                                {item.parentPoNumber} | {itemLabel} | Ordered: {item.orderedQty} | Received: {item.receivedQuantity} | Returned: {item.returnedQuantity} | NetQTY: {item.netQty}
                               </option>
                             );
                           })}
