@@ -265,6 +265,10 @@ const CreatePurchase = () => {
   
 
   const getPoDisplayNumber = (po) => {
+    if (po?.refNo) {
+      return po.refNo;
+    }
+    
     if (po?.poNumber) {
       const match = po.poNumber.match(/\d+/);
       if (match) {

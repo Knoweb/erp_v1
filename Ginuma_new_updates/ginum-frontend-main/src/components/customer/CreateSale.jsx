@@ -242,7 +242,7 @@ const CreateSaleOrder = () => {
       const matchesCustomer = matchesById || matchesByNameExact || matchesByNameFuzzy;
       const isCompleted = String(order.status || "").toUpperCase() === "COMPLETED";
       // Exclude SOs that already have a sales bill created
-      const soNumNormalized = extractSoNum(order.soNumber || order.salesOrderNumber || order.id);
+      const soNumNormalized = extractSoNum(order.refNo || order.soNumber || order.salesOrderNumber || order.id);
       const isAlreadyBilled = soNumNormalized && billedSoNumbers.has(soNumNormalized);
       return matchesCustomer && isCompleted && !isAlreadyBilled;
     });
