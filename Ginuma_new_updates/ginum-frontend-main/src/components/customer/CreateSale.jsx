@@ -401,6 +401,10 @@ const CreateSaleOrder = () => {
         updatedRows[index].quantity = selectedItem.quantity ?? 1;
         updatedRows[index].unitPrice = selectedItem.unitPrice ?? "";
         updatedRows[index].account = selectedItem.accountId || "";
+        
+        if (selectedItem.salesOrderNumber) {
+          setSoNumber(selectedItem.salesOrderNumber);
+        }
       }
     } else if (field === "itemId" && !value) {
       updatedRows[index].description = "";
