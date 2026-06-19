@@ -109,9 +109,16 @@ const CreatePurchase = () => {
           localCompanyId ? api.get(`/api/${localCompanyId}/purchase-orders`).catch(() => []) : Promise.resolve([])
         ]);
         const existingBillsList = Array.isArray(existingBillsRes) ? existingBillsRes : (existingBillsRes?.data || []);
+        // Normalize PO numbers to numeric-only strings (e.g. "PO-008" → "8", "PO-00008" → "8")
+        // so different zero-padding formats still match correctly.
+        const extractPoNum = (poNum) => {
+          if (!poNum) return null;
+          const m = poNum.toString().match(/\d+/);
+          return m ? String(parseInt(m[0], 10)) : null;
+        };
         const billedPoNumbers = new Set(
           existingBillsList
-            .map(b => b.poNumber)
+            .map(b => extractPoNum(b.poNumber))
             .filter(Boolean)
         );
 
@@ -140,7 +147,7 @@ const CreatePurchase = () => {
               }
 
               const remainingQuantity = Math.max(quantity - receivedQuantity, 0);
-              const isBilled = billedPoNumbers.has(poDisplayNumber);
+              const isBilled = billedPoNumbers.has(extractPoNum(poDisplayNumber));
 
               return {
                 selectionKey: `${po.id || poDisplayNumber}-${itemKey}-${index}`,
