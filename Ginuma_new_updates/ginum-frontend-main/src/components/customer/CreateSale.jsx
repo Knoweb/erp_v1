@@ -96,15 +96,15 @@ const buildCompletedCustomerItemOptions = (salesOrders = [], products = []) => {
       if (!itemId) return;
 
       const resolvedName = resolveProductName(item);
-      const displayOrderRef = order.soNumber || order.salesOrderNumber || order.id;
+      const displayOrderRef = order.refNo || order.soNumber || order.salesOrderNumber || order.id;
       const uniqueId = `${order.id}-${itemId}-${index}`;
 
       options.push({
         id: uniqueId,
         itemId,
         salesOrderId: order.id,
-        salesOrderNumber: order.soNumber || order.salesOrderNumber || `SO-${String(order.id).padStart(3, "0")}`,
-        label: `${resolvedName || `Item #${itemId}`} (${displayOrderRef ? `SO-${String(displayOrderRef).replace(/^SO-/, "")}` : `SO-${String(order.id).padStart(3, "0")}`}) | Qty: ${item.quantity ?? 0}`,
+        salesOrderNumber: order.refNo || order.soNumber || order.salesOrderNumber || `SO-${String(order.id).padStart(3, "0")}`,
+        label: `${resolvedName || `Item #${itemId}`} (${displayOrderRef ? `${String(displayOrderRef).startsWith('SO') ? displayOrderRef : `SO-${displayOrderRef}`}` : `SO-${String(order.id).padStart(3, "0")}`}) | Qty: ${item.quantity ?? 0}`,
         description: resolvedName || "",
         accountId: item.accountCode || "",
         quantity: item.quantity ?? 1,
