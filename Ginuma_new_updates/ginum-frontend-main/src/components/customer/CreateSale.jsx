@@ -342,8 +342,18 @@ const CreateSaleOrder = () => {
         ]);
 
         const normalized = normalizeList(salesOrdersRes);
-        console.info('[CreateSale] fetchSalesOrders normalized count:', normalized.length);
-        setSalesOrders(normalized);
+        
+        // Deduplicate by order id to avoid duplicate rows from backend anomalies
+        const uniqueOrdersMap = new Map();
+        normalized.forEach(order => {
+          if (order && order.id) {
+            uniqueOrdersMap.set(order.id, order);
+          }
+        });
+        const deduplicated = Array.from(uniqueOrdersMap.values());
+        
+        console.info('[CreateSale] fetchSalesOrders normalized count:', deduplicated.length);
+        setSalesOrders(deduplicated);
 
         // Build a set of already-billed SO numbers (numeric-only for flexible matching)
         const existingBillsList = Array.isArray(existingBillsRes) ? existingBillsRes : (existingBillsRes?.data || []);
