@@ -104,7 +104,7 @@ const buildCompletedCustomerItemOptions = (salesOrders = [], products = []) => {
         itemId,
         salesOrderId: order.id,
         salesOrderNumber: order.soNumber || order.salesOrderNumber || `SO-${String(order.id).padStart(3, "0")}`,
-        label: `${resolvedName || `Item #${itemId}`} (${displayOrderRef ? `SO-${String(displayOrderRef).replace(/^SO-/, "")}` : `SO-${String(order.id).padStart(3, "0")}`})`,
+        label: `${resolvedName || `Item #${itemId}`} (${displayOrderRef ? `SO-${String(displayOrderRef).replace(/^SO-/, "")}` : `SO-${String(order.id).padStart(3, "0")}`}) | Qty: ${item.quantity ?? 0}`,
         description: resolvedName || "",
         accountId: item.accountCode || "",
         quantity: item.quantity ?? 1,
@@ -134,6 +134,7 @@ const CreateSaleOrder = () => {
   const [salesOrders, setSalesOrders] = useState([]);
   const [productCatalog, setProductCatalog] = useState([]);
   const [customerItems, setCustomerItems] = useState([]);
+  const [billedSoNumbers, setBilledSoNumbers] = useState(new Set());
   const [soNumber, setSoNumber] = useState("");
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
   const [isLoadingItemsProjects, setIsLoadingItemsProjects] = useState(true);
@@ -223,6 +224,13 @@ const CreateSaleOrder = () => {
     const customerRecord = customers.find((customer) => String(customer.id) === String(selectedCustomer));
     const customerName = customerRecord?.customerName || customerRecord?.name || "";
 
+    // Helper: extract only the numeric part from an SO number for flexible comparison
+    const extractSoNum = (soNum) => {
+      if (!soNum) return null;
+      const m = soNum.toString().match(/\d+/);
+      return m ? String(parseInt(m[0], 10)) : null;
+    };
+
     const safe = (s) => String(s || "").trim().toLowerCase();
     const custSafe = safe(customerName);
     const customerOrders = salesOrders.filter((order) => {
@@ -233,14 +241,17 @@ const CreateSaleOrder = () => {
       const matchesByNameFuzzy = custSafe !== "" && (orderCustName.includes(custSafe) || custSafe.includes(orderCustName));
       const matchesCustomer = matchesById || matchesByNameExact || matchesByNameFuzzy;
       const isCompleted = String(order.status || "").toUpperCase() === "COMPLETED";
-      return matchesCustomer && isCompleted;
+      // Exclude SOs that already have a sales bill created
+      const soNumNormalized = extractSoNum(order.soNumber || order.salesOrderNumber);
+      const isAlreadyBilled = soNumNormalized && billedSoNumbers.has(soNumNormalized);
+      return matchesCustomer && isCompleted && !isAlreadyBilled;
     });
 
     const options = buildCompletedCustomerItemOptions(customerOrders, productCatalog);
     console.info("[CreateSale] selectedCustomer:", selectedCustomer, "completedOrders:", customerOrders.length);
     console.info("[CreateSale] computed customerItems:", options.length, options);
     setCustomerItems(options);
-  }, [selectedCustomer, salesOrders, customers, productCatalog]);
+  }, [selectedCustomer, salesOrders, customers, productCatalog, billedSoNumbers]);
 
   
 
@@ -317,13 +328,33 @@ const CreateSaleOrder = () => {
         if (!companyId) return;
 
         setIsLoadingItemsProjects(true);
-        const salesOrdersRes = await api.get(`/api/finance/external/completed-sales-orders/${companyId}`);
+
+        const extractSoNum = (soNum) => {
+          if (!soNum) return null;
+          const m = soNum.toString().match(/\d+/);
+          return m ? String(parseInt(m[0], 10)) : null;
+        };
+
+        const [salesOrdersRes, existingBillsRes, productsRes] = await Promise.all([
+          api.get(`/api/finance/external/completed-sales-orders/${companyId}`),
+          api.get(`/api/sales-orders/company/${companyId}`).catch(() => []),
+          api.get(`/api/finance/external/inventory-products/${companyId}`),
+        ]);
+
         const normalized = normalizeList(salesOrdersRes);
-        console.info('[CreateSale] fetchSalesOrders raw response:', salesOrdersRes);
         console.info('[CreateSale] fetchSalesOrders normalized count:', normalized.length);
         setSalesOrders(normalized);
 
-        const productsRes = await api.get(`/api/finance/external/inventory-products/${companyId}`);
+        // Build a set of already-billed SO numbers (numeric-only for flexible matching)
+        const existingBillsList = Array.isArray(existingBillsRes) ? existingBillsRes : (existingBillsRes?.data || []);
+        const billedSet = new Set(
+          existingBillsList
+            .map(b => extractSoNum(b.soNumber || b.salesOrderNumber))
+            .filter(Boolean)
+        );
+        console.info('[CreateSale] billedSoNumbers:', [...billedSet]);
+        setBilledSoNumbers(billedSet);
+
         const productsNormalized = normalizeList(productsRes);
         console.info('[CreateSale] fetchProductCatalog normalized count:', productsNormalized.length);
         setProductCatalog(productsNormalized);
