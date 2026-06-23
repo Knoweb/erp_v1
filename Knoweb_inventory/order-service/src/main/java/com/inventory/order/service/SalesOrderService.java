@@ -170,10 +170,24 @@ public class SalesOrderService {
             }
             log.info("Stock deducted: productId={}, warehouseId={}, qty={}, orderId={}",
                     productId, warehouseId, qty, order.getId());
+        } catch (org.springframework.web.client.HttpStatusCodeException e) {
+            log.error("Failed to deduct stock for productId={}: {}", productId, e.getResponseBodyAsString());
+            String errorMsg = "Stock deduction failed for product #" + productId;
+            try {
+                com.fasterxml.jackson.databind.JsonNode root = new com.fasterxml.jackson.databind.ObjectMapper().readTree(e.getResponseBodyAsString());
+                if (root.has("message")) {
+                    errorMsg = root.get("message").asText();
+                }
+            } catch (Exception parseEx) {
+                // Ignore parse errors
+            }
+            throw new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.BAD_REQUEST, errorMsg);
         } catch (Exception e) {
             log.error("Failed to deduct stock for productId={}: {}", productId, e.getMessage());
-            throw new RuntimeException(
-                    "Stock deduction failed for product #" + productId + ": " + e.getMessage(), e);
+            throw new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR,
+                "Stock deduction failed for product #" + productId + ": " + e.getMessage(), e);
         }
     }
 

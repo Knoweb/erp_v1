@@ -34,6 +34,22 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
+        log.warn("Illegal argument exception: {} at {}", ex.getMessage(), request.getRequestURI());
+
+        ErrorResponse error = ErrorResponse.builder()
+                .protocol("INVALID_ARGUMENT")
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message(ex.getMessage()) // Shows the actual "Insufficient stock" message
+                .path(request.getRequestURI())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(ArithmeticException.class)
     public ResponseEntity<ErrorResponse> handleArithmeticException(ArithmeticException ex, HttpServletRequest request) {
         log.warn("Computational math error: {} at {}", ex.getMessage(), request.getRequestURI());
