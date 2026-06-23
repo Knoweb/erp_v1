@@ -40,7 +40,7 @@ function CreatePurchaseOrderModal({ suppliers, onClose, onCreated }) {
         const prods = list.map(p => ({
           id: p.id,
           name: p.name || p.productName || p.sku || `Product #${p.id}`,
-          price: p.price !== undefined && p.price !== null ? p.price : '',
+          price: p.costPrice > 0 ? p.costPrice : (p.price > 0 ? p.price : ''),
         }));
         setAvailableProducts(prods);
       })
@@ -80,7 +80,7 @@ function CreatePurchaseOrderModal({ suppliers, onClose, onCreated }) {
         ...items[idx],
         productId: product ? product.id : '',
         productName: product ? product.name : '',
-        unitPrice: product && product.price !== '' ? product.price : items[idx].unitPrice,
+        unitPrice: product && product.price ? product.price : '',
       };
       return { ...prev, items };
     });
@@ -143,11 +143,17 @@ function CreatePurchaseOrderModal({ suppliers, onClose, onCreated }) {
       if (mappings.length > 0) {
         const newItems = mappings.map(mapping => {
           const product = availableProducts.find(p => String(p.id) === String(mapping.productId));
+          
+          let priceToUse = mapping.defaultPrice !== undefined && mapping.defaultPrice !== null ? mapping.defaultPrice : '';
+          if (priceToUse === 0 || priceToUse === '0' || priceToUse === '') {
+            priceToUse = product && product.price ? product.price : '';
+          }
+
           return {
             productId: mapping.productId || '',
             productName: product ? product.name : mapping.productName || '',
             quantity: '',
-            unitPrice: mapping.defaultPrice !== undefined && mapping.defaultPrice !== null ? mapping.defaultPrice : ''
+            unitPrice: priceToUse
           };
         });
         return { ...prev, supplierId, items: newItems };
