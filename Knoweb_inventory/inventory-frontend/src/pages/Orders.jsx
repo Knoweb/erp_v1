@@ -259,7 +259,7 @@ function CreatePurchaseOrderModal({ suppliers, onClose, onCreated }) {
             <div className="flex justify-end pt-4">
               <div className="bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100">
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mr-4">Projected Total</span>
-                <span className="text-xl font-black text-indigo-600">Rs.{computedTotal.toFixed(2)}</span>
+                <span className="text-xl font-black text-indigo-600">Rs. {computedTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>
@@ -504,7 +504,7 @@ function CreateSalesOrderModal({ onClose, onCreated }) {
                     {availableProducts.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                   <input className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-black text-slate-800 outline-none focus:border-emerald-400" type="number" placeholder="Qty" min="1" value={item.quantity} onChange={e => updateItem(idx, 'quantity', e.target.value)} required />
-                  <input className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-black text-slate-800 outline-none focus:border-emerald-400" type="number" placeholder="Price" min="0.01" step="0.01" value={item.unitPrice} onChange={e => updateItem(idx, 'unitPrice', e.target.value)} required />
+                  <FormattedNumberInput className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-black text-slate-800 outline-none focus:border-emerald-400" placeholder="Price" min="0.01" value={item.unitPrice} onChange={val => updateItem(idx, 'unitPrice', val)} required />
                   <button type="button" onClick={() => removeItem(idx)} disabled={form.items.length === 1} className="p-2 bg-rose-50 text-rose-600 rounded-lg disabled:opacity-30 hover:bg-rose-100 mt-0.5">
                     <X size={14} />
                   </button>
@@ -515,7 +515,7 @@ function CreateSalesOrderModal({ onClose, onCreated }) {
             <div className="flex justify-end pt-4">
               <div className="bg-emerald-50 px-6 py-3 rounded-2xl border border-emerald-100">
                 <span className="text-[10px] font-black text-emerald-600/60 uppercase tracking-[0.2em] mr-4">Settlement Value</span>
-                <span className="text-xl font-black text-emerald-600">Rs.{computedTotal.toFixed(2)}</span>
+                <span className="text-xl font-black text-emerald-600">Rs. {computedTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>
