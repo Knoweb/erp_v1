@@ -181,8 +181,7 @@ public class SalesOrderService {
             } catch (Exception parseEx) {
                 // Ignore parse errors
             }
-            throw new org.springframework.web.server.ResponseStatusException(
-                org.springframework.http.HttpStatus.BAD_REQUEST, errorMsg);
+            throw new IllegalArgumentException(errorMsg);
         } catch (Exception e) {
             log.error("Failed to deduct stock for productId={}: {}", productId, e.getMessage());
             throw new org.springframework.web.server.ResponseStatusException(
