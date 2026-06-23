@@ -304,6 +304,7 @@ function CreateSalesOrderModal({ onClose, onCreated }) {
         const prods = list.map(p => ({
           id: p.id,
           name: p.name || p.productName || p.sku || `Product #${p.id}`,
+          price: p.price > 0 ? p.price : '',
         }));
         setAvailableProducts(prods);
       })
@@ -352,6 +353,7 @@ function CreateSalesOrderModal({ onClose, onCreated }) {
         ...items[idx],
         productId: product ? product.id : '',
         productName: product ? product.name : '',
+        unitPrice: product && product.price ? product.price : '',
       };
       return { ...prev, items };
     });
