@@ -63,6 +63,9 @@ public class Stock {
 
     @Transient
     private String warehouseName;
+    
+    @Transient
+    private java.math.BigDecimal unitPrice;
 
     @PrePersist
     protected void onCreate() {

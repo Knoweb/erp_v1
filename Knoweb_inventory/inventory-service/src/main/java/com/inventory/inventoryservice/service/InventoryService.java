@@ -404,6 +404,7 @@ public class InventoryService {
                     com.inventory.inventoryservice.dto.ProductDto.class);
             if (product != null && product.getName() != null) {
                 stock.setProductName(product.getName());
+                stock.setUnitPrice(product.getPrice());
             } else {
                 stock.setProductName("Product " + stock.getProductId());
             }
