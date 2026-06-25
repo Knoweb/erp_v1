@@ -151,12 +151,21 @@ function Inventory() {
       </div>
 
       {/* ── Stats Row ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex items-center gap-3 group hover:shadow-md transition-all">
           <div className="p-2.5 rounded-lg bg-indigo-50 text-indigo-600 font-bold group-hover:scale-110 transition-transform"><Package size={20} /></div>
           <div>
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Total SKUs</span>
             <span className="text-xl font-black text-slate-800">{totalItems}</span>
+          </div>
+        </div>
+        <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex items-center gap-3 group hover:shadow-md transition-all">
+          <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-600 font-bold group-hover:scale-110 transition-transform">💰</div>
+          <div>
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Stock Value</span>
+            <span className="text-xl font-black text-slate-800">
+              Rs. {stocks.reduce((sum, s) => sum + ((s.availableQuantity || 0) * (s.unitPrice || 0)), 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
           </div>
         </div>
         <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex items-center gap-3 group hover:shadow-md transition-all">
@@ -268,6 +277,7 @@ function Inventory() {
                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Warehouse</th>
                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Global Status</th>
                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Avail.</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right sticky right-0 bg-slate-50/50 z-10 whitespace-nowrap">Stock Value</th>
                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Resv.</th>
                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Level Stats</th>
                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Updated</th>
@@ -306,6 +316,18 @@ function Inventory() {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right text-sm font-black text-slate-800">{stock.availableQuantity ?? 0}</td>
+                        <td className="px-6 py-4 text-right sticky right-0 bg-white z-10 whitespace-nowrap">
+                          {stock.unitPrice != null ? (() => {
+                            const val = (stock.availableQuantity || 0) * stock.unitPrice;
+                            return (
+                              <span className={`text-sm font-black ${val > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                Rs. {val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </span>
+                            );
+                          })() : (
+                            <span className="text-sm font-bold text-slate-400">N/A</span>
+                          )}
+                        </td>
                         <td className="px-6 py-4 text-right">
                           <span className={`text-sm font-black ${(stock.reservedQuantity || 0) > 0 ? 'text-indigo-600' : 'text-slate-300'}`}>{stock.reservedQuantity ?? 0}</span>
                         </td>
