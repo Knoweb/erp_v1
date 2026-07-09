@@ -170,7 +170,7 @@ const AllTransactions = () => {
                         selectedTx.journalEntryLines.map((line, idx) => (
                           <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
                             <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                              {line.account?.name || 'Unknown Account'}
+                              {line.account?.accountName || 'Unknown Account'}
                               <span className="block text-xs text-gray-400 font-normal">{line.account?.accountCode}</span>
                             </td>
                             <td className="px-4 py-3 text-sm text-gray-500">{line.description || '-'}</td>
