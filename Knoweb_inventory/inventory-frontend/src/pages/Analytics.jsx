@@ -352,11 +352,11 @@ const Analytics = () => {
           <span className="text-3xl font-black text-slate-800 tracking-tight">{data.salesOrders.length}</span>
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col border-l-4 border-l-indigo-500">
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Gross Merchandise Volume</span>
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Gross Sales</span>
           <span className="text-3xl font-black text-slate-800 tracking-tight">Rs.{data.salesOrders.reduce((sum, s) => sum + (s.totalAmount || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Average Ticket</span>
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Average Order Value</span>
           <span className="text-3xl font-black text-slate-800 tracking-tight">
             Rs.{(data.salesOrders.length > 0
               ? data.salesOrders.reduce((sum, s) => sum + (s.totalAmount || 0), 0) / data.salesOrders.length
