@@ -1,4 +1,4 @@
-import { Award, Globe, Rocket, Target } from 'lucide-react';
+import { Rocket, Target, Zap, Users, Shield } from 'lucide-react';
 
 const About = () => {
     return (
@@ -23,7 +23,7 @@ const About = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                         <div className="bg-gradient-to-br from-blue-50 to-white p-10 rounded-3xl border border-blue-100 shadow-lg hover:shadow-xl transition-shadow">
-                            <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 text-blue-600">
+                            <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-6 text-blue-600">
                                 <Target className="w-8 h-8" />
                             </div>
                             <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h2>
@@ -33,7 +33,7 @@ const About = () => {
                         </div>
 
                         <div className="bg-gradient-to-br from-cyan-50 to-white p-10 rounded-3xl border border-cyan-100 shadow-lg hover:shadow-xl transition-shadow">
-                            <div className="w-14 h-14 bg-cyan-100 rounded-2xl flex items-center justify-center mb-6 text-cyan-600">
+                            <div className="w-14 h-14 bg-cyan-100 rounded-full flex items-center justify-center mb-6 text-cyan-600">
                                 <Rocket className="w-8 h-8" />
                             </div>
                             <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Vision</h2>
@@ -99,17 +99,17 @@ const About = () => {
                             {
                                 title: 'Innovation First',
                                 desc: 'We constantly challenge the status quo to find better, faster, and smarter solutions.',
-                                icon: Globe
+                                icon: Zap
                             },
                             {
                                 title: 'User-Centric Design',
                                 desc: 'We prioritize the user experience above all else. Powerful software should still be beautiful.',
-                                icon: Award
+                                icon: Users
                             },
                             {
                                 title: 'Reliability',
                                 desc: 'Trust is earned. We build robust systems that businesses can depend on, day in and day out.',
-                                icon: Target
+                                icon: Shield
                             }
                         ].map((value, idx) => (
                             <div key={idx} className="bg-white p-8 rounded-2xl border border-gray-100 hover:border-cyan-200 shadow-sm hover:shadow-md transition-all text-center group">

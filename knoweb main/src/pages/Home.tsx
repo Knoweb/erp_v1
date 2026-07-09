@@ -1,4 +1,4 @@
-import { ArrowRight, Zap, Shield, Users, Target, Rocket, Globe, Award, Mail, Phone, MapPin, Send, Layers } from 'lucide-react';
+import { ArrowRight, Zap, Shield, Users, Target, Rocket, Mail, Phone, MapPin, Send, Layers } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ginumLogo from '../assets/ginum_logo.png';
 import pirisahrLogo from '../assets/pirisa-logo.png';
@@ -141,7 +141,7 @@ const Home = () => {
                             <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-cyan-100/30 to-blue-50/30 rounded-full blur-2xl -ml-20 -mb-20 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
                             <div className="relative z-10">
-                                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl flex items-center justify-center mb-8 text-white shadow-lg shadow-blue-500/20 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-full flex items-center justify-center mb-8 text-white shadow-lg shadow-blue-500/20 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
                                     <Target className="w-8 h-8" />
                                 </div>
                                 <h3 className="text-3xl font-bold text-slate-800 mb-6 group-hover:text-blue-600 transition-colors duration-300">Our Mission</h3>
@@ -157,7 +157,7 @@ const Home = () => {
                             <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-blue-100/30 to-cyan-50/30 rounded-full blur-2xl -ml-20 -mb-20 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
                             <div className="relative z-10">
-                                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mb-8 text-white shadow-lg shadow-cyan-500/20 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500">
+                                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center mb-8 text-white shadow-lg shadow-cyan-500/20 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500">
                                     <Rocket className="w-8 h-8" />
                                 </div>
                                 <h3 className="text-3xl font-bold text-slate-800 mb-6 group-hover:text-cyan-600 transition-colors duration-300">Our Vision</h3>
@@ -170,9 +170,9 @@ const Home = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {[
-                            { title: 'Innovation First', icon: Globe, desc: 'We continuously evolve our platform with the latest technologies to keep you ahead of the competition.' },
-                            { title: 'User-Centric Design', icon: Award, desc: 'Every feature is designed with your team in mind, ensuring intuitive workflows and minimal training time.' },
-                            { title: 'Unwavering Reliability', icon: Target, desc: 'Your business depends on us, and we deliver rock-solid performance, security, and support 24/7.' },
+                            { title: 'Innovation First', icon: Zap, desc: 'We continuously evolve our platform with the latest technologies to keep you ahead of the competition.' },
+                            { title: 'User-Centric Design', icon: Users, desc: 'Every feature is designed with your team in mind, ensuring intuitive workflows and minimal training time.' },
+                            { title: 'Unwavering Reliability', icon: Shield, desc: 'Your business depends on us, and we deliver rock-solid performance, security, and support 24/7.' },
                             { title: 'Comprehensive Integration', icon: Layers, desc: 'Seamlessly connect all your business functions into one unified platform for maximum efficiency.' }
                         ].map((val, idx) => (
                             <div key={idx} className="group relative bg-white p-8 rounded-2xl border border-gray-200 text-center shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden">
