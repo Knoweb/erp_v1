@@ -332,7 +332,6 @@ public class CompanyService {
         dto.setAccountName(name);
         dto.setAccountCode(code);
         dto.setAccountType(type);
-        dto.setOpeningBalance(BigDecimal.ZERO);
         dto.setCurrentBalance(BigDecimal.ZERO);
 
         return accountService.createAccount(company.getCompanyId(), dto);
