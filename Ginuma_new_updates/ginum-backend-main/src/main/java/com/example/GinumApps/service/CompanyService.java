@@ -293,8 +293,49 @@ public class CompanyService {
             Company saved = companyRepository.save(company);
             System.out.println("✅ Successfully created company ID: " + saved.getCompanyId());
 
+            generateDefaultChartOfAccounts(saved);
+
             return saved;
         }
+    }
+
+    private void generateDefaultChartOfAccounts(Company company) {
+        System.out.println("Generating Default Chart of Accounts for Company ID: " + company.getCompanyId());
+
+        // 1. Cash Book
+        createAndSaveAccount(company, "Cash Book", "1000", AccountType.ASSET_BANK);
+
+        // 2. Accounts Receivable
+        Account arAccount = createAndSaveAccount(company, "Accounts Receivable", "1200", AccountType.ASSET_ACCOUNT_RECEIVABLE);
+        company.setAccountsReceivableAccount(arAccount);
+
+        // 3. Accounts Payable
+        Account apAccount = createAndSaveAccount(company, "Accounts Payable", "2000", AccountType.LIABILITY_ACCOUNTS_PAYABLE);
+        company.setAccountsPayableAccount(apAccount);
+
+        // 4. Opening Balance Equity
+        createAndSaveAccount(company, "Opening Balance Equity", "3000", AccountType.EQUITY);
+
+        // 5. Retained Earnings
+        createAndSaveAccount(company, "Retained Earnings", "3001", AccountType.EQUITY);
+
+        // 6. Sales Revenue
+        createAndSaveAccount(company, "Sales Revenue", "4000", AccountType.INCOME);
+
+        // Save company again to persist the linked AR/AP accounts
+        companyRepository.save(company);
+        System.out.println("Default Chart of Accounts generation completed.");
+    }
+
+    private Account createAndSaveAccount(Company company, String name, String code, AccountType type) {
+        AccountRequestDto dto = new AccountRequestDto();
+        dto.setAccountName(name);
+        dto.setAccountCode(code);
+        dto.setAccountType(type);
+        dto.setOpeningBalance(BigDecimal.ZERO);
+        dto.setCurrentBalance(BigDecimal.ZERO);
+
+        return accountService.createAccount(company.getCompanyId(), dto);
     }
 
     private com.example.GinumApps.enums.CompanyCategory mapIndustryToCategory(String industryType) {
