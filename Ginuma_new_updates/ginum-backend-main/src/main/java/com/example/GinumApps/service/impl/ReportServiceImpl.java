@@ -290,9 +290,9 @@ public class ReportServiceImpl implements ReportService {
                         account.getId(),
                         account.getAccountCode(),
                         account.getAccountName(),
-                        balance.abs()
+                        balance
                     ));
-                    totalRevenue = totalRevenue.add(balance.abs());
+                    totalRevenue = totalRevenue.add(balance);
                 }
             }
         }
@@ -309,9 +309,9 @@ public class ReportServiceImpl implements ReportService {
                         account.getId(),
                         account.getAccountCode(),
                         account.getAccountName(),
-                        balance.abs()
+                        balance
                     ));
-                    totalCostOfSales = totalCostOfSales.add(balance.abs());
+                    totalCostOfSales = totalCostOfSales.add(balance);
                 }
             }
         }
@@ -330,9 +330,9 @@ public class ReportServiceImpl implements ReportService {
                         account.getId(),
                         account.getAccountCode(),
                         account.getAccountName(),
-                        balance.abs()
+                        balance
                     ));
-                    totalOperatingExpenses = totalOperatingExpenses.add(balance.abs());
+                    totalOperatingExpenses = totalOperatingExpenses.add(balance);
                 }
             }
         }
@@ -351,9 +351,9 @@ public class ReportServiceImpl implements ReportService {
                         account.getId(),
                         account.getAccountCode(),
                         account.getAccountName(),
-                        balance.abs()
+                        balance
                     ));
-                    totalOtherIncome = totalOtherIncome.add(balance.abs());
+                    totalOtherIncome = totalOtherIncome.add(balance);
                 }
             }
         }
@@ -370,9 +370,9 @@ public class ReportServiceImpl implements ReportService {
                         account.getId(),
                         account.getAccountCode(),
                         account.getAccountName(),
-                        balance.abs()
+                        balance
                     ));
-                    totalOtherExpenses = totalOtherExpenses.add(balance.abs());
+                    totalOtherExpenses = totalOtherExpenses.add(balance);
                 }
             }
         }
