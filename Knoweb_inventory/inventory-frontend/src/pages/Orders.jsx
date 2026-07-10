@@ -504,7 +504,7 @@ function CreateSalesOrderModal({ onClose, onCreated }) {
                     {availableProducts.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                   <input className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-black text-slate-800 outline-none focus:border-emerald-400" type="number" placeholder="Qty" min="1" value={item.quantity} onChange={e => updateItem(idx, 'quantity', e.target.value)} required />
-                  <FormattedNumberInput className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-black text-slate-800 outline-none focus:border-emerald-400" placeholder="Price" min="0.01" value={item.unitPrice} onChange={val => updateItem(idx, 'unitPrice', val)} required />
+                  <input type="number" step="0.01" className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-black text-slate-800 outline-none focus:border-emerald-400" placeholder="Price" min="0.01" value={item.unitPrice} onChange={e => updateItem(idx, 'unitPrice', e.target.value)} required />
                   <button type="button" onClick={() => removeItem(idx)} disabled={form.items.length === 1} className="p-2 bg-rose-50 text-rose-600 rounded-lg disabled:opacity-30 hover:bg-rose-100 mt-0.5">
                     <X size={14} />
                   </button>
