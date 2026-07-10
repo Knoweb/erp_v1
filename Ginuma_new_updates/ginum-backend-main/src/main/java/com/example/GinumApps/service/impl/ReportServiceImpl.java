@@ -225,6 +225,40 @@ public class ReportServiceImpl implements ReportService {
                 .build();
     }
 
+    private BigDecimal calculateOpeningBalance(Long accountId, LocalDate beforeDate) {
+        Account account = accountRepository.findById(accountId).orElse(null);
+        if (account == null) {
+            return BigDecimal.ZERO;
+        }
+
+        // 1. Get initial balance from the database opening_balance column (Treat null as 0)
+        BigDecimal balance = account.getOpeningBalance() != null ? account.getOpeningBalance() : BigDecimal.ZERO;
+
+        // 2. Fetch all Journal Entry Lines strictly before the given date
+        List<JournalEntryLine> lines = journalEntryLineRepository.findByAccountBeforeDate(accountId, beforeDate);
+
+        // 3. Pure Mathematical Aggregation based on Account Normal Side
+        for (JournalEntryLine line : lines) {
+            if (account.getAccountType().isDebitType()) {
+                // For Debit-type accounts (Assets, Expenses): Debits increase balance, Credits decrease balance
+                if (line.isDebit()) {
+                    balance = balance.add(line.getAmount());
+                } else {
+                    balance = balance.subtract(line.getAmount());
+                }
+            } else {
+                // For Credit-type accounts (Liabilities, Equity, Income): Credits increase balance, Debits decrease balance
+                if (!line.isDebit()) {
+                    balance = balance.add(line.getAmount());
+                } else {
+                    balance = balance.subtract(line.getAmount());
+                }
+            }
+        }
+
+        return balance;
+    }
+
     @Override
     public void markTransactionReconciled(Integer companyId, Long transactionId, boolean reconciled) {
         JournalEntryLine jel = journalEntryLineRepository.findById(transactionId)
