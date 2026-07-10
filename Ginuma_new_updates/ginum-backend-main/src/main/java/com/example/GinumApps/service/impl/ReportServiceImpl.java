@@ -101,24 +101,38 @@ public class ReportServiceImpl implements ReportService {
         List<TrialBalanceDto.AccountBalanceDto> accountBalances = new ArrayList<>();
 
         for (Account account : accounts) {
-            // Calculate balance as of date
-            BigDecimal balance = calculateOpeningBalance(account.getId(), asOfDate.plusDays(1));
+            // 1. Get Opening Balance (Treat null as 0)
+            BigDecimal balance = account.getOpeningBalance() != null ? account.getOpeningBalance() : BigDecimal.ZERO;
 
+            // 2. Fetch all Journal Entry Lines before the asOfDate (inclusive)
+            List<JournalEntryLine> lines = journalEntryLineRepository.findByAccountBeforeDate(account.getId(), asOfDate.plusDays(1));
+
+            // 3. Pure Mathematical Aggregation based on Account Normal Side
+            for (JournalEntryLine line : lines) {
+                if (account.getAccountType().isDebitType()) {
+                    balance = line.isDebit() ? balance.add(line.getAmount()) : balance.subtract(line.getAmount());
+                } else {
+                    balance = !line.isDebit() ? balance.add(line.getAmount()) : balance.subtract(line.getAmount());
+                }
+            }
+
+            // 4. Split into Debit/Credit Columns for the Report
             BigDecimal debitBalance = BigDecimal.ZERO;
             BigDecimal creditBalance = BigDecimal.ZERO;
-
-            // Determine if balance goes to debit or credit side
-            if (account.getAccountType().isDebitType()) {
-                if (balance.compareTo(BigDecimal.ZERO) >= 0) {
-                    debitBalance = balance;
+            
+            if (balance.compareTo(BigDecimal.ZERO) != 0) {
+                if (account.getAccountType().isDebitType()) {
+                    if (balance.compareTo(BigDecimal.ZERO) > 0) {
+                        debitBalance = balance;
+                    } else {
+                        creditBalance = balance.abs();
+                    }
                 } else {
-                    creditBalance = balance.abs();
-                }
-            } else {
-                if (balance.compareTo(BigDecimal.ZERO) >= 0) {
-                    creditBalance = balance;
-                } else {
-                    debitBalance = balance.abs();
+                    if (balance.compareTo(BigDecimal.ZERO) > 0) {
+                        creditBalance = balance;
+                    } else {
+                        debitBalance = balance.abs();
+                    }
                 }
             }
 
@@ -209,49 +223,6 @@ public class ReportServiceImpl implements ReportService {
                 .unreconciledDifference(systemBalance.subtract(clearedBalance))
                 .transactions(transactionItems)
                 .build();
-    }
-
-    private BigDecimal calculateOpeningBalance(Long accountId, LocalDate beforeDate) {
-        Account account = accountRepository.findById(accountId).orElse(null);
-        if (account == null) return BigDecimal.ZERO;
-
-        BigDecimal initialBase = account.getOpeningBalance();
-        if (initialBase == null) {
-            // Fallback for existing accounts: Initial = Current - Net Sum of all JEs
-            List<JournalEntryLine> allLines = journalEntryLineRepository.findByAccountAndDateDesc(accountId, LocalDate.now().plusYears(100));
-            BigDecimal netEffect = BigDecimal.ZERO;
-            for (JournalEntryLine line : allLines) {
-                if (account.getAccountType().isDebitType()) {
-                    netEffect = line.isDebit() ? netEffect.add(line.getAmount()) : netEffect.subtract(line.getAmount());
-                } else {
-                    netEffect = !line.isDebit() ? netEffect.add(line.getAmount()) : netEffect.subtract(line.getAmount());
-                }
-            }
-            initialBase = account.getCurrentBalance() != null ? account.getCurrentBalance().subtract(netEffect) : BigDecimal.ZERO;
-        }
-
-        List<JournalEntryLine> lines = journalEntryLineRepository
-                .findByAccountBeforeDate(accountId, beforeDate);
-
-        BigDecimal balance = initialBase;
-
-        for (JournalEntryLine line : lines) {
-            if (account.getAccountType().isDebitType()) {
-                if (line.isDebit()) {
-                    balance = balance.add(line.getAmount());
-                } else {
-                    balance = balance.subtract(line.getAmount());
-                }
-            } else {
-                if (!line.isDebit()) {
-                    balance = balance.add(line.getAmount());
-                } else {
-                    balance = balance.subtract(line.getAmount());
-                }
-            }
-        }
-
-        return balance;
     }
 
     @Override
