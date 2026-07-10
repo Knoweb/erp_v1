@@ -104,7 +104,7 @@ public class CompanyService {
         Company savedCompany = companyRepository.save(company);
 
         // Initialize default accounts
-        initializeDefaultAccounts(savedCompany);
+        generateDefaultChartOfAccounts(savedCompany);
 
         return savedCompany;
     }
@@ -242,6 +242,12 @@ public class CompanyService {
 
             Company saved = companyRepository.save(company);
             System.out.println("✅ Successfully updated company ID: " + saved.getCompanyId());
+
+            if (saved.getAccountsPayableAccount() == null) {
+                System.out.println("⚙️ Existing company missing default accounts. Generating now...");
+                generateDefaultChartOfAccounts(saved);
+            }
+
             return saved;
         } else {
             // Create new company
