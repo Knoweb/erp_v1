@@ -19,6 +19,7 @@ public class BankReconciliationDto {
     private LocalDate statementDate;
     private BigDecimal statementBalance;
     private BigDecimal systemBalance;
+    private BigDecimal openingBalance;
     private BigDecimal clearedBalance;
     private BigDecimal unreconciledDifference;
     private List<TransactionItemDto> transactions;

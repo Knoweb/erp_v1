@@ -129,13 +129,16 @@ function BankReconsilation() {
   const systemBalance = reconciliationData 
     ? parseFloat(reconciliationData.systemBalance) || 0 
     : (selectedBank ? parseFloat(selectedBank.currentBalance) || 0 : 0);
+    
+  const openingBalance = reconciliationData
+    ? parseFloat(reconciliationData.openingBalance) || 0
+    : 0;
 
   const clearedDeposits = transactions.filter(t => t.cleared && t.type === "deposit").reduce((acc, t) => acc + t.amount, 0);
   const clearedWithdrawals = transactions.filter(t => t.cleared && t.type === "withdrawal").reduce((acc, t) => acc + t.amount, 0);
 
-  // The cleared balance should strictly be the net sum of all cleared transactions.
-  // It should NOT add systemBalance, because systemBalance already includes these transactions (leading to double counting).
-  const calculatedBalance = clearedDeposits - clearedWithdrawals;
+  // The cleared balance should include the openingBalance plus newly cleared items.
+  const calculatedBalance = openingBalance + clearedDeposits - clearedWithdrawals;
   const difference = (parseFloat(statementBalance) || 0) - calculatedBalance;
 
   const handleReconcileNow = async () => {

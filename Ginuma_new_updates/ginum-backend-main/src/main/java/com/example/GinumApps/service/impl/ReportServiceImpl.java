@@ -183,6 +183,9 @@ public class ReportServiceImpl implements ReportService {
 
         BigDecimal systemBalance = bankAccount.getCurrentBalance() != null 
                 ? bankAccount.getCurrentBalance() : BigDecimal.ZERO;
+                
+        BigDecimal openingBalance = bankAccount.getLastReconciledBalance() != null 
+                ? bankAccount.getLastReconciledBalance() : BigDecimal.ZERO;
 
         BigDecimal clearedBalance = BigDecimal.ZERO;
         List<BankReconciliationDto.TransactionItemDto> transactionItems = new ArrayList<>();
@@ -220,6 +223,7 @@ public class ReportServiceImpl implements ReportService {
                 .statementDate(statementDate)
                 .statementBalance(BigDecimal.ZERO) // To be provided by user
                 .systemBalance(systemBalance)
+                .openingBalance(openingBalance)
                 .clearedBalance(clearedBalance)
                 .unreconciledDifference(systemBalance.subtract(clearedBalance))
                 .transactions(transactionItems)
@@ -310,12 +314,15 @@ public class ReportServiceImpl implements ReportService {
                 clearedWithdrawals = clearedWithdrawals.add(jel.getAmount());
             }
         }
+        
+        BigDecimal openingBalance = bankAccount.getLastReconciledBalance() != null 
+                ? bankAccount.getLastReconciledBalance() : BigDecimal.ZERO;
 
-        BigDecimal calculatedClearedBalance = clearedDeposits.subtract(clearedWithdrawals);
+        BigDecimal calculatedClearedBalance = openingBalance.add(clearedDeposits).subtract(clearedWithdrawals);
 
         if (request.getStatementBalance().compareTo(calculatedClearedBalance) != 0) {
             throw new RuntimeException("Reconciliation failed: Statement Balance (" + request.getStatementBalance() + 
-                ") does not match sum of cleared transactions (" + calculatedClearedBalance + ").");
+                ") does not match calculated cleared balance (" + calculatedClearedBalance + ").");
         }
 
         // Update transactions
