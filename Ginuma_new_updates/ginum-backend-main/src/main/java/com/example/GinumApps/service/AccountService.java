@@ -12,6 +12,9 @@ import com.example.GinumApps.model.Company;
 import com.example.GinumApps.repository.AccountRepository;
 import com.example.GinumApps.repository.CompanyRepository;
 import com.example.GinumApps.repository.JournalEntryLineRepository;
+import com.example.GinumApps.repository.JournalEntryRepository;
+import com.example.GinumApps.model.JournalEntry;
+import com.example.GinumApps.model.JournalEntryLine;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +38,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final CompanyRepository companyRepository;
     private final JournalEntryLineRepository journalEntryLineRepository;
-    private final JournalEntryService journalEntryService;
+    private final JournalEntryRepository journalEntryRepository;
 
     @Transactional
     public Account createAccount(Integer companyId, AccountRequestDto request) {
@@ -95,33 +98,44 @@ public class AccountService {
             isDebit = !isDebit; // Reverse if negative
         }
 
-        List<JournalEntryLineDto> lines = new ArrayList<>();
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new EntityNotFoundException("Company not found"));
+                
+        Account equityAccount = accountRepository.findByAccountCodeAndCompany_CompanyId("3000", companyId)
+                .orElseThrow(() -> new EntityNotFoundException("Opening Balance Equity account (3000) not found"));
 
+        // 1. Create and save the JournalEntry
+        JournalEntry entry = new JournalEntry();
+        entry.setCompany(company);
+        entry.setEntryType(JournalEntryType.SYSTEM_GENERATED);
+        entry.setEntryDate(LocalDate.now());
+        entry.setJournalTitle("Opening Balance: " + account.getAccountName());
+        entry.setDescription("Initial balance for " + account.getAccountName());
+        entry.setReferenceNo("OB-" + account.getAccountCode());
+        entry.setAuthorId(1); // Default system author
+        
+        JournalEntry savedEntry = journalEntryRepository.save(entry);
+
+        // 2. Create the JournalEntryLines
         // Line 1: The new account
-        JournalEntryLineDto accountLine = new JournalEntryLineDto();
-        accountLine.setAccountCode(account.getAccountCode());
+        JournalEntryLine accountLine = new JournalEntryLine();
+        accountLine.setJournalEntry(savedEntry);
+        accountLine.setAccount(account);
         accountLine.setAmount(amount);
         accountLine.setDebit(isDebit);
         accountLine.setDescription("Opening Balance");
-        lines.add(accountLine);
+        accountLine.setReconciled(false);
+        journalEntryLineRepository.save(accountLine);
 
         // Line 2: Opening Balance Equity (Code 3000)
-        JournalEntryLineDto equityLine = new JournalEntryLineDto();
-        equityLine.setAccountCode("3000"); // Standard code for Opening Balance Equity
+        JournalEntryLine equityLine = new JournalEntryLine();
+        equityLine.setJournalEntry(savedEntry);
+        equityLine.setAccount(equityAccount);
         equityLine.setAmount(amount);
         equityLine.setDebit(!isDebit);
         equityLine.setDescription("Opening Balance Offset");
-        lines.add(equityLine);
-
-        JournalEntryDto journalEntryDto = new JournalEntryDto();
-        journalEntryDto.setCompanyId(companyId);
-        journalEntryDto.setEntryType(JournalEntryType.SYSTEM_GENERATED);
-        journalEntryDto.setEntryDate(LocalDate.now()); // Or perhaps let the user pass an 'asOfDate' in the future
-        journalEntryDto.setJournalTitle("Opening Balance: " + account.getAccountName());
-        journalEntryDto.setDescription("Initial balance for " + account.getAccountName());
-        journalEntryDto.setLines(lines);
-
-        journalEntryService.createJournalEntry(journalEntryDto);
+        equityLine.setReconciled(false);
+        journalEntryLineRepository.save(equityLine);
     }
 
     private String normalizeName(String name) {
