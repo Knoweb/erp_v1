@@ -130,7 +130,9 @@ function BankReconsilation() {
   const clearedDeposits = transactions.filter(t => t.cleared && t.type === "deposit").reduce((acc, t) => acc + t.amount, 0);
   const clearedWithdrawals = transactions.filter(t => t.cleared && t.type === "withdrawal").reduce((acc, t) => acc + t.amount, 0);
 
-  const calculatedBalance = systemBalance + clearedDeposits - clearedWithdrawals;
+  // The cleared balance should strictly be the net sum of all cleared transactions.
+  // It should NOT add systemBalance, because systemBalance already includes these transactions (leading to double counting).
+  const calculatedBalance = clearedDeposits - clearedWithdrawals;
   const difference = (parseFloat(statementBalance) || 0) - calculatedBalance;
 
   return (
