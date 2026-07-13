@@ -95,32 +95,15 @@ function BankReconsilation() {
     setStatementDate(today);
   }, []);
 
-  const toggleClear = async (id) => {
-    try {
-      const transaction = transactions.find(t => t.id === id);
-      if (!transaction) return;
+  const toggleClear = (id) => {
+    const transaction = transactions.find(t => t.id === id);
+    if (!transaction) return;
 
-      const companyId = localStorage.getItem("companyId");
-      const newReconciledStatus = !transaction.cleared;
+    const newReconciledStatus = !transaction.cleared;
 
-      // Optimistically update UI
-      setTransactions(transactions.map(t => t.id === id ? { ...t, cleared: newReconciledStatus } : t));
-
-      // Call API to persist the change
-      await api.post(`/api/companies/${companyId}/reports/bank-reconciliation/mark-reconciled`, null, {
-        params: {
-          transactionId: id,
-          reconciled: newReconciledStatus
-        }
-      });
-
-    } catch (error) {
-      console.error("Error toggling reconciliation status:", error);
-      Alert.error("Failed to update reconciliation status");
-      
-      // Revert on error
-      setTransactions(transactions.map(t => t.id === id ? { ...t, cleared: !t.cleared } : t));
-    }
+    // Only update local UI state. 
+    // We DO NOT make API calls here to prevent ghost states on refresh.
+    setTransactions(transactions.map(t => t.id === id ? { ...t, cleared: newReconciledStatus } : t));
   };
 
   const selectedBank = bankAccounts.find(b => b.accountCode === selectedBankCode);

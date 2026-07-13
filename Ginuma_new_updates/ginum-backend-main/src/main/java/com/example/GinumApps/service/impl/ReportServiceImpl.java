@@ -264,20 +264,7 @@ public class ReportServiceImpl implements ReportService {
         return balance;
     }
 
-    @Override
-    public void markTransactionReconciled(Integer companyId, Long transactionId, boolean reconciled) {
-        JournalEntryLine jel = journalEntryLineRepository.findById(transactionId)
-                .orElseThrow(() -> new RuntimeException("Transaction line not found"));
 
-        // Verify transaction belongs to the company
-        if (!jel.getAccount().getCompany().getCompanyId().equals(companyId)) {
-            throw new RuntimeException("Transaction does not belong to this company");
-        }
-
-        jel.setReconciled(reconciled);
-        jel.setReconciledDate(reconciled ? LocalDate.now() : null);
-        journalEntryLineRepository.save(jel);
-    }
 
     @Override
     @org.springframework.transaction.annotation.Transactional

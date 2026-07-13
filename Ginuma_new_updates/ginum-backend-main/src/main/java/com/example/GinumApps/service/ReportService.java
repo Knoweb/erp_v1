@@ -19,8 +19,6 @@ public interface ReportService {
     java.util.List<com.example.GinumApps.dto.ReconciliationHistoryResponseDto> getBankReconciliationHistory(Integer companyId, LocalDate startDate, LocalDate endDate);
 
     com.example.GinumApps.dto.ReconciliationHistoryDetailResponseDto getBankReconciliationHistoryDetails(Integer companyId, Long historyId);
-
-    void markTransactionReconciled(Integer companyId, Long transactionId, boolean reconciled);
     
     // Priority 3 Financial Reports
     IncomeStatementDto getIncomeStatement(Integer companyId, LocalDate startDate, LocalDate endDate);

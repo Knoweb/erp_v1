@@ -49,14 +49,7 @@ public class ReportController {
         return ResponseEntity.ok(reconciliation);
     }
 
-    @PostMapping("/bank-reconciliation/mark-reconciled")
-    public ResponseEntity<?> markTransactionReconciled(
-            @PathVariable Integer companyId,
-            @RequestParam Long transactionId,
-            @RequestParam boolean reconciled) {
-        reportService.markTransactionReconciled(companyId, transactionId, reconciled);
-        return ResponseEntity.ok().build();
-    }
+
 
     @PostMapping("/bank-reconciliation/complete")
     public ResponseEntity<?> completeBankReconciliation(
