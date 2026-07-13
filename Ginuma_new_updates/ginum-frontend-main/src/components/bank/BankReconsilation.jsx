@@ -159,7 +159,15 @@ function BankReconsilation() {
       await api.post(`/api/companies/${companyId}/reports/bank-reconciliation/complete`, payload);
       Alert.success("Bank reconciliation completed successfully!");
       
-      // Reload the data
+      // Clear local state
+      setTransactions([]);
+      setStatementBalance("0.00");
+      setReconciliationData(null);
+      
+      // Switch to History tab
+      setActiveTab('history');
+      
+      // Optionally reload the data
       loadReconciliationData();
     } catch (error) {
       console.error("Error completing reconciliation:", error);

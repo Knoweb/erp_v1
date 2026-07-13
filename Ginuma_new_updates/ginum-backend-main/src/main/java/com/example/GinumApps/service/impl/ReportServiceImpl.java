@@ -200,18 +200,18 @@ public class ReportServiceImpl implements ReportService {
                 } else {
                     clearedBalance = clearedBalance.subtract(amount);
                 }
+            } else {
+                transactionItems.add(BankReconciliationDto.TransactionItemDto.builder()
+                        .transactionId(jel.getId())
+                        .date(je.getEntryDate())
+                        .referenceNo(je.getReferenceNo())
+                        .description(jel.getDescription() != null ? jel.getDescription() : je.getJournalTitle())
+                        .type(type)
+                        .amount(amount)
+                        .reconciled(false)
+                        .reconciledDate(null)
+                        .build());
             }
-
-            transactionItems.add(BankReconciliationDto.TransactionItemDto.builder()
-                    .transactionId(jel.getId())
-                    .date(je.getEntryDate())
-                    .referenceNo(je.getReferenceNo())
-                    .description(jel.getDescription() != null ? jel.getDescription() : je.getJournalTitle())
-                    .type(type)
-                    .amount(amount)
-                    .reconciled(jel.isReconciled())
-                    .reconciledDate(jel.getReconciledDate())
-                    .build());
         }
 
         return BankReconciliationDto.builder()
@@ -288,10 +288,13 @@ public class ReportServiceImpl implements ReportService {
         // Fetch transactions by ID
         List<JournalEntryLine> transactions = journalEntryLineRepository.findAllById(request.getTransactionIds());
         
-        // Ensure they all belong to this account
+        // Ensure they all belong to this account and are not already reconciled
         for (JournalEntryLine jel : transactions) {
             if (!jel.getAccount().getId().equals(request.getBankAccountId())) {
                 throw new RuntimeException("Transaction " + jel.getId() + " does not belong to the selected bank account");
+            }
+            if (jel.isReconciled()) {
+                throw new RuntimeException("Transaction " + jel.getId() + " has already been reconciled.");
             }
         }
 
