@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import api from "../../utils/api";
 import Alert from "../Alert/Alert";
 import { FaUniversity, FaCheckCircle, FaSearch, FaRegCircle, FaSyncAlt } from "react-icons/fa";
+import BankReconciliationHistory from "./BankReconciliationHistory";
 
 function BankReconsilation() {
   const [bankAccounts, setBankAccounts] = useState([]);
@@ -13,6 +14,7 @@ function BankReconsilation() {
   const [isCompleting, setIsCompleting] = useState(false);
   const [reconciliationData, setReconciliationData] = useState(null);
   const [transactions, setTransactions] = useState([]);
+  const [activeTab, setActiveTab] = useState('new');
 
   const fetchBankAccounts = async () => {
     try {
@@ -175,18 +177,48 @@ function BankReconsilation() {
           Bank Reconciliation
         </h2>
         <div className="mt-4 sm:mt-0 space-x-3">
-          <button className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition drop-shadow-sm font-medium">Save for later</button>
-          <button
-            onClick={handleReconcileNow}
-            disabled={difference !== 0 || isCompleting}
-            className={`px-4 py-2 font-medium rounded-lg shadow transition ${(difference === 0 && !isCompleting) ? 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}>
-            {isCompleting ? 'Reconciling...' : 'Reconcile Now'}
-          </button>
+          {activeTab === 'new' && (
+            <>
+              <button className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition drop-shadow-sm font-medium">Save for later</button>
+              <button
+                onClick={handleReconcileNow}
+                disabled={difference !== 0 || isCompleting}
+                className={`px-4 py-2 font-medium rounded-lg shadow transition ${(difference === 0 && !isCompleting) ? 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}>
+                {isCompleting ? 'Reconciling...' : 'Reconcile Now'}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* Setup Column */}
+      {/* Tabs */}
+      <div className="flex border-b border-gray-200 mb-6 space-x-8">
+        <button
+          className={`pb-3 font-semibold text-sm transition-colors border-b-2 ${
+            activeTab === 'new'
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          }`}
+          onClick={() => setActiveTab('new')}
+        >
+          New Reconciliation
+        </button>
+        <button
+          className={`pb-3 font-semibold text-sm transition-colors border-b-2 ${
+            activeTab === 'history'
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          }`}
+          onClick={() => setActiveTab('history')}
+        >
+          History
+        </button>
+      </div>
+
+      {activeTab === 'new' ? (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Setup Column */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-1 space-y-6">
           <h3 className="text-lg font-semibold text-gray-800 border-b pb-3">Statement Setup</h3>
 
@@ -320,10 +352,14 @@ function BankReconsilation() {
                   </td>
                 </tr>
               )}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+        </>
+      ) : (
+        <BankReconciliationHistory />
+      )}
     </div>
   );
 }
