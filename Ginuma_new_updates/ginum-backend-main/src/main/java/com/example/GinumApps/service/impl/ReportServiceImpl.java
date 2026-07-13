@@ -340,6 +340,77 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    public List<com.example.GinumApps.dto.ReconciliationHistoryResponseDto> getBankReconciliationHistory(Integer companyId, LocalDate startDate, LocalDate endDate) {
+        List<com.example.GinumApps.model.BankReconciliationHistory> records;
+        
+        if (startDate != null && endDate != null) {
+            records = bankReconciliationHistoryRepository.findByCompany_CompanyIdAndReconciliationDateBetweenOrderByReconciliationDateDesc(companyId, startDate, endDate);
+        } else {
+            records = bankReconciliationHistoryRepository.findByCompany_CompanyIdOrderByReconciliationDateDesc(companyId);
+        }
+
+        return records.stream().map(record -> com.example.GinumApps.dto.ReconciliationHistoryResponseDto.builder()
+                .historyId(record.getId())
+                .accountId(record.getAccount().getId())
+                .accountName(record.getAccount().getAccountName())
+                .statementDate(record.getStatementDate())
+                .statementBalance(record.getStatementBalance())
+                .reconciliationDate(record.getReconciliationDate())
+                .build()
+        ).collect(Collectors.toList());
+    }
+
+    @Override
+    public com.example.GinumApps.dto.ReconciliationHistoryDetailResponseDto getBankReconciliationHistoryDetails(Integer companyId, Long historyId) {
+        com.example.GinumApps.model.BankReconciliationHistory history = bankReconciliationHistoryRepository.findById(historyId)
+                .orElseThrow(() -> new RuntimeException("History record not found"));
+
+        if (!history.getCompany().getCompanyId().equals(companyId)) {
+            throw new RuntimeException("History record does not belong to this company");
+        }
+
+        List<JournalEntryLine> lines = journalEntryLineRepository.findAllById(history.getTransactionIds());
+        
+        BigDecimal clearedDeposits = BigDecimal.ZERO;
+        BigDecimal clearedWithdrawals = BigDecimal.ZERO;
+        
+        List<com.example.GinumApps.dto.ReconciliationHistoryDetailResponseDto.ReconciliationTransactionDto> txDtos = new ArrayList<>();
+
+        for (JournalEntryLine jel : lines) {
+            String type = jel.isDebit() ? "deposit" : "withdrawal";
+            if (type.equals("deposit")) {
+                clearedDeposits = clearedDeposits.add(jel.getAmount());
+            } else {
+                clearedWithdrawals = clearedWithdrawals.add(jel.getAmount());
+            }
+            
+            txDtos.add(com.example.GinumApps.dto.ReconciliationHistoryDetailResponseDto.ReconciliationTransactionDto.builder()
+                    .transactionId(jel.getId())
+                    .date(jel.getJournalEntry().getEntryDate())
+                    .referenceNo(jel.getJournalEntry().getReferenceNo())
+                    .description(jel.getDescription() != null ? jel.getDescription() : jel.getJournalEntry().getJournalTitle())
+                    .type(type)
+                    .amount(jel.getAmount())
+                    .build());
+        }
+
+        BigDecimal clearedBalance = clearedDeposits.subtract(clearedWithdrawals);
+        BigDecimal difference = history.getStatementBalance().subtract(clearedBalance);
+
+        return com.example.GinumApps.dto.ReconciliationHistoryDetailResponseDto.builder()
+                .historyId(history.getId())
+                .accountId(history.getAccount().getId())
+                .accountName(history.getAccount().getAccountName())
+                .statementDate(history.getStatementDate())
+                .statementBalance(history.getStatementBalance())
+                .clearedBalance(clearedBalance)
+                .difference(difference)
+                .reconciliationDate(history.getReconciliationDate())
+                .transactions(txDtos)
+                .build();
+    }
+
+    @Override
     public IncomeStatementDto getIncomeStatement(Integer companyId, LocalDate startDate, LocalDate endDate) {
         List<Account> accounts = accountRepository.findByCompany_CompanyId(companyId);
 

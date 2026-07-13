@@ -15,6 +15,10 @@ public interface ReportService {
     BankReconciliationDto getBankReconciliationData(Integer companyId, Long bankAccountId, LocalDate statementDate);
     
     void completeBankReconciliation(Integer companyId, com.example.GinumApps.dto.ReconciliationCompleteRequestDto request);
+    
+    java.util.List<com.example.GinumApps.dto.ReconciliationHistoryResponseDto> getBankReconciliationHistory(Integer companyId, LocalDate startDate, LocalDate endDate);
+
+    com.example.GinumApps.dto.ReconciliationHistoryDetailResponseDto getBankReconciliationHistoryDetails(Integer companyId, Long historyId);
 
     void markTransactionReconciled(Integer companyId, Long transactionId, boolean reconciled);
     

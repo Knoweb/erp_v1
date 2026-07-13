@@ -70,6 +70,21 @@ public class ReportController {
         }
     }
 
+    @GetMapping("/bank-reconciliation/history")
+    public ResponseEntity<java.util.List<com.example.GinumApps.dto.ReconciliationHistoryResponseDto>> getReconciliationHistory(
+            @PathVariable Integer companyId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        return ResponseEntity.ok(reportService.getBankReconciliationHistory(companyId, startDate, endDate));
+    }
+
+    @GetMapping("/bank-reconciliation/history/{historyId}")
+    public ResponseEntity<com.example.GinumApps.dto.ReconciliationHistoryDetailResponseDto> getReconciliationHistoryDetails(
+            @PathVariable Integer companyId,
+            @PathVariable Long historyId) {
+        return ResponseEntity.ok(reportService.getBankReconciliationHistoryDetails(companyId, historyId));
+    }
+
     // Priority 3 Financial Reports
     @GetMapping("/income-statement")
     public ResponseEntity<IncomeStatementDto> getIncomeStatement(
