@@ -10,6 +10,7 @@ function BankReconsilation() {
   const [statementBalance, setStatementBalance] = useState("0.00");
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingReconciliation, setIsLoadingReconciliation] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
   const [reconciliationData, setReconciliationData] = useState(null);
   const [transactions, setTransactions] = useState([]);
 
@@ -135,6 +136,37 @@ function BankReconsilation() {
   const calculatedBalance = clearedDeposits - clearedWithdrawals;
   const difference = (parseFloat(statementBalance) || 0) - calculatedBalance;
 
+  const handleReconcileNow = async () => {
+    if (difference !== 0) {
+      Alert.error("Cannot reconcile. Difference must be exactly 0.00");
+      return;
+    }
+
+    try {
+      setIsCompleting(true);
+      const companyId = localStorage.getItem("companyId");
+      const checkedTransactionIds = transactions.filter(t => t.cleared).map(t => t.id);
+
+      const payload = {
+        bankAccountId: selectedBank.id,
+        statementDate: statementDate,
+        statementBalance: parseFloat(statementBalance) || 0,
+        transactionIds: checkedTransactionIds
+      };
+
+      await api.post(`/api/companies/${companyId}/reports/bank-reconciliation/complete`, payload);
+      Alert.success("Bank reconciliation completed successfully!");
+      
+      // Reload the data
+      loadReconciliationData();
+    } catch (error) {
+      console.error("Error completing reconciliation:", error);
+      Alert.error(error.response?.data || "Failed to complete bank reconciliation");
+    } finally {
+      setIsCompleting(false);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6 my-4 w-full">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
@@ -145,9 +177,10 @@ function BankReconsilation() {
         <div className="mt-4 sm:mt-0 space-x-3">
           <button className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition drop-shadow-sm font-medium">Save for later</button>
           <button
-            disabled={difference !== 0}
-            className={`px-4 py-2 font-medium rounded-lg shadow transition ${difference === 0 ? 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}>
-            Reconcile Now
+            onClick={handleReconcileNow}
+            disabled={difference !== 0 || isCompleting}
+            className={`px-4 py-2 font-medium rounded-lg shadow transition ${(difference === 0 && !isCompleting) ? 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}>
+            {isCompleting ? 'Reconciling...' : 'Reconcile Now'}
           </button>
         </div>
       </div>

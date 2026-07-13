@@ -13,6 +13,9 @@ public interface ReportService {
     GeneralLedgerDto getGeneralLedger(Integer companyId, Long accountId, LocalDate startDate, LocalDate endDate);
     TrialBalanceDto getTrialBalance(Integer companyId, LocalDate asOfDate);
     BankReconciliationDto getBankReconciliationData(Integer companyId, Long bankAccountId, LocalDate statementDate);
+    
+    void completeBankReconciliation(Integer companyId, com.example.GinumApps.dto.ReconciliationCompleteRequestDto request);
+
     void markTransactionReconciled(Integer companyId, Long transactionId, boolean reconciled);
     
     // Priority 3 Financial Reports

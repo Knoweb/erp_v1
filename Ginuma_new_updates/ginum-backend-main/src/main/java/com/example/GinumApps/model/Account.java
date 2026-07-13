@@ -52,6 +52,12 @@ public class Account {
     @Column(precision = 19, scale = 2)
     private BigDecimal openingBalance;
 
+    @Column(precision = 19, scale = 2)
+    private BigDecimal lastReconciledBalance;
+
+    @Column
+    private java.time.LocalDate lastReconciledDate;
+
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     @JsonIgnore

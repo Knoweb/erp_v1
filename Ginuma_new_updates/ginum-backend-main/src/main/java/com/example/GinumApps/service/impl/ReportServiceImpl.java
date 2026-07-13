@@ -35,6 +35,7 @@ public class ReportServiceImpl implements ReportService {
     private final JournalEntryLineRepository journalEntryLineRepository;
     private final BankAccountRepository bankAccountRepository;
     private final MoneyTransactionRepository moneyTransactionRepository;
+    private final com.example.GinumApps.repository.BankReconciliationHistoryRepository bankReconciliationHistoryRepository;
 
     @Override
     public GeneralLedgerDto getGeneralLedger(Integer companyId, Long accountId, LocalDate startDate, LocalDate endDate) {
@@ -272,6 +273,70 @@ public class ReportServiceImpl implements ReportService {
         jel.setReconciled(reconciled);
         jel.setReconciledDate(reconciled ? LocalDate.now() : null);
         journalEntryLineRepository.save(jel);
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void completeBankReconciliation(Integer companyId, com.example.GinumApps.dto.ReconciliationCompleteRequestDto request) {
+        BankAccount bankAccount = bankAccountRepository.findById(request.getBankAccountId())
+                .orElseThrow(() -> new RuntimeException("Bank account not found"));
+
+        if (!bankAccount.getCompany().getCompanyId().equals(companyId)) {
+            throw new RuntimeException("Bank account does not belong to this company");
+        }
+
+        // Fetch transactions by ID
+        List<JournalEntryLine> transactions = journalEntryLineRepository.findAllById(request.getTransactionIds());
+        
+        // Ensure they all belong to this account
+        for (JournalEntryLine jel : transactions) {
+            if (!jel.getAccount().getId().equals(request.getBankAccountId())) {
+                throw new RuntimeException("Transaction " + jel.getId() + " does not belong to the selected bank account");
+            }
+        }
+
+        // Validate Difference == 0
+        BigDecimal clearedDeposits = BigDecimal.ZERO;
+        BigDecimal clearedWithdrawals = BigDecimal.ZERO;
+
+        for (JournalEntryLine jel : transactions) {
+            String type = jel.isDebit() ? "deposit" : "withdrawal";
+            if (type.equals("deposit")) {
+                clearedDeposits = clearedDeposits.add(jel.getAmount());
+            } else {
+                clearedWithdrawals = clearedWithdrawals.add(jel.getAmount());
+            }
+        }
+
+        BigDecimal calculatedClearedBalance = clearedDeposits.subtract(clearedWithdrawals);
+
+        if (request.getStatementBalance().compareTo(calculatedClearedBalance) != 0) {
+            throw new RuntimeException("Reconciliation failed: Statement Balance (" + request.getStatementBalance() + 
+                ") does not match sum of cleared transactions (" + calculatedClearedBalance + ").");
+        }
+
+        // Update transactions
+        for (JournalEntryLine jel : transactions) {
+            jel.setReconciled(true);
+            jel.setReconciledDate(LocalDate.now());
+        }
+        journalEntryLineRepository.saveAll(transactions);
+
+        // Update Account
+        bankAccount.setLastReconciledBalance(request.getStatementBalance());
+        bankAccount.setLastReconciledDate(LocalDate.now());
+        bankAccountRepository.save(bankAccount);
+
+        // Save History
+        com.example.GinumApps.model.BankReconciliationHistory history = new com.example.GinumApps.model.BankReconciliationHistory();
+        history.setCompany(bankAccount.getCompany());
+        history.setAccount(bankAccount);
+        history.setStatementDate(request.getStatementDate());
+        history.setStatementBalance(request.getStatementBalance());
+        history.setReconciliationDate(LocalDate.now());
+        history.setTransactionIds(request.getTransactionIds());
+        
+        bankReconciliationHistoryRepository.save(history);
     }
 
     @Override

@@ -58,6 +58,18 @@ public class ReportController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/bank-reconciliation/complete")
+    public ResponseEntity<?> completeBankReconciliation(
+            @PathVariable Integer companyId,
+            @RequestBody com.example.GinumApps.dto.ReconciliationCompleteRequestDto request) {
+        try {
+            reportService.completeBankReconciliation(companyId, request);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     // Priority 3 Financial Reports
     @GetMapping("/income-statement")
     public ResponseEntity<IncomeStatementDto> getIncomeStatement(
