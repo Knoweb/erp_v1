@@ -136,6 +136,14 @@ public class AccountService {
         equityLine.setDescription("Opening Balance Offset");
         equityLine.setReconciled(false);
         journalEntryLineRepository.save(equityLine);
+
+        // 3. Update the Equity Account's current balance
+        BigDecimal equityCurrentBal = equityAccount.getCurrentBalance() != null ? equityAccount.getCurrentBalance() : BigDecimal.ZERO;
+        // If the new account is debited (e.g. Asset), Equity is credited (increases).
+        // If the new account is credited (e.g. Liability), Equity is debited (decreases).
+        BigDecimal equityChange = isDebit ? amount : amount.negate();
+        equityAccount.setCurrentBalance(equityCurrentBal.add(equityChange));
+        accountRepository.save(equityAccount);
     }
 
     private String normalizeName(String name) {

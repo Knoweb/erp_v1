@@ -102,8 +102,8 @@ public class ReportServiceImpl implements ReportService {
         List<TrialBalanceDto.AccountBalanceDto> accountBalances = new ArrayList<>();
 
         for (Account account : accounts) {
-            // 1. Get Opening Balance (Treat null as 0)
-            BigDecimal balance = account.getOpeningBalance() != null ? account.getOpeningBalance() : BigDecimal.ZERO;
+            // 1. Start from Zero (Opening Balance is captured in Journal Entry Lines)
+            BigDecimal balance = BigDecimal.ZERO;
 
             // 2. Fetch all Journal Entry Lines before the asOfDate (inclusive)
             List<JournalEntryLine> lines = journalEntryLineRepository.findByAccountBeforeDate(account.getId(), asOfDate.plusDays(1));
@@ -236,8 +236,8 @@ public class ReportServiceImpl implements ReportService {
             return BigDecimal.ZERO;
         }
 
-        // 1. Get initial balance from the database opening_balance column (Treat null as 0)
-        BigDecimal balance = account.getOpeningBalance() != null ? account.getOpeningBalance() : BigDecimal.ZERO;
+        // 1. Start from Zero (Opening Balance is captured in Journal Entry Lines)
+        BigDecimal balance = BigDecimal.ZERO;
 
         // 2. Fetch all Journal Entry Lines strictly before the given date
         List<JournalEntryLine> lines = journalEntryLineRepository.findByAccountBeforeDate(accountId, beforeDate);
