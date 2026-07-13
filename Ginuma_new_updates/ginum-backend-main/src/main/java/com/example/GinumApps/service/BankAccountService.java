@@ -72,7 +72,7 @@ public class BankAccountService {
         
         // Create Opening Balance Journal Entry if applicable
         BigDecimal openingBalance = savedAccount.getOpeningBalance();
-        if (openingBalance != null && openingBalance.compareTo(BigDecimal.ZERO) != 0 && !savedAccount.getAccountCode().equals("3000")) {
+        if (openingBalance != null && openingBalance.compareTo(BigDecimal.ZERO) != 0 && !savedAccount.getAccountCode().equals("3001")) {
             createOpeningBalanceJournalEntry(companyId, savedAccount);
         }
 
@@ -90,8 +90,8 @@ public class BankAccountService {
         Company company = companyRepository.findById(companyId)
                 .orElseThrow(() -> new EntityNotFoundException("Company not found"));
                 
-        Account equityAccount = accountRepository.findByAccountCodeAndCompany_CompanyId("3000", companyId)
-                .orElseThrow(() -> new EntityNotFoundException("Opening Balance Equity account (3000) not found"));
+        Account equityAccount = accountRepository.findByAccountCodeAndCompany_CompanyId("3001", companyId)
+                .orElseThrow(() -> new EntityNotFoundException("Opening Balance Equity account (3001) not found"));
 
         // 1. Create and save the JournalEntry
         JournalEntry entry = new JournalEntry();
