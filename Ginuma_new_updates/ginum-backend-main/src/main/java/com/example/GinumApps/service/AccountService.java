@@ -3,7 +3,10 @@ package com.example.GinumApps.service;
 import com.example.GinumApps.dto.AccountRequestDto;
 import java.math.BigDecimal;
 import com.example.GinumApps.dto.AccountResponseDto;
+import com.example.GinumApps.dto.JournalEntryDto;
+import com.example.GinumApps.dto.JournalEntryLineDto;
 import com.example.GinumApps.enums.AccountType;
+import com.example.GinumApps.enums.JournalEntryType;
 import com.example.GinumApps.model.Account;
 import com.example.GinumApps.model.Company;
 import com.example.GinumApps.repository.AccountRepository;
@@ -13,6 +16,9 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +35,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final CompanyRepository companyRepository;
     private final JournalEntryLineRepository journalEntryLineRepository;
+    private final JournalEntryService journalEntryService;
 
     @Transactional
     public Account createAccount(Integer companyId, AccountRequestDto request) {
@@ -69,7 +76,52 @@ public class AccountService {
         account.setCompany(company);
         account.setAccountCode(accountCode);
 
-        return accountRepository.save(account);
+        Account savedAccount = accountRepository.save(account);
+
+        // If the account has an opening balance, create a Journal Entry
+        BigDecimal openingBalance = savedAccount.getOpeningBalance();
+        if (openingBalance != null && openingBalance.compareTo(BigDecimal.ZERO) != 0 && !savedAccount.getAccountCode().equals("3000")) {
+            createOpeningBalanceJournalEntry(companyId, savedAccount);
+        }
+
+        return savedAccount;
+    }
+
+    private void createOpeningBalanceJournalEntry(Integer companyId, Account account) {
+        BigDecimal amount = account.getOpeningBalance().abs();
+
+        boolean isDebit = account.getAccountType().isDebitType();
+        if (account.getOpeningBalance().compareTo(BigDecimal.ZERO) < 0) {
+            isDebit = !isDebit; // Reverse if negative
+        }
+
+        List<JournalEntryLineDto> lines = new ArrayList<>();
+
+        // Line 1: The new account
+        JournalEntryLineDto accountLine = new JournalEntryLineDto();
+        accountLine.setAccountCode(account.getAccountCode());
+        accountLine.setAmount(amount);
+        accountLine.setDebit(isDebit);
+        accountLine.setDescription("Opening Balance");
+        lines.add(accountLine);
+
+        // Line 2: Opening Balance Equity (Code 3000)
+        JournalEntryLineDto equityLine = new JournalEntryLineDto();
+        equityLine.setAccountCode("3000"); // Standard code for Opening Balance Equity
+        equityLine.setAmount(amount);
+        equityLine.setDebit(!isDebit);
+        equityLine.setDescription("Opening Balance Offset");
+        lines.add(equityLine);
+
+        JournalEntryDto journalEntryDto = new JournalEntryDto();
+        journalEntryDto.setCompanyId(companyId);
+        journalEntryDto.setEntryType(JournalEntryType.SYSTEM_GENERATED);
+        journalEntryDto.setEntryDate(LocalDate.now()); // Or perhaps let the user pass an 'asOfDate' in the future
+        journalEntryDto.setJournalTitle("Opening Balance: " + account.getAccountName());
+        journalEntryDto.setDescription("Initial balance for " + account.getAccountName());
+        journalEntryDto.setLines(lines);
+
+        journalEntryService.createJournalEntry(journalEntryDto);
     }
 
     private String normalizeName(String name) {
