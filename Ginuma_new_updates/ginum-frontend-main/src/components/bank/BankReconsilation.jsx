@@ -7,15 +7,7 @@ import BankReconciliationHistory from "./BankReconciliationHistory";
 function BankReconsilation() {
   const [bankAccounts, setBankAccounts] = useState([]);
   const [selectedBankCode, setSelectedBankCode] = useState("");
-import React, { useState, useEffect } from "react";
-import api from "../../utils/api";
-import Alert from "../Alert/Alert";
-import { FaUniversity, FaCheckCircle, FaSearch, FaRegCircle, FaSyncAlt } from "react-icons/fa";
-import BankReconciliationHistory from "./BankReconciliationHistory";
 
-function BankReconsilation() {
-  const [bankAccounts, setBankAccounts] = useState([]);
-  const [selectedBankCode, setSelectedBankCode] = useState("");
   const [statementDate, setStatementDate] = useState("");
   const [statementBalance, setStatementBalance] = useState("0.00");
   const [isLoading, setIsLoading] = useState(true);
