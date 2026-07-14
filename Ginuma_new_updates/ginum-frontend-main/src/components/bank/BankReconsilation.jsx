@@ -75,7 +75,7 @@ function BankReconsilation() {
         description: `${t.description} (${t.referenceNo})`,
         type: t.type.toLowerCase(), // "DEPOSIT" -> "deposit", "WITHDRAWAL" -> "withdrawal"
         amount: t.amount,
-        cleared: draftTransactionIds.includes(t.transactionId) ? true : t.reconciled
+        cleared: draftTransactionIds.some(id => String(id) === String(t.transactionId)) ? true : t.reconciled
       }));
 
       setTransactions(transformedTransactions);
