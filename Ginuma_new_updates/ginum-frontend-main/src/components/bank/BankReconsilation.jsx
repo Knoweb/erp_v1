@@ -7,6 +7,15 @@ import BankReconciliationHistory from "./BankReconciliationHistory";
 function BankReconsilation() {
   const [bankAccounts, setBankAccounts] = useState([]);
   const [selectedBankCode, setSelectedBankCode] = useState("");
+import React, { useState, useEffect } from "react";
+import api from "../../utils/api";
+import Alert from "../Alert/Alert";
+import { FaUniversity, FaCheckCircle, FaSearch, FaRegCircle, FaSyncAlt } from "react-icons/fa";
+import BankReconciliationHistory from "./BankReconciliationHistory";
+
+function BankReconsilation() {
+  const [bankAccounts, setBankAccounts] = useState([]);
+  const [selectedBankCode, setSelectedBankCode] = useState("");
   const [statementDate, setStatementDate] = useState("");
   const [statementBalance, setStatementBalance] = useState("0.00");
   const [isLoading, setIsLoading] = useState(true);
@@ -15,6 +24,8 @@ function BankReconsilation() {
   const [reconciliationData, setReconciliationData] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [activeTab, setActiveTab] = useState('new');
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [draftTransactionIds, setDraftTransactionIds] = useState([]);
 
   const fetchBankAccounts = async () => {
     try {
@@ -72,7 +83,7 @@ function BankReconsilation() {
         description: `${t.description} (${t.referenceNo})`,
         type: t.type.toLowerCase(), // "DEPOSIT" -> "deposit", "WITHDRAWAL" -> "withdrawal"
         amount: t.amount,
-        cleared: t.reconciled
+        cleared: draftTransactionIds.includes(t.transactionId) ? true : t.reconciled
       }));
 
       setTransactions(transformedTransactions);
@@ -94,6 +105,30 @@ function BankReconsilation() {
     const today = new Date().toISOString().split("T")[0];
     setStatementDate(today);
   }, []);
+
+  useEffect(() => {
+    const fetchDraft = async () => {
+      if (!selectedBankCode || bankAccounts.length === 0) return;
+      const companyId = localStorage.getItem("companyId");
+      const selectedBank = bankAccounts.find(b => b.accountCode === selectedBankCode);
+      if (!selectedBank) return;
+
+      try {
+        const response = await api.get(`/api/companies/${companyId}/reports/bank-reconciliation/draft/${selectedBank.id}`);
+        if (response.data && response.data.draftId) {
+          setStatementDate(response.data.statementDate);
+          setStatementBalance(response.data.statementBalance?.toString() || "0.00");
+          setDraftTransactionIds(response.data.transactionIds || []);
+          Alert.success("Saved draft loaded automatically");
+        } else {
+          setDraftTransactionIds([]);
+        }
+      } catch (error) {
+        setDraftTransactionIds([]);
+      }
+    };
+    fetchDraft();
+  }, [selectedBankCode, bankAccounts]);
 
   const toggleClear = (id) => {
     const transaction = transactions.find(t => t.id === id);
@@ -124,6 +159,28 @@ function BankReconsilation() {
   const calculatedBalance = openingBalance + clearedDeposits - clearedWithdrawals;
   const difference = (parseFloat(statementBalance) || 0) - calculatedBalance;
 
+  const handleSaveDraft = async () => {
+    try {
+      setIsSavingDraft(true);
+      const companyId = localStorage.getItem("companyId");
+      const checkedTransactionIds = transactions.filter(t => t.cleared).map(t => t.id);
+
+      const payload = {
+        accountId: selectedBank.id,
+        statementDate: statementDate,
+        statementBalance: parseFloat(statementBalance) || 0,
+        transactionIds: checkedTransactionIds
+      };
+
+      await api.post(`/api/companies/${companyId}/reports/bank-reconciliation/draft`, payload);
+      Alert.success("Draft saved successfully");
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      Alert.error("Failed to save draft");
+    } finally {
+      setIsSavingDraft(false);
+    }
+  };
   const handleReconcileNow = async () => {
     if (difference !== 0) {
       Alert.error("Cannot reconcile. Difference must be exactly 0.00");
@@ -173,7 +230,12 @@ function BankReconsilation() {
         <div className="mt-4 sm:mt-0 space-x-3">
           {activeTab === 'new' && (
             <>
-              <button className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition drop-shadow-sm font-medium">Save for later</button>
+              <button 
+                onClick={handleSaveDraft}
+                disabled={isSavingDraft || !selectedBank}
+                className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition drop-shadow-sm font-medium disabled:opacity-50">
+                {isSavingDraft ? "Saving..." : "Save for later"}
+              </button>
               <button
                 onClick={handleReconcileNow}
                 disabled={difference !== 0 || isCompleting}

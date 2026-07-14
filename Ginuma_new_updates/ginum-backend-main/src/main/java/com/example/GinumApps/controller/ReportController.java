@@ -63,6 +63,31 @@ public class ReportController {
         }
     }
 
+    @PostMapping("/bank-reconciliation/draft")
+    public ResponseEntity<?> saveBankReconciliationDraft(
+            @PathVariable Integer companyId,
+            @RequestBody com.example.GinumApps.dto.ReconciliationDraftRequestDto request) {
+        try {
+            reportService.saveBankReconciliationDraft(companyId, request);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/bank-reconciliation/draft/{accountId}")
+    public ResponseEntity<com.example.GinumApps.dto.ReconciliationDraftResponseDto> getBankReconciliationDraft(
+            @PathVariable Integer companyId,
+            @PathVariable Long accountId) {
+        com.example.GinumApps.dto.ReconciliationDraftResponseDto draft = reportService.getBankReconciliationDraft(companyId, accountId);
+        if (draft != null) {
+            return ResponseEntity.ok(draft);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
+
+
     @GetMapping("/bank-reconciliation/history")
     public ResponseEntity<java.util.List<com.example.GinumApps.dto.ReconciliationHistoryResponseDto>> getReconciliationHistory(
             @PathVariable Integer companyId,

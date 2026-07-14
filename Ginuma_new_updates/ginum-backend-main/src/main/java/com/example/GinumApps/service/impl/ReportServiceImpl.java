@@ -14,6 +14,8 @@ import com.example.GinumApps.model.JournalEntryLine;
 import com.example.GinumApps.model.MoneyTransaction;
 import com.example.GinumApps.repository.AccountRepository;
 import com.example.GinumApps.repository.BankAccountRepository;
+import com.example.GinumApps.repository.BankReconciliationDraftRepository;
+import com.example.GinumApps.repository.CompanyRepository;
 import com.example.GinumApps.repository.JournalEntryLineRepository;
 import com.example.GinumApps.repository.MoneyTransactionRepository;
 import com.example.GinumApps.service.ReportService;
@@ -36,6 +38,8 @@ public class ReportServiceImpl implements ReportService {
     private final BankAccountRepository bankAccountRepository;
     private final MoneyTransactionRepository moneyTransactionRepository;
     private final com.example.GinumApps.repository.BankReconciliationHistoryRepository bankReconciliationHistoryRepository;
+    private final BankReconciliationDraftRepository bankReconciliationDraftRepository;
+    private final CompanyRepository companyRepository;
 
     @Override
     public GeneralLedgerDto getGeneralLedger(Integer companyId, Long accountId, LocalDate startDate, LocalDate endDate) {
@@ -333,7 +337,50 @@ public class ReportServiceImpl implements ReportService {
         history.setReconciliationDate(LocalDate.now());
         history.setTransactionIds(request.getTransactionIds());
         
+        journalEntryLineRepository.saveAll(transactions);
         bankReconciliationHistoryRepository.save(history);
+        
+        // Delete any existing draft for this account after successful reconciliation
+        bankReconciliationDraftRepository.findByCompany_CompanyIdAndAccount_Id(companyId, bankAccount.getId())
+                .ifPresent(bankReconciliationDraftRepository::delete);
+    }
+    
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void saveBankReconciliationDraft(Integer companyId, com.example.GinumApps.dto.ReconciliationDraftRequestDto request) {
+        com.example.GinumApps.model.Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new RuntimeException("Company not found"));
+        Account account = accountRepository.findById(request.getAccountId())
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        if (!account.getCompany().getCompanyId().equals(companyId)) {
+            throw new RuntimeException("Account does not belong to this company");
+        }
+
+        com.example.GinumApps.model.BankReconciliationDraft draft = bankReconciliationDraftRepository
+                .findByCompany_CompanyIdAndAccount_Id(companyId, request.getAccountId())
+                .orElse(new com.example.GinumApps.model.BankReconciliationDraft());
+
+        draft.setCompany(company);
+        draft.setAccount(account);
+        draft.setStatementDate(request.getStatementDate());
+        draft.setStatementBalance(request.getStatementBalance());
+        draft.setTransactionIds(request.getTransactionIds());
+
+        bankReconciliationDraftRepository.save(draft);
+    }
+
+    @Override
+    public com.example.GinumApps.dto.ReconciliationDraftResponseDto getBankReconciliationDraft(Integer companyId, Long accountId) {
+        return bankReconciliationDraftRepository.findByCompany_CompanyIdAndAccount_Id(companyId, accountId)
+                .map(draft -> com.example.GinumApps.dto.ReconciliationDraftResponseDto.builder()
+                        .draftId(draft.getId())
+                        .accountId(draft.getAccount().getId())
+                        .statementDate(draft.getStatementDate())
+                        .statementBalance(draft.getStatementBalance())
+                        .transactionIds(draft.getTransactionIds())
+                        .build())
+                .orElse(null);
     }
 
     @Override

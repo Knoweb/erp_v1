@@ -16,6 +16,9 @@ public interface ReportService {
     
     void completeBankReconciliation(Integer companyId, com.example.GinumApps.dto.ReconciliationCompleteRequestDto request);
     
+    void saveBankReconciliationDraft(Integer companyId, com.example.GinumApps.dto.ReconciliationDraftRequestDto request);
+    com.example.GinumApps.dto.ReconciliationDraftResponseDto getBankReconciliationDraft(Integer companyId, Long accountId);
+    
     java.util.List<com.example.GinumApps.dto.ReconciliationHistoryResponseDto> getBankReconciliationHistory(Integer companyId, LocalDate startDate, LocalDate endDate);
 
     com.example.GinumApps.dto.ReconciliationHistoryDetailResponseDto getBankReconciliationHistoryDetails(Integer companyId, Long historyId);
