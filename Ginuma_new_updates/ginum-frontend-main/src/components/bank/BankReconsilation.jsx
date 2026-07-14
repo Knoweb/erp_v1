@@ -348,6 +348,102 @@ function BankReconsilation() {
               <span className="text-2xl font-bold">Rs. {parseFloat(statementBalance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
             </div>
 
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex border-b border-gray-200 mb-6 space-x-8">
+        <button
+          className={`pb-3 font-semibold text-sm transition-colors border-b-2 ${
+            activeTab === 'new'
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          }`}
+          onClick={() => setActiveTab('new')}
+        >
+          New Reconciliation
+        </button>
+        <button
+          className={`pb-3 font-semibold text-sm transition-colors border-b-2 ${
+            activeTab === 'history'
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          }`}
+          onClick={() => setActiveTab('history')}
+        >
+          History
+        </button>
+      </div>
+
+      {activeTab === 'new' ? (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Setup Column */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-1 space-y-6">
+          <h3 className="text-lg font-semibold text-gray-800 border-b pb-3">Statement Setup</h3>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Account</label>
+            <select
+              value={selectedBankCode}
+              onChange={e => setSelectedBankCode(e.target.value)}
+              className="w-full h-11 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all appearance-none bg-white">
+              {isLoading ? <option>Loading...</option> : bankAccounts.map(b => (
+                <option key={b.id} value={b.accountCode}>{b.accountName} ({b.accountCode})</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Statement Date</label>
+            <input type="date" value={statementDate} onChange={e => setStatementDate(e.target.value)}
+              className="w-full h-11 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Statement Balance</label>
+            <div className="relative">
+              <span className="absolute left-4 top-2.5 text-gray-500 font-medium">Rs.</span>
+              <input type="number" value={statementBalance} onChange={e => setStatementBalance(e.target.value)}
+                className="w-full h-11 pl-8 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-gray-900 font-medium" />
+            </div>
+          </div>
+
+          <button
+            onClick={loadReconciliationData}
+            disabled={isLoadingReconciliation || !selectedBankCode || !statementDate}
+            className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center">
+            {isLoadingReconciliation ? (
+              <>
+                <FaSyncAlt className="animate-spin mr-2" />
+                Loading...
+              </>
+            ) : (
+              <>
+                <FaSearch className="mr-2" />
+                Load Transactions
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Balancing Column */}
+        <div className="bg-blue-600 bg-gradient-to-br from-blue-600 to-blue-800 p-8 rounded-2xl shadow-lg lg:col-span-2 text-white flex flex-col justify-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-white opacity-5 rounded-full blur-2xl"></div>
+          <div className="absolute bottom-0 left-10 -mb-10 w-32 h-32 bg-blue-400 opacity-20 rounded-full blur-xl"></div>
+
+          <h3 className="text-blue-100 font-medium mb-8 text-lg flex items-center">
+            <FaCheckCircle className="mr-2 opacity-80" /> Reconciliation Status
+          </h3>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 relative z-10">
+            <div className="flex flex-col">
+              <span className="text-blue-200 text-sm mb-1">Statement Balance</span>
+              <span className="text-2xl font-bold">Rs. {parseFloat(statementBalance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+            </div>
+
             <div className="flex flex-col">
               <span className="text-blue-200 text-sm mb-1">Cleared Balance</span>
               <span className="text-2xl font-bold">Rs. {calculatedBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
@@ -393,13 +489,12 @@ function BankReconsilation() {
               {transactions.map(t => (
                 <tr key={t.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors group">
                   <td className="py-3 px-4 text-center">
-                    <button onClick={() => toggleClear(t.id)} className="focus:outline-none">
-                      {t.cleared ? (
-                        <FaCheckCircle className="text-green-500 text-xl inline-block" />
-                      ) : (
-                        <FaRegCircle className="text-gray-300 text-xl inline-block group-hover:text-gray-400" />
-                      )}
-                    </button>
+                    <input 
+                      type="checkbox"
+                      checked={t.cleared || false}
+                      onChange={() => toggleClear(t.id)}
+                      className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+                    />
                   </td>
                   <td className="py-3 px-4 text-gray-700 whitespace-nowrap">{t.date}</td>
                   <td className="py-3 px-4 text-gray-800 font-medium">{t.description}</td>
