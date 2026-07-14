@@ -138,11 +138,9 @@ public class AccountService {
         journalEntryLineRepository.save(equityLine);
 
         // 3. Update the Equity Account's current balance
-        BigDecimal equityCurrentBal = equityAccount.getCurrentBalance() != null ? equityAccount.getCurrentBalance() : BigDecimal.ZERO;
-        // If the new account is debited (e.g. Asset), Equity is credited (increases).
-        // If the new account is credited (e.g. Liability), Equity is debited (decreases).
-        BigDecimal equityChange = isDebit ? amount : amount.negate();
-        equityAccount.setCurrentBalance(equityCurrentBal.add(equityChange));
+        BigDecimal currentEqBal = equityAccount.getCurrentBalance() != null ? equityAccount.getCurrentBalance() : BigDecimal.ZERO;
+        // BigDecimal is immutable, so we MUST use setCurrentBalance with the result of .add()
+        equityAccount.setCurrentBalance(currentEqBal.add(account.getOpeningBalance()));
         accountRepository.save(equityAccount);
     }
 
