@@ -242,7 +242,7 @@ export default function AgedPayables() {
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Payment Date</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">PO #</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">PO # / Ref</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Supplier</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Description</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Invoice Ref #</th>
@@ -261,7 +261,9 @@ export default function AgedPayables() {
               ) : paginatedData.map((row) => (
                 <tr key={row.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{row.date}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-medium">{row.poNumber || 'N/A'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-medium">
+                    {row.poNumber ? row.poNumber : (row.referenceNo || 'N/A')}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{row.supplierName || 'N/A'}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{row.description}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.referenceNo || 'N/A'}</td>
