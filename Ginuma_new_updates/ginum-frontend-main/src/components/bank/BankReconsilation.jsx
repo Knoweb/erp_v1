@@ -68,20 +68,36 @@ function BankReconsilation() {
       const data = response.data || response;
       setReconciliationData(data);
 
+      // Explicitly check for draft to guarantee no race conditions during initial load
+      let currentDraftIds = draftTransactionIds;
+      try {
+        const draftResponse = await api.get(`/api/companies/${companyId}/reports/bank-reconciliation/draft/${selectedBank.id}`);
+        if (draftResponse.data && draftResponse.data.transactionIds) {
+           currentDraftIds = draftResponse.data.transactionIds;
+           setDraftTransactionIds(currentDraftIds);
+           // Also sync statement balance if draft has it
+           if (draftResponse.data.statementBalance) {
+             setStatementBalance(draftResponse.data.statementBalance.toString());
+           }
+        }
+      } catch(e) {
+        // Ignored, just use the existing state if draft API fails
+      }
+
       // Transform transactions to match the UI expected format
-      const transformedTransactions = (data.transactions || []).map(t => ({
-        id: t.transactionId,
-        date: t.date,
-        description: `${t.description} (${t.referenceNo})`,
-        type: t.type.toLowerCase(), // "DEPOSIT" -> "deposit", "WITHDRAWAL" -> "withdrawal"
-        amount: t.amount,
-        cleared: draftTransactionIds.some(id => String(id) === String(t.transactionId)) ? true : t.reconciled
-      }));
+      const transformedTransactions = (data.transactions || []).map(t => {
+        const isDraftCleared = currentDraftIds.some(id => String(id) === String(t.transactionId));
+        return {
+          id: t.transactionId,
+          date: t.date,
+          description: `${t.description} (${t.referenceNo})`,
+          type: t.type.toLowerCase(), // "DEPOSIT" -> "deposit", "WITHDRAWAL" -> "withdrawal"
+          amount: t.amount,
+          cleared: isDraftCleared ? true : t.reconciled
+        };
+      });
 
       setTransactions(transformedTransactions);
-      
-      // Set the statement balance from backend if available (or keep user input)
-      // The backend doesn't provide statement balance, so we keep what user entered
       
       Alert.success("Reconciliation data loaded successfully");
     } catch (error) {
