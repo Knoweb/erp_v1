@@ -262,7 +262,7 @@ export default function AgedPayables() {
                 <tr key={row.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{row.date}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-medium">
-                    {row.poNumber ? row.poNumber : (row.referenceNo || 'N/A')}
+                    {row.poNumber && row.poNumber !== 'N/A' ? row.poNumber : (row.referenceNo || 'N/A')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{row.supplierName || 'N/A'}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{row.description}</td>
