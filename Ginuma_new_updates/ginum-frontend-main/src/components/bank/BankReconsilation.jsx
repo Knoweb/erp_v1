@@ -122,6 +122,24 @@ function BankReconsilation() {
     fetchDraft();
   }, [selectedBankCode, bankAccounts]);
 
+  useEffect(() => {
+    if (transactions.length > 0 && draftTransactionIds.length > 0) {
+      let hasChanges = false;
+      const updatedTransactions = transactions.map(tx => {
+        // Safe string conversion matching to prevent type mismatches
+        const shouldBeCleared = draftTransactionIds.some(id => String(id) === String(tx.id));
+        if (tx.cleared !== shouldBeCleared) {
+          hasChanges = true;
+        }
+        return { ...tx, cleared: shouldBeCleared };
+      });
+
+      if (hasChanges) {
+        setTransactions(updatedTransactions);
+      }
+    }
+  }, [transactions, draftTransactionIds]);
+
   const toggleClear = (id) => {
     const transaction = transactions.find(t => t.id === id);
     if (!transaction) return;
