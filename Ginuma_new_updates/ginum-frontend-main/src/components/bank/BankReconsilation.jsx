@@ -256,12 +256,7 @@ function BankReconsilation() {
         <div className="mt-4 sm:mt-0 space-x-3">
           {activeTab === 'new' && (
             <>
-              <button 
-                onClick={handleSaveDraft}
-                disabled={isSavingDraft || !selectedBank}
-                className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition drop-shadow-sm font-medium disabled:opacity-50">
-                {isSavingDraft ? "Saving..." : "Save for later"}
-              </button>
+
               <button
                 onClick={handleReconcileNow}
                 disabled={difference !== 0 || isCompleting}
