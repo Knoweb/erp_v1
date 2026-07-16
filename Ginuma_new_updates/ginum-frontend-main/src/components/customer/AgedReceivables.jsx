@@ -223,12 +223,7 @@ export default function AgedReceivables() {
           >
             Create Invoice
           </button>
-          <button
-            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition"
-            onClick={() => navigate('/app/bank/receive-money')}
-          >
-            Add Payment
-          </button>
+
         </div>
       </div>
 
