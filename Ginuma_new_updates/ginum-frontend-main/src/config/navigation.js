@@ -160,24 +160,5 @@ export const navItems = [
       },
     ],
   },
-  {
-    sectionTitle: "USER MANAGEMENT",
-  },
-  {
-    id: "users",
-    path: "/app/users",
-    label: "Users",
-    icon: FaUsers,
-    subItems: [
-      { id: "all-users", path: "/app/users/all", label: "All Users" },
-      { id: "new-user", path: "/app/users/new", label: "New User" },
-    ],
-  },
-  {
-    id: "requests",
-    path: "/app/edit-requests",
-    label: "Requests",
-    icon: RiContractLeftFill,
-    subItems: [],
-  },
+
 ];
