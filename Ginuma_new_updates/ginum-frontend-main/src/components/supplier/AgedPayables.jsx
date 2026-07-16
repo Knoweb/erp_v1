@@ -97,7 +97,63 @@ export default function AgedPayables() {
   const paginatedData = filteredData.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   const handleExport = () => {
-    Alert.info('Export functionality coming soon!');
+    if (!filteredData || filteredData.length === 0) {
+      Alert.warning("No data to export.");
+      return;
+    }
+
+    let csvContent = "";
+    const safeString = (str) => str ? `"${String(str).replace(/"/g, '""')}"` : '""';
+    
+    if (activeTab === 'outstanding') {
+      csvContent += "Supplier,PO #,Due Date,Not Due Yet,1-30 Days,31-60 Days,61-90 Days,91+ Days,Total Balance\n";
+      
+      filteredData.forEach(row => {
+        const notDueYet = row.balanceDue - (row.bucket0to30 + row.bucket31to60 + row.bucket61to90 + row.bucket91plus);
+        
+        const rowString = [
+          safeString(row.supplier?.supplierName || "Unknown"),
+          safeString(row.poNumber),
+          safeString(row.dueDate),
+          Math.max(0, notDueYet).toFixed(2),
+          (row.bucket0to30 || 0).toFixed(2),
+          (row.bucket31to60 || 0).toFixed(2),
+          (row.bucket61to90 || 0).toFixed(2),
+          (row.bucket91plus || 0).toFixed(2),
+          (row.balanceDue || 0).toFixed(2)
+        ].join(",");
+        
+        csvContent += rowString + "\n";
+      });
+    } else {
+      csvContent += "Payment Date,PO # / Ref,Supplier,Description,Invoice Ref #,Amount Paid\n";
+      
+      filteredData.forEach(row => {
+        const poOrRef = row.poNumber && row.poNumber !== 'N/A' ? row.poNumber : (row.referenceNo || 'N/A');
+        
+        const rowString = [
+          safeString(row.date),
+          safeString(poOrRef),
+          safeString(row.supplierName || 'N/A'),
+          safeString(row.description),
+          safeString(row.referenceNo || 'N/A'),
+          parseFloat(row.amount || 0).toFixed(2)
+        ].join(",");
+        
+        csvContent += rowString + "\n";
+      });
+    }
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `aged_payables_${activeTab}_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    Alert.success("Export successful!");
   };
 
   const handlePayBill = (row) => {
