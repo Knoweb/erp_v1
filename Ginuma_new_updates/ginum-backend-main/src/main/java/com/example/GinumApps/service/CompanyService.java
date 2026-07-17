@@ -319,11 +319,11 @@ public class CompanyService {
         Account apAccount = createAndSaveAccount(company, "Accounts Payable", "2000", AccountType.LIABILITY_ACCOUNTS_PAYABLE);
         company.setAccountsPayableAccount(apAccount);
 
-        // 4. Opening Balance Equity
-        createAndSaveAccount(company, "Opening Balance Equity", "3000", AccountType.EQUITY);
+        // 4. Retained Earnings
+        createAndSaveAccount(company, "Retained Earnings", "3000", AccountType.EQUITY);
 
-        // 5. Retained Earnings
-        createAndSaveAccount(company, "Retained Earnings", "3001", AccountType.EQUITY);
+        // 5. Opening Balance Equity
+        createAndSaveAccount(company, "Opening Balance Equity", "3001", AccountType.EQUITY);
 
         // 6. Sales Revenue
         createAndSaveAccount(company, "Sales Revenue", "4000", AccountType.INCOME);
