@@ -56,7 +56,51 @@ function BankReconciliationHistory() {
   };
 
   const handlePrint = () => {
-    window.print();
+    const printContent = document.getElementById("reconciliation-print-area");
+    if (!printContent) return;
+
+    const clonedContent = printContent.cloneNode(true);
+    // Remove the close and print buttons
+    const noPrintElements = clonedContent.querySelectorAll('.no-print');
+    noPrintElements.forEach(el => el.remove());
+
+    const printWindow = window.open('', '', 'width=900,height=700');
+    
+    // Copy all style sheets from the current document
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+      .map(s => s.outerHTML)
+      .join('\n');
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Reconciliation Details</title>
+          ${styles}
+          <style>
+            body { padding: 40px; background: white; }
+            #reconciliation-print-area { 
+              box-shadow: none !important; 
+              max-width: 100% !important; 
+              max-height: none !important;
+              overflow: visible !important;
+              border: none !important;
+            }
+          </style>
+        </head>
+        <body>
+          <div id="reconciliation-print-area" class="bg-white w-full flex flex-col">
+            ${clonedContent.innerHTML}
+          </div>
+          <script>
+            setTimeout(() => {
+              window.print();
+              window.close();
+            }, 500);
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   return (
@@ -162,29 +206,6 @@ function BankReconciliationHistory() {
       {/* Detail Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 print:p-0 print:bg-white print:absolute print:inset-0">
-          {/* Inject print styles */}
-          <style>
-            {`
-              @media print {
-                body * {
-                  visibility: hidden;
-                }
-                #reconciliation-print-area, #reconciliation-print-area * {
-                  visibility: visible;
-                }
-                #reconciliation-print-area {
-                  position: absolute;
-                  left: 0;
-                  top: 0;
-                  width: 100%;
-                }
-                .no-print {
-                  display: none !important;
-                }
-              }
-            `}
-          </style>
-
           <div id="reconciliation-print-area" className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden print:shadow-none print:w-full print:max-w-full print:h-auto print:overflow-visible">
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 print:bg-white">
