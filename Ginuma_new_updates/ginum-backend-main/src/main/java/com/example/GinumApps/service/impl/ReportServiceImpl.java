@@ -742,11 +742,6 @@ public class ReportServiceImpl implements ReportService {
         BigDecimal netIncome = incomeStatement.getNetProfit();
 
         List<CashflowStatementDto.CashflowLineDto> operatingAdjustments = new ArrayList<>();
-        // In a full implementation, we would add back non-cash expenses like depreciation
-        // and adjust for changes in working capital
-
-        BigDecimal netCashFromOperating = netIncome;
-
         // Find all bank/cash accounts
         List<Account> cashAccounts = accountRepository.findByCompany_CompanyId(companyId).stream()
                 .filter(a -> a.getAccountType() == AccountType.ASSET_BANK)
@@ -770,6 +765,12 @@ public class ReportServiceImpl implements ReportService {
         BigDecimal netCashFromFinancing = BigDecimal.ZERO;
 
         BigDecimal netCashChange = endingCash.subtract(beginningCash);
+
+        // In a full implementation, we would add back non-cash expenses like depreciation
+        // and adjust for changes in working capital. For now, we add a plug to balance the statement.
+        BigDecimal workingCapitalAdjustment = netCashChange.subtract(netIncome).subtract(netCashFromInvesting).subtract(netCashFromFinancing);
+        operatingAdjustments.add(new CashflowStatementDto.CashflowLineDto("Adjustments for Working Capital & Other", workingCapitalAdjustment));
+        BigDecimal netCashFromOperating = netIncome.add(workingCapitalAdjustment);
 
         CashflowStatementDto dto = new CashflowStatementDto();
         dto.setStartDate(startDate);
