@@ -49,6 +49,7 @@ const DashboardPage = () => {
     prevProfit: 0,
     recentTransactions: [],
     topClients: [],
+    topSuppliers: [],
     monthlyRevenue: []
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -192,40 +193,78 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Top Clients List */}
-        <div className="bg-white p-6 rounded-lg shadow-lg col-span-2">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Top Clients Details</h3>
-          <div className="bg-gradient-to-r from-cyan-300 to-cyan-500 h-px mb-6"></div>
-          {financeStats.topClients && financeStats.topClients.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="py-2 px-4 text-left">Customer</th>
-                    <th className="py-2 px-4 text-right">Total Sales</th>
-                    <th className="py-2 px-4 text-right">Orders</th>
-                    <th className="py-2 px-4 text-right">Avg Order</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {financeStats.topClients.map((client, idx) => (
-                    <tr key={idx} className="border-b hover:bg-gray-50">
-                      <td className="py-2 px-4">{client.customerName}</td>
-                      <td className="py-2 px-4 text-right font-medium text-green-600">
-                        Rs. {Number(client.totalSales).toLocaleString()}
-                      </td>
-                      <td className="py-2 px-4 text-right">{client.orderCount}</td>
-                      <td className="py-2 px-4 text-right">
-                        Rs. {(Number(client.totalSales) / client.orderCount).toFixed(2)}
-                      </td>
+        <div className="col-span-2 flex flex-col gap-6">
+          {/* Top Clients List */}
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Top Clients Details</h3>
+            <div className="bg-gradient-to-r from-cyan-300 to-cyan-500 h-px mb-6"></div>
+            {financeStats.topClients && financeStats.topClients.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="py-2 px-4 text-left">Customer</th>
+                      <th className="py-2 px-4 text-right">Total Sales</th>
+                      <th className="py-2 px-4 text-right">Orders</th>
+                      <th className="py-2 px-4 text-right">Avg Order</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="text-center text-gray-500 py-4">No client data available yet</p>
-          )}
+                  </thead>
+                  <tbody>
+                    {financeStats.topClients.map((client, idx) => (
+                      <tr key={idx} className="border-b hover:bg-gray-50">
+                        <td className="py-2 px-4">{client.customerName}</td>
+                        <td className="py-2 px-4 text-right font-medium text-green-600">
+                          Rs. {Number(client.totalSales).toLocaleString()}
+                        </td>
+                        <td className="py-2 px-4 text-right">{client.orderCount}</td>
+                        <td className="py-2 px-4 text-right">
+                          Rs. {(Number(client.totalSales) / client.orderCount).toFixed(2)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-center text-gray-500 py-4">No client data available yet</p>
+            )}
+          </div>
+
+          {/* Top Suppliers List */}
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Top Suppliers Details</h3>
+            <div className="bg-gradient-to-r from-cyan-300 to-cyan-500 h-px mb-6"></div>
+            {financeStats.topSuppliers && financeStats.topSuppliers.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="py-2 px-4 text-left">Supplier</th>
+                      <th className="py-2 px-4 text-right">Total Purchases</th>
+                      <th className="py-2 px-4 text-right">Orders</th>
+                      <th className="py-2 px-4 text-right">Avg Order</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {financeStats.topSuppliers.map((supplier, idx) => (
+                      <tr key={idx} className="border-b hover:bg-gray-50">
+                        <td className="py-2 px-4">{supplier.supplierName}</td>
+                        <td className="py-2 px-4 text-right font-medium text-red-600">
+                          Rs. {Number(supplier.totalPurchases).toLocaleString()}
+                        </td>
+                        <td className="py-2 px-4 text-right">{supplier.orderCount}</td>
+                        <td className="py-2 px-4 text-right">
+                          Rs. {(Number(supplier.totalPurchases) / supplier.orderCount).toFixed(2)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-center text-gray-500 py-4">No supplier data available yet</p>
+            )}
+          </div>
         </div>
       </div>
 

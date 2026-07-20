@@ -133,6 +133,28 @@ public class DashboardServiceImpl implements DashboardService {
 
         stats.setTopClients(topClients);
 
+        // Get top suppliers (top 5 suppliers by purchases)
+        Map<String, BigDecimal> supplierPurchases = new HashMap<>();
+        Map<String, Long> supplierOrderCount = new HashMap<>();
+
+        allPurchases.forEach(p -> {
+            String supplierName = p.getSupplier().getSupplierName();
+            supplierPurchases.merge(supplierName, p.getTotal(), BigDecimal::add);
+            supplierOrderCount.merge(supplierName, 1L, Long::sum);
+        });
+
+        List<TopSupplierDto> topSuppliers = supplierPurchases.entrySet().stream()
+                .map(entry -> new TopSupplierDto(
+                        entry.getKey(),
+                        entry.getValue(),
+                        supplierOrderCount.get(entry.getKey())
+                ))
+                .sorted((a, b) -> b.getTotalPurchases().compareTo(a.getTotalPurchases()))
+                .limit(5)
+                .collect(Collectors.toList());
+
+        stats.setTopSuppliers(topSuppliers);
+
         // Get monthly revenue for the last 6 months
         List<MonthlyRevenueDto> monthlyRevenue = new ArrayList<>();
         for (int i = 5; i >= 0; i--) {

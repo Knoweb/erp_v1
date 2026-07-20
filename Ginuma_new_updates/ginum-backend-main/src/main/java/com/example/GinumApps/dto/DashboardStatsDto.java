@@ -19,4 +19,5 @@ public class DashboardStatsDto {
     private java.util.List<RecentTransactionDto> recentTransactions;
     private java.util.List<TopClientDto> topClients;
     private java.util.List<MonthlyRevenueDto> monthlyRevenue;
+    private java.util.List<TopSupplierDto> topSuppliers;
 }
