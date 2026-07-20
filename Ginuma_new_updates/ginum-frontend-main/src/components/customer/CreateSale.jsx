@@ -757,31 +757,7 @@ const CreateSaleOrder = () => {
         </div>
       </div>
 
-      {/* Items/Services Mode */}
-      <div className="flex space-x-4 mb-6">
-        <label className="flex items-center">
-          <input
-            type="radio"
-            name="mode"
-            value="item"
-            checked={!isServiceMode}
-            onChange={() => setIsServiceMode(false)}
-            className="form-radio h-4 w-4 text-blue-600"
-          />
-          <span className="ml-2 text-gray-700">Items</span>
-        </label>
-        <label className="flex items-center">
-          <input
-            type="radio"
-            name="mode"
-            value="service"
-            checked={isServiceMode}
-            onChange={() => setIsServiceMode(true)}
-            className="form-radio h-4 w-4 text-blue-600"
-          />
-          <span className="ml-2 text-gray-700">Services</span>
-        </label>
-      </div>
+
 
       {/* Items/Services Table */}
       <div className="mb-6 overflow-x-auto">
