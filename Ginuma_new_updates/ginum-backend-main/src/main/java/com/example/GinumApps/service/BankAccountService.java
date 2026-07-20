@@ -97,7 +97,7 @@ public class BankAccountService {
         JournalEntry entry = new JournalEntry();
         entry.setCompany(company);
         entry.setEntryType(JournalEntryType.SYSTEM_GENERATED);
-        entry.setEntryDate(LocalDate.of(2000, 1, 1));
+        entry.setEntryDate(LocalDate.now());
         entry.setJournalTitle("Opening Balance: " + account.getAccountName());
         entry.setDescription("Initial balance for " + account.getAccountName());
         entry.setReferenceNo("OB-" + account.getAccountCode());
