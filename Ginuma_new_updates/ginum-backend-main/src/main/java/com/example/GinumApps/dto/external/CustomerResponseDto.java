@@ -23,4 +23,15 @@ public class CustomerResponseDto {
     private String registeredAddress;
     private String billingAddress;
     private Double discountPercentage;
+
+    private Map<String, Object> additionalProperties = new java.util.HashMap<>();
+
+    @com.fasterxml.jackson.annotation.JsonAnySetter
+    public void addAdditionalProperty(String key, Object value) {
+        this.additionalProperties.put(key, value);
+    }
+    
+    public Map<String, Object> getAdditionalProperties() {
+        return this.additionalProperties;
+    }
 }
