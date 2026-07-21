@@ -55,7 +55,10 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
         }
         
         // Get payee name
-        String payeeName = getPayeeName(request.getPayeeType(), request.getPayeeId());
+        String payeeName = request.getPayeeName();
+        if (payeeName == null || payeeName.trim().isEmpty()) {
+            payeeName = getPayeeName(request.getPayeeType(), request.getPayeeId());
+        }
         
         // Get user — nullable: Company admins may not have an AppUser record
         AppUser user = (userId != null)

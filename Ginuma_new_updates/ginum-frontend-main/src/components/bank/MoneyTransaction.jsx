@@ -221,12 +221,23 @@ const MoneyTransaction = ({ type = "spend" }) => {
         Alert.success(`Payment for SO ${salesOrderNo} recorded successfully!`);
       } else {
         // Standard case: General Money Transaction
+        let resolvedPayeeName = "Unknown";
+        if (payeeType === "OTHER") {
+          resolvedPayeeName = "Other";
+        } else if (payeeId) {
+          const selectedOption = getPayeeOptions().find(o => o.id.toString() === payeeId.toString());
+          if (selectedOption) {
+            resolvedPayeeName = selectedOption.supplierName || selectedOption.name || selectedOption.businessName || selectedOption.companyName || (selectedOption.firstName ? selectedOption.firstName + ' ' + selectedOption.lastName : '') || 'Unknown';
+          }
+        }
+
         const payload = {
           type: type === "spend" ? "SPEND_MONEY" : "RECEIVE_MONEY",
           transactionDate: date,
           bankAccountId: parseInt(selectedBankAccountId),
           payeeType: payeeType,
           payeeId: payeeType === "OTHER" ? null : parseInt(payeeId),
+          payeeName: resolvedPayeeName,
           chargeAccountId: parseInt(chargeAccountId),
           amount: parseFloat(amount),
           description: description || `Money ${type === "spend" ? "spent" : "received"}`,

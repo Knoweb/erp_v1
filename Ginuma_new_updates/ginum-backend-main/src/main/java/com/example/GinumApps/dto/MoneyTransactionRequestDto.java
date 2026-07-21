@@ -26,6 +26,8 @@ public class MoneyTransactionRequestDto {
     
     private Integer payeeId;
     
+    private String payeeName;
+    
     @NotNull(message = "Charge account is required")
     private Integer chargeAccountId;
     
