@@ -11,6 +11,9 @@ function Customers() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [expandedDetails, setExpandedDetails] = useState({});
+
+  const toggleDetails = (id) => setExpandedDetails(prev => ({...prev, [id]: !prev[id]}));
 
   // Form State
   const [formData, setFormData] = useState({
@@ -226,6 +229,7 @@ function Customers() {
                       </td>
                       <td className="px-10 py-8">
                         <div className="space-y-3">
+                          {/* Always show essential details */}
                           {customer.vatNumber && (
                             <div className="flex items-center gap-3">
                               <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-20 shrink-0">VAT</span>
@@ -239,25 +243,46 @@ function Customers() {
                               <span className="text-sm font-semibold text-slate-700 tracking-tight">{customer.phoneNumber}</span>
                             </div>
                           )}
-
-                          {customer.address && (
-                            <div className="flex items-start gap-3">
-                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-20 shrink-0">Address</span>
-                              <span className="text-sm font-semibold text-slate-700 tracking-tight">{customer.address}</span>
+                          
+                          {customer.contactInfo && customer.contactInfo.email && (
+                            <div className="flex items-center gap-3">
+                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-20 shrink-0">Email</span>
+                              <span className="text-sm font-semibold text-slate-700 tracking-tight">{customer.contactInfo.email}</span>
                             </div>
                           )}
 
-                          {customer.contactInfo && Object.entries(customer.contactInfo).map(([key, value]) => {
-                            if (!value) return null;
-                            return (
-                              <div key={key} className="flex items-center gap-3">
-                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-20 shrink-0">{key}</span>
-                                <span className="text-sm font-semibold text-slate-700 tracking-tight">
-                                  {String(value)}
-                                </span>
-                              </div>
-                            );
-                          })}
+                          {/* Hide the rest behind a toggle */}
+                          {expandedDetails[customer.id] && (
+                            <div className="pt-3 mt-3 border-t border-slate-100 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                              {customer.address && (
+                                <div className="flex items-start gap-3">
+                                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-20 shrink-0">Address</span>
+                                  <span className="text-sm font-semibold text-slate-700 tracking-tight">{customer.address}</span>
+                                </div>
+                              )}
+
+                              {customer.contactInfo && Object.entries(customer.contactInfo).map(([key, value]) => {
+                                if (!value || key.toLowerCase() === 'email') return null; // Email already shown above
+                                return (
+                                  <div key={key} className="flex items-center gap-3">
+                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-20 shrink-0">{key}</span>
+                                    <span className="text-sm font-semibold text-slate-700 tracking-tight">
+                                      {String(value)}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          {((customer.address) || (customer.contactInfo && Object.keys(customer.contactInfo).some(k => k.toLowerCase() !== 'email' && customer.contactInfo[k]))) && (
+                             <button
+                               onClick={() => toggleDetails(customer.id)}
+                               className="mt-2 text-[10px] font-black uppercase tracking-widest text-indigo-500 hover:text-indigo-700 transition-colors flex items-center gap-1"
+                             >
+                               {expandedDetails[customer.id] ? "View Less" : "View More Details"}
+                             </button>
+                          )}
 
                           {(!customer.contactInfo || Object.keys(customer.contactInfo).length === 0) && !customer.vatNumber && !customer.phoneNumber && !customer.address && (
                             <span className="text-slate-300 text-[11px] font-black uppercase tracking-widest italic flex items-center gap-2">
