@@ -183,12 +183,13 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
     @Override
     public String generateTransactionNumber(Integer companyId) {
         int year = LocalDate.now().getYear();
+        String prefix = "MT-" + companyId + "-" + year;
         String lastTransaction = moneyTransactionRepository.findTopByCompany_CompanyIdOrderByIdDesc(companyId)
             .map(MoneyTransaction::getTransactionNumber)
             .orElse(null);
         
         int nextNumber = 1;
-        if (lastTransaction != null && lastTransaction.startsWith("MT-" + year)) {
+        if (lastTransaction != null && lastTransaction.startsWith(prefix)) {
             try {
                 String numberPart = lastTransaction.substring(lastTransaction.lastIndexOf("-") + 1);
                 nextNumber = Integer.parseInt(numberPart) + 1;
@@ -197,7 +198,7 @@ public class MoneyTransactionServiceImpl implements MoneyTransactionService {
             }
         }
         
-        return String.format("MT-%d-%04d", year, nextNumber);
+        return String.format("%s-%04d", prefix, nextNumber);
     }
     
     @Override
