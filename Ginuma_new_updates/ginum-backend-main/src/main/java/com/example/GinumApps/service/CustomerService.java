@@ -154,6 +154,8 @@ public class CustomerService {
                 }
 
                 String address = customer.getAddress();
+                if (address == null || address.isBlank()) address = customer.getRegisteredAddress();
+                if (address == null || address.isBlank()) address = customer.getBillingAddress();
                 if ((address == null || address.isBlank()) && contact != null) {
                         address = contact.containsKey("address") ? String.valueOf(contact.get("address")) : null;
                         if (address == null || address.isBlank()) {
@@ -175,16 +177,19 @@ public class CustomerService {
                         }
                 }
 
-                String tinNo = null;
-                if (contact != null) {
+                String tinNo = customer.getTinNo();
+                if (tinNo == null || tinNo.isBlank()) tinNo = customer.getTin();
+                if ((tinNo == null || tinNo.isBlank()) && contact != null) {
                         tinNo = contact.containsKey("tinNo") ? String.valueOf(contact.get("tinNo")) : null;
                         if (tinNo == null || tinNo.isBlank()) {
                                 tinNo = contact.containsKey("tin") ? String.valueOf(contact.get("tin")) : null;
                         }
                 }
 
-                String nicNo = null;
-                if (contact != null) {
+                String nicNo = customer.getNicNo();
+                if (nicNo == null || nicNo.isBlank()) nicNo = customer.getNic();
+                if (nicNo == null || nicNo.isBlank()) nicNo = customer.getIdentityNumber();
+                if ((nicNo == null || nicNo.isBlank()) && contact != null) {
                         nicNo = contact.containsKey("nicNo") ? String.valueOf(contact.get("nicNo")) : null;
                         if (nicNo == null || nicNo.isBlank()) {
                                 nicNo = contact.containsKey("nic") ? String.valueOf(contact.get("nic")) : null;
@@ -194,8 +199,8 @@ public class CustomerService {
                         }
                 }
 
-                Double discountPercentage = null;
-                if (contact != null && contact.containsKey("discountPercentage") && contact.get("discountPercentage") != null) {
+                Double discountPercentage = customer.getDiscountPercentage();
+                if (discountPercentage == null && contact != null && contact.containsKey("discountPercentage") && contact.get("discountPercentage") != null) {
                         try {
                                 discountPercentage = Double.valueOf(String.valueOf(contact.get("discountPercentage")));
                         } catch (Exception ignored) {}

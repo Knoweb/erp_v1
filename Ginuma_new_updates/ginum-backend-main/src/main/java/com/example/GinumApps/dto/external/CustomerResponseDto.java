@@ -15,4 +15,12 @@ public class CustomerResponseDto {
     private Long orgId;
     private String phoneNumber;
     private String address;
+    private String tinNo;
+    private String tin;
+    private String nicNo;
+    private String nic;
+    private String identityNumber;
+    private String registeredAddress;
+    private String billingAddress;
+    private Double discountPercentage;
 }
