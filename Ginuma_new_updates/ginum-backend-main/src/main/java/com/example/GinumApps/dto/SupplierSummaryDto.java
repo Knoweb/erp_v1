@@ -16,4 +16,8 @@ public class SupplierSummaryDto {
     private SupplierType supplierType;
     private TaxType tax;
     private String itemCategory;
+    private String vatNumber;
+    private String nicNo;
+    private String tinNo;
+    private java.util.Map<String, Object> contactInfo;
 }

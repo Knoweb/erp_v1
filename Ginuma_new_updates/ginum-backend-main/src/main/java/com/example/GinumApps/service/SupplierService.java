@@ -182,36 +182,37 @@ public class SupplierService {
         return null;
     }
 
+    private String extractFieldIgnoreCase(java.util.Map<String, Object> map, String... possibleKeys) {
+        if (map == null || map.isEmpty()) return null;
+        for (java.util.Map.Entry<String, Object> entry : map.entrySet()) {
+            if (entry.getValue() == null) continue;
+            String key = entry.getKey().replaceAll("\\s+", "").toLowerCase();
+            for (String pk : possibleKeys) {
+                if (key.equals(pk.toLowerCase())) {
+                    String val = String.valueOf(entry.getValue());
+                    if (!val.isBlank()) return val;
+                }
+            }
+        }
+        return null;
+    }
+
     private SupplierSummaryDto convertExternalToSummary(SupplierResponseDto s) {
         String name = s.getSupplierName() != null ? s.getSupplierName() : s.getName();
         var contact = s.getContactInfo();
 
         String mobile = s.getMobileNo() != null ? s.getMobileNo() : s.getContactNumber();
-        if ((mobile == null || mobile.isBlank()) && contact != null) {
-            mobile = contact.containsKey("phoneNumber") ? String.valueOf(contact.get("phoneNumber")) : null;
-            if (mobile == null || mobile.isBlank()) {
-                mobile = contact.containsKey("phone") ? String.valueOf(contact.get("phone")) : null;
-            }
-            if (mobile == null || mobile.isBlank()) {
-                mobile = contact.containsKey("mobileNo") ? String.valueOf(contact.get("mobileNo")) : null;
-            }
-            if (mobile == null || mobile.isBlank()) {
-                mobile = contact.containsKey("contactNumber") ? String.valueOf(contact.get("contactNumber")) : null;
-            }
-        }
+        if (mobile == null || mobile.isBlank()) mobile = extractFieldIgnoreCase(contact, "phonenumber", "phone", "mobileno", "contactnumber");
 
         String email = s.getEmail();
-        if ((email == null || email.isBlank()) && contact != null) {
-            email = contact.containsKey("email") ? String.valueOf(contact.get("email")) : null;
-        }
+        if (email == null || email.isBlank()) email = extractFieldIgnoreCase(contact, "email");
 
         String address = s.getAddress();
-        if ((address == null || address.isBlank()) && contact != null) {
-            address = contact.containsKey("address") ? String.valueOf(contact.get("address")) : null;
-            if (address == null || address.isBlank()) {
-                address = contact.containsKey("billingAddress") ? String.valueOf(contact.get("billingAddress")) : null;
-            }
-        }
+        if (address == null || address.isBlank()) address = extractFieldIgnoreCase(contact, "address", "registeredaddress", "billingaddress");
+
+        String vat = extractFieldIgnoreCase(contact, "vatnumber", "vatno", "vat");
+        String tin = extractFieldIgnoreCase(contact, "tinno", "tin");
+        String nic = extractFieldIgnoreCase(contact, "nicno", "nic", "identitynumber", "identitynumber(nic)");
 
         SupplierType supplierType = null;
         TaxType taxType = null;
@@ -221,15 +222,7 @@ public class SupplierService {
         }
         try {
             String taxStr = s.getTax();
-            if ((taxStr == null || taxStr.isBlank()) && contact != null) {
-                taxStr = contact.containsKey("tax") ? String.valueOf(contact.get("tax")) : null;
-                if (taxStr == null || taxStr.isBlank()) {
-                    taxStr = contact.containsKey("vatNumber") ? String.valueOf(contact.get("vatNumber")) : null;
-                }
-                if (taxStr == null || taxStr.isBlank()) {
-                    taxStr = contact.containsKey("vatNo") ? String.valueOf(contact.get("vatNo")) : null;
-                }
-            }
+            if (taxStr == null || taxStr.isBlank()) taxStr = vat; // fallback tax to vat if Tax string empty
             if (taxStr != null) taxType = TaxType.valueOf(taxStr);
         } catch (Exception ignored) {
         }
@@ -243,6 +236,10 @@ public class SupplierService {
                 .supplierType(supplierType)
                 .tax(taxType)
                 .itemCategory(s.getItemCategory())
+                .vatNumber(vat)
+                .tinNo(tin)
+                .nicNo(nic)
+                .contactInfo(contact)
                 .build();
     }
 
