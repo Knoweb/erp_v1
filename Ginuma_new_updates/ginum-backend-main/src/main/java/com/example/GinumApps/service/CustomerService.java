@@ -151,7 +151,7 @@ public class CustomerService {
 
                 String email = null;
                 if (contact != null) {
-                        email = contact.containsKey("email") ? String.valueOf(contact.get("email")) : null;
+                        email = extractFieldIgnoreCase(contact, "email");
                 }
 
                 Map<String, Object> additional = customer.getAdditionalProperties();
@@ -159,67 +159,23 @@ public class CustomerService {
                 String address = customer.getAddress();
                 if (address == null || address.isBlank()) address = customer.getRegisteredAddress();
                 if (address == null || address.isBlank()) address = customer.getBillingAddress();
-                if ((address == null || address.isBlank()) && contact != null) {
-                        address = contact.containsKey("address") ? String.valueOf(contact.get("address")) : null;
-                        if (address == null || address.isBlank()) {
-                                address = contact.containsKey("registeredAddress") ? String.valueOf(contact.get("registeredAddress")) : null;
-                        }
-                        if (address == null || address.isBlank()) {
-                                address = contact.containsKey("billingAddress") ? String.valueOf(contact.get("billingAddress")) : null;
-                        }
-                }
-                if ((address == null || address.isBlank()) && additional != null) {
-                        address = additional.containsKey("address") ? String.valueOf(additional.get("address")) : null;
-                        if (address == null || address.isBlank()) address = additional.containsKey("registeredAddress") ? String.valueOf(additional.get("registeredAddress")) : null;
-                        if (address == null || address.isBlank()) address = additional.containsKey("billingAddress") ? String.valueOf(additional.get("billingAddress")) : null;
-                }
+                if (address == null || address.isBlank()) address = extractFieldIgnoreCase(contact, "address", "registeredaddress", "billingaddress");
+                if (address == null || address.isBlank()) address = extractFieldIgnoreCase(additional, "address", "registeredaddress", "billingaddress");
 
                 String vat = customer.getVatNumber();
-                if ((vat == null || vat.isBlank()) && contact != null) {
-                        vat = contact.containsKey("vatNumber") ? String.valueOf(contact.get("vatNumber")) : null;
-                        if (vat == null || vat.isBlank()) {
-                                vat = contact.containsKey("vatNo") ? String.valueOf(contact.get("vatNo")) : null;
-                        }
-                        if (vat == null || vat.isBlank()) {
-                                vat = contact.containsKey("vat") ? String.valueOf(contact.get("vat")) : null;
-                        }
-                }
-                if ((vat == null || vat.isBlank()) && additional != null) {
-                        vat = additional.containsKey("vatNumber") ? String.valueOf(additional.get("vatNumber")) : null;
-                        if (vat == null || vat.isBlank()) vat = additional.containsKey("vatNo") ? String.valueOf(additional.get("vatNo")) : null;
-                        if (vat == null || vat.isBlank()) vat = additional.containsKey("vat") ? String.valueOf(additional.get("vat")) : null;
-                }
+                if (vat == null || vat.isBlank()) vat = extractFieldIgnoreCase(contact, "vatnumber", "vatno", "vat");
+                if (vat == null || vat.isBlank()) vat = extractFieldIgnoreCase(additional, "vatnumber", "vatno", "vat");
 
                 String tinNo = customer.getTinNo();
                 if (tinNo == null || tinNo.isBlank()) tinNo = customer.getTin();
-                if ((tinNo == null || tinNo.isBlank()) && contact != null) {
-                        tinNo = contact.containsKey("tinNo") ? String.valueOf(contact.get("tinNo")) : null;
-                        if (tinNo == null || tinNo.isBlank()) {
-                                tinNo = contact.containsKey("tin") ? String.valueOf(contact.get("tin")) : null;
-                        }
-                }
-                if ((tinNo == null || tinNo.isBlank()) && additional != null) {
-                        tinNo = additional.containsKey("tinNo") ? String.valueOf(additional.get("tinNo")) : null;
-                        if (tinNo == null || tinNo.isBlank()) tinNo = additional.containsKey("tin") ? String.valueOf(additional.get("tin")) : null;
-                }
+                if (tinNo == null || tinNo.isBlank()) tinNo = extractFieldIgnoreCase(contact, "tinno", "tin");
+                if (tinNo == null || tinNo.isBlank()) tinNo = extractFieldIgnoreCase(additional, "tinno", "tin");
 
                 String nicNo = customer.getNicNo();
                 if (nicNo == null || nicNo.isBlank()) nicNo = customer.getNic();
                 if (nicNo == null || nicNo.isBlank()) nicNo = customer.getIdentityNumber();
-                if ((nicNo == null || nicNo.isBlank()) && contact != null) {
-                        nicNo = contact.containsKey("nicNo") ? String.valueOf(contact.get("nicNo")) : null;
-                        if (nicNo == null || nicNo.isBlank()) {
-                                nicNo = contact.containsKey("nic") ? String.valueOf(contact.get("nic")) : null;
-                        }
-                        if (nicNo == null || nicNo.isBlank()) {
-                                nicNo = contact.containsKey("identityNumber") ? String.valueOf(contact.get("identityNumber")) : null;
-                        }
-                }
-                if ((nicNo == null || nicNo.isBlank()) && additional != null) {
-                        nicNo = additional.containsKey("nicNo") ? String.valueOf(additional.get("nicNo")) : null;
-                        if (nicNo == null || nicNo.isBlank()) nicNo = additional.containsKey("nic") ? String.valueOf(additional.get("nic")) : null;
-                        if (nicNo == null || nicNo.isBlank()) nicNo = additional.containsKey("identityNumber") ? String.valueOf(additional.get("identityNumber")) : null;
-                }
+                if (nicNo == null || nicNo.isBlank()) nicNo = extractFieldIgnoreCase(contact, "nicno", "nic", "identitynumber", "identitynumber(nic)");
+                if (nicNo == null || nicNo.isBlank()) nicNo = extractFieldIgnoreCase(additional, "nicno", "nic", "identitynumber", "identitynumber(nic)");
 
                 Double discountPercentage = customer.getDiscountPercentage();
                 if (discountPercentage == null && contact != null && contact.containsKey("discountPercentage") && contact.get("discountPercentage") != null) {
@@ -248,6 +204,21 @@ public class CustomerService {
         }
 
         // Update and deletion of customers is disabled; customer master data is owned by another service.
+
+        private String extractFieldIgnoreCase(Map<String, Object> map, String... possibleKeys) {
+                if (map == null || map.isEmpty()) return null;
+                for (Map.Entry<String, Object> entry : map.entrySet()) {
+                        if (entry.getValue() == null) continue;
+                        String key = entry.getKey().replaceAll("\\s+", "").toLowerCase();
+                        for (String pk : possibleKeys) {
+                                if (key.equals(pk.toLowerCase())) {
+                                        String val = String.valueOf(entry.getValue());
+                                        if (!val.isBlank()) return val;
+                                }
+                        }
+                }
+                return null;
+        }
 
         public CustomerSummaryDto getCustomerById(Long customerId) {
                 Customer customer = customerRepository.findById(customerId)
