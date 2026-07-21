@@ -20,6 +20,7 @@ public class DashboardServiceImpl implements DashboardService {
     
     private final SalesOrderRepository salesOrderRepository;
     private final PurchaseOrderRepository purchaseOrderRepository;
+    private final ReportService reportService;
 
     @Override
     public DashboardStatsDto getCompanyDashboardStats(Integer companyId) {
@@ -31,44 +32,29 @@ public class DashboardServiceImpl implements DashboardService {
         LocalDate prev30DaysStart = now.minusDays(60);
         LocalDate prev30DaysEnd = now.minusDays(31);
 
-        // Get all sales and purchase orders for the company
-        List<SalesOrder> allSales = salesOrderRepository.findAll().stream()
-                .filter(s -> s.getCompany().getCompanyId().equals(companyId))
-                .collect(Collectors.toList());
+        // Get Income Statements for the current and previous periods
+        IncomeStatementDto currentIncome = reportService.getIncomeStatement(companyId, last30DaysStart, now);
+        IncomeStatementDto prevIncome = reportService.getIncomeStatement(companyId, prev30DaysStart, prev30DaysEnd);
 
-        List<PurchaseOrder> allPurchases = purchaseOrderRepository.findByCompany_CompanyId(companyId);
+        // Calculate revenue
+        BigDecimal revenue = currentIncome.getTotalRevenue() != null ? currentIncome.getTotalRevenue() : BigDecimal.ZERO;
+        if (currentIncome.getTotalOtherIncome() != null) revenue = revenue.add(currentIncome.getTotalOtherIncome());
 
-        // Calculate revenue (last 30 days)
-        BigDecimal revenue = allSales.stream()
-                .filter(s -> s.getIssueDate() != null)
-                .filter(s -> !s.getIssueDate().isBefore(last30DaysStart))
-                .map(SalesOrder::getTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal prevRevenue = prevIncome.getTotalRevenue() != null ? prevIncome.getTotalRevenue() : BigDecimal.ZERO;
+        if (prevIncome.getTotalOtherIncome() != null) prevRevenue = prevRevenue.add(prevIncome.getTotalOtherIncome());
 
-        // Calculate previous revenue (31-60 days ago)
-        BigDecimal prevRevenue = allSales.stream()
-                .filter(s -> s.getIssueDate() != null)
-                .filter(s -> !s.getIssueDate().isBefore(prev30DaysStart) && !s.getIssueDate().isAfter(prev30DaysEnd))
-                .map(SalesOrder::getTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        // Calculate expenses
+        BigDecimal expenses = currentIncome.getTotalCostOfSales() != null ? currentIncome.getTotalCostOfSales() : BigDecimal.ZERO;
+        if (currentIncome.getTotalOperatingExpenses() != null) expenses = expenses.add(currentIncome.getTotalOperatingExpenses());
+        if (currentIncome.getTotalOtherExpenses() != null) expenses = expenses.add(currentIncome.getTotalOtherExpenses());
 
-        // Calculate expenses (last 30 days)
-        BigDecimal expenses = allPurchases.stream()
-                .filter(p -> p.getIssueDate() != null)
-                .filter(p -> !p.getIssueDate().isBefore(last30DaysStart))
-                .map(PurchaseOrder::getTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // Calculate previous expenses (31-60 days ago)
-        BigDecimal prevExpenses = allPurchases.stream()
-                .filter(p -> p.getIssueDate() != null)
-                .filter(p -> !p.getIssueDate().isBefore(prev30DaysStart) && !p.getIssueDate().isAfter(prev30DaysEnd))
-                .map(PurchaseOrder::getTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal prevExpenses = prevIncome.getTotalCostOfSales() != null ? prevIncome.getTotalCostOfSales() : BigDecimal.ZERO;
+        if (prevIncome.getTotalOperatingExpenses() != null) prevExpenses = prevExpenses.add(prevIncome.getTotalOperatingExpenses());
+        if (prevIncome.getTotalOtherExpenses() != null) prevExpenses = prevExpenses.add(prevIncome.getTotalOtherExpenses());
 
         // Calculate profit
-        BigDecimal profit = revenue.subtract(expenses);
-        BigDecimal prevProfit = prevRevenue.subtract(prevExpenses);
+        BigDecimal profit = currentIncome.getNetProfit() != null ? currentIncome.getNetProfit() : BigDecimal.ZERO;
+        BigDecimal prevProfit = prevIncome.getNetProfit() != null ? prevIncome.getNetProfit() : BigDecimal.ZERO;
 
         // Set basic stats
         stats.setRevenue(revenue);
@@ -81,6 +67,13 @@ public class DashboardServiceImpl implements DashboardService {
         // Get recent transactions (last 10 sales and purchases combined)
         List<RecentTransactionDto> recentTransactions = new ArrayList<>();
         
+        // Get all sales and purchase orders for the company (used for charts and lists below)
+        List<SalesOrder> allSales = salesOrderRepository.findAll().stream()
+                .filter(s -> s.getCompany().getCompanyId().equals(companyId))
+                .collect(Collectors.toList());
+
+        List<PurchaseOrder> allPurchases = purchaseOrderRepository.findByCompany_CompanyId(companyId);
+
         // Add recent sales
         allSales.stream()
                 .filter(s -> s.getIssueDate() != null)

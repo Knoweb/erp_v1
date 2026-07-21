@@ -20,7 +20,12 @@ const FinanceStats = ({ revenue, expenses, profit, prevRevenue, prevExpenses, pr
 
 // Reusable Stat Card Component
 const StatCard = ({ title, value, previous, color }) => {
-  const change = previous && previous !== 0 ? (((value - previous) / previous) * 100).toFixed(2) : 0;
+  let change = 0;
+  if (previous && previous !== 0) {
+    change = (((value - previous) / Math.abs(previous)) * 100).toFixed(2);
+  } else if (value && value !== 0) {
+    change = 100.00;
+  }
   const isPositive = change >= 0;
 
   return (
