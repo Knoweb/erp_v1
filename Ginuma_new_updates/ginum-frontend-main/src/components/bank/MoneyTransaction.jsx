@@ -370,7 +370,7 @@ const MoneyTransaction = ({ type = "spend" }) => {
                 <select
                   value={payeeId}
                   onChange={(e) => setPayeeId(e.target.value)}
-                  className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                   required
                 >
                   <option value="">Select {payeeType.toLowerCase()}</option>
@@ -380,14 +380,6 @@ const MoneyTransaction = ({ type = "spend" }) => {
                     </option>
                   ))}
                 </select>
-                <button
-                  type="button"
-                  onClick={() => setShowContactModal(true)}
-                  className="p-2 text-blue-600 hover:text-blue-700 border border-blue-600 rounded-lg"
-                  title="Add New"
-                >
-                  <FaPlus className="h-5 w-5" />
-                </button>
               </div>
             </div>
           )}
