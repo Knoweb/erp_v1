@@ -157,6 +157,9 @@ public class CustomerService {
                 if ((address == null || address.isBlank()) && contact != null) {
                         address = contact.containsKey("address") ? String.valueOf(contact.get("address")) : null;
                         if (address == null || address.isBlank()) {
+                                address = contact.containsKey("registeredAddress") ? String.valueOf(contact.get("registeredAddress")) : null;
+                        }
+                        if (address == null || address.isBlank()) {
                                 address = contact.containsKey("billingAddress") ? String.valueOf(contact.get("billingAddress")) : null;
                         }
                 }
@@ -172,6 +175,32 @@ public class CustomerService {
                         }
                 }
 
+                String tinNo = null;
+                if (contact != null) {
+                        tinNo = contact.containsKey("tinNo") ? String.valueOf(contact.get("tinNo")) : null;
+                        if (tinNo == null || tinNo.isBlank()) {
+                                tinNo = contact.containsKey("tin") ? String.valueOf(contact.get("tin")) : null;
+                        }
+                }
+
+                String nicNo = null;
+                if (contact != null) {
+                        nicNo = contact.containsKey("nicNo") ? String.valueOf(contact.get("nicNo")) : null;
+                        if (nicNo == null || nicNo.isBlank()) {
+                                nicNo = contact.containsKey("nic") ? String.valueOf(contact.get("nic")) : null;
+                        }
+                        if (nicNo == null || nicNo.isBlank()) {
+                                nicNo = contact.containsKey("identityNumber") ? String.valueOf(contact.get("identityNumber")) : null;
+                        }
+                }
+
+                Double discountPercentage = null;
+                if (contact != null && contact.containsKey("discountPercentage") && contact.get("discountPercentage") != null) {
+                        try {
+                                discountPercentage = Double.valueOf(String.valueOf(contact.get("discountPercentage")));
+                        } catch (Exception ignored) {}
+                }
+
                 return CustomerSummaryDto.builder()
                                 .id(customer.getId())
                                 .name(name)
@@ -180,6 +209,9 @@ public class CustomerService {
                                 .billingAddress(address)
                                 .deliveryAddress(address)
                                 .vat(vat)
+                                .tinNo(tinNo)
+                                .nicNo(nicNo)
+                                .discountPercentage(discountPercentage)
                                 .build();
         }
 
