@@ -168,14 +168,14 @@ public class CustomerService {
 
                 String tinNo = customer.getTinNo();
                 if (tinNo == null || tinNo.isBlank()) tinNo = customer.getTin();
-                if (tinNo == null || tinNo.isBlank()) tinNo = extractFieldIgnoreCase(contact, "tinno", "tin");
-                if (tinNo == null || tinNo.isBlank()) tinNo = extractFieldIgnoreCase(additional, "tinno", "tin");
+                if (tinNo == null || tinNo.isBlank()) tinNo = extractFieldIgnoreCase(contact, "tinno", "tin", "identitynumbertin");
+                if (tinNo == null || tinNo.isBlank()) tinNo = extractFieldIgnoreCase(additional, "tinno", "tin", "identitynumbertin");
 
                 String nicNo = customer.getNicNo();
                 if (nicNo == null || nicNo.isBlank()) nicNo = customer.getNic();
                 if (nicNo == null || nicNo.isBlank()) nicNo = customer.getIdentityNumber();
-                if (nicNo == null || nicNo.isBlank()) nicNo = extractFieldIgnoreCase(contact, "nicno", "nic", "identitynumber", "identitynumber(nic)");
-                if (nicNo == null || nicNo.isBlank()) nicNo = extractFieldIgnoreCase(additional, "nicno", "nic", "identitynumber", "identitynumber(nic)");
+                if (nicNo == null || nicNo.isBlank()) nicNo = extractFieldIgnoreCase(contact, "nicno", "nic", "identitynumber", "identitynumbernic");
+                if (nicNo == null || nicNo.isBlank()) nicNo = extractFieldIgnoreCase(additional, "nicno", "nic", "identitynumber", "identitynumbernic");
 
                 Double discountPercentage = customer.getDiscountPercentage();
                 if (discountPercentage == null && contact != null && contact.containsKey("discountPercentage") && contact.get("discountPercentage") != null) {
@@ -209,7 +209,7 @@ public class CustomerService {
                 if (map == null || map.isEmpty()) return null;
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
                         if (entry.getValue() == null) continue;
-                        String key = entry.getKey().replaceAll("\\s+", "").toLowerCase();
+                        String key = entry.getKey().replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
                         for (String pk : possibleKeys) {
                                 if (key.equals(pk.toLowerCase())) {
                                         String val = String.valueOf(entry.getValue());

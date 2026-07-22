@@ -186,7 +186,7 @@ public class SupplierService {
         if (map == null || map.isEmpty()) return null;
         for (java.util.Map.Entry<String, Object> entry : map.entrySet()) {
             if (entry.getValue() == null) continue;
-            String key = entry.getKey().replaceAll("\\s+", "").toLowerCase();
+            String key = entry.getKey().replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
             for (String pk : possibleKeys) {
                 if (key.equals(pk.toLowerCase())) {
                     String val = String.valueOf(entry.getValue());
@@ -211,8 +211,8 @@ public class SupplierService {
         if (address == null || address.isBlank()) address = extractFieldIgnoreCase(contact, "address", "registeredaddress", "billingaddress");
 
         String vat = extractFieldIgnoreCase(contact, "vatnumber", "vatno", "vat");
-        String tin = extractFieldIgnoreCase(contact, "tinno", "tin");
-        String nic = extractFieldIgnoreCase(contact, "nicno", "nic", "identitynumber", "identitynumber(nic)");
+        String tin = extractFieldIgnoreCase(contact, "tinno", "tin", "identitynumbertin");
+        String nic = extractFieldIgnoreCase(contact, "nicno", "nic", "identitynumber", "identitynumbernic");
 
         SupplierType supplierType = null;
         TaxType taxType = null;
