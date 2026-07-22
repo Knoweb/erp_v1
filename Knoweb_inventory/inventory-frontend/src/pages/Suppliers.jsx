@@ -11,6 +11,14 @@ function Suppliers() {
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [expandedDetails, setExpandedDetails] = useState({});
+
+  const toggleDetails = (supplierId) => {
+    setExpandedDetails(prev => ({
+      ...prev,
+      [supplierId]: !prev[supplierId]
+    }));
+  };
 
   // Form State
   const [formData, setFormData] = useState({
@@ -226,17 +234,54 @@ function Suppliers() {
                       </td>
                       <td className="px-10 py-8">
                         <div className="space-y-3">
-                          {supplier.contactInfo && Object.entries(supplier.contactInfo).map(([key, value]) => {
-                            if (!value) return null;
-                            return (
-                              <div key={key} className="flex items-center gap-3">
-                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-20 shrink-0">{key}</span>
-                                <span className="text-sm font-semibold text-slate-700 tracking-tight">
-                                  {String(value)}
-                                </span>
-                              </div>
-                            );
-                          })}
+                          {/* Always show essential details */}
+                          {supplier.contactInfo && supplier.contactInfo.email && (
+                            <div className="flex items-center gap-3">
+                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-20 shrink-0">Email</span>
+                              <span className="text-sm font-semibold text-slate-700 tracking-tight">{supplier.contactInfo.email}</span>
+                            </div>
+                          )}
+
+                          {supplier.contactInfo && supplier.contactInfo.phone && (
+                            <div className="flex items-center gap-3">
+                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-20 shrink-0">Phone</span>
+                              <span className="text-sm font-semibold text-slate-700 tracking-tight">{supplier.contactInfo.phone}</span>
+                            </div>
+                          )}
+
+                          {/* Hide the rest behind a toggle */}
+                          {expandedDetails[supplier.id] && (
+                            <div className="pt-3 mt-3 border-t border-slate-100 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                              {supplier.contactInfo && Object.entries(supplier.contactInfo).map(([key, value]) => {
+                                if (!value || key.toLowerCase() === 'email' || key.toLowerCase() === 'phone') return null; // Already shown above
+                                return (
+                                  <div key={key} className="flex items-start gap-3">
+                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-20 shrink-0 mt-1">{key}</span>
+                                    <span className="text-sm font-semibold text-slate-700 tracking-tight leading-relaxed">
+                                      {String(value)}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          {supplier.contactInfo && Object.keys(supplier.contactInfo).length > 2 && (
+                            <button
+                              onClick={() => toggleDetails(supplier.id)}
+                              className="mt-2 text-[10px] font-black text-indigo-500 uppercase tracking-widest hover:text-indigo-600 transition-colors flex items-center gap-1 bg-indigo-50/50 hover:bg-indigo-50 px-3 py-1.5 rounded-lg"
+                            >
+                              {expandedDetails[supplier.id] ? (
+                                <>
+                                  <FaMinus size={8} /> View Less Details
+                                </>
+                              ) : (
+                                <>
+                                  <FaPlus size={8} /> View More Details
+                                </>
+                              )}
+                            </button>
+                          )}
 
                           {(!supplier.contactInfo || Object.keys(supplier.contactInfo).length === 0) && (
                             <span className="text-slate-300 text-[11px] font-black uppercase tracking-widest italic flex items-center gap-2">
