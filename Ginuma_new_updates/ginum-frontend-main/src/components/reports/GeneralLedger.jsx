@@ -9,10 +9,34 @@ function GeneralLedger() {
   const location = useLocation();
   const [accounts, setAccounts] = useState([]);
   const [selectedAccountId, setSelectedAccountId] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState(
+    new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0]
+  );
+  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [ledgerData, setLedgerData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const getCategoryFromType = (type) => {
+    if (!type) return "Other";
+    if (type.startsWith("ASSET")) return "Asset";
+    if (type.startsWith("LIABILITY")) return "Liability";
+    if (type === "EQUITY") return "Equity";
+    if (type === "INCOME" || type === "OTHER_INCOME") return "Income";
+    if (type === "EXPENSE" || type === "OTHER_EXPENSE" || type === "COST_OF_SALES") return "Expense";
+    return "Other";
+  };
+
+  const getCategoryColor = (category) => {
+    const colors = {
+      Asset: "bg-blue-100 text-blue-700",
+      Liability: "bg-red-100 text-red-700",
+      Equity: "bg-purple-100 text-purple-700",
+      Income: "bg-green-100 text-green-700",
+      Expense: "bg-orange-100 text-orange-700",
+      Other: "bg-gray-100 text-gray-700",
+    };
+    return colors[category] || colors.Other;
+  };
 
   useEffect(() => {
     fetchAccounts();
@@ -235,10 +259,16 @@ function GeneralLedger() {
           {/* Account Info */}
           <div className="mb-6 pb-4 border-b border-gray-200">
             <h3 className="text-xl font-bold text-gray-900">{ledgerData.accountName}</h3>
-            <p className="text-gray-600">
-              Account Code: <span className="font-medium">{ledgerData.accountCode}</span>
-              {' '} | Account Type: <span className="font-medium">{ledgerData.accountType}</span>
-            </p>
+            <div className="text-gray-600 flex items-center flex-wrap gap-2 mt-1">
+              <span>Account Code: <span className="font-medium">{ledgerData.accountCode}</span> | Account Type:</span>
+              <span
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(
+                  getCategoryFromType(ledgerData.accountType)
+                )}`}
+              >
+                {getCategoryFromType(ledgerData.accountType)}
+              </span>
+            </div>
             <p className="text-gray-600 mt-1">
               Period: {new Date(startDate).toLocaleDateString()} - {new Date(endDate).toLocaleDateString()}
             </p>
